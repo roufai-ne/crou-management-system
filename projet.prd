@@ -1,0 +1,740 @@
+# PRD - Système de Gestion CROU
+## Product Requirements Document Complet
+
+### VERSION 1.0 - Décembre 2024
+
+---
+
+## 1. EXECUTIVE SUMMARY
+
+### 1.1 Vision du Produit
+Développer une Progressive Web Application (PWA) complète pour la gestion centralisée des 8 Centres Régionaux des Œuvres Universitaires (CROU) du Niger, avec supervision ministérielle et gestion opérationnelle locale.
+
+### 1.2 Objectifs Stratégiques
+- Centraliser la supervision ministérielle des 8 CROU
+- Optimiser les achats centralisés (céréales, transport)
+- Automatiser les processus de gestion locale
+- Améliorer la traçabilité et le contrôle budgétaire
+- Générer des rapports consolidés nationaux
+
+### 1.3 Métriques de Succès
+- Réduction de 40% du temps de génération de rapports
+- Amélioration de 25% de la visibilité budgétaire
+- Automatisation de 80% des calculs manuels
+- Délai de déploiement : 6 mois
+
+---
+
+## 2. ARCHITECTURE SYSTÈME
+
+### 2.1 Architecture Technique
+
+#### 2.1.1 Stack Technologique
+```
+Frontend: React 18 + TypeScript + PWA
+Backend: Node.js + Express + TypeScript
+Base de données: PostgreSQL 15+
+Cache: Redis (sessions + cache)
+Files: Stockage local + backup cloud optionnel
+```
+
+#### 2.1.2 Architecture Multi-Tenant
+```
+Single Database avec séparation par tenant_id:
+- tenant_id: 'ministere' (vue globale)
+- tenant_id: 'crou_niamey', 'crou_dosso', etc.
+```
+
+#### 2.1.3 Sécurité
+```
+Authentication: JWT + Refresh Token
+Authorization: RBAC (Role-Based Access Control)
+Chiffrement: AES-256 pour données sensibles
+Audit: Logs complets avec rétention 3 mois
+```
+
+### 2.2 Structure Base de Données
+
+#### 2.2.1 Tables Principales
+```sql
+-- Gestion Multi-tenant
+tenants: id, name, type (ministere/crou), config
+users: id, tenant_id, role, permissions, profile
+
+-- Modules Financiers
+budgets: id, tenant_id, exercice, type, montant
+transactions: id, tenant_id, type, montant, statut
+subventions: id, tenant_id, trimestre, prevu, realise
+
+-- Modules Opérationnels
+stocks: id, tenant_id, produit, quantite, seuil, valeur
+logements: id, tenant_id, cite, chambres, occupation
+transports: id, tenant_id, vehicule, km, entretien
+```
+
+#### 2.2.2 Tables Système
+```sql
+audit_logs: id, user_id, action, table_name, old_values, new_values, timestamp
+workflows: id, tenant_id, type, steps, validateurs
+notifications: id, tenant_id, user_id, type, message, lu
+parameters: id, tenant_id, module, key, value
+```
+
+---
+
+## 3. GESTION DES UTILISATEURS
+
+### 3.1 Profils Ministériels
+```
+1. Ministre/Directeur Général
+   - Permissions: Vue globale, validation finale
+   - Accès: Tous CROU, budgets consolidés
+
+2. Directeur Affaires Financières
+   - Permissions: Validation budgets, subventions
+   - Accès: Finances tous CROU
+
+3. Responsable Approvisionnements
+   - Permissions: Achats centralisés, contrats
+   - Accès: Stocks céréales, véhicules
+
+4. Contrôleur Budgétaire
+   - Permissions: Audit, contrôle, rapports
+   - Accès: Lecture tous modules
+```
+
+### 3.2 Profils CROU
+```
+1. Directeur CROU
+   - Permissions: Validation locale, exports
+   - Accès: Tous modules son CROU
+
+2. Secrétaire Administratif
+   - Permissions: Saisie, modification
+   - Accès: Modules administratifs
+
+3. Chef Financier
+   - Permissions: Budget, comptabilité
+   - Accès: Modules financiers
+
+4. Comptable
+   - Permissions: Écritures, états financiers
+   - Accès: Comptabilité uniquement
+
+[... autres profils selon spécifications initiales]
+```
+
+### 3.3 Matrice de Permissions
+```
+Module/Role    | Ministre | Dir.Fin | Dir.CROU | Comptable
+Dashboard      |   RWV    |   RWV   |    RW    |     R
+Finances       |   RWV    |   RWV   |    RWV   |    RW
+Stocks         |   RWV    |    R    |    RWV   |     R
+Transport      |   RWV    |    R    |    RWV   |     -
+Logement       |   RWV    |    R    |    RWV   |     -
+
+Légende: R=Read, W=Write, V=Validate
+```
+
+---
+
+## 4. MODULES FONCTIONNELS
+
+### 4.1 Dashboard Exécutif
+
+#### 4.1.1 Vue Ministérielle
+```
+Indicateurs Consolidés:
+- Budget national vs réalisé (8 CROU)
+- Étudiants logés par région
+- Performance financière par CROU
+- Alertes critiques nationales
+
+Widgets:
+- Carte du Niger avec statuts CROU
+- Graphiques comparatifs inter-CROU
+- Top 5 des alertes prioritaires
+- Météo budgétaire nationale
+```
+
+#### 4.1.2 Vue CROU Locale
+```
+KPI Locaux:
+- Taux occupation logements
+- Situation budgétaire mensuelle
+- Stock en rupture/alerte
+- Performance transport
+
+Widgets:
+- Évolution mensuelle des recettes
+- Répartition des dépenses
+- Planning interventions urgentes
+- Satisfaction étudiants (si enquête)
+```
+
+### 4.2 Module Gestion Financière
+
+#### 4.2.1 Niveau Ministériel
+```
+Fonctionnalités:
+- Allocation budgets par CROU
+- Suivi subventions trimestrielles
+- Consolidation financière nationale
+- Validation budgets > seuils paramétrés
+
+Écrans:
+- Répartition budgétaire nationale
+- Suivi des décaissements
+- États de rapprochement
+- Tableau de bord financier consolidé
+```
+
+#### 4.2.2 Niveau CROU
+```
+Fonctionnalités:
+- Budget prévisionnel annuel
+- Suivi recettes propres
+- Gestion des dépenses
+- Demandes de fonds ministère
+
+Écrans:
+- Budget par centre de coût
+- Suivi mensuel des réalisations
+- Gestion des loyers étudiants
+- Vente tickets restaurant/transport
+```
+
+### 4.3 Module Approvisionnements
+
+#### 4.3.1 Achats Centralisés (Ministère)
+```
+Produits Centralisés:
+- Céréales: riz, mil, sorgho, maïs, niébé
+- Véhicules: bus, minibus, utilitaires
+- Équipements: mobilier, informatique
+- Contrats cadres nationaux
+
+Processus:
+1. Consolidation besoins 8 CROU
+2. Appels d'offres groupés
+3. Négociation contrats cadres
+4. Répartition et livraison
+5. Suivi exécution contrats
+```
+
+#### 4.3.2 Achats Locaux (CROU)
+```
+Produits Locaux:
+- Denrées périssables
+- Fournitures bureau
+- Maintenance locale
+- Services locaux
+
+Processus:
+1. Expression besoins locaux
+2. Validation hiérarchique
+3. Passation marchés locaux
+4. Réception et contrôle
+5. Paiement fournisseurs
+```
+
+### 4.4 Module Stocks et Inventaire
+
+#### 4.4.1 Gestion Centralisée
+```
+Stocks Stratégiques:
+- Réserves céréales nationales
+- Répartition par CROU selon effectifs
+- Suivi des mouvements inter-CROU
+- Alertes de reconstitution
+
+Fonctionnalités:
+- Planification approvisionnements
+- Optimisation des stocks tampons
+- Analyse ABC des produits
+- Prévisions consommation
+```
+
+#### 4.4.2 Gestion Locale
+```
+Stocks Opérationnels:
+- Inventaire quotidien restaurant
+- Gestion FIFO produits périssables
+- Suivi consommation par service
+- Calcul des coûts de revient
+
+Fonctionnalités:
+- Entrées/sorties temps réel
+- Alertes seuils minimaux
+- Valorisation stocks
+- États d'inventaire
+```
+
+### 4.5 Module Logement
+
+#### 4.5.1 Vue Nationale
+```
+Supervision:
+- Capacité d'accueil nationale
+- Taux d'occupation par région
+- Performance recouvrement loyers
+- Investissements logement
+
+Indicateurs:
+- Étudiants en attente logement
+- Recettes locatives nationales
+- Travaux de réhabilitation
+- Satisfaction logement
+```
+
+#### 4.5.2 Gestion Locale
+```
+Opérations:
+- Attribution chambres étudiants
+- Gestion des cités universitaires
+- Maintenance et interventions
+- Recouvrement des loyers
+
+Fonctionnalités:
+- Planning occupations
+- Suivi technique bâtiments
+- Facturation automatique loyers
+- Gestion des incidents
+```
+
+### 4.6 Module Transport
+
+#### 4.6.1 Parc National
+```
+Gestion Centralisée:
+- Flotte nationale véhicules
+- Affectation par CROU
+- Maintenance préventive nationale
+- Renouvellement parc
+
+Suivi:
+- Kilométrage par véhicule
+- Coûts d'exploitation
+- Planning entretiens
+- Analyse performance parc
+```
+
+#### 4.6.2 Transport Local
+```
+Exploitation:
+- Navettes quotidiennes étudiants
+- Planning chauffeurs
+- Consommation carburant
+- Maintenance corrective
+
+Optimisation:
+- Optimisation trajets
+- Calcul coûts par passager
+- Suivi pannes et réparations
+- Statistiques utilisation
+```
+
+---
+
+## 5. SYSTÈME DE VALIDATION
+
+### 5.1 Workflows Paramétrables
+
+#### 5.1.1 Configuration Workflows
+```
+Types de Validation:
+- Validation budgétaire (seuils montants)
+- Validation technique (stocks, maintenance)
+- Validation administrative (RH, logement)
+- Validation exceptionnelle (urgences)
+
+Paramétrage:
+- Seuils par type d'opération
+- Circuits de validation multi-niveaux
+- Délais de validation
+- Escalade automatique
+```
+
+#### 5.1.2 Matrice de Validation
+```
+Montant        | Validateur Principal | Validateur Secondaire
+0 - 100k       | Chef Service        | -
+100k - 500k    | Directeur CROU      | Chef Financier
+500k - 2M      | Ministère           | Directeur CROU
+> 2M           | Ministre            | Dir. Affaires Financières
+```
+
+### 5.2 Notifications et Alertes
+
+#### 5.2.1 Système de Notifications
+```
+Types:
+- Demandes de validation en attente
+- Alertes seuils (stocks, budgets)
+- Échéances (contrats, paiements)
+- Incidents critiques
+
+Canaux:
+- Interface web (prioritaire)
+- Email (backup)
+- SMS (urgences uniquement)
+```
+
+---
+
+## 6. REPORTING ET ANALYTICS
+
+### 6.1 Rapports Standards
+
+#### 6.1.1 Rapports Ministériels
+```
+Fréquence Mensuelle:
+- Consolidation budgétaire nationale
+- Suivi des subventions par CROU
+- Performance opérationnelle globale
+- Tableaux de bord décisionnels
+
+Fréquence Trimestrielle:
+- États financiers consolidés
+- Analyse comparative CROU
+- Évolution indicateurs clés
+- Projections budgétaires
+```
+
+#### 6.1.2 Rapports CROU
+```
+Fréquence Hebdomadaire:
+- Situation de trésorerie
+- Mouvements de stocks
+- Occupation logements
+- Performance transport
+
+Fréquence Mensuelle:
+- État budgétaire détaillé
+- Analyse des écarts
+- Rapport d'activité
+- Indicateurs de gestion
+```
+
+### 6.2 Exports et Formats
+
+#### 6.2.1 Formats Supportés
+```
+Excel (.xlsx):
+- Formules françaises (SOMME, SI, MOYENNE)
+- Graphiques intégrés
+- Tableaux croisés dynamiques
+- Formatage conditionnel
+
+PDF (.pdf):
+- Mise en forme institutionnelle
+- Graphiques haute résolution
+- En-têtes/pieds de page officiels
+- Signature électronique (futur)
+```
+
+---
+
+## 7. STRUCTURE TECHNIQUE DU PROJET
+
+### 7.1 Architecture Folders
+```
+crou-management-system/
+├── apps/
+│   ├── web/                    # Frontend React PWA
+│   ├── api/                    # Backend Node.js
+│   └── mobile/                 # Future mobile app
+├── packages/
+│   ├── ui/                     # Composants UI partagés
+│   ├── database/               # Schémas et migrations
+│   ├── shared/                 # Types et utilitaires
+│   └── reports/                # Générateurs rapports
+├── tools/
+│   ├── build/                  # Scripts de build
+│   ├── deploy/                 # Scripts déploiement
+│   └── migrations/             # Migrations DB
+└── docs/
+    ├── api/                    # Documentation API
+    ├── user/                   # Manuel utilisateur
+    └── technical/              # Documentation technique
+```
+
+### 7.2 Structure Frontend (apps/web)
+```
+src/
+├── components/                 # Composants réutilisables
+│   ├── ui/                    # Composants UI de base
+│   ├── forms/                 # Formulaires
+│   ├── charts/                # Graphiques
+│   └── layout/                # Layout composants
+├── pages/                     # Pages principales
+│   ├── dashboard/             # Tableaux de bord
+│   ├── financial/             # Modules financiers
+│   ├── stocks/                # Gestion stocks
+│   ├── housing/               # Logement
+│   ├── transport/             # Transport
+│   └── reports/               # Rapports
+├── services/                  # Services API
+│   ├── api/                   # Appels API
+│   ├── auth/                  # Authentification
+│   └── cache/                 # Cache local
+├── stores/                    # State management
+│   ├── auth.ts               # Store authentification
+│   ├── dashboard.ts          # Store dashboard
+│   └── modules/              # Stores par module
+├── utils/                     # Utilitaires
+│   ├── formatters.ts         # Formatage données
+│   ├── validators.ts         # Validation
+│   └── constants.ts          # Constantes
+└── types/                     # Types TypeScript
+    ├── api.ts                # Types API
+    ├── user.ts               # Types utilisateurs
+    └── modules.ts            # Types métiers
+```
+
+### 7.3 Structure Backend (apps/api)
+```
+src/
+├── modules/                   # Modules métiers
+│   ├── auth/                 # Authentification
+│   ├── users/                # Gestion utilisateurs
+│   ├── dashboard/            # Tableaux de bord
+│   ├── financial/            # Gestion financière
+│   ├── stocks/               # Gestion stocks
+│   ├── housing/              # Logement
+│   ├── transport/            # Transport
+│   └── reports/              # Rapports
+├── shared/                   # Code partagé
+│   ├── database/             # Configuration DB
+│   ├── middlewares/          # Middlewares Express
+│   ├── guards/               # Guards d'autorisation
+│   └── decorators/           # Décorateurs
+├── config/                   # Configuration
+│   ├── database.ts          # Config DB
+│   ├── auth.ts              # Config auth
+│   └── app.ts               # Config application
+└── main.ts                   # Point d'entrée
+```
+
+### 7.4 Base de Données (packages/database)
+```
+src/
+├── entities/                 # Entités TypeORM
+│   ├── user.entity.ts       # Utilisateurs
+│   ├── tenant.entity.ts     # Tenants
+│   ├── budget.entity.ts     # Budgets
+│   └── [autres entités]
+├── migrations/               # Migrations DB
+│   ├── 001-initial.ts       # Migration initiale
+│   └── [autres migrations]
+├── seeders/                  # Données de test
+│   ├── users.seeder.ts      # Utilisateurs test
+│   └── tenants.seeder.ts    # Tenants test
+└── config/
+    └── typeorm.config.ts     # Configuration TypeORM
+```
+
+---
+
+## 8. SPÉCIFICATIONS TECHNIQUES
+
+### 8.1 Performance Requise
+```
+Temps de Réponse:
+- Pages standard: < 2 secondes
+- Rapports simples: < 5 secondes
+- Rapports complexes: < 15 secondes
+- Exports Excel/PDF: < 30 secondes
+
+Charge Supportée:
+- 50 utilisateurs simultanés
+- 1000 requêtes/minute en pic
+- Base données: 100GB+ données
+- Disponibilité: 99.5% (8h/mois maintenance)
+```
+
+### 8.2 Contraintes Techniques
+```
+Navigateurs Supportés:
+- Chrome 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
+
+Appareils:
+- Desktop: 1920x1080 minimum
+- Tablettes: 1024x768 minimum
+- Responsive: Bootstrap 5 grid
+
+Connectivité:
+- Optimisé pour connexions 2G/3G
+- Cache intelligent
+- Synchronisation différée
+```
+
+### 8.3 Sécurité
+```
+Standards:
+- HTTPS obligatoire (TLS 1.3)
+- CSP (Content Security Policy)
+- CORS configuré strictement
+- Rate limiting API
+
+Données:
+- Chiffrement AES-256 données sensibles
+- Hash bcrypt mots de passe
+- JWT avec rotation tokens
+- Audit trail complet
+```
+
+---
+
+## 9. PLANNING ET JALONS
+
+### 9.1 Phases de Développement
+
+#### Phase 1 - Infrastructure (2 mois)
+```
+Semaines 1-2:
+- Setup projet mono-repo
+- Configuration CI/CD
+- Base données et migrations
+- Authentification basique
+
+Semaines 3-4:
+- Interface utilisateur de base
+- Système de permissions
+- Module dashboard basique
+- Tests unitaires fondamentaux
+
+Semaines 5-8:
+- Module gestion utilisateurs
+- Système multi-tenant
+- API REST complète
+- Interface administration
+```
+
+#### Phase 2 - Modules Core (2 mois)
+```
+Semaines 9-12:
+- Module gestion financière
+- Module approvisionnements
+- Workflows de validation
+- Notifications système
+
+Semaines 13-16:
+- Module stocks et inventaire
+- Module logement
+- Module transport
+- Intégration modules
+```
+
+#### Phase 3 - Reporting et Analytics (1.5 mois)
+```
+Semaines 17-20:
+- Système de rapports
+- Exports Excel/PDF
+- Graphiques et analytics
+- Tableaux de bord avancés
+
+Semaines 21-22:
+- Optimisations performance
+- Tests d'intégration
+- Documentation utilisateur
+```
+
+#### Phase 4 - Tests et Déploiement (0.5 mois)
+```
+Semaines 23-24:
+- Tests utilisateurs
+- Corrections bugs
+- Formation équipes
+- Déploiement production
+```
+
+### 9.2 Ressources Requises
+```
+Équipe Développement:
+- 1 Tech Lead (6 mois)
+- 2 Développeurs Full-Stack (6 mois)
+- 1 Développeur Frontend (4 mois)
+- 1 Développeur Backend (4 mois)
+- 1 DevOps (2 mois)
+
+Équipe Métier:
+- 1 Chef de Projet
+- 1 Analyste Fonctionnel
+- Référents métiers CROU (validation)
+
+Infrastructure:
+- Serveur développement
+- Serveur staging
+- Serveur production
+- Outils CI/CD (GitLab/GitHub)
+```
+
+---
+
+## 10. RISQUES ET MITIGATION
+
+### 10.1 Risques Techniques
+```
+Risque: Complexité multi-tenant
+Impact: Élevé | Probabilité: Moyenne
+Mitigation: Architecture solide dès le début, tests exhaustifs
+
+Risque: Performance avec volume données
+Impact: Élevé | Probabilité: Faible
+Mitigation: Optimisation requêtes, cache, pagination
+
+Risque: Sécurité données sensibles
+Impact: Critique | Probabilité: Faible
+Mitigation: Audit sécurité, chiffrement, tests pénétration
+```
+
+### 10.2 Risques Fonctionnels
+```
+Risque: Résistance au changement utilisateurs
+Impact: Moyen | Probabilité: Élevée
+Mitigation: Formation intensive, support utilisateur
+
+Risque: Évolution besoins en cours projet
+Impact: Moyen | Probabilité: Moyenne
+Mitigation: Méthodologie agile, revues régulières
+
+Risque: Intégration systèmes existants
+Impact: Moyen | Probabilité: Faible
+Mitigation: API flexibles, migration progressive
+```
+
+### 10.3 Risques Organisationnels
+```
+Risque: Disponibilité experts métier
+Impact: Élevé | Probabilité: Moyenne
+Mitigation: Planning détaillé, documentation exhaustive
+
+Risque: Budget dépassé
+Impact: Élevé | Probabilité: Faible
+Mitigation: Suivi budgétaire strict, périmètre défini
+
+Risque: Délais non respectés
+Impact: Moyen | Probabilité: Moyenne
+Mitigation: Planning réaliste, jalons intermédiaires
+```
+
+---
+
+## 11. CONCLUSION
+
+Ce PRD définit un système complet de gestion CROU répondant aux besoins du Ministère et des 8 centres régionaux. L'architecture multi-tenant permet une supervision centralisée tout en préservant l'autonomie opérationnelle locale.
+
+Le système proposé automatise les processus manuels, améliore la visibilité budgétaire et optimise les achats centralisés, particulièrement pour les céréales et le transport.
+
+La technologie PWA garantit une expérience utilisateur moderne tout en restant accessible sur différents appareils et connexions.
+
+Le planning de 6 mois est réaliste avec l'équipe définie, et l'approche modulaire permet une mise en production progressive.
+
+---
+
+**Document Version:** 1.0  
+**Date:** Décembre 2024  

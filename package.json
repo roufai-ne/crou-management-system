@@ -1,0 +1,41 @@
+{
+  "name": "crou-management-system",
+  "version": "1.0.0",
+  "description": "Système de Gestion CROU - Application complète de gestion des centres régionaux des œuvres universitaires",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npx turbo run dev",
+    "build": "npx turbo run build",
+    "test": "npx turbo run test",
+    "test:all": "node test-runner.js",
+    "lint": "npx turbo run lint",
+    "lint:fix": "npx turbo run lint:fix",
+    "type-check": "npx turbo run type-check",
+    "clean": "npx turbo run clean",
+    "db:generate": "cd apps/api && npm run db:generate",
+    "db:run": "cd apps/api && npm run db:run",
+    "db:revert": "cd apps/api && npm run db:revert",
+    "db:seed": "cd apps/api && npm run db:seed",
+    "db:reset": "cd apps/api && npm run db:reset",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.0.2",
+    "turbo": "^1.10.12",
+    "typescript": "^5.3.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.10.0",
+  "dependencies": {
+    "reflect-metadata": "^0.1.13"
+  }
+}

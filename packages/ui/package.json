@@ -1,0 +1,36 @@
+{
+  "name": "@crou/ui",
+  "version": "1.0.0",
+  "description": "Composants UI réutilisables pour CROU",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "type-check": "tsc --noEmit",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "clsx": "^2.0.0",
+    "tailwind-merge": "^2.0.0",
+    "lucide-react": "^0.294.0",
+    "@headlessui/react": "^1.7.17",
+    "@heroicons/react": "^2.0.18"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "typescript": "^5.3.0",
+    "@storybook/react": "^7.5.0",
+    "@storybook/react-vite": "^7.5.0",
+    "storybook": "^7.5.0"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  }
+}

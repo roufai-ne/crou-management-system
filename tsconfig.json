@@ -1,0 +1,53 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+  "moduleResolution": "node",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+  "strictPropertyInitialization": false,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["apps/web/src/*"],
+      "@/components/*": ["apps/web/src/components/*"],
+      "@/pages/*": ["apps/web/src/pages/*"],
+      "@/services/*": ["apps/web/src/services/*"],
+      "@/stores/*": ["apps/web/src/stores/*"],
+      "@/utils/*": ["apps/web/src/utils/*"],
+      "@/types/*": ["apps/web/src/types/*"],
+      "@/hooks/*": ["apps/web/src/hooks/*"],
+      "@ui/*": ["packages/ui/src/*"],
+      "@shared/*": ["packages/shared/src/*"],
+      "@database/*": ["packages/database/src/*"]
+    },
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "include": [
+    "apps/**/*",
+    "packages/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/node_modules",
+    "dist",
+    "**/dist",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx"
+  ]
+}

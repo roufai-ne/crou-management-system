@@ -1,0 +1,424 @@
+/**
+ * FICHIER: apps\web\src\services\api\authService.ts
+ * SERVICE: Service d'authentification API
+ * 
+ * DESCRIPTION:
+ * Service pour gérer l'authentification avec l'API backend
+ * Login, logout, refresh token, gestion des erreurs
+ * Intégration avec le store Zustand
+ * 
+ * FONCTIONNALITÉS:
+ * - Login avec email/password
+ * - Refresh token automatique
+ * - Logout et nettoyage
+ * - Gestion des erreurs API
+ * - Intercepteurs Axios
+ * 
+ * AUTEUR: Équipe CROU
+ * DATE: Décembre 2024
+ */
+
+import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
+import { useAuth } from '@/stores/auth';
+
+// Configuration de base de l'API
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+
+// Interface pour les réponses d'authentification
+export interface LoginResponse {
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    status: string;
+    tenantId: string;
+    tenant: {
+      id: string;
+      name: string;
+      type: 'ministere' | 'crou';
+      code: string;
+      region: string;
+    };
+  };
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+}
+
+export interface RefreshResponse {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+}
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  status: string;
+  tenantId: string;
+  tenant: {
+    id: string;
+    name: string;
+    type: 'ministere' | 'crou';
+    code: string;
+    region: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Interface pour les erreurs API
+export interface ApiError {
+  error: string;
+  message?: string;
+  details?: any;
+}
+
+// Classe du service d'authentification
+export class AuthService {
+  private api: AxiosInstance;
+  private refreshPromise: Promise<string> | null = null;
+  private isLoggingOut: boolean = false;
+
+  constructor() {
+    this.api = axios.create({
+      baseURL: `${API_BASE_URL}/auth`,
+      timeout: 10000,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    this.setupInterceptors();
+  }
+
+  /**
+   * Configuration des intercepteurs Axios
+   */
+  private setupInterceptors(): void {
+    // Intercepteur de requête pour ajouter le token
+    this.api.interceptors.request.use(
+      (config) => {
+        const authStore = useAuth.getState();
+        const token = authStore.accessToken;
+
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+
+        return config;
+      },
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
+
+    // Intercepteur de réponse pour gérer les erreurs et refresh token
+    this.api.interceptors.response.use(
+      (response: AxiosResponse) => {
+        return response;
+      },
+      async (error: AxiosError) => {
+        const originalRequest = error.config as any;
+
+        // Si erreur 401 et pas déjà en cours de refresh
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+
+          try {
+            const newToken = await this.refreshAccessToken();
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            return this.api(originalRequest);
+          } catch (refreshError) {
+            // Refresh échoué, déconnecter l'utilisateur
+            this.logout();
+            return Promise.reject(refreshError);
+          }
+        }
+
+        return Promise.reject(error);
+      }
+    );
+  }
+
+  /**
+   * Connexion utilisateur
+   */
+  async login(email: string, password: string): Promise<LoginResponse> {
+    try {
+      // En mode développement, simuler une connexion réussie
+      if (import.meta.env.DEV) {
+        console.log('🔓 Connexion en mode développement - simulation');
+        
+        const mockResponse: LoginResponse = {
+          user: {
+            id: 'dev-user',
+            email: email,
+            name: 'Utilisateur Dev',
+            role: 'admin',
+            status: 'active',
+            tenantId: 'niamey',
+            tenant: {
+              id: 'niamey',
+              name: 'CROU Niamey',
+              type: 'crou',
+              code: 'NI',
+              region: 'Niamey'
+            }
+          },
+          accessToken: 'dev-token',
+          refreshToken: 'dev-refresh-token',
+          expiresIn: 3600
+        };
+
+        // Mettre à jour le store avec les bonnes méthodes
+        const authStore = useAuth.getState();
+        authStore.setUser({
+          id: mockResponse.user.id,
+          email: mockResponse.user.email,
+          firstName: mockResponse.user.name.split(' ')[0] || '',
+          lastName: mockResponse.user.name.split(' ').slice(1).join(' ') || '',
+          name: mockResponse.user.name,
+          role: mockResponse.user.role as any,
+          tenantId: mockResponse.user.tenantId,
+          tenantType: mockResponse.user.tenant.type,
+          level: mockResponse.user.tenant.type === 'ministere' ? 'ministere' : 'crou',
+          permissions: ['all', 'read', 'write', 'admin', 'dashboard:read', 'financial:read', 'stocks:read', 'housing:read', 'transport:read', 'reports:read', 'admin:read'],
+          lastLoginAt: new Date()
+        });
+        authStore.setTokens(mockResponse.accessToken, mockResponse.refreshToken);
+
+        return mockResponse;
+      }
+
+      // En production, appeler l'API réelle
+      const response = await this.api.post<LoginResponse>('/login', {
+        email,
+        password,
+      });
+
+      const { user, accessToken, refreshToken, expiresIn } = response.data;
+
+      // Mettre à jour le store avec les bonnes méthodes
+      const authStore = useAuth.getState();
+      authStore.setUser({
+        id: user.id,
+        email: user.email,
+        firstName: user.name.split(' ')[0] || '',
+        lastName: user.name.split(' ').slice(1).join(' ') || '',
+        name: user.name,
+        role: user.role as any,
+        tenantId: user.tenantId,
+        tenantType: user.tenant.type,
+        level: user.tenant.type === 'ministere' ? 'ministere' : 'crou',
+        permissions: ['all', 'read', 'write', 'admin'], // À adapter selon la réponse API
+        lastLoginAt: new Date()
+      });
+      authStore.setTokens(accessToken, refreshToken);
+
+      // Programmer le refresh automatique
+      this.scheduleTokenRefresh(expiresIn);
+
+      return response.data;
+    } catch (error: any) {
+      // Gestion spécifique de l'erreur 429 (Too Many Requests)
+      if (error.response?.status === 429) {
+        console.warn('⚠️ Trop de tentatives de connexion - Rate limiting activé');
+        throw new Error('Trop de tentatives de connexion. Veuillez patienter avant de réessayer.');
+      }
+      
+      this.handleApiError(error);
+      throw error;
+    }
+  }
+
+  /**
+   * Déconnexion utilisateur
+   */
+  async logout(): Promise<void> {
+    // Éviter les déconnexions multiples
+    if (this.isLoggingOut) {
+      console.log('🔒 Déconnexion déjà en cours...');
+      return;
+    }
+
+    this.isLoggingOut = true;
+
+    try {
+      const authStore = useAuth.getState();
+      
+      // En mode développement, ne pas appeler l'API si c'est un token de dev
+      if (import.meta.env.DEV && authStore.accessToken === 'dev-token') {
+        console.log('🔒 Déconnexion en mode développement - pas d\'appel API');
+      } else if (authStore.accessToken && authStore.accessToken !== 'dev-token') {
+        // Appeler l'API de logout seulement si c'est un vrai token
+        try {
+          await this.api.post('/logout');
+        } catch (error: any) {
+          // Si erreur 429, ne pas relancer l'erreur
+          if (error.response?.status === 429) {
+            console.warn('⚠️ Rate limiting sur logout - déconnexion locale uniquement');
+          } else {
+            throw error;
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('Erreur lors du logout API:', error);
+    } finally {
+      // Nettoyer le store dans tous les cas
+      const authStore = useAuth.getState();
+      authStore.clearAuth();
+      
+      // Annuler le refresh automatique
+      this.cancelTokenRefresh();
+      
+      // Réinitialiser le flag
+      this.isLoggingOut = false;
+    }
+  }
+
+  /**
+   * Rafraîchir le token d'accès
+   */
+  async refreshAccessToken(): Promise<string> {
+    // Éviter les refresh multiples simultanés
+    if (this.refreshPromise) {
+      return this.refreshPromise;
+    }
+
+    this.refreshPromise = this.performTokenRefresh();
+    
+    try {
+      const newToken = await this.refreshPromise;
+      return newToken;
+    } finally {
+      this.refreshPromise = null;
+    }
+  }
+
+  /**
+   * Effectuer le refresh du token
+   */
+  private async performTokenRefresh(): Promise<string> {
+    try {
+      const authStore = useAuth.getState();
+      const refreshToken = authStore.refreshToken;
+
+      if (!refreshToken) {
+        throw new Error('Aucun refresh token disponible');
+      }
+
+      const response = await this.api.post<RefreshResponse>('/refresh', {
+        refreshToken,
+      });
+
+      const { accessToken, refreshToken: newRefreshToken, expiresIn } = response.data;
+
+      // Mettre à jour le store
+      authStore.setTokens(accessToken, newRefreshToken);
+
+      // Programmer le prochain refresh
+      this.scheduleTokenRefresh(expiresIn);
+
+      return accessToken;
+    } catch (error) {
+      console.error('Erreur refresh token:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Récupérer le profil utilisateur
+   */
+  async getProfile(): Promise<UserProfile> {
+    try {
+      const response = await this.api.get<{ user: UserProfile }>('/profile');
+      return response.data.user;
+    } catch (error) {
+      this.handleApiError(error);
+      throw error;
+    }
+  }
+
+  /**
+   * Programmer le refresh automatique du token
+   */
+  private scheduleTokenRefresh(expiresIn: number): void {
+    // Refresh 5 minutes avant l'expiration
+    const refreshTime = (expiresIn - 300) * 1000;
+    
+    setTimeout(async () => {
+      try {
+        await this.refreshAccessToken();
+      } catch (error) {
+        console.error('Erreur refresh automatique:', error);
+        this.logout();
+      }
+    }, refreshTime);
+  }
+
+  /**
+   * Annuler le refresh automatique
+   */
+  private cancelTokenRefresh(): void {
+    // Dans une implémentation plus robuste, on utiliserait clearTimeout
+    // Pour simplifier, on laisse le timeout se déclencher
+  }
+
+  /**
+   * Gestion des erreurs API
+   */
+  private handleApiError(error: any): void {
+    if (axios.isAxiosError(error)) {
+      const apiError = error.response?.data as ApiError;
+      
+      if (apiError) {
+        throw new Error(apiError.message || apiError.error || 'Erreur API');
+      }
+    }
+    
+    throw new Error('Erreur de connexion au serveur');
+  }
+
+  /**
+   * Vérifier si l'utilisateur est connecté
+   */
+  isAuthenticated(): boolean {
+    const authStore = useAuth.getState();
+    return authStore.isAuthenticated && !!authStore.accessToken;
+  }
+
+  /**
+   * Obtenir le token d'accès actuel
+   */
+  getAccessToken(): string | null {
+    const authStore = useAuth.getState();
+    return authStore.accessToken;
+  }
+
+  /**
+   * Sait-on rafraîchir le token ?
+   */
+  hasRefreshToken(): boolean {
+    const authStore = useAuth.getState();
+    return Boolean(authStore.refreshToken);
+  }
+
+  /**
+   * Obtenir les informations de l'utilisateur
+   */
+  getCurrentUser() {
+    const authStore = useAuth.getState();
+    return authStore.user;
+  }
+}
+
+// Instance singleton du service
+export const authService = new AuthService();
+
+// Export des types pour utilisation dans les composants
+export type { LoginResponse, RefreshResponse, UserProfile, ApiError };

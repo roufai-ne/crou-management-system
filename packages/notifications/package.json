@@ -1,0 +1,31 @@
+{
+  "name": "@crou/notifications",
+  "version": "1.0.0",
+  "description": "Système de notifications temps réel pour CROU",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "node-cron": "^3.0.3",
+    "redis": "^4.6.10",
+    "socket.io": "^4.7.4",
+    "socket.io-client": "^4.7.4",
+    "winston": "^3.11.0",
+    "ws": "^8.14.2"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.202",
+    "@types/node-cron": "^3.0.11",
+    "@types/ws": "^8.5.10",
+    "typescript": "^5.3.0"
+  },
+  "peerDependencies": {
+    "@crou/database": "workspace:*",
+    "@crou/shared": "workspace:*"
+  }
+}

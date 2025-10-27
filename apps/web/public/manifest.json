@@ -1,0 +1,160 @@
+{
+  "name": "CROU - Centre Régional des Œuvres Universitaires",
+  "short_name": "CROU",
+  "description": "Système de gestion CROU - Gestion des budgets, stocks, logements et transport",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2E5BBA",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "fr",
+  "dir": "ltr",
+  "categories": ["productivity", "business", "education"],
+  "icons": [
+    {
+      "src": "/icons/logo.svg",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-dashboard.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Tableau de bord CROU"
+    },
+    {
+      "src": "/screenshots/mobile-dashboard.png",
+      "sizes": "375x667",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Tableau de bord mobile"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Tableau de bord",
+      "short_name": "Dashboard",
+      "description": "Accéder au tableau de bord principal",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/icons/shortcut-dashboard.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Module Financier",
+      "short_name": "Finances",
+      "description": "Gérer les budgets et transactions",
+      "url": "/financial",
+      "icons": [
+        {
+          "src": "/icons/shortcut-financial.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Gestion des Stocks",
+      "short_name": "Stocks",
+      "description": "Gérer l'inventaire et les stocks",
+      "url": "/stocks",
+      "icons": [
+        {
+          "src": "/icons/shortcut-stocks.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Logements",
+      "short_name": "Logements",
+      "description": "Gérer les logements et occupation",
+      "url": "/housing",
+      "icons": [
+        {
+          "src": "/icons/shortcut-housing.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Transport",
+      "short_name": "Transport",
+      "description": "Gérer le parc automobile",
+      "url": "/transport",
+      "icons": [
+        {
+          "src": "/icons/shortcut-transport.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Rapports",
+      "short_name": "Rapports",
+      "description": "Générer et consulter les rapports",
+      "url": "/reports",
+      "icons": [
+        {
+          "src": "/icons/shortcut-reports.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "file_handlers": [
+    {
+      "action": "/reports",
+      "accept": {
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+        "application/pdf": [".pdf"]
+      }
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+crou",
+      "url": "/?action=%s"
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "file",
+          "accept": [".xlsx", ".pdf", ".csv"]
+        }
+      ]
+    }
+  },
+  "handle_links": "preferred",
+  "capture_links": "new-client",
+  "id": "crou-management-system",
+  "version": "1.0.0",
+  "author": "Équipe CROU",
+  "homepage_url": "https://crou.niger.gov",
+  "support_url": "https://crou.niger.gov/support",
+  "feedback_url": "https://crou.niger.gov/feedback",
+  "privacy_policy": "https://crou.niger.gov/privacy",
+  "terms_of_service": "https://crou.niger.gov/terms"
+}
