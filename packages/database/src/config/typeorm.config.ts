@@ -37,6 +37,14 @@ import { AuditLog } from '../entities/AuditLog.entity';
 import { RefreshToken } from '../entities/RefreshToken.entity';
 import { Role } from '../entities/Role.entity';
 import { Permission } from '../entities/Permission.entity';
+// Imports directs des entités Transport (dépendances circulaires)
+import { Vehicle } from '../entities/Vehicle.entity';
+import { Driver } from '../entities/Driver.entity';
+import { VehicleUsage } from '../entities/VehicleUsage.entity';
+import { VehicleMaintenance } from '../entities/VehicleMaintenance.entity';
+import { VehicleFuel } from '../entities/VehicleFuel.entity';
+import { ScheduledTrip } from '../entities/ScheduledTrip.entity';
+import { TransportRoute } from '../entities/TransportRoute.entity';
 
 // Configuration des variables d'environnement
 config();
@@ -79,8 +87,8 @@ export const typeormConfig: DataSourceOptions = {
     })
   },
 
-  // Entités - Imports directs pour RBAC + glob patterns pour modules
-  // IMPORTANT: Direct imports pour core RBAC évitent erreurs de métadonnées
+  // Entités - Imports directs pour RBAC et Transport + glob patterns pour autres modules
+  // IMPORTANT: Direct imports pour entités avec dépendances circulaires
   entities: [
     // Entités Core RBAC (imports directs pour résoudre métadonnées)
     User,
@@ -89,6 +97,15 @@ export const typeormConfig: DataSourceOptions = {
     Permission,
     AuditLog,
     RefreshToken,
+
+    // Module Transport (imports directs pour dépendances circulaires)
+    Vehicle,
+    Driver,
+    VehicleUsage,
+    VehicleMaintenance,
+    VehicleFuel,
+    ScheduledTrip,
+    TransportRoute,
 
     // Module Financial (glob patterns)
     path.join(__dirname, '../entities/Budget.entity.{ts,js}'),
@@ -108,12 +125,6 @@ export const typeormConfig: DataSourceOptions = {
     path.join(__dirname, '../entities/Room.entity.{ts,js}'),
     path.join(__dirname, '../entities/HousingOccupancy.entity.{ts,js}'),
     path.join(__dirname, '../entities/HousingMaintenance.entity.{ts,js}'),
-
-    // Module Transport (glob patterns)
-    path.join(__dirname, '../entities/Vehicle.entity.{ts,js}'),
-    path.join(__dirname, '../entities/VehicleUsage.entity.{ts,js}'),
-    path.join(__dirname, '../entities/VehicleMaintenance.entity.{ts,js}'),
-    path.join(__dirname, '../entities/VehicleFuel.entity.{ts,js}'),
 
     // Module Workflows (glob patterns)
     path.join(__dirname, '../entities/Workflow.entity.{ts,js}'),
