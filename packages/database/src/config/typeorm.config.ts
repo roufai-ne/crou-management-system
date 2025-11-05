@@ -35,7 +35,7 @@ import { User } from '../entities/User.entity';
 import { Tenant } from '../entities/Tenant.entity';
 import { AuditLog } from '../entities/AuditLog.entity';
 import { RefreshToken } from '../entities/RefreshToken.entity';
-import { Role } from '../entities/Role.simple.entity';
+import { Role } from '../entities/Role.entity';
 import { Permission } from '../entities/Permission.entity';
 
 // Configuration des variables d'environnement
@@ -197,10 +197,10 @@ export const closeDatabase = async (): Promise<void> => {
     }
   } catch (error) {
     console.error('❌ Erreur fermeture base de données:', error);
-<<<<<<< HEAD
-=======
+
+
     throw error;
->>>>>>> 695f6dc (fix: Résoudre l'erreur TypeORM metadata pour User#tenant)
+
   }
 };
 

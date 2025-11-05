@@ -13,9 +13,9 @@
  * DATE: 2025-11-05
  */
 
-import { AppDataSource } from '../../../../../packages/database/src/config/typeorm.config';
-import { Role } from '../../../../../packages/database/src/entities/Role.entity';
-import { Permission } from '../../../../../packages/database/src/entities/Permission.entity';
+import { AppDataSource } from '../../../../packages/database/src/config/typeorm.config';
+import { Role } from '../../../../packages/database/src/entities/Role.entity';
+import { Permission } from '../../../../packages/database/src/entities/Permission.entity';
 
 async function fixMinistrePermissions() {
   try {
