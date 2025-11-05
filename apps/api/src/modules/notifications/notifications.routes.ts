@@ -7,7 +7,7 @@ import { Router } from 'express';
 import { authMiddleware } from '@/shared/middlewares/auth.middleware';
 import { NotificationsController } from './notifications.controller';
 
-const router = Router();
+const router: Router = Router();
 
 // Toutes les routes nécessitent une authentification
 router.use(authMiddleware);

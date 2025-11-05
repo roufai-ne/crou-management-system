@@ -28,11 +28,12 @@
 
 import { Router } from 'express';
 import { StocksController, stockValidators } from './stocks.controller';
+import { SuppliersController, supplierValidators } from './suppliers.controller';
 import { authenticateJWT } from '@/shared/middlewares/auth.middleware';
 import { checkPermissions } from '@/shared/middlewares/permissions.middleware';
 import rateLimit from 'express-rate-limit';
 
-const router = Router();
+const router: Router = Router();
 
 // Rate limiting pour les opérations sensibles
 const stocksLimiter = rateLimit({
@@ -316,6 +317,74 @@ router.get('/dashboard/evolution',
 router.get('/dashboard/alerts',
   checkPermissions(['stocks:read']),
   StocksController.getStocksAlerts
+);
+
+// ================================================================================================
+// ROUTES FOURNISSEURS
+// ================================================================================================
+
+/**
+ * GET /api/stocks/suppliers
+ * Liste des fournisseurs avec filtres
+ * Permissions: stocks:read
+ */
+router.get('/suppliers',
+  checkPermissions(['stocks:read']),
+  SuppliersController.getSuppliers
+);
+
+/**
+ * POST /api/stocks/suppliers
+ * Créer un nouveau fournisseur
+ * Permissions: stocks:write
+ */
+router.post('/suppliers',
+  checkPermissions(['stocks:write']),
+  supplierValidators.create,
+  SuppliersController.createSupplier
+);
+
+/**
+ * GET /api/stocks/suppliers/stats/overview
+ * Statistiques des fournisseurs
+ * Permissions: stocks:read
+ */
+router.get('/suppliers/stats/overview',
+  checkPermissions(['stocks:read']),
+  SuppliersController.getSuppliersStats
+);
+
+/**
+ * GET /api/stocks/suppliers/:id
+ * Détails d'un fournisseur
+ * Permissions: stocks:read
+ */
+router.get('/suppliers/:id',
+  checkPermissions(['stocks:read']),
+  supplierValidators.update,
+  SuppliersController.getSupplier
+);
+
+/**
+ * PUT /api/stocks/suppliers/:id
+ * Mettre à jour un fournisseur
+ * Permissions: stocks:write
+ */
+router.put('/suppliers/:id',
+  checkPermissions(['stocks:write']),
+  supplierValidators.update,
+  SuppliersController.updateSupplier
+);
+
+/**
+ * DELETE /api/stocks/suppliers/:id
+ * Supprimer un fournisseur
+ * Permissions: stocks:write
+ */
+router.delete('/suppliers/:id',
+  checkPermissions(['stocks:write']),
+  supplierValidators.update,
+  SuppliersController.deleteSupplier
 );
 
 export { router as stocksRoutes };

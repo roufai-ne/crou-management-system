@@ -1,0 +1,215 @@
+AUDIT COMPLET - ROUTES API BACKEND
+=====================================
+
+DATE: Novembre 2024
+TOTAL ROUTES: 126
+MODULES: 10
+
+RÉCAPITULATIF
+=============
+
+Auth (4 routes)
+  POST /login (public)
+  POST /refresh (public)
+  POST /logout (authenticated)
+  GET /profile (authenticated)
+  Rate Limit: 5/15min
+
+Dashboard (7 routes)
+  GET /kpis/global
+  GET /kpis/modules
+  GET /evolution
+  GET /expenses
+  GET /alerts
+  GET /activities
+  POST /alerts/:id/acknowledge
+  Rate Limit: 30 req/min
+  Permissions: dashboard:read, dashboard:write
+
+Financial (23 routes)
+  Budgets: 7 routes
+  Transactions: 5 routes
+  Categories: 3 routes
+  Reports: 4 routes
+  Validations: 2 routes
+  Dashboard: 3 routes
+  Rate Limit: 50 req/15min
+  Permissions: financial:read, financial:write, financial:validate
+
+Stocks (30 routes)
+  Stocks: 5 routes
+  Movements: 5 routes
+  Alerts: 4 routes
+  Inventory: 3 routes
+  Reports: 4 routes
+  Dashboard: 3 routes
+  Suppliers: 6 routes
+  Rate Limit: 100 req/15min
+  Permissions: stocks:read, stocks:write, stocks:validate
+
+Housing (6 routes)
+  CRUD operations
+  Permissions: housing:read, housing:write
+  Rate Limit: MISSING
+
+Reports (7 routes)
+  GET /
+  POST /generate
+  GET /:reportId
+  DELETE /:reportId
+  GET /export/* (3 variants)
+  Permissions: MISSING
+  Rate Limit: MISSING
+  Audit Logging: MISSING
+
+Notifications (3 routes)
+  GET /
+  PUT /:id/read
+  DELETE /:id
+  Permissions: MISSING
+  Rate Limit: MISSING
+
+Workflows (8 routes)
+  Full CRUD + instances + actions
+  Permissions: MISSING
+  Rate Limit: MISSING
+  Issues: Route order problematic
+
+Transport (33 routes)
+  Vehicles: 5 routes
+  Usages: 5 routes
+  Maintenances: 5 routes
+  Drivers: 10 routes
+  Routes: 6 routes
+  Scheduled Trips: 9 routes
+  Metrics: 1 route
+  Rate Limit: 50 req/15min
+  Permissions: transport:read, transport:write
+
+Admin (7+ routes)
+  /health
+  /permissions/available
+  Delegated controllers (users, roles, tenants, stats, security, audit)
+  Permissions: 24 granular permissions
+  Rate Limit: via auditMiddleware
+
+STATISTIQUES
+============
+
+Par Méthode HTTP:
+  GET: 65 routes (51.6%)
+  POST: 41 routes (32.5%)
+  PUT: 15 routes (11.9%)
+  DELETE: 5 routes (4.0%)
+
+Par Authentification:
+  Authentifiées: 123 (97.6%)
+  Publiques: 3 (2.4%)
+
+Par Permissions:
+  Avec permissions: 86 (68.3%)
+  Sans permissions: 40 (31.7%)
+
+PROBLÈMES IDENTIFIÉS
+====================
+
+CRITIQUE:
+  [1] Deux middlewares auth différents (authenticateJWT vs authMiddleware)
+
+HIGH:
+  [2] 18 routes sans permissions (Reports, Notifications, Workflows)
+  [3] Rate limiting manquant sur 4 modules
+  [4] Audit logging manquant sur 3 modules
+  [5] Ordre de routes problématique dans Workflows
+
+MEDIUM:
+  [6] Validateurs incorrects (GET /budgets utilise create)
+  [7] Route legacy /export/:reportId crée confusion
+  [8] Auth conditionnelle en Dashboard
+
+ACTIONS PRIORITAIRES
+====================
+
+URGENT:
+  [ ] Standardiser middleware auth (authenticateJWT partout)
+  [ ] Ajouter rate limiting: Housing, Reports, Notifications, Workflows
+  [ ] Ajouter permissions: Reports, Notifications, Workflows
+
+HIGH:
+  [ ] Ajouter audit logging: Reports, Notifications, Workflows
+  [ ] Corriger ordre routes: Workflows
+  [ ] Tester isolation multi-tenant
+
+MEDIUM:
+  [ ] Validators cohérents
+  [ ] Routes manquantes (search, export, actions)
+  [ ] Documentation OpenAPI complète
+
+MODULES BIEN CONFIGURÉS
+=======================
+
+1. Auth - Authentification correcte, rate limiting
+2. Dashboard - Complet avec permissions et rate limiting
+3. Financial - Bien structuré, permissions, rate limiting
+4. Stocks - Bien structuré, permissions, rate limiting
+5. Transport - Excellent design, ordre routes correct, permissions, rate limiting
+6. Admin - Permissions granulaires, audit logging
+
+MODULES À AMÉLIORER
+===================
+
+1. Housing - Ajouter rate limiting
+2. Reports - Ajouter permissions, rate limiting, audit logging
+3. Notifications - Ajouter permissions, rate limiting
+4. Workflows - Ajouter permissions, rate limiting, vérifier ordre routes
+
+FICHIERS ROUTES
+===============
+
+apps/api/src/modules/auth/auth.routes.ts (4 routes)
+apps/api/src/modules/dashboard/dashboard.routes.ts (7 routes)
+apps/api/src/modules/financial/financial.routes.ts (23 routes)
+apps/api/src/modules/stocks/stocks.routes.ts (30 routes)
+apps/api/src/modules/housing/housing.routes.ts (6 routes)
+apps/api/src/modules/reports/reports.routes.ts (7 routes)
+apps/api/src/modules/notifications/notifications.routes.ts (3 routes)
+apps/api/src/modules/workflows/workflow.routes.ts (8 routes)
+apps/api/src/modules/transport/transport.routes.ts (33 routes)
+apps/api/src/modules/admin/index.ts (7+ routes)
+
+POINTS D'ENTRÉE PRINCIPAUX
+==========================
+
+POST /api/auth/login
+GET /api/dashboard/kpis/global
+GET /api/financial/budgets
+GET /api/stocks/stocks
+GET /api/housing/
+GET /api/reports/
+GET /api/notifications/
+GET /api/workflows/
+GET /api/transport/vehicles
+GET /api/admin/health
+
+CONFIGURATION GLOBALE (main.ts)
+==============================
+
+app.use('/api/auth', authLimiter, authRoutes)
+app.use('/api/dashboard', dashboardRoutes)
+app.use('/api/financial', financialRoutes)
+app.use('/api/stocks', stocksRoutes)
+app.use('/api/housing', housingRoutes)
+app.use('/api/reports', reportsRoutes)
+app.use('/api/notifications', notificationsRoutes)
+app.use('/api/workflows', workflowRoutes)
+app.use('/api/transport', transportRoutes)
+app.use('/api/admin', adminRoutes)
+
+Documentation: /api-docs
+Health Check: /api/health
+
+FIN DU RAPPORT
+==============
+Propriétaire: Équipe CROU
+Date: Novembre 2024
+Statut: Audit Complet

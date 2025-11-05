@@ -43,11 +43,13 @@ import { config } from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { initializeDatabase, closeDatabase } from '../../../packages/database/src/config/typeorm.config';
+import { AppDataSource } from '../../../packages/database/src/config/datasource';
 import { errorHandler } from '@/shared/middlewares/error.middleware';
 import { requestLogger } from '@/shared/middlewares/logging.middleware';
 import { corsConfig } from '@/config/cors.config';
 import { logger } from '@/shared/utils/logger';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec, swaggerUiOptions } from '@/config/swagger.config';
 
 // Routes modules
 import { authRoutes } from '@/modules/auth/auth.routes';
@@ -58,6 +60,7 @@ import { housingRoutes } from '@/modules/housing/housing.routes';
 import { reportsRoutes } from '@/modules/reports/reports.routes';
 import { notificationsRoutes } from '@/modules/notifications/notifications.routes';
 import { workflowRoutes } from '@/modules/workflows/workflow.routes';
+import { transportRoutes } from '@/modules/transport/transport.routes';
 import adminRoutes from '@/modules/admin/index';
 
 // Configuration environnement
@@ -77,7 +80,7 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
     },
   },
@@ -129,6 +132,9 @@ if (NODE_ENV === 'development') {
 // Middleware de logging personnalisé
 app.use(requestLogger);
 
+// Documentation Swagger/OpenAPI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
+
 // Routes de santé
 app.get('/health', (req, res) => {
   res.json({
@@ -171,6 +177,7 @@ app.use('/api/housing', housingRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/workflows', workflowRoutes);
+app.use('/api/transport', transportRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Route par défaut
@@ -178,7 +185,7 @@ app.get('/api', (req, res) => {
   res.json({
     message: 'API CROU - Système de Gestion',
     version: '1.0.0',
-    documentation: '/api/docs',
+    documentation: '/api-docs',
     status: 'running'
   });
 });
@@ -199,7 +206,13 @@ app.use(errorHandler);
 async function startServer() {
   try {
     // Initialiser la base de données
-    await initializeDatabase();
+    logger.info('🔄 Initialisation de la base de données...');
+    if (!AppDataSource.isInitialized) {
+      await AppDataSource.initialize();
+      logger.info('✅ Connexion PostgreSQL établie');
+      logger.info(`📦 Entités chargées: ${AppDataSource.entityMetadatas.length}`);
+      logger.info(`🔍 User metadata: ${AppDataSource.hasMetadata('User')}`);
+    }
     
     // Démarrer le serveur
     const server = app.listen(PORT, () => {
@@ -208,6 +221,7 @@ async function startServer() {
       logger.info(`🌍 Environnement: ${NODE_ENV}`);
       logger.info(`🔗 URL: http://localhost:${PORT}`);
       logger.info(`📊 API: http://localhost:${PORT}/api`);
+      logger.info(`📚 Documentation: http://localhost:${PORT}/api-docs`);
       logger.info(`🏥 Health: http://localhost:${PORT}/health`);
     });
 
@@ -221,8 +235,11 @@ async function startServer() {
         
         try {
           // Fermer la base de données
-          await closeDatabase();
-          
+          if (AppDataSource.isInitialized) {
+            await AppDataSource.destroy();
+            logger.info('✅ Connexion base de données fermée');
+          }
+
           logger.info('✅ Arrêt propre terminé');
           process.exit(0);
         } catch (error) {

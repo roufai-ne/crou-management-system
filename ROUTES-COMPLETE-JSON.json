@@ -1,0 +1,162 @@
+{
+  "metadata": {
+    "date": "2024-11-03",
+    "totalRoutes": 126,
+    "totalModules": 10,
+    "authenticatedRoutes": 123,
+    "publicRoutes": 3
+  },
+  "modules": {
+    "auth": {
+      "path": "/api/auth",
+      "file": "apps/api/src/modules/auth/auth.routes.ts",
+      "rateLimit": "5 req/15min",
+      "routes": [
+        { "method": "POST", "path": "/login", "auth": false, "permissions": [] },
+        { "method": "POST", "path": "/refresh", "auth": false, "permissions": [] },
+        { "method": "POST", "path": "/logout", "auth": true, "permissions": [] },
+        { "method": "GET", "path": "/profile", "auth": true, "permissions": [] }
+      ]
+    },
+    "dashboard": {
+      "path": "/api/dashboard",
+      "file": "apps/api/src/modules/dashboard/dashboard.routes.ts",
+      "rateLimit": "30 req/min",
+      "routes": [
+        { "method": "GET", "path": "/kpis/global", "auth": true, "permissions": ["dashboard:read"] },
+        { "method": "GET", "path": "/kpis/modules", "auth": true, "permissions": ["dashboard:read"] },
+        { "method": "GET", "path": "/evolution", "auth": true, "permissions": ["dashboard:read"] },
+        { "method": "GET", "path": "/expenses", "auth": true, "permissions": ["dashboard:read"] },
+        { "method": "GET", "path": "/alerts", "auth": true, "permissions": ["dashboard:read"] },
+        { "method": "GET", "path": "/activities", "auth": true, "permissions": ["dashboard:read"] },
+        { "method": "POST", "path": "/alerts/:alertId/acknowledge", "auth": true, "permissions": ["dashboard:write"] }
+      ]
+    },
+    "financial": {
+      "path": "/api/financial",
+      "file": "apps/api/src/modules/financial/financial.routes.ts",
+      "rateLimit": "50 req/15min",
+      "groups": {
+        "budgets": 7,
+        "transactions": 5,
+        "categories": 3,
+        "reports": 4,
+        "validations": 2,
+        "dashboard": 3
+      },
+      "totalRoutes": 23
+    },
+    "stocks": {
+      "path": "/api/stocks",
+      "file": "apps/api/src/modules/stocks/stocks.routes.ts",
+      "rateLimit": "100 req/15min",
+      "groups": {
+        "stocks": 5,
+        "movements": 5,
+        "alerts": 4,
+        "inventory": 3,
+        "reports": 4,
+        "dashboard": 3,
+        "suppliers": 6
+      },
+      "totalRoutes": 30
+    },
+    "housing": {
+      "path": "/api/housing",
+      "file": "apps/api/src/modules/housing/housing.routes.ts",
+      "rateLimit": null,
+      "issues": ["No rate limiting"],
+      "totalRoutes": 6
+    },
+    "reports": {
+      "path": "/api/reports",
+      "file": "apps/api/src/modules/reports/reports.routes.ts",
+      "rateLimit": null,
+      "issues": [
+        "No permissions defined",
+        "No rate limiting",
+        "No audit logging",
+        "Legacy route /export/:reportId"
+      ],
+      "totalRoutes": 7
+    },
+    "notifications": {
+      "path": "/api/notifications",
+      "file": "apps/api/src/modules/notifications/notifications.routes.ts",
+      "rateLimit": null,
+      "issues": [
+        "No permissions defined",
+        "No rate limiting",
+        "No audit logging"
+      ],
+      "totalRoutes": 3
+    },
+    "workflows": {
+      "path": "/api/workflows",
+      "file": "apps/api/src/modules/workflows/workflow.routes.ts",
+      "rateLimit": null,
+      "issues": [
+        "No permissions defined",
+        "No rate limiting",
+        "Route order problematic",
+        "No audit logging"
+      ],
+      "totalRoutes": 8
+    },
+    "transport": {
+      "path": "/api/transport",
+      "file": "apps/api/src/modules/transport/transport.routes.ts",
+      "rateLimit": "50 req/15min",
+      "groups": {
+        "vehicles": 5,
+        "usages": 5,
+        "maintenances": 5,
+        "drivers": 10,
+        "routes": 6,
+        "scheduledTrips": 9,
+        "metrics": 1
+      },
+      "totalRoutes": 33
+    },
+    "admin": {
+      "path": "/api/admin",
+      "file": "apps/api/src/modules/admin/index.ts",
+      "rateLimit": "via auditMiddleware",
+      "globalPermission": "admin:access",
+      "totalRoutes": "7+"
+    }
+  },
+  "issues": {
+    "critical": [
+      "Two different auth middleware names: authenticateJWT vs authMiddleware"
+    ],
+    "high": [
+      "18 routes without permissions (Reports, Notifications, Workflows)",
+      "Rate limiting missing on 4 modules",
+      "Audit logging missing on 3 modules",
+      "Route order issues in Workflows"
+    ],
+    "medium": [
+      "Inconsistent validators (GET /budgets uses create validator)",
+      "Legacy route creates ambiguity",
+      "Configuration auth conditional in Dashboard"
+    ]
+  },
+  "recommendations": {
+    "priority1": [
+      "Add rate limiting to Housing, Reports, Notifications, Workflows",
+      "Add permissions to Reports, Notifications, Workflows",
+      "Standardize middleware names"
+    ],
+    "priority2": [
+      "Add audit logging to Reports, Notifications, Workflows",
+      "Verify route order in Workflows",
+      "Test multi-tenant isolation"
+    ],
+    "priority3": [
+      "Create consistent validators",
+      "Add missing routes (search, export, actions)",
+      "Complete OpenAPI/Swagger documentation"
+    ]
+  }
+}

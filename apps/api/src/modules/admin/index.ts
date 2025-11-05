@@ -27,6 +27,7 @@ import usersController from './users.controller';
 import rolesController from './roles.controller';
 import tenantsController from './tenants.controller';
 import statsController from './stats.controller';
+import securityController from './security.controller';
 import auditController from '../audit/audit.controller';
 
 const router: Router = Router();
@@ -60,6 +61,9 @@ router.use('/tenants', tenantsController);
 
 // Statistiques d'utilisation
 router.use('/stats', statsController);
+
+// Sécurité et monitoring
+router.use('/security', securityController);
 
 // Logs d'audit
 router.use('/audit', auditController);

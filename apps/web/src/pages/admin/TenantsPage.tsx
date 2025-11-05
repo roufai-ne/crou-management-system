@@ -43,6 +43,8 @@ import { Table, TableColumn } from '@/components/ui/Table';
 import { Modal } from '@/components/ui/Modal';
 import { Badge } from '@/components/ui/Badge';
 import { Tabs } from '@/components/ui/Tabs';
+import { adminService, type Tenant as ApiTenant } from '@/services/api/adminService';
+import { Toast } from '@/components/ui/Toast';
 
 // Types pour les tenants
 interface Tenant {
@@ -136,7 +138,43 @@ export const TenantsPage: React.FC = () => {
   const loadTenants = async () => {
     setLoading(true);
     try {
-      // TODO: Remplacer par l'appel API réel
+      const apiTenants = await adminService.getTenants();
+
+      // Map API tenants to local Tenant interface
+      const mappedTenants: Tenant[] = apiTenants.map((apiTenant: ApiTenant) => ({
+        id: apiTenant.id,
+        name: apiTenant.name,
+        type: apiTenant.type,
+        code: apiTenant.id.substring(0, 3).toUpperCase(),
+        region: apiTenant.region,
+        address: apiTenant.address,
+        phone: apiTenant.phone,
+        email: apiTenant.email,
+        isActive: apiTenant.isActive,
+        userCount: 0, // Not available from API yet
+        lastActivity: new Date(apiTenant.updatedAt),
+        createdAt: new Date(apiTenant.createdAt),
+        config: {
+          allowedModules: Object.entries(apiTenant.config.features)
+            .filter(([_, enabled]) => enabled)
+            .map(([module, _]) => module),
+          customSettings: {},
+          dataRetentionDays: 1095 // Default 3 years
+        },
+        stats: {
+          totalUsers: 0,
+          activeUsers: 0,
+          totalLogins: 0,
+          lastLogin: new Date(apiTenant.updatedAt)
+        }
+      }));
+
+      setTenants(mappedTenants);
+    } catch (error) {
+      console.error('Erreur lors du chargement des tenants:', error);
+      Toast.error('Erreur lors du chargement des tenants');
+
+      // Fallback to mock data if API fails
       const mockTenants: Tenant[] = [
         {
           id: 'ministere',
@@ -392,10 +430,10 @@ export const TenantsPage: React.FC = () => {
   // Actions
   const handleToggleTenantStatus = async (tenantId: string, currentStatus: boolean) => {
     try {
-      // TODO: Appel API pour changer le statut
-      console.log('Toggle tenant status:', tenantId, !currentStatus);
+      await adminService.updateTenant(tenantId, { isActive: !currentStatus });
       await loadTenants();
-    } catch (error) {
+      Toast.success(`Tenant ${!currentStatus ? 'activé' : 'désactivé'} avec succès`);
+    } catch (error: any) {
       console.error('Erreur lors du changement de statut:', error);
     }
   };

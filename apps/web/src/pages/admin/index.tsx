@@ -36,6 +36,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { KPICard } from '@/components/ui/KPICard';
 import { Badge } from '@/components/ui/Badge';
+import { adminService } from '@/services/api/adminService';
 
 // Types pour les données du dashboard
 interface SystemOverview {
@@ -76,64 +77,37 @@ const AdminDashboard: React.FC = () => {
   const loadDashboardData = async () => {
     setLoading(true);
     try {
-      // TODO: Remplacer par les vrais appels API
-      
+      // Récupérer les statistiques réelles depuis l'API
+      const stats = await adminService.getAdminStatistics();
+      const securityStats = await adminService.getSecurityStats();
+
       // Vue d'ensemble du système
-      const mockOverview: SystemOverview = {
-        totalUsers: 77,
-        activeUsers: 68,
-        totalRoles: 13,
-        totalTenants: 9,
-        securityAlerts: 5,
-        lockedAccounts: 2,
-        systemStatus: 'healthy',
+      const realOverview: SystemOverview = {
+        totalUsers: stats.totalUsers,
+        activeUsers: stats.activeUsers,
+        totalRoles: stats.totalRoles,
+        totalTenants: stats.totalTenants,
+        securityAlerts: securityStats.activeAlerts,
+        lockedAccounts: securityStats.blockedAccounts,
+        systemStatus: stats.systemHealth.status,
         lastUpdate: new Date()
       };
-      setOverview(mockOverview);
+      setOverview(realOverview);
 
-      // Activité récente
-      const mockActivity: RecentActivity[] = [
-        {
-          id: '1',
-          type: 'security_alert',
-          description: 'Tentative de force brute détectée sur le compte comptable@crou-dosso.ne',
-          user: 'Comptable CROU Dosso',
-          timestamp: new Date(Date.now() - 15 * 60 * 1000),
-          severity: 'error'
-        },
-        {
-          id: '2',
-          type: 'user_created',
-          description: 'Nouvel utilisateur créé : Chef Financier CROU Agadez',
-          user: 'Admin Système',
-          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-          severity: 'info'
-        },
-        {
-          id: '3',
-          type: 'user_locked',
-          description: 'Compte bloqué automatiquement après 5 tentatives échouées',
-          user: 'Secrétaire CROU Zinder',
-          timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000),
-          severity: 'warning'
-        },
-        {
-          id: '4',
-          type: 'role_assigned',
-          description: 'Rôle "Gestionnaire Stocks" assigné à un utilisateur',
-          user: 'Directeur CROU Maradi',
-          timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000),
-          severity: 'info'
-        },
-        {
-          id: '5',
-          type: 'login_failed',
-          description: 'Échec de connexion depuis une adresse IP suspecte',
-          timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000),
-          severity: 'warning'
-        }
-      ];
-      setRecentActivity(mockActivity);
+      // Récupérer les alertes de sécurité récentes comme activité
+      const alerts = await adminService.getSecurityAlerts({ limit: 5, resolved: false });
+      const recentAlerts: RecentActivity[] = alerts.alerts.map((alert) => ({
+        id: alert.id,
+        type: alert.type === 'FAILED_LOGIN' ? 'login_failed' :
+              alert.type === 'ACCOUNT_LOCKED' ? 'user_locked' :
+              'security_alert',
+        description: alert.description,
+        user: alert.userName || alert.userEmail || 'Utilisateur inconnu',
+        timestamp: new Date(alert.timestamp),
+        severity: alert.severity === 'CRITICAL' || alert.severity === 'HIGH' ? 'error' :
+                 alert.severity === 'MEDIUM' ? 'warning' : 'info'
+      }));
+      setRecentActivity(recentAlerts);
 
     } catch (error) {
       console.error('Erreur lors du chargement du dashboard:', error);

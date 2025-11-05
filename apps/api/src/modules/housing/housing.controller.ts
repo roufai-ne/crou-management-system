@@ -27,7 +27,7 @@ import {
 } from '@/shared/middlewares/tenant-isolation.middleware';
 import { auditMiddleware } from '@/shared/middlewares/audit.middleware';
 import { TenantIsolationUtils } from '@/shared/utils/tenant-isolation.utils';
-import { AppDataSource } from '../../../../../packages/database/src/config/typeorm.config';
+import { AppDataSource } from '../../../../../packages/database/src/config/datasource';
 import {
   Housing,
   HousingType,
@@ -39,6 +39,7 @@ import {
   HousingOccupancy,
   OccupancyStatus
 } from '../../../../../packages/database/src/entities/HousingOccupancy.entity';
+import { MaintenanceStatus } from '../../../../../packages/database/src/entities/HousingMaintenance.entity';
 import { AuditService } from '@/shared/services/audit.service';
 import { AuditAction } from '../../../../../packages/database/src/entities/AuditLog.entity';
 import { logger } from '@/shared/utils/logger';
@@ -615,8 +616,8 @@ router.get('/:id/stats',
         },
         maintenance: {
           total: housing.maintenances?.length || 0,
-          enCours: housing.maintenances?.filter(m => m.status === 'en_cours').length || 0,
-          programmees: housing.maintenances?.filter(m => m.status === 'programmee').length || 0
+          enCours: housing.maintenances?.filter(m => m.status === MaintenanceStatus.IN_PROGRESS).length || 0,
+          programmees: housing.maintenances?.filter(m => m.status === MaintenanceStatus.PLANNED).length || 0
         },
         financier: {
           loyerMensuel: housing.loyerMensuel,

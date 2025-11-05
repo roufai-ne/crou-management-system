@@ -75,10 +75,11 @@ export const checkRole = (requiredRoles: string[]) => {
         });
       }
 
-      if (!requiredRoles.includes(req.user.role)) {
+      const userRole = (req.user as any).role;
+      if (!requiredRoles.includes(userRole)) {
         logger.warn('Accès refusé - rôle insuffisant:', {
           userId: req.user.id,
-          userRole: req.user.role,
+          userRole: userRole,
           requiredRoles,
           url: req.url
         });

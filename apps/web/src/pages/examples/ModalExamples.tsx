@@ -18,19 +18,19 @@
  */
 
 import React, { useState } from 'react';
-import { 
-  Modal, 
-  ModalHeader, 
-  ModalBody, 
+import {
+  Modal,
+  ModalHeader,
+  ModalBody,
   ModalFooter,
   AlertDialog,
   DrawerModal
-} from '../components/ui/Modal';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { Select } from '../components/ui/Select';
-import { Card, CardHeader, CardContent } from '../components/ui/Card';
-import { Badge } from '../components/ui/Badge';
+} from '@/components/ui/Modal';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { Card, CardHeader, CardContent } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
 
 const ModalExamples: React.FC = () => {
   // États pour les différents modals

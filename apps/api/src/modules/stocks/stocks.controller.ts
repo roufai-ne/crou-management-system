@@ -11,6 +11,7 @@
 
 import { Request, Response } from 'express';
 import { body, param } from 'express-validator';
+import { StocksService, StockFilters, CreateStockDTO, UpdateStockDTO, CreateMovementDTO } from './stocks.service';
 
 // Validateurs pour les stocks
 export const stockValidators = {
@@ -34,32 +35,135 @@ export const stockValidators = {
 
 export class StocksController {
   static async getStocks(req: Request, res: Response) {
-    res.json({ success: true, data: { stocks: [] } });
+    try {
+      const tenantId = (req as any).user?.tenantId;
+      if (!tenantId) {
+        return res.status(401).json({ success: false, error: 'Tenant ID manquant' });
+      }
+
+      const filters: StockFilters = {
+        search: req.query.search as string,
+        category: req.query.category as any,
+        type: req.query.type as any,
+        status: req.query.status as any,
+        lowStock: req.query.lowStock === 'true',
+        outOfStock: req.query.outOfStock === 'true'
+      };
+
+      const result = await StocksService.getStocks(tenantId, filters);
+      res.json({ success: true, data: result });
+    } catch (error) {
+      console.error('Erreur getStocks:', error);
+      res.status(500).json({ success: false, error: 'Erreur lors de la recuperation des stocks' });
+    }
   }
 
   static async createStock(req: Request, res: Response) {
-    res.json({ success: true, message: 'Stock créé' });
+    try {
+      const tenantId = (req as any).user?.tenantId;
+      const userId = (req as any).user?.userId;
+      if (!tenantId || !userId) {
+        return res.status(401).json({ success: false, error: 'Authentification manquante' });
+      }
+
+      const data: CreateStockDTO = req.body;
+      const stock = await StocksService.createStock(tenantId, userId, data);
+      res.json({ success: true, data: { stock } });
+    } catch (error: any) {
+      console.error('Erreur createStock:', error);
+      res.status(500).json({ success: false, error: error.message || 'Erreur lors de la creation du stock' });
+    }
   }
 
   static async getStock(req: Request, res: Response) {
-    res.json({ success: true, data: { stock: {} } });
+    try {
+      const { id } = req.params;
+      const tenantId = (req as any).user?.tenantId;
+      if (!tenantId) {
+        return res.status(401).json({ success: false, error: 'Tenant ID manquant' });
+      }
+
+      const result = await StocksService.getStockById(id, tenantId);
+      res.json({ success: true, data: result });
+    } catch (error: any) {
+      console.error('Erreur getStock:', error);
+      res.status(500).json({ success: false, error: error.message || 'Erreur lors de la recuperation du stock' });
+    }
   }
 
   static async updateStock(req: Request, res: Response) {
-    res.json({ success: true, message: 'Stock modifié' });
+    try {
+      const { id } = req.params;
+      const tenantId = (req as any).user?.tenantId;
+      const userId = (req as any).user?.userId;
+      if (!tenantId || !userId) {
+        return res.status(401).json({ success: false, error: 'Authentification manquante' });
+      }
+
+      const data: UpdateStockDTO = req.body;
+      const stock = await StocksService.updateStock(id, tenantId, userId, data);
+      res.json({ success: true, data: { stock } });
+    } catch (error: any) {
+      console.error('Erreur updateStock:', error);
+      res.status(500).json({ success: false, error: error.message || 'Erreur lors de la modification du stock' });
+    }
   }
 
   static async deleteStock(req: Request, res: Response) {
-    res.json({ success: true, message: 'Stock supprimé' });
+    try {
+      const { id } = req.params;
+      const tenantId = (req as any).user?.tenantId;
+      if (!tenantId) {
+        return res.status(401).json({ success: false, error: 'Tenant ID manquant' });
+      }
+
+      const result = await StocksService.deleteStock(id, tenantId);
+      res.json(result);
+    } catch (error: any) {
+      console.error('Erreur deleteStock:', error);
+      res.status(500).json({ success: false, error: error.message || 'Erreur lors de la suppression du stock' });
+    }
   }
 
   // Méthodes supplémentaires pour les routes
   static async getMovements(req: Request, res: Response) {
-    res.json({ success: true, data: { movements: [] } });
+    try {
+      const tenantId = (req as any).user?.tenantId;
+      if (!tenantId) {
+        return res.status(401).json({ success: false, error: 'Tenant ID manquant' });
+      }
+
+      const filters = {
+        stockId: req.query.stockId as string,
+        type: req.query.type as any,
+        startDate: req.query.startDate ? new Date(req.query.startDate as string) : undefined,
+        endDate: req.query.endDate ? new Date(req.query.endDate as string) : undefined,
+        limit: req.query.limit ? Number(req.query.limit) : undefined
+      };
+
+      const result = await StocksService.getMovements(tenantId, filters);
+      res.json({ success: true, data: result });
+    } catch (error) {
+      console.error('Erreur getMovements:', error);
+      res.status(500).json({ success: false, error: 'Erreur lors de la recuperation des mouvements' });
+    }
   }
 
   static async createMovement(req: Request, res: Response) {
-    res.json({ success: true, message: 'Mouvement créé' });
+    try {
+      const tenantId = (req as any).user?.tenantId;
+      const userId = (req as any).user?.userId;
+      if (!tenantId || !userId) {
+        return res.status(401).json({ success: false, error: 'Authentification manquante' });
+      }
+
+      const data: CreateMovementDTO = req.body;
+      const result = await StocksService.createMovement(tenantId, userId, data);
+      res.json({ success: true, data: result });
+    } catch (error: any) {
+      console.error('Erreur createMovement:', error);
+      res.status(500).json({ success: false, error: error.message || 'Erreur lors de la creation du mouvement' });
+    }
   }
 
   static async getMovement(req: Request, res: Response) {
@@ -75,7 +179,24 @@ export class StocksController {
   }
 
   static async getAlerts(req: Request, res: Response) {
-    res.json({ success: true, data: { alerts: [] } });
+    try {
+      const tenantId = (req as any).user?.tenantId;
+      if (!tenantId) {
+        return res.status(401).json({ success: false, error: 'Tenant ID manquant' });
+      }
+
+      const filters = {
+        status: req.query.status as any,
+        type: req.query.type as any,
+        showResolved: req.query.showResolved === 'true'
+      };
+
+      const result = await StocksService.getAlerts(tenantId, filters);
+      res.json({ success: true, data: result });
+    } catch (error) {
+      console.error('Erreur getAlerts:', error);
+      res.status(500).json({ success: false, error: 'Erreur lors de la recuperation des alertes' });
+    }
   }
 
   static async getAlert(req: Request, res: Response) {
@@ -83,7 +204,21 @@ export class StocksController {
   }
 
   static async resolveAlert(req: Request, res: Response) {
-    res.json({ success: true, message: 'Alerte résolue' });
+    try {
+      const { id } = req.params;
+      const tenantId = (req as any).user?.tenantId;
+      const userId = (req as any).user?.userId;
+      if (!tenantId || !userId) {
+        return res.status(401).json({ success: false, error: 'Authentification manquante' });
+      }
+
+      const { note } = req.body;
+      const result = await StocksService.resolveAlert(id, tenantId, userId, note);
+      res.json(result);
+    } catch (error: any) {
+      console.error('Erreur resolveAlert:', error);
+      res.status(500).json({ success: false, error: error.message || 'Erreur lors de la resolution de alerte' });
+    }
   }
 
   static async escalateAlert(req: Request, res: Response) {
@@ -119,7 +254,18 @@ export class StocksController {
   }
 
   static async getStocksKPIs(req: Request, res: Response) {
-    res.json({ success: true, data: { kpis: {} } });
+    try {
+      const tenantId = (req as any).user?.tenantId;
+      if (!tenantId) {
+        return res.status(401).json({ success: false, error: 'Tenant ID manquant' });
+      }
+
+      const kpis = await StocksService.getStocksKPIs(tenantId);
+      res.json({ success: true, data: kpis });
+    } catch (error) {
+      console.error('Erreur getStocksKPIs:', error);
+      res.status(500).json({ success: false, error: 'Erreur lors de la recuperation des KPIs' });
+    }
   }
 
   static async getStocksEvolution(req: Request, res: Response) {
@@ -127,6 +273,17 @@ export class StocksController {
   }
 
   static async getStocksAlerts(req: Request, res: Response) {
-    res.json({ success: true, data: { alerts: [] } });
+    try {
+      const tenantId = (req as any).user?.tenantId;
+      if (!tenantId) {
+        return res.status(401).json({ success: false, error: 'Tenant ID manquant' });
+      }
+
+      const result = await StocksService.getAlerts(tenantId);
+      res.json({ success: true, data: result });
+    } catch (error) {
+      console.error('Erreur getStocksAlerts:', error);
+      res.status(500).json({ success: false, error: 'Erreur lors de la recuperation des alertes' });
+    }
   }
 }

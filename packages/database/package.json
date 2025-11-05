@@ -8,22 +8,35 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/config/datasource-migration.js",
+    "migration:run": "typeorm-ts-node-commonjs migration:run -d src/config/datasource-migration.js",
+    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/config/datasource-migration.js",
+    "migration:show": "typeorm-ts-node-commonjs migration:show -d src/config/datasource-migration.js",
+    "migration:create": "typeorm-ts-node-commonjs migration:create",
+    "seed:run": "ts-node -r tsconfig-paths/register src/seeds/index.ts",
+    "seed:tenants": "ts-node -r tsconfig-paths/register -e \"import('./src/seeds/001-tenants.seed').then(m => m.seedTenants(AppDataSource))\"",
+    "seed:roles": "ts-node -r tsconfig-paths/register -e \"import('./src/seeds/002-roles-permissions.seed').then(m => m.seedRolesAndPermissions(AppDataSource))\"",
+    "seed:users": "ts-node -r tsconfig-paths/register -e \"import('./src/seeds/003-users.seed').then(m => m.seedUsers(AppDataSource))\""
   },
   "dependencies": {
-    "typeorm": "^0.3.17",
-    "pg": "^8.11.3",
-    "reflect-metadata": "^0.1.13",
+    "bcryptjs": "^2.4.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
-    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.3.1",
     "jsonwebtoken": "^9.0.2",
-    "dotenv": "^16.3.1"
+    "pg": "^8.11.3",
+    "reflect-metadata": "^0.1.13",
+    "typeorm": "^0.3.17"
   },
   "devDependencies": {
-    "@types/pg": "^8.10.9",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.5",
+    "@types/node": "^20.10.0",
+    "@types/pg": "^8.10.9",
+    "cross-env": "^10.1.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.6.0",
     "typescript": "^5.3.0"
   },
   "peerDependencies": {

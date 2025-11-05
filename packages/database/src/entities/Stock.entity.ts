@@ -37,6 +37,7 @@ import { IsEnum, IsNumber, IsString, IsOptional, Min } from 'class-validator';
 import { Tenant } from './Tenant.entity';
 import { StockMovement } from './StockMovement.entity';
 import { StockAlert } from './StockAlert.entity';
+import { Supplier } from './Supplier.entity';
 
 // Types de stocks selon PRD
 export enum StockType {
@@ -164,10 +165,17 @@ export class Stock {
   devise: string; // Devise (FCFA par défaut)
 
   // Informations fournisseur
+  @Column({ type: 'uuid', name: 'supplier_id', nullable: true })
+  supplierId: string;
+
+  @ManyToOne(() => Supplier, supplier => supplier.stocks, { nullable: true })
+  @JoinColumn({ name: 'supplier_id' })
+  supplier: Supplier;
+
   @Column({ type: 'varchar', length: 255, nullable: true })
   @IsOptional()
   @IsString()
-  fournisseur: string;
+  fournisseur: string; // Nom du fournisseur (legacy/backup)
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   @IsOptional()

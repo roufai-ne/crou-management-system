@@ -152,9 +152,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-soft dark:bg-gradient-soft-dark">
       {/* Sidebar Desktop */}
-      <div className="flex w-64 flex-col fixed inset-y-0 bg-white border-r border-gray-200">
+      <div className="flex w-64 flex-col fixed inset-y-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-r border-gray-200/50 dark:border-gray-700/50">
         <div className="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto">
           {/* Logo CROU */}
           <div className="flex items-center flex-shrink-0 px-4">
@@ -234,9 +234,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       {/* Sidebar Mobile - Overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 flex z-40 lg:hidden">
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
-          
-          <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white">
+          <div className="fixed inset-0 backdrop-blur-md bg-black/20 dark:bg-black/40" onClick={() => setSidebarOpen(false)} />
+
+          <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl">
             {/* Bouton fermeture */}
             <div className="absolute top-0 right-0 -mr-12 pt-2">
               <button
@@ -317,7 +317,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       {/* Contenu principal */}
       <div className="lg:pl-64 flex flex-col flex-1">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
+        <div className="sticky top-0 z-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-700/50 px-4 py-3">
           <div className="flex justify-between items-center">
             {/* Menu mobile */}
             <button

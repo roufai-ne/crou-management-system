@@ -25,13 +25,14 @@ import { authenticateJWT } from '@/shared/middlewares/auth.middleware';
 import { checkPermissions } from '@/shared/middlewares/permissions.middleware';
 import { ministerialAccessMiddleware } from '@/shared/middlewares/tenant-isolation.middleware';
 import { auditMiddleware } from '@/shared/middlewares/audit.middleware';
-import { AppDataSource } from '../../../../../packages/database/src/config/typeorm.config';
+import { AppDataSource } from '../../../../../packages/database/src/config/datasource';
 import { Role } from '../../../../../packages/database/src/entities/Role.entity';
 import { Permission } from '../../../../../packages/database/src/entities/Permission.entity';
 import { User } from '../../../../../packages/database/src/entities/User.entity';
 import { AuditService } from '@/shared/services/audit.service';
 import { AuditAction } from '../../../../../packages/database/src/entities/AuditLog.entity';
 import { logger } from '@/shared/utils/logger';
+import { cacheService } from '@/shared/services/cache.service';
 
 const router: Router = Router();
 const auditService = new AuditService();
@@ -71,6 +72,19 @@ router.get('/',
       const includePermissions = req.query.includePermissions === 'true';
       const includeUsers = req.query.includeUsers === 'true';
 
+      // Clé de cache basée sur les paramètres
+      const cacheKey = `roles:list:${includePermissions}:${includeUsers}`;
+
+      // Essayer de récupérer depuis le cache
+      const cachedRoles = cacheService.get(cacheKey);
+      if (cachedRoles) {
+        return res.json({
+          success: true,
+          data: cachedRoles,
+          cached: true
+        });
+      }
+
       const roleRepository = AppDataSource.getRepository(Role);
       const queryBuilder = roleRepository.createQueryBuilder('role')
         .orderBy('role.name', 'ASC');
@@ -107,12 +121,17 @@ router.get('/',
         })
       );
 
+      const result = {
+        roles: rolesWithStats,
+        total: roles.length
+      };
+
+      // Mettre en cache pour 5 minutes
+      cacheService.set(cacheKey, result, 5 * 60 * 1000);
+
       res.json({
         success: true,
-        data: {
-          roles: rolesWithStats,
-          total: roles.length
-        }
+        data: result
       });
 
     } catch (error) {
@@ -248,6 +267,9 @@ router.post('/',
           }
         }
       );
+
+      // Invalider le cache des rôles
+      cacheService.deletePattern('roles:');
 
       res.status(201).json({
         success: true,

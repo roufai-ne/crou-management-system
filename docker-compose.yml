@@ -1,0 +1,165 @@
+# ============================================
+# Docker Compose - Système de Gestion CROU
+# ============================================
+# Stack complète : Frontend + Backend + PostgreSQL + Redis
+# Version: 3.8
+
+version: '3.8'
+
+# ============================================
+# Services
+# ============================================
+services:
+  # Base de données PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: crou-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-crou_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-crou_password_change_me}
+      POSTGRES_DB: ${DB_NAME:-crou_db}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=fr_FR.UTF-8"
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - crou-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-crou_user} -d ${DB_NAME:-crou_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Redis pour cache et sessions
+  redis:
+    image: redis:7-alpine
+    container_name: crou-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD:-redis_password_change_me}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - crou-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # API Backend
+  api:
+    build:
+      context: .
+      dockerfile: ./apps/api/Dockerfile
+      args:
+        NODE_ENV: ${NODE_ENV:-production}
+    container_name: crou-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # Node
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 3001
+
+      # Database
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${DB_NAME:-crou_db}
+      DATABASE_USER: ${DB_USER:-crou_user}
+      DATABASE_PASSWORD: ${DB_PASSWORD:-crou_password_change_me}
+      DATABASE_SYNC: "false"
+      DATABASE_LOGGING: "false"
+
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis_password_change_me}
+
+      # JWT
+      JWT_SECRET: ${JWT_SECRET:-your_super_secret_jwt_key_change_me_in_production}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-your_refresh_secret_change_me}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
+
+      # CORS
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000,http://localhost}
+
+      # Frontend URL
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+    ports:
+      - "${API_PORT:-3001}:3001"
+    volumes:
+      - api_logs:/app/logs
+      - api_uploads:/app/uploads
+    networks:
+      - crou-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend Web
+  web:
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3001/api}
+        VITE_WS_URL: ${VITE_WS_URL:-ws://localhost:3001}
+    container_name: crou-web
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3001/api}
+      VITE_WS_URL: ${VITE_WS_URL:-ws://localhost:3001}
+    ports:
+      - "${WEB_PORT:-3000}:80"
+    networks:
+      - crou-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+# ============================================
+# Volumes
+# ============================================
+volumes:
+  postgres_data:
+    name: crou_postgres_data
+    driver: local
+
+  redis_data:
+    name: crou_redis_data
+    driver: local
+
+  api_logs:
+    name: crou_api_logs
+    driver: local
+
+  api_uploads:
+    name: crou_api_uploads
+    driver: local
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  crou-network:
+    name: crou_network
+    driver: bridge

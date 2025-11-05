@@ -45,6 +45,9 @@ import { CROUSelector } from '@/components/ui/CROUSelector';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Toast } from '@/components/ui/Toast';
+import { adminService, type User as ApiUser, CreateUserRequest, UpdateUserRequest } from '@/services/api/adminService';
+import { UserCreateModal, UserEditModal, UserDetailsModal } from '@/components/admin/UserModals';
+import { exportUsersToPDF } from '@/utils/pdfExport';
 
 // Types pour les utilisateurs
 interface User {
@@ -120,79 +123,49 @@ export const UsersPage: React.FC = () => {
   const loadUsers = async () => {
     setLoading(true);
     try {
-      // TODO: Remplacer par l'appel API réel
-      const mockUsers: User[] = [
-        {
-          id: '1',
-          email: 'ministre@crou.ne',
-          name: 'Ministre de l\'Enseignement Supérieur',
-          role: {
-            id: 'role-1',
-            name: 'Ministre',
-            tenantType: 'ministere'
-          },
-          tenant: {
-            id: 'ministere',
-            name: 'Ministère de l\'Enseignement Supérieur',
-            type: 'ministere'
-          },
-          status: 'active',
-          lastLoginAt: '2024-12-06T10:30:00Z',
-          lastLoginIp: '192.168.1.100',
-          loginAttempts: 0,
-          lockedUntil: null,
-          createdAt: '2024-01-01T00:00:00Z',
-          updatedAt: '2024-12-06T10:30:00Z'
-        },
-        {
-          id: '2',
-          email: 'directeur@crou-niamey.ne',
-          name: 'Directeur CROU Niamey',
-          role: {
-            id: 'role-2',
-            name: 'Directeur CROU',
-            tenantType: 'crou'
-          },
-          tenant: {
-            id: 'crou_niamey',
-            name: 'CROU Niamey',
-            type: 'crou'
-          },
-          status: 'active',
-          lastLoginAt: '2024-12-06T09:15:00Z',
-          lastLoginIp: '10.0.1.50',
-          loginAttempts: 0,
-          lockedUntil: null,
-          createdAt: '2024-01-15T00:00:00Z',
-          updatedAt: '2024-12-06T09:15:00Z'
-        },
-        {
-          id: '3',
-          email: 'comptable@crou-dosso.ne',
-          name: 'Comptable CROU Dosso',
-          role: {
-            id: 'role-3',
-            name: 'Comptable',
-            tenantType: 'crou'
-          },
-          tenant: {
-            id: 'crou_dosso',
-            name: 'CROU Dosso',
-            type: 'crou'
-          },
-          status: 'suspended',
-          lastLoginAt: '2024-12-05T14:20:00Z',
-          lastLoginIp: '10.0.2.25',
-          loginAttempts: 5,
-          lockedUntil: '2024-12-06T15:00:00Z',
-          createdAt: '2024-02-01T00:00:00Z',
-          updatedAt: '2024-12-05T14:20:00Z'
-        }
-      ];
+      const params: any = {
+        page: currentPage,
+        limit: itemsPerPage
+      };
 
-      setUsers(mockUsers);
-      setTotalUsers(mockUsers.length);
-      setTotalPages(Math.ceil(mockUsers.length / itemsPerPage));
+      if (filters.search) params.search = filters.search;
+      if (filters.status) params.isActive = filters.status === 'active';
+      if (filters.role) params.role = filters.role;
+      if (filters.tenant) params.tenantId = filters.tenant;
+
+      const response = await adminService.getUsers(params);
+
+      // Map API users to local User interface
+      const mappedUsers: User[] = response.users.map((apiUser: ApiUser) => ({
+        id: apiUser.id,
+        email: apiUser.email,
+        name: `${apiUser.firstName} ${apiUser.lastName}`,
+        role: {
+          id: apiUser.role.id,
+          name: apiUser.role.name,
+          tenantType: 'both' as const // Default, can be enhanced later
+        },
+        tenant: apiUser.tenant ? {
+          id: apiUser.tenant.id,
+          name: apiUser.tenant.name,
+          type: apiUser.tenant.type
+        } : {
+          id: apiUser.tenantId,
+          name: 'Inconnu',
+          type: 'crou' as const
+        },
+        status: apiUser.isActive ? 'active' as const : 'inactive' as const,
+        lastLoginAt: apiUser.lastLoginAt || null,
+        lastLoginIp: null, // Not available from API yet
+        loginAttempts: 0, // Not available from API yet
+        lockedUntil: null, // Not available from API yet
+        createdAt: apiUser.createdAt,
+        updatedAt: apiUser.updatedAt
+      }));
+
+      setUsers(mappedUsers);
+      setTotalUsers(response.total);
+      setTotalPages(Math.ceil(response.total / itemsPerPage));
     } catch (error) {
       console.error('Erreur lors du chargement des utilisateurs:', error);
     } finally {
@@ -376,39 +349,38 @@ export const UsersPage: React.FC = () => {
   // Actions sur les utilisateurs
   const handleUnlockUser = async (userId: string) => {
     try {
-      // TODO: Appel API pour débloquer l'utilisateur
-      console.log('Déblocage utilisateur:', userId);
+      // Note: Unlock functionality will need to be added to the backend API
+      // For now, we'll use the toggle status endpoint
+      await adminService.toggleUserStatus(userId, true);
       await loadUsers();
-      // Toast de succès
-    } catch (error) {
+      Toast.success('Utilisateur débloqué avec succès');
+    } catch (error: any) {
       console.error('Erreur lors du déblocage:', error);
-      // Toast d'erreur
+      Toast.error(error?.message || 'Erreur lors du déblocage');
     }
   };
 
   const handleToggleUserStatus = async (userId: string, currentStatus: string) => {
     try {
-      const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-      // TODO: Appel API pour changer le statut
-      console.log('Changement statut:', userId, newStatus);
+      const newIsActive = currentStatus !== 'active';
+      await adminService.toggleUserStatus(userId, newIsActive);
       await loadUsers();
-      // Toast de succès
-    } catch (error) {
+      Toast.success(`Utilisateur ${newIsActive ? 'activé' : 'désactivé'} avec succès`);
+    } catch (error: any) {
       console.error('Erreur lors du changement de statut:', error);
-      // Toast d'erreur
+      Toast.error(error?.message || 'Erreur lors du changement de statut');
     }
   };
 
   const handleDeleteUser = async (userId: string) => {
     if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
       try {
-        // TODO: Appel API pour supprimer l'utilisateur
-        console.log('Suppression utilisateur:', userId);
+        await adminService.deleteUser(userId);
         await loadUsers();
-        // Toast de succès
-      } catch (error) {
+        Toast.success('Utilisateur supprimé avec succès');
+      } catch (error: any) {
         console.error('Erreur lors de la suppression:', error);
-        // Toast d'erreur
+        Toast.error(error?.message || 'Erreur lors de la suppression');
       }
     }
   };
@@ -417,20 +389,76 @@ export const UsersPage: React.FC = () => {
     if (selectedUsers.length === 0) return;
 
     try {
-      // TODO: Appel API pour l'action en lot
-      console.log('Action en lot:', action, selectedUsers);
+      // Execute bulk action for all selected users
+      const promises = selectedUsers.map(userId => {
+        switch (action) {
+          case 'activate':
+            return adminService.toggleUserStatus(userId, true);
+          case 'deactivate':
+            return adminService.toggleUserStatus(userId, false);
+          case 'delete':
+            return adminService.deleteUser(userId);
+          default:
+            return Promise.resolve();
+        }
+      });
+
+      await Promise.all(promises);
       await loadUsers();
       setSelectedUsers([]);
-      // Toast de succès
-    } catch (error) {
+      Toast.success(`Action en lot exécutée sur ${selectedUsers.length} utilisateur(s)`);
+    } catch (error: any) {
       console.error('Erreur lors de l\'action en lot:', error);
-      // Toast d'erreur
+      Toast.error(error?.message || 'Erreur lors de l\'action en lot');
     }
   };
 
-  const handleExport = () => {
-    // TODO: Implémenter l'export des utilisateurs
-    console.log('Export des utilisateurs');
+  const handleExport = (format: 'csv' | 'pdf' = 'csv') => {
+    try {
+      if (format === 'csv') {
+        // Export users as CSV
+        const csvHeaders = ['ID', 'Email', 'Nom', 'Rôle', 'Organisation', 'Statut', 'Dernière connexion', 'Créé le'];
+        const csvRows = users.map(user => [
+          user.id,
+          user.email,
+          user.name,
+          user.role.name,
+          user.tenant.name,
+          user.status,
+          user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString('fr-FR') : 'Jamais',
+          new Date(user.createdAt).toLocaleString('fr-FR')
+        ]);
+
+        const csvContent = [
+          csvHeaders.join(','),
+          ...csvRows.map(row => row.map(cell => `"${cell}"`).join(','))
+        ].join('\n');
+
+        const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `utilisateurs_${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+
+        Toast.success('Export CSV des utilisateurs réussi');
+      } else if (format === 'pdf') {
+        // Export users as PDF
+        const pdfData = users.map(user => ({
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          tenant: user.tenant,
+          status: user.status,
+          createdAt: user.createdAt
+        }));
+
+        exportUsersToPDF(pdfData);
+        Toast.success('Export PDF des utilisateurs réussi');
+      }
+    } catch (error: any) {
+      console.error('Erreur lors de l\'export:', error);
+      Toast.error('Erreur lors de l\'export des utilisateurs');
+    }
   };
 
   return (
@@ -447,14 +475,25 @@ export const UsersPage: React.FC = () => {
         </div>
         
         <div className="flex items-center space-x-3">
-          <Button
-            variant="outline"
-            onClick={handleExport}
-            className="flex items-center space-x-2"
-          >
-            <Download className="h-4 w-4" />
-            <span>Exporter</span>
-          </Button>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              onClick={() => handleExport('csv')}
+              className="flex items-center space-x-2"
+            >
+              <Download className="h-4 w-4" />
+              <span>CSV</span>
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => handleExport('pdf')}
+              className="flex items-center space-x-2"
+            >
+              <Download className="h-4 w-4" />
+              <span>PDF</span>
+            </Button>
+          </div>
           
           <Button
             onClick={() => setShowCreateModal(true)}
@@ -595,7 +634,29 @@ export const UsersPage: React.FC = () => {
       {showEditModal && selectedUser && (
         <UserEditModal
           isOpen={showEditModal}
-          user={selectedUser}
+          user={{
+            id: selectedUser.id,
+            email: selectedUser.email,
+            firstName: selectedUser.name.split(' ')[0],
+            lastName: selectedUser.name.split(' ').slice(1).join(' '),
+            phone: '',
+            tenantId: selectedUser.tenant.id,
+            tenant: selectedUser.tenant,
+            role: {
+              id: selectedUser.role.id,
+              name: selectedUser.role.name,
+              description: '',
+              permissions: [],
+              isSystem: false,
+              createdAt: selectedUser.createdAt,
+              updatedAt: selectedUser.updatedAt
+            },
+            permissions: [],
+            isActive: selectedUser.status === 'active',
+            lastLoginAt: selectedUser.lastLoginAt || undefined,
+            createdAt: selectedUser.createdAt,
+            updatedAt: selectedUser.updatedAt
+          } as ApiUser}
           onClose={() => {
             setShowEditModal(false);
             setSelectedUser(null);
@@ -611,7 +672,29 @@ export const UsersPage: React.FC = () => {
       {showDetailsModal && selectedUser && (
         <UserDetailsModal
           isOpen={showDetailsModal}
-          user={selectedUser}
+          user={{
+            id: selectedUser.id,
+            email: selectedUser.email,
+            firstName: selectedUser.name.split(' ')[0],
+            lastName: selectedUser.name.split(' ').slice(1).join(' '),
+            phone: '',
+            tenantId: selectedUser.tenant.id,
+            tenant: selectedUser.tenant,
+            role: {
+              id: selectedUser.role.id,
+              name: selectedUser.role.name,
+              description: '',
+              permissions: [],
+              isSystem: false,
+              createdAt: selectedUser.createdAt,
+              updatedAt: selectedUser.updatedAt
+            },
+            permissions: [],
+            isActive: selectedUser.status === 'active',
+            lastLoginAt: selectedUser.lastLoginAt || undefined,
+            createdAt: selectedUser.createdAt,
+            updatedAt: selectedUser.updatedAt
+          } as ApiUser}
           onClose={() => {
             setShowDetailsModal(false);
             setSelectedUser(null);
@@ -621,101 +704,3 @@ export const UsersPage: React.FC = () => {
     </div>
   );
 };
-
-// Composants de modales (à implémenter)
-const UserCreateModal: React.FC<{
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
-}> = ({ isOpen, onClose, onSuccess }) => {
-  // TODO: Implémenter le formulaire de création
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg">
-      <div className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Créer un nouvel utilisateur</h3>
-        <p>Formulaire de création à implémenter...</p>
-        <div className="flex justify-end space-x-3 mt-6">
-          <Button variant="outline" onClick={onClose}>
-            Annuler
-          </Button>
-          <Button onClick={onSuccess}>
-            Créer
-          </Button>
-        </div>
-      </div>
-    </Modal>
-  );
-};
-
-const UserEditModal: React.FC<{
-  isOpen: boolean;
-  user: User;
-  onClose: () => void;
-  onSuccess: () => void;
-}> = ({ isOpen, user, onClose, onSuccess }) => {
-  // TODO: Implémenter le formulaire de modification
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg">
-      <div className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Modifier l'utilisateur</h3>
-        <p>Formulaire de modification pour {user.name}...</p>
-        <div className="flex justify-end space-x-3 mt-6">
-          <Button variant="outline" onClick={onClose}>
-            Annuler
-          </Button>
-          <Button onClick={onSuccess}>
-            Sauvegarder
-          </Button>
-        </div>
-      </div>
-    </Modal>
-  );
-};
-
-const UserDetailsModal: React.FC<{
-  isOpen: boolean;
-  user: User;
-  onClose: () => void;
-}> = ({ isOpen, user, onClose }) => {
-  // TODO: Implémenter l'affichage des détails
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg">
-      <div className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Détails de l'utilisateur</h3>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Nom
-            </label>
-            <p className="text-gray-900 dark:text-white">{user.name}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Email
-            </label>
-            <p className="text-gray-900 dark:text-white">{user.email}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Rôle
-            </label>
-            <p className="text-gray-900 dark:text-white">{user.role.name}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Organisation
-            </label>
-            <p className="text-gray-900 dark:text-white">{user.tenant.name}</p>
-          </div>
-        </div>
-        <div className="flex justify-end mt-6">
-          <Button onClick={onClose}>
-            Fermer
-          </Button>
-        </div>
-      </div>
-    </Modal>
-  );
-};
-
-export default UsersPage;

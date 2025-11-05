@@ -112,7 +112,7 @@ export interface MinistryDashboardData extends DashboardData {
 }
 
 class DashboardService {
-  private baseUrl = '/api/dashboard';
+  private baseUrl = '/dashboard';
 
   /**
    * Récupère les données du dashboard selon le niveau utilisateur

@@ -288,7 +288,7 @@ export interface TransportMetrics {
 }
 
 class TransportService {
-  private baseUrl = '/api/transport';
+  private baseUrl = '/transport';
 
   // === VÉHICULES ===
 
@@ -301,7 +301,6 @@ class TransportService {
     type?: string;
     status?: string;
     search?: string;
-    tenantId?: string;
   }): Promise<{
     vehicles: Vehicle[];
     total: number;
@@ -315,12 +314,157 @@ class TransportService {
       if (params?.type) queryParams.append('type', params.type);
       if (params?.status) queryParams.append('status', params.status);
       if (params?.search) queryParams.append('search', params.search);
-      if (params?.tenantId) queryParams.append('tenantId', params.tenantId);
 
       const response = await apiClient.get(`${this.baseUrl}/vehicles?${queryParams.toString()}`);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       console.error('Erreur lors de la récupération des véhicules:', error);
+      throw error;
+    }
+  }
+
+  // === USAGES ===
+
+  /**
+   * Récupère la liste des usages de véhicules
+   */
+  async getUsages(params?: {
+    page?: number;
+    limit?: number;
+    vehicleId?: string;
+    conducteur?: string;
+    type?: string;
+    tenantId?: string;
+  }): Promise<{
+    usages: any[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    try {
+      const queryParams = new URLSearchParams();
+      if (params?.page) queryParams.append('page', params.page.toString());
+      if (params?.limit) queryParams.append('limit', params.limit.toString());
+      if (params?.vehicleId) queryParams.append('vehicleId', params.vehicleId);
+      if (params?.conducteur) queryParams.append('conducteur', params.conducteur);
+      if (params?.type) queryParams.append('type', params.type);
+      if (params?.tenantId) queryParams.append('tenantId', params.tenantId);
+
+      const response = await apiClient.get(`${this.baseUrl}/usages?${queryParams.toString()}`);
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des usages:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Crée un nouvel usage de véhicule
+   */
+  async createUsage(data: any): Promise<any> {
+    try {
+      const response = await apiClient.post(`${this.baseUrl}/usages`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la création de l\'usage:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Met à jour un usage de véhicule
+   */
+  async updateUsage(id: string, data: any): Promise<any> {
+    try {
+      const response = await apiClient.put(`${this.baseUrl}/usages/${id}`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de l\'usage:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Supprime un usage de véhicule
+   */
+  async deleteUsage(id: string): Promise<void> {
+    try {
+      await apiClient.delete(`${this.baseUrl}/usages/${id}`);
+    } catch (error) {
+      console.error('Erreur lors de la suppression de l\'usage:', error);
+      throw error;
+    }
+  }
+
+  // === MAINTENANCE ===
+
+  /**
+   * Récupère la liste des maintenances de véhicules
+   */
+  async getMaintenances(params?: {
+    page?: number;
+    limit?: number;
+    vehicleId?: string;
+    type?: string;
+    status?: string;
+    tenantId?: string;
+  }): Promise<{
+    maintenances: any[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    try {
+      const queryParams = new URLSearchParams();
+      if (params?.page) queryParams.append('page', params.page.toString());
+      if (params?.limit) queryParams.append('limit', params.limit.toString());
+      if (params?.vehicleId) queryParams.append('vehicleId', params.vehicleId);
+      if (params?.type) queryParams.append('type', params.type);
+      if (params?.status) queryParams.append('status', params.status);
+      if (params?.tenantId) queryParams.append('tenantId', params.tenantId);
+
+      const response = await apiClient.get(`${this.baseUrl}/maintenances?${queryParams.toString()}`);
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des maintenances:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Crée une nouvelle maintenance de véhicule
+   */
+  async createMaintenance(data: any): Promise<any> {
+    try {
+      const response = await apiClient.post(`${this.baseUrl}/maintenances`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la création de la maintenance:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Met à jour une maintenance de véhicule
+   */
+  async updateMaintenance(id: string, data: any): Promise<any> {
+    try {
+      const response = await apiClient.put(`${this.baseUrl}/maintenances/${id}`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de la maintenance:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Supprime une maintenance de véhicule
+   */
+  async deleteMaintenance(id: string): Promise<void> {
+    try {
+      await apiClient.delete(`${this.baseUrl}/maintenances/${id}`);
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la maintenance:', error);
       throw error;
     }
   }
@@ -385,8 +529,8 @@ class TransportService {
     page?: number;
     limit?: number;
     status?: string;
+    licenseType?: string;
     search?: string;
-    tenantId?: string;
   }): Promise<{
     drivers: Driver[];
     total: number;
@@ -398,13 +542,26 @@ class TransportService {
       if (params?.page) queryParams.append('page', params.page.toString());
       if (params?.limit) queryParams.append('limit', params.limit.toString());
       if (params?.status) queryParams.append('status', params.status);
+      if (params?.licenseType) queryParams.append('licenseType', params.licenseType);
       if (params?.search) queryParams.append('search', params.search);
-      if (params?.tenantId) queryParams.append('tenantId', params.tenantId);
 
       const response = await apiClient.get(`${this.baseUrl}/drivers?${queryParams.toString()}`);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       console.error('Erreur lors de la récupération des chauffeurs:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Récupère un chauffeur par ID
+   */
+  async getDriver(id: string): Promise<Driver> {
+    try {
+      const response = await apiClient.get(`${this.baseUrl}/drivers/${id}`);
+      return response.data.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération du chauffeur:', error);
       throw error;
     }
   }
@@ -415,7 +572,7 @@ class TransportService {
   async createDriver(data: CreateDriverRequest): Promise<Driver> {
     try {
       const response = await apiClient.post(`${this.baseUrl}/drivers`, data);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       console.error('Erreur lors de la création du chauffeur:', error);
       throw error;
@@ -428,7 +585,7 @@ class TransportService {
   async updateDriver(id: string, data: UpdateDriverRequest): Promise<Driver> {
     try {
       const response = await apiClient.put(`${this.baseUrl}/drivers/${id}`, data);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       console.error('Erreur lors de la mise à jour du chauffeur:', error);
       throw error;
@@ -447,6 +604,73 @@ class TransportService {
     }
   }
 
+  /**
+   * Affecte un véhicule à un chauffeur
+   */
+  async assignVehicleToDriver(driverId: string, vehicleId: string): Promise<Driver> {
+    try {
+      const response = await apiClient.post(`${this.baseUrl}/drivers/${driverId}/assign-vehicle`, {
+        vehicleId
+      });
+      return response.data.data;
+    } catch (error) {
+      console.error('Erreur lors de l\'affectation du véhicule:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Retire l'affectation d'un véhicule à un chauffeur
+   */
+  async unassignVehicleFromDriver(driverId: string): Promise<Driver> {
+    try {
+      const response = await apiClient.post(`${this.baseUrl}/drivers/${driverId}/unassign-vehicle`);
+      return response.data.data;
+    } catch (error) {
+      console.error('Erreur lors du retrait de l\'affectation:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Récupère les chauffeurs disponibles
+   */
+  async getAvailableDrivers(): Promise<Driver[]> {
+    try {
+      const response = await apiClient.get(`${this.baseUrl}/drivers/available`);
+      return response.data.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des chauffeurs disponibles:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Récupère les alertes chauffeurs (permis expirés, visites médicales)
+   */
+  async getDriverAlerts(): Promise<any> {
+    try {
+      const response = await apiClient.get(`${this.baseUrl}/drivers/alerts`);
+      return response.data.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des alertes:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Récupère les statistiques des chauffeurs
+   */
+  async getDriverStatistics(): Promise<any> {
+    try {
+      const response = await apiClient.get(`${this.baseUrl}/drivers/statistics`);
+      return response.data.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des statistiques:', error);
+      throw error;
+    }
+  }
+
   // === ROUTES ===
 
   /**
@@ -456,8 +680,8 @@ class TransportService {
     page?: number;
     limit?: number;
     status?: string;
+    type?: string;
     search?: string;
-    tenantId?: string;
   }): Promise<{
     routes: Route[];
     total: number;
@@ -469,13 +693,26 @@ class TransportService {
       if (params?.page) queryParams.append('page', params.page.toString());
       if (params?.limit) queryParams.append('limit', params.limit.toString());
       if (params?.status) queryParams.append('status', params.status);
+      if (params?.type) queryParams.append('type', params.type);
       if (params?.search) queryParams.append('search', params.search);
-      if (params?.tenantId) queryParams.append('tenantId', params.tenantId);
 
       const response = await apiClient.get(`${this.baseUrl}/routes?${queryParams.toString()}`);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       console.error('Erreur lors de la récupération des routes:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Récupère une route par ID
+   */
+  async getRoute(id: string): Promise<Route> {
+    try {
+      const response = await apiClient.get(`${this.baseUrl}/routes/${id}`);
+      return response.data.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération de la route:', error);
       throw error;
     }
   }
@@ -486,7 +723,7 @@ class TransportService {
   async createRoute(data: CreateRouteRequest): Promise<Route> {
     try {
       const response = await apiClient.post(`${this.baseUrl}/routes`, data);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       console.error('Erreur lors de la création de la route:', error);
       throw error;
@@ -499,7 +736,7 @@ class TransportService {
   async updateRoute(id: string, data: UpdateRouteRequest): Promise<Route> {
     try {
       const response = await apiClient.put(`${this.baseUrl}/routes/${id}`, data);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       console.error('Erreur lors de la mise à jour de la route:', error);
       throw error;
@@ -518,6 +755,19 @@ class TransportService {
     }
   }
 
+  /**
+   * Récupère les routes actives
+   */
+  async getActiveRoutes(): Promise<Route[]> {
+    try {
+      const response = await apiClient.get(`${this.baseUrl}/routes/active`);
+      return response.data.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des routes actives:', error);
+      throw error;
+    }
+  }
+
   // === TRAJETS PROGRAMMÉS ===
 
   /**
@@ -527,9 +777,11 @@ class TransportService {
     page?: number;
     limit?: number;
     status?: string;
+    routeId?: string;
+    vehicleId?: string;
+    driverId?: string;
     dateFrom?: Date;
     dateTo?: Date;
-    tenantId?: string;
   }): Promise<{
     trips: ScheduledTrip[];
     total: number;
@@ -541,14 +793,29 @@ class TransportService {
       if (params?.page) queryParams.append('page', params.page.toString());
       if (params?.limit) queryParams.append('limit', params.limit.toString());
       if (params?.status) queryParams.append('status', params.status);
+      if (params?.routeId) queryParams.append('routeId', params.routeId);
+      if (params?.vehicleId) queryParams.append('vehicleId', params.vehicleId);
+      if (params?.driverId) queryParams.append('driverId', params.driverId);
       if (params?.dateFrom) queryParams.append('dateFrom', params.dateFrom.toISOString());
       if (params?.dateTo) queryParams.append('dateTo', params.dateTo.toISOString());
-      if (params?.tenantId) queryParams.append('tenantId', params.tenantId);
 
-      const response = await apiClient.get(`${this.baseUrl}/trips?${queryParams.toString()}`);
-      return response.data;
+      const response = await apiClient.get(`${this.baseUrl}/scheduled-trips?${queryParams.toString()}`);
+      return response.data.data;
     } catch (error) {
       console.error('Erreur lors de la récupération des trajets:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Récupère un trajet programmé par ID
+   */
+  async getScheduledTrip(id: string): Promise<ScheduledTrip> {
+    try {
+      const response = await apiClient.get(`${this.baseUrl}/scheduled-trips/${id}`);
+      return response.data.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération du trajet:', error);
       throw error;
     }
   }
@@ -558,8 +825,8 @@ class TransportService {
    */
   async createScheduledTrip(data: CreateScheduledTripRequest): Promise<ScheduledTrip> {
     try {
-      const response = await apiClient.post(`${this.baseUrl}/trips`, data);
-      return response.data;
+      const response = await apiClient.post(`${this.baseUrl}/scheduled-trips`, data);
+      return response.data.data;
     } catch (error) {
       console.error('Erreur lors de la création du trajet:', error);
       throw error;
@@ -571,8 +838,8 @@ class TransportService {
    */
   async updateScheduledTrip(id: string, data: UpdateScheduledTripRequest): Promise<ScheduledTrip> {
     try {
-      const response = await apiClient.put(`${this.baseUrl}/trips/${id}`, data);
-      return response.data;
+      const response = await apiClient.put(`${this.baseUrl}/scheduled-trips/${id}`, data);
+      return response.data.data;
     } catch (error) {
       console.error('Erreur lors de la mise à jour du trajet:', error);
       throw error;
@@ -584,77 +851,87 @@ class TransportService {
    */
   async deleteScheduledTrip(id: string): Promise<void> {
     try {
-      await apiClient.delete(`${this.baseUrl}/trips/${id}`);
+      await apiClient.delete(`${this.baseUrl}/scheduled-trips/${id}`);
     } catch (error) {
       console.error('Erreur lors de la suppression du trajet:', error);
       throw error;
     }
   }
 
-  // === MAINTENANCE ===
+  /**
+   * Démarre un trajet programmé
+   */
+  async startScheduledTrip(id: string, startKilometers: number): Promise<ScheduledTrip> {
+    try {
+      const response = await apiClient.post(`${this.baseUrl}/scheduled-trips/${id}/start`, {
+        startKilometers
+      });
+      return response.data.data;
+    } catch (error) {
+      console.error('Erreur lors du démarrage du trajet:', error);
+      throw error;
+    }
+  }
 
   /**
-   * Récupère la liste des enregistrements de maintenance
+   * Termine un trajet programmé
    */
-  async getMaintenanceRecords(params?: {
-    page?: number;
-    limit?: number;
-    vehicleId?: string;
-    type?: string;
-    status?: string;
+  async completeScheduledTrip(id: string, data: {
+    endKilometers: number;
+    passengersCount?: number;
+    fuelCost?: number;
+    tollCost?: number;
+    otherCosts?: number;
+    revenue?: number;
+    rating?: number;
+    notes?: string;
+  }): Promise<ScheduledTrip> {
+    try {
+      const response = await apiClient.post(`${this.baseUrl}/scheduled-trips/${id}/complete`, data);
+      return response.data.data;
+    } catch (error) {
+      console.error('Erreur lors de la finalisation du trajet:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Annule un trajet programmé
+   */
+  async cancelScheduledTrip(id: string, reason: string, details?: string): Promise<ScheduledTrip> {
+    try {
+      const response = await apiClient.post(`${this.baseUrl}/scheduled-trips/${id}/cancel`, {
+        reason,
+        details
+      });
+      return response.data.data;
+    } catch (error) {
+      console.error('Erreur lors de l\'annulation du trajet:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Récupère les statistiques des trajets programmés
+   */
+  async getTripsStatistics(params?: {
     dateFrom?: Date;
     dateTo?: Date;
-    tenantId?: string;
-  }): Promise<{
-    records: MaintenanceRecord[];
-    total: number;
-    page: number;
-    limit: number;
-  }> {
+  }): Promise<any> {
     try {
       const queryParams = new URLSearchParams();
-      if (params?.page) queryParams.append('page', params.page.toString());
-      if (params?.limit) queryParams.append('limit', params.limit.toString());
-      if (params?.vehicleId) queryParams.append('vehicleId', params.vehicleId);
-      if (params?.type) queryParams.append('type', params.type);
-      if (params?.status) queryParams.append('status', params.status);
       if (params?.dateFrom) queryParams.append('dateFrom', params.dateFrom.toISOString());
       if (params?.dateTo) queryParams.append('dateTo', params.dateTo.toISOString());
-      if (params?.tenantId) queryParams.append('tenantId', params.tenantId);
 
-      const response = await apiClient.get(`${this.baseUrl}/maintenance?${queryParams.toString()}`);
-      return response.data;
+      const response = await apiClient.get(`${this.baseUrl}/scheduled-trips/statistics?${queryParams.toString()}`);
+      return response.data.data;
     } catch (error) {
-      console.error('Erreur lors de la récupération des enregistrements de maintenance:', error);
+      console.error('Erreur lors de la récupération des statistiques:', error);
       throw error;
     }
   }
 
-  /**
-   * Crée un nouvel enregistrement de maintenance
-   */
-  async createMaintenanceRecord(data: CreateMaintenanceRecordRequest): Promise<MaintenanceRecord> {
-    try {
-      const response = await apiClient.post(`${this.baseUrl}/maintenance`, data);
-      return response.data;
-    } catch (error) {
-      console.error('Erreur lors de la création de l\'enregistrement de maintenance:', error);
-      throw error;
-    }
-  }
 
-  /**
-   * Met à jour un enregistrement de maintenance
-   */
-  async updateMaintenanceRecord(id: string, data: UpdateMaintenanceRecordRequest): Promise<MaintenanceRecord> {
-    try {
-      const response = await apiClient.put(`${this.baseUrl}/maintenance/${id}`, data);
-      return response.data;
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour de l\'enregistrement de maintenance:', error);
-      throw error;
-    }
-  }
 
   // === MÉTRIQUES ===
 

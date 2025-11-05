@@ -18,7 +18,8 @@ import { User } from '../entities/User.entity';
 import { Tenant } from '../entities/Tenant.entity';
 import { AuditLog } from '../entities/AuditLog.entity';
 import { RefreshToken } from '../entities/RefreshToken.entity';
-import { Role } from '../entities/Role.simple.entity';
+import { Role } from '../entities/Role.entity';
+import { Permission } from '../entities/Permission.entity';
 
 // Configuration des variables d'environnement
 config();
@@ -64,7 +65,8 @@ export const authTypeormConfig: DataSourceOptions = {
     Tenant,
     AuditLog,
     RefreshToken,
-    Role
+    Role,
+    Permission
   ],
 
   // Migrations

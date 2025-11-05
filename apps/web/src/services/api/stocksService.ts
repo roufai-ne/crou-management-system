@@ -158,7 +158,7 @@ export interface StocksMetrics {
 }
 
 class StocksService {
-  private baseUrl = '/api/stocks';
+  private baseUrl = '/stocks';
 
   // === ARTICLES DE STOCK ===
 

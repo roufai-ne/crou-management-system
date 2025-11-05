@@ -150,9 +150,10 @@ export default {
         'slide-in-left': 'slide-in-left 0.3s ease-out',
         'fade-in': 'fade-in 0.2s ease-out',
         'bounce-subtle': 'bounce-subtle 2s infinite',
-        'pulse-slow': 'pulse 3s infinite'
+        'pulse-slow': 'pulse 3s infinite',
+        'shimmer': 'shimmer 2s infinite'
       },
-      
+
       keyframes: {
         'slide-in-right': {
           '0%': { transform: 'translateX(100%)', opacity: '0' },
@@ -169,6 +170,10 @@ export default {
         'bounce-subtle': {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-5px)' }
+        },
+        'shimmer': {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' }
         }
       },
       
@@ -186,12 +191,60 @@ export default {
         '3xl': '1600px'
       },
       
-      // Box shadow personnalisées
+      // Gradients modernes
+      backgroundImage: {
+        // Gradients principaux
+        'gradient-primary': 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+        'gradient-success': 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+        'gradient-danger': 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+        'gradient-warning': 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+        'gradient-info': 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
+
+        // Gradient CROU (couleurs Niger)
+        'gradient-crou': 'linear-gradient(135deg, #16a34a 0%, #f59e0b 100%)',
+        'gradient-crou-reverse': 'linear-gradient(135deg, #f59e0b 0%, #16a34a 100%)',
+
+        // Backgrounds subtils
+        'gradient-soft': 'linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%)',
+        'gradient-soft-dark': 'linear-gradient(135deg, #1f2937 0%, #111827 100%)',
+
+        // Mesh gradients pour backgrounds complexes
+        'mesh-primary': 'radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.3) 0%, transparent 50%), radial-gradient(at 100% 100%, rgba(37, 99, 235, 0.3) 0%, transparent 50%)',
+        'mesh-crou': 'radial-gradient(at 0% 0%, rgba(22, 163, 74, 0.2) 0%, transparent 50%), radial-gradient(at 100% 100%, rgba(245, 158, 11, 0.2) 0%, transparent 50%)',
+
+        // Gradients pour hover states
+        'gradient-primary-hover': 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+        'gradient-success-hover': 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+      },
+
+      // Box shadow personnalisées (améliorées)
       boxShadow: {
-        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
-        'card-hover': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        // Ombres douces
+        'soft': '0 2px 8px -2px rgba(0, 0, 0, 0.1)',
+        'soft-lg': '0 4px 16px -4px rgba(0, 0, 0, 0.1)',
+
+        // Cards avec profondeur
+        'card': '0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03)',
+        'card-hover': '0 4px 20px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04)',
+        'card-active': '0 8px 30px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.06)',
+
+        // Modal et overlays
         'modal': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-        'dropdown': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+        'dropdown': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+
+        // Glow effects pour états actifs
+        'glow-primary': '0 0 20px rgba(59, 130, 246, 0.3)',
+        'glow-success': '0 0 20px rgba(16, 185, 129, 0.3)',
+        'glow-danger': '0 0 20px rgba(239, 68, 68, 0.3)',
+        'glow-warning': '0 0 20px rgba(245, 158, 11, 0.3)',
+
+        // Inner shadow pour inputs
+        'inner': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
+        'inner-lg': 'inset 0 4px 8px 0 rgba(0, 0, 0, 0.08)',
+
+        // Ombres élégantes pour élévation
+        'elevated': '0 10px 40px rgba(0, 0, 0, 0.08)',
+        'floating': '0 12px 48px rgba(0, 0, 0, 0.12)'
       },
       
       // Border radius

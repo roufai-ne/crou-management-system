@@ -40,7 +40,7 @@ import {
   WithTenantIsolation,
   LogTenantAccess
 } from '@/shared/utils/tenant-isolation.utils';
-import { AppDataSource } from '../../../../../packages/database/src/config/typeorm.config';
+import { AppDataSource } from '../../../../../packages/database/src/config/datasource';
 import { logger } from '@/shared/utils/logger';
 
 const router: Router = Router();

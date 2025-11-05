@@ -73,28 +73,51 @@ export const typeormConfig: DataSourceOptions = {
     })
   },
 
-  // Entités - Seulement les entités essentielles pour l'authentification
+  // Entités - TOUTES les 30 entités du projet
   entities: [
-    // Entités de base pour l'authentification
+    // Entités Core (Authentification & Autorisation)
+    // IMPORTANT: Role et Permission AVANT User pour résoudre les dépendances circulaires
     path.join(__dirname, '../entities/Tenant.entity.{ts,js}'),
-    path.join(__dirname, '../entities/AuditLog.entity.{ts,js}'),
-    path.join(__dirname, '../entities/RefreshToken.entity.{ts,js}'),
-    path.join(__dirname, '../entities/Role.simple.entity.{ts,js}'),
+    path.join(__dirname, '../entities/Permission.entity.{ts,js}'),
+    path.join(__dirname, '../entities/Role.entity.{ts,js}'),
     path.join(__dirname, '../entities/User.entity.{ts,js}'),
+    path.join(__dirname, '../entities/RefreshToken.entity.{ts,js}'),
+    path.join(__dirname, '../entities/AuditLog.entity.{ts,js}'),
+
+    // Module Financial
+    path.join(__dirname, '../entities/Budget.entity.{ts,js}'),
+    path.join(__dirname, '../entities/BudgetCategory.entity.{ts,js}'),
+    path.join(__dirname, '../entities/BudgetTrimester.entity.{ts,js}'),
+    path.join(__dirname, '../entities/Transaction.entity.{ts,js}'),
+    path.join(__dirname, '../entities/ValidationStep.entity.{ts,js}'),
+
+    // Module Stocks
+    path.join(__dirname, '../entities/Stock.entity.{ts,js}'),
+    path.join(__dirname, '../entities/StockMovement.entity.{ts,js}'),
+    path.join(__dirname, '../entities/StockAlert.entity.{ts,js}'),
+    path.join(__dirname, '../entities/Supplier.entity.{ts,js}'),
+
+    // Module Housing
+    path.join(__dirname, '../entities/Housing.entity.{ts,js}'),
+    path.join(__dirname, '../entities/Room.entity.{ts,js}'),
     path.join(__dirname, '../entities/HousingOccupancy.entity.{ts,js}'),
     path.join(__dirname, '../entities/HousingMaintenance.entity.{ts,js}'),
-    
-      // Module Transport
-      path.join(__dirname, '../entities/Vehicle.entity.{ts,js}'),
-      path.join(__dirname, '../entities/VehicleMaintenance.entity.{ts,js}'),
-      path.join(__dirname, '../entities/VehicleUsage.entity.{ts,js}'),
-      path.join(__dirname, '../entities/VehicleFuel.entity.{ts,js}'),
-      
-      // Module Workflows
-      path.join(__dirname, '../entities/Workflow.entity.{ts,js}'),
-      path.join(__dirname, '../entities/WorkflowStep.entity.{ts,js}'),
-      path.join(__dirname, '../entities/WorkflowInstance.entity.{ts,js}'),
-      path.join(__dirname, '../entities/WorkflowAction.entity.{ts,js}')
+
+    // Module Transport
+    path.join(__dirname, '../entities/Vehicle.entity.{ts,js}'),
+    path.join(__dirname, '../entities/VehicleUsage.entity.{ts,js}'),
+    path.join(__dirname, '../entities/VehicleMaintenance.entity.{ts,js}'),
+    path.join(__dirname, '../entities/VehicleFuel.entity.{ts,js}'),
+
+    // Module Workflows
+    path.join(__dirname, '../entities/Workflow.entity.{ts,js}'),
+    path.join(__dirname, '../entities/WorkflowStep.entity.{ts,js}'),
+    path.join(__dirname, '../entities/WorkflowInstance.entity.{ts,js}'),
+    path.join(__dirname, '../entities/WorkflowAction.entity.{ts,js}'),
+
+    // Module Notifications
+    path.join(__dirname, '../entities/Notification.entity.{ts,js}'),
+    path.join(__dirname, '../entities/NotificationPreference.entity.{ts,js}')
   ],
 
   // Migrations
@@ -136,11 +159,9 @@ export const AppDataSource = new DataSource(typeormConfig);
 
 // Fonction d'initialisation de la base
 export const initializeDatabase = async (): Promise<void> => {
-  // Utiliser la configuration d'authentification simplifiée temporairement
-  return initializeAuthDatabase();
   try {
     console.log('🔄 Initialisation de la base de données...');
-    
+
     if (!AppDataSource.isInitialized) {
       await AppDataSource.initialize();
       console.log('✅ Connexion PostgreSQL établie');
@@ -171,8 +192,14 @@ export const initializeDatabase = async (): Promise<void> => {
 
 // Fonction de fermeture propre
 export const closeDatabase = async (): Promise<void> => {
-  // Utiliser la fermeture d'authentification simplifiée temporairement
-  return closeAuthDatabase();
+  try {
+    if (AppDataSource.isInitialized) {
+      await AppDataSource.destroy();
+      console.log('✅ Connexion base de données fermée');
+    }
+  } catch (error) {
+    console.error('❌ Erreur fermeture base de données:', error);
+  }
 };
 
 // Fonction de seeds (données de test)

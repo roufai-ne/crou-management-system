@@ -19,7 +19,7 @@
  */
 
 import { ApiClient } from './api/apiClient';
-import { CROUUser } from '@/stores/auth';
+import { User } from '@/stores/auth';
 
 // Types pour les données du dashboard
 export interface GlobalKPIs {
@@ -266,7 +266,7 @@ export class DashboardService {
   }
 
   // Récupérer toutes les données du dashboard
-  async getDashboardData(user: CROUUser, filters?: DashboardFilters): Promise<DashboardData> {
+  async getDashboardData(user: User, filters?: DashboardFilters): Promise<DashboardData> {
     // Mode développement : utiliser des données mockées
     if (import.meta.env.DEV) {
       return this.getMockDashboardData(user, filters);
@@ -315,7 +315,7 @@ export class DashboardService {
   }
 
   // Données mockées pour le développement
-  private getMockDashboardData(user: CROUUser, filters?: DashboardFilters): DashboardData {
+  private getMockDashboardData(user: User, filters?: DashboardFilters): DashboardData {
     return {
       globalKPIs: {
         totalBudget: 125000000,
@@ -449,7 +449,7 @@ export class DashboardService {
   }
 
   // KPIs globaux
-  async getGlobalKPIs(user: CROUUser, filters?: DashboardFilters): Promise<GlobalKPIs> {
+  async getGlobalKPIs(user: User, filters?: DashboardFilters): Promise<GlobalKPIs> {
     const params = {
       level: user.level,
       crouId: user.level === 'crou' ? user.crouId : filters?.crouId,
@@ -465,7 +465,7 @@ export class DashboardService {
   }
 
   // KPIs par module
-  async getModuleKPIs(user: CROUUser, filters?: DashboardFilters): Promise<ModuleKPIs> {
+  async getModuleKPIs(user: User, filters?: DashboardFilters): Promise<ModuleKPIs> {
     const params = {
       level: user.level,
       crouId: user.level === 'crou' ? user.crouId : filters?.crouId,
@@ -482,7 +482,7 @@ export class DashboardService {
   }
 
   // Données d'évolution temporelle
-  async getEvolutionData(user: CROUUser, filters?: DashboardFilters): Promise<EvolutionData[]> {
+  async getEvolutionData(user: User, filters?: DashboardFilters): Promise<EvolutionData[]> {
     const params = {
       level: user.level,
       crouId: user.level === 'crou' ? user.crouId : filters?.crouId,
@@ -499,7 +499,7 @@ export class DashboardService {
   }
 
   // Répartition des dépenses
-  async getExpenseBreakdown(user: CROUUser, filters?: DashboardFilters): Promise<ExpenseBreakdown[]> {
+  async getExpenseBreakdown(user: User, filters?: DashboardFilters): Promise<ExpenseBreakdown[]> {
     const params = {
       level: user.level,
       crouId: user.level === 'crou' ? user.crouId : filters?.crouId,
@@ -515,7 +515,7 @@ export class DashboardService {
   }
 
   // Alertes et notifications
-  async getAlerts(user: CROUUser, filters?: DashboardFilters): Promise<DashboardAlert[]> {
+  async getAlerts(user: User, filters?: DashboardFilters): Promise<DashboardAlert[]> {
     const params = {
       level: user.level,
       crouId: user.level === 'crou' ? user.crouId : filters?.crouId,
@@ -531,7 +531,7 @@ export class DashboardService {
   }
 
   // Activités récentes
-  async getRecentActivities(user: CROUUser, filters?: DashboardFilters): Promise<RecentActivity[]> {
+  async getRecentActivities(user: User, filters?: DashboardFilters): Promise<RecentActivity[]> {
     const params = {
       level: user.level,
       crouId: user.level === 'crou' ? user.crouId : filters?.crouId,

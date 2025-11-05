@@ -167,7 +167,7 @@ export interface FinancialMetrics {
 }
 
 class FinancialService {
-  private baseUrl = '/api/financial';
+  private baseUrl = '/financial';
 
   // === BUDGETS ===
 

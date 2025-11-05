@@ -1,89 +1,217 @@
+// ARCHIVED: Ce fichier n'est plus utilisé. Toute la logique notifications passe par notifications.service.db.ts (base de données).
+// Gardé pour référence/transitional legacy uniquement.
 /**
- * FICHIER: apps\api\src\modules\notifications\notifications.service.ts
- * SERVICE: NotificationsService - Service de notifications API
- * 
+ * FICHIER: apps/api/src/modules/notifications/notifications.service.ts
+ * SERVICE: Notifications - Gestion des notifications
+ *
  * DESCRIPTION:
- * Service pour la gestion des notifications dans l'API
- * Intégration avec WebSocket et SSE
- * 
- * FONCTIONNALITÉS:
- * - Gestion des notifications temps réel
- * - Support WebSocket et SSE
- * - Intégration avec les modules métier
- * - Gestion des alertes et KPIs
- * 
+ * Service pour la gestion des notifications en temps réel
+ * Support multi-canal (in-app, email, websocket)
+ * Gestion des préférences et priorités
+ *
  * AUTEUR: Équipe CROU
  * DATE: Décembre 2024
  */
 
-import { Injectable } from '@nestjs/common';
-import { NotificationService } from '@crou/notifications';
-import { 
-  Notification, 
-  NotificationType, 
-  NotificationCategory, 
+import {
+  Notification,
+  NotificationType,
+  NotificationCategory,
   NotificationPriority,
-  CriticalKPI,
-  Alert
-} from '@crou/notifications';
-import { logger } from '@/shared/utils/logger';
+  NotificationStatus,
+  NotificationPreferences,
+  DeliveryMethod
+} from '../../../../../packages/notifications/src/types/notification.types';
 
-@Injectable()
+export interface CreateNotificationDTO {
+  title: string;
+  message: string;
+  type: NotificationType;
+  category: NotificationCategory;
+  priority: NotificationPriority;
+  userId?: string;
+  role?: string;
+  data?: any;
+  metadata?: any;
+  expiresAt?: Date;
+}
+
+export interface NotificationFilters {
+  type?: NotificationType;
+  category?: NotificationCategory;
+  status?: NotificationStatus;
+  priority?: NotificationPriority;
+  unreadOnly?: boolean;
+  startDate?: Date;
+  endDate?: Date;
+}
+
 export class NotificationsService {
-  private notificationService: NotificationService;
-  private kpiCheckInterval: NodeJS.Timeout | null = null;
-
-  constructor() {
-    this.notificationService = new NotificationService();
-    this.setupKPIMonitoring();
-  }
+  private static notifications: Map<string, Notification> = new Map();
+  private static preferences: Map<string, NotificationPreferences> = new Map();
 
   /**
-   * Configuration du monitoring des KPIs
+   * Créer une nouvelle notification
    */
-  private setupKPIMonitoring(): void {
-    // Vérifier les KPIs toutes les 30 secondes
-    this.kpiCheckInterval = setInterval(() => {
-      this.checkCriticalKPIs();
-    }, 30000);
-  }
-
-  /**
-   * Créer une notification
-   */
-  async createNotification(notification: Omit<Notification, 'id' | 'createdAt' | 'updatedAt'>): Promise<Notification> {
+  static async createNotification(
+    tenantId: string,
+    userId: string,
+    data: CreateNotificationDTO
+  ): Promise<Notification> {
     try {
-      return await this.notificationService.createNotification(notification);
+      const notification: Notification = {
+        id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        title: data.title,
+        message: data.message,
+        type: data.type,
+        category: data.category,
+        priority: data.priority,
+        status: NotificationStatus.PENDING,
+        tenantId,
+        userId: data.userId,
+        role: data.role,
+        data: data.data,
+        metadata: data.metadata,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        expiresAt: data.expiresAt
+      };
+
+      this.notifications.set(notification.id, notification);
+
+      // Marquer immédiatement comme envoyée (pour l'instant)
+      notification.status = NotificationStatus.SENT;
+      notification.deliveredAt = new Date();
+
+      return notification;
     } catch (error) {
-      logger.error('Erreur création notification:', error);
+      console.error('Erreur createNotification:', error);
       throw error;
     }
   }
 
   /**
-   * Obtenir les notifications d'un utilisateur
+   * Récupérer les notifications d'un utilisateur
    */
-  async getUserNotifications(
-    userId: string, 
-    tenantId: string, 
-    options: {
-      limit?: number;
-      offset?: number;
-      status?: string;
-      type?: string;
-      category?: string;
-    } = {}
-  ): Promise<Notification[]> {
+  static async getUserNotifications(
+    tenantId: string,
+    userId: string,
+    filters?: NotificationFilters
+  ) {
     try {
-      return await this.notificationService.getUserNotifications(userId, tenantId, {
-        limit: options.limit,
-        offset: options.offset,
-        status: options.status as any,
-        type: options.type as any,
-        category: options.category as any
-      });
+      let notifications = Array.from(this.notifications.values())
+        .filter(n => n.tenantId === tenantId && n.userId === userId);
+
+      // Appliquer les filtres
+      if (filters?.type) {
+        notifications = notifications.filter(n => n.type === filters.type);
+      }
+
+      if (filters?.category) {
+        notifications = notifications.filter(n => n.category === filters.category);
+      }
+
+      if (filters?.status) {
+        notifications = notifications.filter(n => n.status === filters.status);
+      }
+
+      if (filters?.priority) {
+        notifications = notifications.filter(n => n.priority === filters.priority);
+      }
+
+      if (filters?.unreadOnly) {
+        notifications = notifications.filter(n => !n.readAt);
+      }
+
+      if (filters?.startDate && filters?.endDate) {
+        notifications = notifications.filter(n =>
+          n.createdAt >= filters.startDate! && n.createdAt <= filters.endDate!
+        );
+      }
+
+      // Trier par date décroissante
+      notifications.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+      const unreadCount = notifications.filter(n => !n.readAt).length;
+
+      return {
+        notifications,
+        total: notifications.length,
+        unreadCount,
+        bySeverity: {
+          critical: notifications.filter(n => n.priority === NotificationPriority.CRITICAL).length,
+          urgent: notifications.filter(n => n.priority === NotificationPriority.URGENT).length,
+          high: notifications.filter(n => n.priority === NotificationPriority.HIGH).length,
+          medium: notifications.filter(n => n.priority === NotificationPriority.MEDIUM).length,
+          low: notifications.filter(n => n.priority === NotificationPriority.LOW).length
+        }
+      };
     } catch (error) {
-      logger.error('Erreur récupération notifications:', error);
+      console.error('Erreur getUserNotifications:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Récupérer toutes les notifications d'un tenant
+   */
+  static async getTenantNotifications(
+    tenantId: string,
+    filters?: NotificationFilters
+  ) {
+    try {
+      let notifications = Array.from(this.notifications.values())
+        .filter(n => n.tenantId === tenantId);
+
+      // Appliquer les mêmes filtres
+      if (filters?.type) {
+        notifications = notifications.filter(n => n.type === filters.type);
+      }
+
+      if (filters?.category) {
+        notifications = notifications.filter(n => n.category === filters.category);
+      }
+
+      if (filters?.status) {
+        notifications = notifications.filter(n => n.status === filters.status);
+      }
+
+      if (filters?.priority) {
+        notifications = notifications.filter(n => n.priority === filters.priority);
+      }
+
+      if (filters?.startDate && filters?.endDate) {
+        notifications = notifications.filter(n =>
+          n.createdAt >= filters.startDate! && n.createdAt <= filters.endDate!
+        );
+      }
+
+      notifications.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+      return {
+        notifications,
+        total: notifications.length
+      };
+    } catch (error) {
+      console.error('Erreur getTenantNotifications:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Récupérer une notification par ID
+   */
+  static async getNotificationById(notificationId: string, tenantId: string) {
+    try {
+      const notification = this.notifications.get(notificationId);
+
+      if (!notification || notification.tenantId !== tenantId) {
+        throw new Error('Notification non trouvée');
+      }
+
+      return notification;
+    } catch (error) {
+      console.error('Erreur getNotificationById:', error);
       throw error;
     }
   }
@@ -91,11 +219,53 @@ export class NotificationsService {
   /**
    * Marquer une notification comme lue
    */
-  async markAsRead(notificationId: string, userId: string): Promise<void> {
+  static async markAsRead(notificationId: string, tenantId: string, userId: string) {
     try {
-      await this.notificationService.markAsRead(notificationId, userId);
+      const notification = this.notifications.get(notificationId);
+
+      if (!notification || notification.tenantId !== tenantId) {
+        throw new Error('Notification non trouvée');
+      }
+
+      if (notification.userId !== userId) {
+        throw new Error('Accès non autorisé');
+      }
+
+      notification.status = NotificationStatus.READ;
+      notification.readAt = new Date();
+      notification.updatedAt = new Date();
+
+      this.notifications.set(notificationId, notification);
+
+      return { success: true, message: 'Notification marquée comme lue' };
     } catch (error) {
-      logger.error('Erreur marquage notification:', error);
+      console.error('Erreur markAsRead:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Marquer toutes les notifications comme lues
+   */
+  static async markAllAsRead(tenantId: string, userId: string) {
+    try {
+      let count = 0;
+
+      for (const [id, notification] of this.notifications.entries()) {
+        if (notification.tenantId === tenantId &&
+            notification.userId === userId &&
+            !notification.readAt) {
+          notification.status = NotificationStatus.READ;
+          notification.readAt = new Date();
+          notification.updatedAt = new Date();
+          this.notifications.set(id, notification);
+          count++;
+        }
+      }
+
+      return { success: true, message: `${count} notifications marquées comme lues` };
+    } catch (error) {
+      console.error('Erreur markAllAsRead:', error);
       throw error;
     }
   }
@@ -103,133 +273,238 @@ export class NotificationsService {
   /**
    * Supprimer une notification
    */
-  async deleteNotification(notificationId: string, userId: string): Promise<void> {
+  static async deleteNotification(notificationId: string, tenantId: string, userId: string) {
     try {
-      await this.notificationService.deleteNotification(notificationId, userId);
-    } catch (error) {
-      logger.error('Erreur suppression notification:', error);
-      throw error;
-    }
-  }
+      const notification = this.notifications.get(notificationId);
 
-  /**
-   * Créer une alerte
-   */
-  async createAlert(alert: Omit<Alert, 'id' | 'createdAt' | 'updatedAt'>): Promise<Alert> {
-    try {
-      return await this.notificationService.createAlert(alert);
-    } catch (error) {
-      logger.error('Erreur création alerte:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Vérifier les alertes
-   */
-  async checkAlerts(tenantId: string): Promise<void> {
-    try {
-      await this.notificationService.checkAlerts(tenantId);
-    } catch (error) {
-      logger.error('Erreur vérification alertes:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Mettre à jour un KPI critique
-   */
-  async updateKPI(kpi: CriticalKPI): Promise<void> {
-    try {
-      await this.notificationService.updateKPI(kpi);
-    } catch (error) {
-      logger.error('Erreur mise à jour KPI:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Obtenir les statistiques des notifications
-   */
-  async getStats(tenantId: string): Promise<any> {
-    try {
-      return await this.notificationService.getStats(tenantId);
-    } catch (error) {
-      logger.error('Erreur récupération statistiques:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Vérifier les KPIs critiques
-   */
-  private async checkCriticalKPIs(): Promise<void> {
-    try {
-      // TODO: Implémenter la vérification des KPIs critiques
-      // Pour l'instant, créer des KPIs mockés
-      const mockKPIs: CriticalKPI[] = [
-        {
-          id: 'budget-usage',
-          name: 'Utilisation du Budget',
-          description: 'Pourcentage du budget utilisé',
-          category: NotificationCategory.FINANCIAL,
-          threshold: {
-            warning: 80,
-            critical: 95
-          },
-          currentValue: Math.random() * 100,
-          unit: '%',
-          trend: 'up',
-          lastUpdated: new Date(),
-          tenantId: 'default'
-        },
-        {
-          id: 'stock-level',
-          name: 'Niveau de Stock',
-          description: 'Pourcentage des articles en stock',
-          category: NotificationCategory.STOCKS,
-          threshold: {
-            warning: 20,
-            critical: 10
-          },
-          currentValue: Math.random() * 100,
-          unit: '%',
-          trend: 'down',
-          lastUpdated: new Date(),
-          tenantId: 'default'
-        },
-        {
-          id: 'housing-occupancy',
-          name: 'Taux d\'Occupation',
-          description: 'Pourcentage des logements occupés',
-          category: NotificationCategory.HOUSING,
-          threshold: {
-            warning: 90,
-            critical: 95
-          },
-          currentValue: Math.random() * 100,
-          unit: '%',
-          trend: 'stable',
-          lastUpdated: new Date(),
-          tenantId: 'default'
-        }
-      ];
-
-      for (const kpi of mockKPIs) {
-        await this.updateKPI(kpi);
+      if (!notification || notification.tenantId !== tenantId) {
+        throw new Error('Notification non trouvée');
       }
 
+      if (notification.userId !== userId) {
+        throw new Error('Accès non autorisé');
+      }
+
+      this.notifications.delete(notificationId);
+
+      return { success: true, message: 'Notification supprimée avec succès' };
     } catch (error) {
-      logger.error('Erreur vérification KPIs critiques:', error);
+      console.error('Erreur deleteNotification:', error);
+      throw error;
     }
   }
 
   /**
-   * Nettoyer les ressources
+   * Supprimer toutes les notifications lues
    */
-  onModuleDestroy(): void {
-    if (this.kpiCheckInterval) {
-      clearInterval(this.kpiCheckInterval);
+  static async clearReadNotifications(tenantId: string, userId: string) {
+    try {
+      let count = 0;
+
+      for (const [id, notification] of this.notifications.entries()) {
+        if (notification.tenantId === tenantId &&
+            notification.userId === userId &&
+            notification.readAt) {
+          this.notifications.delete(id);
+          count++;
+        }
+      }
+
+      return { success: true, message: `${count} notifications supprimées` };
+    } catch (error) {
+      console.error('Erreur clearReadNotifications:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Récupérer les préférences de notification d'un utilisateur
+   */
+  static async getUserPreferences(userId: string, tenantId: string): Promise<NotificationPreferences> {
+    try {
+      const key = `${tenantId}_${userId}`;
+      let preferences = this.preferences.get(key);
+
+      if (!preferences) {
+        // Créer des préférences par défaut
+        preferences = {
+          userId,
+          tenantId,
+          channels: {
+            [DeliveryMethod.IN_APP]: true,
+            [DeliveryMethod.EMAIL]: true,
+            [DeliveryMethod.SMS]: false,
+            [DeliveryMethod.PUSH]: true,
+            [DeliveryMethod.WEBSOCKET]: true,
+            [DeliveryMethod.SSE]: true
+          },
+          categories: {
+            [NotificationCategory.FINANCIAL]: true,
+            [NotificationCategory.STOCKS]: true,
+            [NotificationCategory.HOUSING]: true,
+            [NotificationCategory.TRANSPORT]: true,
+            [NotificationCategory.WORKFLOW]: true,
+            [NotificationCategory.SYSTEM]: true,
+            [NotificationCategory.SECURITY]: true
+          },
+          types: {
+            [NotificationType.INFO]: true,
+            [NotificationType.SUCCESS]: true,
+            [NotificationType.WARNING]: true,
+            [NotificationType.ERROR]: true,
+            [NotificationType.CRITICAL]: true
+          },
+          quietHours: {
+            enabled: false,
+            start: '22:00',
+            end: '08:00',
+            timezone: 'Africa/Niamey'
+          },
+          frequency: {
+            immediate: true,
+            digest: false,
+            digestFrequency: 'daily'
+          },
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
+
+        this.preferences.set(key, preferences);
+      }
+
+      return preferences;
+    } catch (error) {
+      console.error('Erreur getUserPreferences:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Mettre à jour les préférences de notification
+   */
+  static async updateUserPreferences(
+    userId: string,
+    tenantId: string,
+    updates: Partial<NotificationPreferences>
+  ) {
+    try {
+      const key = `${tenantId}_${userId}`;
+      const preferences = await this.getUserPreferences(userId, tenantId);
+
+      const updatedPreferences: NotificationPreferences = {
+        ...preferences,
+        ...updates,
+        userId,
+        tenantId,
+        updatedAt: new Date()
+      };
+
+      this.preferences.set(key, updatedPreferences);
+
+      return updatedPreferences;
+    } catch (error) {
+      console.error('Erreur updateUserPreferences:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Envoyer une notification système
+   */
+  static async sendSystemNotification(
+    tenantId: string,
+    title: string,
+    message: string,
+    priority: NotificationPriority = NotificationPriority.MEDIUM
+  ) {
+    try {
+      // Envoyer à tous les utilisateurs du tenant (simulation)
+      const notification = await this.createNotification(tenantId, 'system', {
+        title,
+        message,
+        type: NotificationType.INFO,
+        category: NotificationCategory.SYSTEM,
+        priority
+      });
+
+      return notification;
+    } catch (error) {
+      console.error('Erreur sendSystemNotification:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Envoyer une alerte critique
+   */
+  static async sendCriticalAlert(
+    tenantId: string,
+    userId: string,
+    title: string,
+    message: string,
+    category: NotificationCategory,
+    data?: any
+  ) {
+    try {
+      const notification = await this.createNotification(tenantId, userId, {
+        title,
+        message,
+        type: NotificationType.CRITICAL,
+        category,
+        priority: NotificationPriority.CRITICAL,
+        data
+      });
+
+      return notification;
+    } catch (error) {
+      console.error('Erreur sendCriticalAlert:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Récupérer les statistiques des notifications
+   */
+  static async getNotificationStats(tenantId: string, userId?: string) {
+    try {
+      let notifications = Array.from(this.notifications.values())
+        .filter(n => n.tenantId === tenantId);
+
+      if (userId) {
+        notifications = notifications.filter(n => n.userId === userId);
+      }
+
+      const total = notifications.length;
+      const unread = notifications.filter(n => !n.readAt).length;
+      const read = notifications.filter(n => n.readAt).length;
+
+      const byType: any = {};
+      Object.values(NotificationType).forEach(type => {
+        byType[type] = notifications.filter(n => n.type === type).length;
+      });
+
+      const byCategory: any = {};
+      Object.values(NotificationCategory).forEach(category => {
+        byCategory[category] = notifications.filter(n => n.category === category).length;
+      });
+
+      const byPriority: any = {};
+      Object.values(NotificationPriority).forEach(priority => {
+        byPriority[priority] = notifications.filter(n => n.priority === priority).length;
+      });
+
+      return {
+        total,
+        unread,
+        read,
+        byType,
+        byCategory,
+        byPriority,
+        readRate: total > 0 ? (read / total) * 100 : 0
+      };
+    } catch (error) {
+      console.error('Erreur getNotificationStats:', error);
+      throw error;
     }
   }
 }

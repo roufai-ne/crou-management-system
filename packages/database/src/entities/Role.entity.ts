@@ -34,7 +34,7 @@ import {
 import { IsString, IsEnum, IsBoolean, IsOptional, Length } from 'class-validator';
 
 import { User } from './User.entity';
-// Import différé pour éviter les imports circulaires
+import { Permission } from './Permission.entity';
 
 // Types de tenants pour les rôles
 export enum RoleTenantType {
@@ -75,7 +75,7 @@ export class Role {
   @OneToMany(() => User, user => user.role)
   users: User[];
 
-  @ManyToMany(() => require('./Permission.entity').Permission, (permission: any) => permission.roles, {
+  @ManyToMany(() => Permission, (permission) => permission.roles, {
     cascade: true,
     eager: false
   })
@@ -90,7 +90,7 @@ export class Role {
       referencedColumnName: 'id'
     }
   })
-  permissions: any[];
+  permissions: Permission[];
 
   // Audit trail
   @CreateDateColumn()
