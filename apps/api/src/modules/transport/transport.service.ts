@@ -79,8 +79,8 @@ export class TransportService {
     const repo = AppDataSource.getRepository(Vehicle);
     const skip = (page - 1) * limit;
     const qb = repo.createQueryBuilder('vehicle').where('vehicle.tenantId = :tenantId', { tenantId });
-    if (filters.status) qb.andWhere('vehicle.status = :status', { status: filters.status });
-    if (filters.type) qb.andWhere('vehicle.type = :type', { type: filters.type });
+    if (filters.status && filters.status !== 'all') qb.andWhere('vehicle.status = :status', { status: filters.status });
+    if (filters.type && filters.type !== 'all') qb.andWhere('vehicle.type = :type', { type: filters.type });
     const [list, total] = await qb.skip(skip).take(limit).getManyAndCount();
     return { vehicles: list, total, page, limit, pages: Math.ceil(total / limit) };
   }
@@ -118,9 +118,9 @@ export class TransportService {
     const repo = AppDataSource.getRepository(VehicleUsage);
     const skip = (page - 1) * limit;
     const qb = repo.createQueryBuilder('usage').where('usage.tenantId = :tenantId', { tenantId });
-    if (filters.vehicleId) qb.andWhere('usage.vehicleId = :vehicleId', { vehicleId: filters.vehicleId });
+    if (filters.vehicleId && filters.vehicleId !== 'all') qb.andWhere('usage.vehicleId = :vehicleId', { vehicleId: filters.vehicleId });
     if (filters.conducteur) qb.andWhere('usage.conducteur LIKE :conducteur', { conducteur: `%${filters.conducteur}%` });
-    if (filters.type) qb.andWhere('usage.type = :type', { type: filters.type });
+    if (filters.type && filters.type !== 'all') qb.andWhere('usage.type = :type', { type: filters.type });
     const [list, total] = await qb.skip(skip).take(limit).getManyAndCount();
     return { usages: list, total, page, limit, pages: Math.ceil(total / limit) };
   }
@@ -163,9 +163,9 @@ export class TransportService {
     const repo = AppDataSource.getRepository(VehicleMaintenance);
     const skip = (page - 1) * limit;
     const qb = repo.createQueryBuilder('maintenance').where('maintenance.tenantId = :tenantId', { tenantId });
-    if (filters.vehicleId) qb.andWhere('maintenance.vehicleId = :vehicleId', { vehicleId: filters.vehicleId });
-    if (filters.type) qb.andWhere('maintenance.type = :type', { type: filters.type });
-    if (filters.status) qb.andWhere('maintenance.status = :status', { status: filters.status });
+    if (filters.vehicleId && filters.vehicleId !== 'all') qb.andWhere('maintenance.vehicleId = :vehicleId', { vehicleId: filters.vehicleId });
+    if (filters.type && filters.type !== 'all') qb.andWhere('maintenance.type = :type', { type: filters.type });
+    if (filters.status && filters.status !== 'all') qb.andWhere('maintenance.status = :status', { status: filters.status });
     const [list, total] = await qb.skip(skip).take(limit).getManyAndCount();
     return { maintenances: list, total, page, limit, pages: Math.ceil(total / limit) };
   }

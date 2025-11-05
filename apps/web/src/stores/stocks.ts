@@ -169,17 +169,20 @@ export const useStocks = create<StocksState & StocksActions>()(
               limit: get().pagination.limit
             });
             
+            // Valider que response.items est un tableau
+            const itemsData = Array.isArray(response.items) ? response.items : [];
             set({
-              items: response.items,
+              items: itemsData,
               pagination: {
                 ...get().pagination,
-                total: response.total
+                total: response.total || 0
               },
               itemsLoading: false,
               lastFetch: Date.now()
             });
           } catch (error: any) {
             set({
+              items: [], // Initialiser avec tableau vide en cas d'erreur
               itemsLoading: false,
               itemsError: error.message || 'Erreur lors du chargement des articles'
             });
@@ -231,13 +234,16 @@ export const useStocks = create<StocksState & StocksActions>()(
               limit: get().pagination.limit
             });
             
+            // Valider que response.movements est un tableau
+            const movementsData = Array.isArray(response.movements) ? response.movements : [];
             set({
-              movements: response.movements,
+              movements: movementsData,
               movementsLoading: false,
               lastFetch: Date.now()
             });
           } catch (error: any) {
             set({
+              movements: [], // Initialiser avec tableau vide en cas d'erreur
               movementsLoading: false,
               movementsError: error.message || 'Erreur lors du chargement des mouvements'
             });
@@ -261,16 +267,19 @@ export const useStocks = create<StocksState & StocksActions>()(
         // Actions pour les alertes
         loadAlerts: async (tenantId: string) => {
           set({ alertsLoading: true, alertsError: null });
-          
+
           try {
-            const alerts = await stocksService.getStockAlerts({ tenantId });
+            const response = await stocksService.getStockAlerts({ tenantId });
+            // Valider que la réponse est un tableau
+            const alertsData = Array.isArray(response) ? response : (response as any)?.alerts || [];
             set({
-              alerts,
+              alerts: alertsData,
               alertsLoading: false,
               lastFetch: Date.now()
             });
           } catch (error: any) {
             set({
+              alerts: [], // Initialiser avec tableau vide en cas d'erreur
               alertsLoading: false,
               alertsError: error.message || 'Erreur lors du chargement des alertes'
             });
@@ -298,13 +307,16 @@ export const useStocks = create<StocksState & StocksActions>()(
           
           try {
             const response = await stocksService.getSuppliers({ tenantId });
+            // Valider que response.suppliers est un tableau
+            const suppliersData = Array.isArray(response.suppliers) ? response.suppliers : [];
             set({
-              suppliers: response.suppliers,
+              suppliers: suppliersData,
               suppliersLoading: false,
               lastFetch: Date.now()
             });
           } catch (error: any) {
             set({
+              suppliers: [], // Initialiser avec tableau vide en cas d'erreur
               suppliersLoading: false,
               suppliersError: error.message || 'Erreur lors du chargement des fournisseurs'
             });

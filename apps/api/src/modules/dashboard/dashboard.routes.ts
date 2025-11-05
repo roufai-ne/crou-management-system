@@ -56,6 +56,20 @@ if (requireAuth) {
 router.use(dashboardLimiter);
 
 // ================================================================================================
+// ROUTE AGRÉGÉE
+// ================================================================================================
+
+/**
+ * GET /api/dashboard/data
+ * Données agrégées complètes du dashboard
+ * Permissions: dashboard:read
+ */
+router.get('/data',
+  maybe(checkPermissions(['dashboard:read'])),
+  DashboardController.getData
+);
+
+// ================================================================================================
 // ROUTES KPIs
 // ================================================================================================
 

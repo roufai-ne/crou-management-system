@@ -345,6 +345,16 @@ async function validateTenantAccess(
             return { allowed: true, isCrossTenant: !!isCrossTenant, targetTenantId };
         }
 
+        // Les utilisateurs du Ministère ont automatiquement accès cross-tenant
+        if (tenantContext.tenantType === 'ministere') {
+            logger.debug('Accès cross-tenant autorisé pour utilisateur ministériel:', {
+                userId: tenantContext.userId,
+                sourceTenant: tenantContext.tenantId,
+                targetTenant: targetTenantId
+            });
+            return { allowed: true, isCrossTenant: !!isCrossTenant, targetTenantId };
+        }
+
         // Si pas d'accès cross-tenant et tentative détectée
         if (isCrossTenant && !options.allowCrossTenant) {
             return {
