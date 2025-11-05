@@ -14,20 +14,26 @@ import { CorsOptions } from 'cors';
 
 export const corsConfig: CorsOptions = {
   origin: (origin, callback) => {
-    // En développement, autoriser toutes les origines
-    if (process.env.NODE_ENV === 'development') {
+    // Liste des origines autorisées (dev et prod)
+    const allowedOrigins = [
+      // Développement local
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'http://127.0.0.1:3000',
+      'http://127.0.0.1:5173',
+      // Production
+      'https://crou.niamey.gov.ne',
+      'https://admin.crou.niamey.gov.ne'
+    ];
+
+    // Permettre les requêtes sans origin (ex: Postman, curl)
+    // mais seulement en développement
+    if (!origin && process.env.NODE_ENV === 'development') {
       return callback(null, true);
     }
 
-    // En production, vérifier les origines autorisées
-    const allowedOrigins = [
-      'http://localhost:3000',      // Frontend dev
-      'http://localhost:5173',      // Vite dev
-      'https://crou.niamey.gov.ne', // Production frontend
-      'https://admin.crou.niamey.gov.ne' // Admin frontend
-    ];
-
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Vérifier si l'origine est dans la liste autorisée
+    if (origin && allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Non autorisé par CORS'));
