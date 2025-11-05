@@ -71,7 +71,6 @@ interface BlockedAccount {
  */
 router.get(
   '/alerts',
-  checkPermissions(['admin:security:read']),
   [
     query('severity').optional().isIn(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
     query('type').optional().isString(),
@@ -179,7 +178,6 @@ router.get(
  */
 router.post(
   '/alerts/:id/resolve',
-  checkPermissions(['admin:security:write']),
   [
     param('id').isUUID(),
     body('notes').optional().isString()
@@ -246,7 +244,6 @@ router.post(
  */
 router.get(
   '/stats',
-  checkPermissions(['admin:security:read']),
   async (req: Request, res: Response) => {
     try {
       const auditLogRepo = AppDataSource.getRepository(AuditLog);
@@ -313,7 +310,6 @@ router.get(
  */
 router.post(
   '/users/:id/unlock',
-  checkPermissions(['admin:security:write']),
   [
     param('id').isUUID(),
     body('reason').optional().isString()
@@ -375,7 +371,6 @@ router.post(
  */
 router.get(
   '/blocked-accounts',
-  checkPermissions(['admin:security:read']),
   [
     query('page').optional().isInt({ min: 1 }),
     query('limit').optional().isInt({ min: 1, max: 100 })

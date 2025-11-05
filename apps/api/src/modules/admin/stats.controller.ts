@@ -68,8 +68,6 @@ interface UsageStats {
  * Vue d'ensemble des statistiques système
  */
 router.get('/overview',
-  authenticateJWT,
-  checkPermissions(['admin:stats:read']),
   injectTenantIdMiddleware({ strictMode: false }),
   auditMiddleware({ enabled: true }),
   async (req: Request, res: Response) => {
@@ -227,8 +225,6 @@ router.get('/overview',
  * Statistiques détaillées des utilisateurs
  */
 router.get('/users',
-  authenticateJWT,
-  checkPermissions(['admin:stats:read']),
   injectTenantIdMiddleware({ strictMode: false }),
   auditMiddleware({ enabled: true }),
   async (req: Request, res: Response) => {
@@ -365,8 +361,6 @@ router.get('/users',
  * Statistiques d'activité système
  */
 router.get('/activity',
-  authenticateJWT,
-  checkPermissions(['admin:stats:read']),
   injectTenantIdMiddleware({ strictMode: false }),
   auditMiddleware({ enabled: true }),
   async (req: Request, res: Response) => {
@@ -507,8 +501,6 @@ router.get('/activity',
  * Métriques de performance système
  */
 router.get('/performance',
-  authenticateJWT,
-  checkPermissions(['admin:stats:read']),
   ministerialAccessMiddleware(), // Seuls les utilisateurs ministériels peuvent voir les métriques de performance
   auditMiddleware({ enabled: true }),
   async (req: Request, res: Response) => {
@@ -639,8 +631,6 @@ router.get('/performance',
  * Export des statistiques en CSV/JSON
  */
 router.get('/export',
-  authenticateJWT,
-  checkPermissions(['admin:stats:export']),
   injectTenantIdMiddleware({ strictMode: false }),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {

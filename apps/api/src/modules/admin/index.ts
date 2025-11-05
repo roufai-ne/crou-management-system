@@ -35,14 +35,15 @@ const router: Router = Router();
 /**
  * Middleware global pour l'administration
  * Vérification des permissions d'accès à l'interface d'administration
+ * Permission utilisée: admin:read (définie dans permission.seeder.ts)
  */
 router.use(
   authenticateJWT,
-  checkPermissions(['admin:access']),
-  auditMiddleware({ 
-    enabled: true, 
+  checkPermissions(['admin:read']),
+  auditMiddleware({
+    enabled: true,
     sensitiveResource: true,
-    logAllRequests: true 
+    logAllRequests: true
   })
 );
 
@@ -86,8 +87,8 @@ router.get('/health', (req, res) => {
 /**
  * Route d'information sur les permissions disponibles
  */
-router.get('/permissions/available', 
-  checkPermissions(['admin:permissions:read']),
+router.get('/permissions/available',
+  checkPermissions(['admin:read']),
   (req, res) => {
     const availablePermissions = [
       // Permissions utilisateurs

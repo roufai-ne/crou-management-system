@@ -70,8 +70,6 @@ interface TenantStats {
  * Liste des tenants avec statistiques
  */
 router.get('/',
-  authenticateJWT,
-  checkPermissions(['admin:tenants:read']),
   ministerialAccessMiddleware(), // Seuls les utilisateurs ministériels peuvent gérer les tenants
   auditMiddleware({ enabled: true }),
   async (req: Request, res: Response) => {
@@ -169,8 +167,6 @@ router.get('/',
  * Détail d'un tenant avec ses utilisateurs et statistiques
  */
 router.get('/:id',
-  authenticateJWT,
-  checkPermissions(['admin:tenants:read']),
   ministerialAccessMiddleware(),
   auditMiddleware({ enabled: true }),
   async (req: Request, res: Response) => {
@@ -257,8 +253,6 @@ router.get('/:id',
  * Création d'un nouveau tenant
  */
 router.post('/',
-  authenticateJWT,
-  checkPermissions(['admin:tenants:create']),
   ministerialAccessMiddleware(),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {
@@ -334,8 +328,6 @@ router.post('/',
  * Modification d'un tenant
  */
 router.put('/:id',
-  authenticateJWT,
-  checkPermissions(['admin:tenants:update']),
   ministerialAccessMiddleware(),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {
@@ -420,8 +412,6 @@ router.put('/:id',
  * Activer/désactiver un tenant
  */
 router.post('/:id/toggle-status',
-  authenticateJWT,
-  checkPermissions(['admin:tenants:update']),
   ministerialAccessMiddleware(),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {
@@ -496,8 +486,6 @@ router.post('/:id/toggle-status',
  * Liste des utilisateurs d'un tenant
  */
 router.get('/:id/users',
-  authenticateJWT,
-  checkPermissions(['admin:tenants:read', 'admin:users:read']),
   ministerialAccessMiddleware(),
   auditMiddleware({ enabled: true }),
   async (req: Request, res: Response) => {
@@ -582,8 +570,6 @@ router.get('/:id/users',
  * Statistiques globales des tenants
  */
 router.get('/stats/global',
-  authenticateJWT,
-  checkPermissions(['admin:tenants:read', 'admin:stats:read']),
   ministerialAccessMiddleware(),
   auditMiddleware({ enabled: true }),
   async (req: Request, res: Response) => {

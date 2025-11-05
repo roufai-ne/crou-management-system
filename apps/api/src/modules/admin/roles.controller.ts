@@ -63,8 +63,6 @@ interface PermissionCreateData {
  * Liste des rôles avec leurs permissions
  */
 router.get('/',
-  authenticateJWT,
-  checkPermissions(['admin:roles:read']),
   ministerialAccessMiddleware(), // Seuls les utilisateurs ministériels peuvent gérer les rôles
   auditMiddleware({ enabled: true }),
   async (req: Request, res: Response) => {
@@ -149,8 +147,6 @@ router.get('/',
  * Détail d'un rôle avec ses permissions
  */
 router.get('/:id',
-  authenticateJWT,
-  checkPermissions(['admin:roles:read']),
   ministerialAccessMiddleware(),
   auditMiddleware({ enabled: true }),
   async (req: Request, res: Response) => {
@@ -204,8 +200,6 @@ router.get('/:id',
  * Création d'un nouveau rôle
  */
 router.post('/',
-  authenticateJWT,
-  checkPermissions(['admin:roles:create']),
   ministerialAccessMiddleware(),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {
@@ -292,8 +286,6 @@ router.post('/',
  * Modification d'un rôle
  */
 router.put('/:id',
-  authenticateJWT,
-  checkPermissions(['admin:roles:update']),
   ministerialAccessMiddleware(),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {
@@ -392,8 +384,6 @@ router.put('/:id',
  * Suppression d'un rôle
  */
 router.delete('/:id',
-  authenticateJWT,
-  checkPermissions(['admin:roles:delete']),
   ministerialAccessMiddleware(),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {
@@ -463,8 +453,6 @@ router.delete('/:id',
  * Liste des permissions disponibles
  */
 router.get('/permissions',
-  authenticateJWT,
-  checkPermissions(['admin:permissions:read']),
   ministerialAccessMiddleware(),
   auditMiddleware({ enabled: true }),
   async (req: Request, res: Response) => {
@@ -519,8 +507,6 @@ router.get('/permissions',
  * Création d'une nouvelle permission
  */
 router.post('/permissions',
-  authenticateJWT,
-  checkPermissions(['admin:permissions:create']),
   ministerialAccessMiddleware(),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {
@@ -596,8 +582,6 @@ router.post('/permissions',
  * Matrice des rôles et permissions
  */
 router.get('/matrix',
-  authenticateJWT,
-  checkPermissions(['admin:roles:read']),
   ministerialAccessMiddleware(),
   auditMiddleware({ enabled: true }),
   async (req: Request, res: Response) => {
@@ -668,8 +652,6 @@ router.get('/matrix',
  * Mettre à jour les permissions d'un rôle
  */
 router.post('/:id/permissions',
-  authenticateJWT,
-  checkPermissions(['admin:roles:update']),
   ministerialAccessMiddleware(),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {
