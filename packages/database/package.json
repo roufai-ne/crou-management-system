@@ -2,6 +2,7 @@
   "name": "@crou/database",
   "version": "1.0.0",
   "description": "Base de données et entités TypeORM pour CROU",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

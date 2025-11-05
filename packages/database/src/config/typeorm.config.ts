@@ -1,13 +1,13 @@
 /**
  * FICHIER: packages\database\src\config\typeorm.config.ts
  * CONFIG: Configuration TypeORM pour PostgreSQL multi-tenant
- * 
+ *
  * DESCRIPTION:
  * Configuration base de données avec support multi-tenant
  * Connexion PostgreSQL sécurisée avec pool de connexions
  * Migrations automatiques et seeds de données de test
  * Logging configuré pour développement et production
- * 
+ *
  * FONCTIONNALITÉS:
  * - Support multi-tenant avec tenant_id
  * - Connexion pool optimisée
@@ -15,12 +15,12 @@
  * - Seeds pour 8 CROU + Ministère
  * - Logging différencié dev/prod
  * - SSL en production
- * 
+ *
  * VARIABLES ENVIRONNEMENT:
  * - DATABASE_URL: URL complète PostgreSQL
  * - DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
  * - NODE_ENV: development/production
- * 
+ *
  * AUTEUR: Équipe CROU
  * DATE: Décembre 2024
  */
@@ -29,8 +29,14 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 import { config } from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-// Import de la configuration d'authentification simplifiée
-import { AuthDataSource, initializeAuthDatabase, closeAuthDatabase } from './typeorm.auth.config';
+
+// Imports directs des entités essentielles pour éviter problèmes de métadonnées
+import { User } from '../entities/User.entity';
+import { Tenant } from '../entities/Tenant.entity';
+import { AuditLog } from '../entities/AuditLog.entity';
+import { RefreshToken } from '../entities/RefreshToken.entity';
+import { Role } from '../entities/Role.simple.entity';
+import { Permission } from '../entities/Permission.entity';
 
 // Configuration des variables d'environnement
 config();
@@ -45,9 +51,9 @@ const isProduction = process.env.NODE_ENV === 'production';
 // Configuration TypeORM
 export const typeormConfig: DataSourceOptions = {
   type: 'postgres',
-  
+
   // Configuration connexion
-  ...(process.env.DATABASE_URL 
+  ...(process.env.DATABASE_URL
     ? { url: process.env.DATABASE_URL }
     : {
         host: process.env.DB_HOST || 'localhost',
@@ -73,49 +79,49 @@ export const typeormConfig: DataSourceOptions = {
     })
   },
 
-  // Entités - TOUTES les 30 entités du projet
+  // Entités - Imports directs pour RBAC + glob patterns pour modules
+  // IMPORTANT: Direct imports pour core RBAC évitent erreurs de métadonnées
   entities: [
-    // Entités Core (Authentification & Autorisation)
-    // IMPORTANT: Role et Permission AVANT User pour résoudre les dépendances circulaires
-    path.join(__dirname, '../entities/Tenant.entity.{ts,js}'),
-    path.join(__dirname, '../entities/Permission.entity.{ts,js}'),
-    path.join(__dirname, '../entities/Role.entity.{ts,js}'),
-    path.join(__dirname, '../entities/User.entity.{ts,js}'),
-    path.join(__dirname, '../entities/RefreshToken.entity.{ts,js}'),
-    path.join(__dirname, '../entities/AuditLog.entity.{ts,js}'),
+    // Entités Core RBAC (imports directs pour résoudre métadonnées)
+    User,
+    Tenant,
+    Role,
+    Permission,
+    AuditLog,
+    RefreshToken,
 
-    // Module Financial
+    // Module Financial (glob patterns)
     path.join(__dirname, '../entities/Budget.entity.{ts,js}'),
     path.join(__dirname, '../entities/BudgetCategory.entity.{ts,js}'),
     path.join(__dirname, '../entities/BudgetTrimester.entity.{ts,js}'),
     path.join(__dirname, '../entities/Transaction.entity.{ts,js}'),
     path.join(__dirname, '../entities/ValidationStep.entity.{ts,js}'),
 
-    // Module Stocks
+    // Module Stocks (glob patterns)
     path.join(__dirname, '../entities/Stock.entity.{ts,js}'),
     path.join(__dirname, '../entities/StockMovement.entity.{ts,js}'),
     path.join(__dirname, '../entities/StockAlert.entity.{ts,js}'),
     path.join(__dirname, '../entities/Supplier.entity.{ts,js}'),
 
-    // Module Housing
+    // Module Housing (glob patterns)
     path.join(__dirname, '../entities/Housing.entity.{ts,js}'),
     path.join(__dirname, '../entities/Room.entity.{ts,js}'),
     path.join(__dirname, '../entities/HousingOccupancy.entity.{ts,js}'),
     path.join(__dirname, '../entities/HousingMaintenance.entity.{ts,js}'),
 
-    // Module Transport
+    // Module Transport (glob patterns)
     path.join(__dirname, '../entities/Vehicle.entity.{ts,js}'),
     path.join(__dirname, '../entities/VehicleUsage.entity.{ts,js}'),
     path.join(__dirname, '../entities/VehicleMaintenance.entity.{ts,js}'),
     path.join(__dirname, '../entities/VehicleFuel.entity.{ts,js}'),
 
-    // Module Workflows
+    // Module Workflows (glob patterns)
     path.join(__dirname, '../entities/Workflow.entity.{ts,js}'),
     path.join(__dirname, '../entities/WorkflowStep.entity.{ts,js}'),
     path.join(__dirname, '../entities/WorkflowInstance.entity.{ts,js}'),
     path.join(__dirname, '../entities/WorkflowAction.entity.{ts,js}'),
 
-    // Module Notifications
+    // Module Notifications (glob patterns)
     path.join(__dirname, '../entities/Notification.entity.{ts,js}'),
     path.join(__dirname, '../entities/NotificationPreference.entity.{ts,js}')
   ],
@@ -140,16 +146,8 @@ export const typeormConfig: DataSourceOptions = {
   migrationsRun: isProduction,
   migrationsTableName: '_migrations_history',
 
-  // Cache des requêtes
-  cache: {
-    type: 'redis',
-    options: {
-      host: process.env.REDIS_HOST || 'localhost',
-      port: parseInt(process.env.REDIS_PORT || '6379'),
-      password: process.env.REDIS_PASSWORD || undefined
-    },
-    duration: 30000 // 30 secondes
-  }
+  // Cache des requêtes (désactivé temporairement)
+  cache: false
 };
 
 // Instance DataSource pour TypeORM
@@ -199,6 +197,10 @@ export const closeDatabase = async (): Promise<void> => {
     }
   } catch (error) {
     console.error('❌ Erreur fermeture base de données:', error);
+<<<<<<< HEAD
+=======
+    throw error;
+>>>>>>> 695f6dc (fix: Résoudre l'erreur TypeORM metadata pour User#tenant)
   }
 };
 
