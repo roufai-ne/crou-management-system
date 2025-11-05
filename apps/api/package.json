@@ -18,6 +18,7 @@
     "db:revert": "typeorm-ts-node-esm migration:revert",
     "db:seed": "tsx src/shared/database/seeders/run-seeders.ts",
     "db:reset": "npm run db:revert && npm run db:run && npm run db:seed",
+    "diagnose:database": "tsx src/scripts/diagnose-database.ts",
     "diagnose:users": "tsx src/scripts/diagnose-users.ts",
     "fix:users-tenant": "tsx src/scripts/fix-users-tenant.ts",
     "fix:ministre-permissions": "tsx src/scripts/fix-ministre-permissions.ts"
