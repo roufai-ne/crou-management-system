@@ -250,14 +250,11 @@ async function linkPermissionsToRoles(
 
   // MATRICE DE PERMISSIONS SELON PRD
 
-  // 1. MINISTRE - Accès complet (RWV) à tous les modules
+  // 1. MINISTRE - Accès complet (RWV) à TOUS les modules
+  // Le Ministre a toutes les permissions sans exception
   const ministre = roleMap.get('Ministre');
   if (ministre) {
-    ministre.permissions = permissions.filter(p => 
-      // Toutes les permissions sauf certaines spécialisées
-      !['users', 'admin'].includes(p.resource) || 
-      p.actions.includes('read') || p.actions.includes('validate')
-    );
+    ministre.permissions = permissions; // TOUTES les permissions
     await roleRepository.save(ministre);
   }
 

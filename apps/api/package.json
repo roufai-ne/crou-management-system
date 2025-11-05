@@ -19,7 +19,8 @@
     "db:seed": "tsx src/shared/database/seeders/run-seeders.ts",
     "db:reset": "npm run db:revert && npm run db:run && npm run db:seed",
     "diagnose:users": "tsx src/scripts/diagnose-users.ts",
-    "fix:users-tenant": "tsx src/scripts/fix-users-tenant.ts"
+    "fix:users-tenant": "tsx src/scripts/fix-users-tenant.ts",
+    "fix:ministre-permissions": "tsx src/scripts/fix-ministre-permissions.ts"
   },
   "dependencies": {
     "@types/swagger-jsdoc": "^6.0.4",
