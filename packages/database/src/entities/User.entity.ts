@@ -220,24 +220,39 @@ export class User {
     // Chercher la permission correspondante
     return this.role.permissions.some((permission: any) => {
       const permResource = permission.resource || permission.name?.split(':')[0];
-      const permAction = permission.action || permission.name?.split(':')[1];
 
-      // Vérifier correspondance exacte
-      if (permResource === resource && permAction === action) {
-        return true;
+      // Permission.actions est un ARRAY ["read", "write", "validate"]
+      let permActions: string[] = [];
+
+      if (Array.isArray(permission.actions)) {
+        permActions = permission.actions;
+      } else if (permission.action) {
+        // Fallback pour format legacy
+        permActions = [permission.action];
+      } else if (permission.name?.includes(':')) {
+        // Extraire de "resource:action"
+        permActions = [permission.name.split(':')[1]];
       }
 
-      // Vérifier wildcards
-      if (permResource === resource && permAction === '*') {
-        return true;
-      }
+      // Vérifier chaque action dans le tableau
+      for (const permAction of permActions) {
+        // Correspondance exacte
+        if (permResource === resource && permAction === action) {
+          return true;
+        }
 
-      if (permResource === '*' && permAction === action) {
-        return true;
-      }
+        // Wildcards
+        if (permResource === resource && permAction === '*') {
+          return true;
+        }
 
-      if (permResource === '*' && permAction === '*') {
-        return true;
+        if (permResource === '*' && permAction === action) {
+          return true;
+        }
+
+        if (permResource === '*' && permAction === '*') {
+          return true;
+        }
       }
 
       return false;
@@ -252,17 +267,25 @@ export class User {
       return [];
     }
 
-    // Retourner la liste des permissions sous forme de chaînes
-    return this.role.permissions.map((permission: any) => {
-      if (permission.getDisplayName) {
-        return permission.getDisplayName();
-      }
+    const permissionStrings: string[] = [];
 
+    for (const permission of this.role.permissions) {
       const resource = permission.resource || permission.name?.split(':')[0] || '';
-      const action = permission.action || permission.name?.split(':')[1] || '';
 
-      return `${resource}:${action}`;
-    });
+      // Permission.actions est un ARRAY ["read", "write", "validate"]
+      // Il faut créer une permission string par action
+      if (Array.isArray(permission.actions) && permission.actions.length > 0) {
+        for (const action of permission.actions) {
+          permissionStrings.push(`${resource}:${action}`);
+        }
+      } else {
+        // Fallback pour les permissions au format "resource:action" (legacy)
+        const action = permission.action || permission.name?.split(':')[1] || '';
+        permissionStrings.push(`${resource}:${action}`);
+      }
+    }
+
+    return permissionStrings;
   }
 
   /**

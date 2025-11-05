@@ -56,9 +56,10 @@ router.use(financialLimiter);
 /**
  * GET /api/financial/budgets
  * Liste des budgets avec filtres et pagination
+ * Permissions: financial:read
  */
-router.get('/budgets', 
-  budgetValidators.create, // Utilise les mêmes validateurs pour les query params
+router.get('/budgets',
+  checkPermissions(['financial:read']),
   FinancialController.getBudgets
 );
 
