@@ -13,7 +13,7 @@
  * DATE: Décembre 2024
  */
 
-import { runRBACseeders } from './run-rbac-seeders';
+import { runRBACseeders } from './run-rbac-seeders.js';
 
 async function runAllSeeders() {
   try {
@@ -24,6 +24,7 @@ async function runAllSeeders() {
     await runRBACseeders();
 
     console.log('\n✅ Base de données initialisée avec succès !');
+    process.exit(0);
 
   } catch (error: any) {
     console.error('\n❌ Erreur lors de l\'exécution des seeders:', error);
@@ -32,9 +33,5 @@ async function runAllSeeders() {
   }
 }
 
-// Exécuter si appelé directement
-if (import.meta.url === `file://${process.argv[1]}`) {
-  runAllSeeders().catch(console.error);
-}
-
-export { runAllSeeders };
+// Appel direct - ce fichier est toujours le point d'entrée principal
+runAllSeeders();
