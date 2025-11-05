@@ -25,11 +25,8 @@ async function resetRBACData() {
 
     console.log('✅ Connexion établie\n');
 
-    // Désactiver les contraintes temporairement pour éviter les erreurs de clés étrangères
-    console.log('🔓 Désactivation temporaire des contraintes de clés étrangères...');
-    await AppDataSource.query('SET session_replication_role = replica;');
-
-    // Ordre de suppression: commencer par les tables dépendantes
+    // Ordre de suppression: respecter les dépendances des clés étrangères
+    // Supprimer d'abord les tables dépendantes, puis les tables principales
     const tables = [
       { name: 'refresh_tokens', label: 'Refresh Tokens' },
       { name: 'audit_logs', label: 'Audit Logs' },
@@ -40,7 +37,7 @@ async function resetRBACData() {
       { name: 'tenants', label: 'Tenants' }
     ];
 
-    console.log('🗑️  Suppression des données:\n');
+    console.log('🗑️  Suppression des données (en respectant les contraintes FK):\n');
 
     for (const table of tables) {
       try {
@@ -48,8 +45,19 @@ async function resetRBACData() {
         const count = parseInt(countResult[0].count);
 
         if (count > 0) {
-          await AppDataSource.query(`DELETE FROM ${table.name}`);
-          console.log(`   ✅ ${table.label.padEnd(35)} ${count} supprimé(s)`);
+          // Utiliser TRUNCATE CASCADE qui gère automatiquement les dépendances
+          try {
+            await AppDataSource.query(`TRUNCATE TABLE ${table.name} CASCADE`);
+            console.log(`   ✅ ${table.label.padEnd(35)} ${count} supprimé(s)`);
+          } catch (truncateError: any) {
+            // Si TRUNCATE échoue, essayer DELETE
+            if (truncateError.message?.includes('TRUNCATE')) {
+              await AppDataSource.query(`DELETE FROM ${table.name}`);
+              console.log(`   ✅ ${table.label.padEnd(35)} ${count} supprimé(s) (DELETE)`);
+            } else {
+              throw truncateError;
+            }
+          }
         } else {
           console.log(`   ⚪ ${table.label.padEnd(35)} Déjà vide`);
         }
@@ -61,10 +69,6 @@ async function resetRBACData() {
         }
       }
     }
-
-    // Réactiver les contraintes
-    console.log('\n🔒 Réactivation des contraintes de clés étrangères...');
-    await AppDataSource.query('SET session_replication_role = DEFAULT;');
 
     // Réinitialiser les séquences (auto-increment)
     console.log('🔢 Réinitialisation des séquences...\n');
@@ -102,10 +106,6 @@ async function resetRBACData() {
     console.error('Détails:', error.message);
 
     if (AppDataSource.isInitialized) {
-      // Réactiver les contraintes en cas d'erreur
-      try {
-        await AppDataSource.query('SET session_replication_role = DEFAULT;');
-      } catch {}
       await AppDataSource.destroy();
     }
     process.exit(1);
