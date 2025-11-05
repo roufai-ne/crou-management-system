@@ -92,7 +92,8 @@ async function runRBACseeders(): Promise<void> {
 }
 
 // Exécuter les seeders si ce fichier est appelé directement
-if (require.main === module) {
+// Vérification ES modules (remplace require.main === module)
+if (import.meta.url === `file://${process.argv[1]}`) {
   runRBACseeders()
     .then(() => {
       console.log('🎉 Seeders RBAC terminés !');
