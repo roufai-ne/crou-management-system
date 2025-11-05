@@ -290,15 +290,81 @@ export class User {
 
   /**
    * Vérifier si l'utilisateur peut accéder à un tenant spécifique
+   * NOTE: Cette méthode est synchrone et fait des vérifications simples
+   * Pour des vérifications hiérarchiques complètes, utiliser TenantHierarchyService.canAccessTenant()
    */
   canAccessTenant(targetTenantId: string): boolean {
     // L'utilisateur peut toujours accéder à son propre tenant
     if (this.tenantId === targetTenantId) return true;
-    
+
     // Les utilisateurs du ministère peuvent accéder à tous les tenants
     if (this.tenant?.type === 'ministere') return true;
-    
+
+    // Les utilisateurs CROU peuvent accéder à leurs services (si la relation est chargée)
+    if (this.tenant?.type === 'crou' && this.tenant.children) {
+      const childIds = this.tenant.children.map(c => c.id);
+      if (childIds.includes(targetTenantId)) return true;
+    }
+
     return false;
+  }
+
+  /**
+   * Obtenir les IDs de tous les tenants accessibles par l'utilisateur
+   * Basé sur la hiérarchie tenant
+   *
+   * IMPORTANT: Cette méthode nécessite que tenant.children soit chargé
+   * Pour un calcul complet, utiliser TenantHierarchyService.getAccessScope()
+   */
+  getAccessibleTenantIds(): string[] {
+    const tenantIds: string[] = [this.tenantId];
+
+    // Niveau 0 (Ministère): Pas de liste spécifique ici (nécessite requête DB)
+    // Utiliser TenantHierarchyService.getAccessScope() pour obtenir tous les tenants
+    if (this.tenant?.type === 'ministere') {
+      // Retourner uniquement l'ID du ministère
+      // L'application doit utiliser TenantHierarchyService pour obtenir la liste complète
+      return tenantIds;
+    }
+
+    // Niveau 1 (CROU): Ajouter les services (si chargés)
+    if (this.tenant?.type === 'crou' && this.tenant.children) {
+      const childIds = this.tenant.children.map(c => c.id);
+      tenantIds.push(...childIds);
+    }
+
+    // Niveau 2 (Service): Accès uniquement à lui-même
+    // Déjà inclus dans tenantIds
+
+    return tenantIds;
+  }
+
+  /**
+   * Obtenir le niveau hiérarchique de l'utilisateur
+   */
+  getHierarchyLevel(): number {
+    return this.tenant?.level ?? 2; // Par défaut niveau 2 (Service)
+  }
+
+  /**
+   * Vérifier si l'utilisateur est au niveau Ministère
+   */
+  isMinistryLevel(): boolean {
+    return this.tenant?.type === 'ministere' && this.tenant?.level === 0;
+  }
+
+  /**
+   * Vérifier si l'utilisateur est au niveau CROU
+   */
+  isCROULevel(): boolean {
+    return this.tenant?.type === 'crou' && this.tenant?.level === 1;
+  }
+
+  /**
+   * Vérifier si l'utilisateur est au niveau Service
+   */
+  isServiceLevel(): boolean {
+    return this.tenant?.type === 'service' && this.tenant?.level === 2;
   }
 
   /**

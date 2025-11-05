@@ -1,19 +1,26 @@
 /**
  * FICHIER: apps\api\src\shared\middlewares\tenant-isolation.middleware.ts
- * MIDDLEWARE: Isolation automatique multi-tenant
- * 
+ * MIDDLEWARE: Isolation automatique multi-tenant avec hiérarchie
+ *
  * DESCRIPTION:
  * Middlewares pour l'isolation automatique des données par tenant
  * Injection automatique du tenant_id dans les requêtes
- * Validation des accès cross-tenant avec règles granulaires
- * 
+ * Validation des accès cross-tenant avec support hiérarchique
+ *
  * FONCTIONNALITÉS:
  * - Injection automatique du tenant_id dans les requêtes/réponses
  * - Validation stricte des accès cross-tenant
+ * - Support de la hiérarchie tenant (Ministère → CROU → Services)
+ * - Validation hiérarchique avec TenantHierarchyService
  * - Filtrage automatique des données par tenant
  * - Permissions spéciales pour les utilisateurs ministériels
  * - Audit des accès cross-tenant
- * 
+ *
+ * HIÉRARCHIE:
+ * - Niveau 0 (Ministère): Accès à tous les tenants
+ * - Niveau 1 (CROU): Accès à ses services (descendants)
+ * - Niveau 2 (Service): Accès uniquement à lui-même
+ *
  * AUTEUR: Équipe CROU
  * DATE: Décembre 2024
  */
@@ -23,9 +30,27 @@ import { MultiTenantService, TenantContext, TenantAccessRule } from '@/shared/se
 import { AuditService } from '@/shared/services/audit.service';
 import { AuditAction } from '../../../../../packages/database/src/entities/AuditLog.entity';
 import { logger } from '@/shared/utils/logger';
+import { TenantHierarchyService } from '@/modules/tenants/tenant-hierarchy.service';
+import { AppDataSource } from '@/config/database';
 
 const multiTenantService = new MultiTenantService();
 const auditService = new AuditService();
+
+// TenantHierarchyService sera initialisé lors de la première utilisation
+let tenantHierarchyService: TenantHierarchyService | null = null;
+
+/**
+ * Récupérer ou initialiser le service de hiérarchie tenant
+ */
+function getTenantHierarchyService(): TenantHierarchyService {
+  if (!tenantHierarchyService && AppDataSource.isInitialized) {
+    tenantHierarchyService = new TenantHierarchyService(AppDataSource);
+  }
+  if (!tenantHierarchyService) {
+    throw new Error('TenantHierarchyService non initialisé - DataSource non disponible');
+  }
+  return tenantHierarchyService;
+}
 
 /**
  * Interface pour les options d'isolation tenant
@@ -324,7 +349,7 @@ async function injectTenantIdInRequest(req: Request, tenantContext: TenantContex
 }
 
 /**
- * Valider l'accès tenant
+ * Valider l'accès tenant avec support hiérarchique
  */
 async function validateTenantAccess(
     req: Request,
@@ -345,31 +370,60 @@ async function validateTenantAccess(
             return { allowed: true, isCrossTenant: !!isCrossTenant, targetTenantId };
         }
 
-        // Les utilisateurs du Ministère ont automatiquement accès cross-tenant
-        if (tenantContext.tenantType === 'ministere') {
-            logger.debug('Accès cross-tenant autorisé pour utilisateur ministériel:', {
-                userId: tenantContext.userId,
-                sourceTenant: tenantContext.tenantId,
-                targetTenant: targetTenantId
-            });
-            return { allowed: true, isCrossTenant: !!isCrossTenant, targetTenantId };
+        // ========================================
+        // VALIDATION HIÉRARCHIQUE (NOUVEAU)
+        // ========================================
+
+        // Si accès au même tenant, toujours autorisé
+        if (!isCrossTenant) {
+            return { allowed: true, isCrossTenant: false, targetTenantId: tenantContext.tenantId };
         }
 
-        // Si pas d'accès cross-tenant et tentative détectée
+        try {
+            // Utiliser le service de hiérarchie pour valider l'accès
+            const hierarchyService = getTenantHierarchyService();
+            const canAccess = await hierarchyService.canAccessTenant(
+                tenantContext.tenantId,
+                targetTenantId!
+            );
+
+            if (canAccess) {
+                logger.debug('Accès cross-tenant autorisé via hiérarchie:', {
+                    userId: tenantContext.userId,
+                    sourceTenant: tenantContext.tenantId,
+                    targetTenant: targetTenantId,
+                    tenantType: tenantContext.tenantType
+                });
+                return { allowed: true, isCrossTenant: true, targetTenantId };
+            }
+        } catch (hierarchyError) {
+            logger.warn('Erreur lors de la vérification hiérarchique, fallback vers validation simple:', hierarchyError);
+
+            // FALLBACK: Les utilisateurs du Ministère ont automatiquement accès cross-tenant
+            if (tenantContext.tenantType === 'ministere') {
+                logger.debug('Accès cross-tenant autorisé pour utilisateur ministériel (fallback):', {
+                    userId: tenantContext.userId,
+                    sourceTenant: tenantContext.tenantId,
+                    targetTenant: targetTenantId
+                });
+                return { allowed: true, isCrossTenant: !!isCrossTenant, targetTenantId };
+            }
+        }
+
+        // Si la hiérarchie n'autorise pas l'accès
         if (isCrossTenant && !options.allowCrossTenant) {
             return {
                 allowed: false,
-                reason: 'Accès cross-tenant non autorisé pour cette opération',
+                reason: 'Accès cross-tenant non autorisé - vous ne pouvez accéder qu\'aux tenants de votre scope hiérarchique',
                 isCrossTenant: true,
                 targetTenantId
             };
         }
 
-        // Validation des permissions requises (TODO: implémenter validateUserPermissions)
+        // Validation des permissions requises
         if (options.requiredPermissions?.length) {
-            // Pour l'instant, on considère que l'utilisateur a les permissions
-            // TODO: Implémenter la validation des permissions via le service RBAC
             logger.debug('Validation des permissions requises:', options.requiredPermissions);
+            // TODO: Implémenter la validation des permissions via le service RBAC
         }
 
         return { allowed: true, isCrossTenant: !!isCrossTenant, targetTenantId };

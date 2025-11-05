@@ -23,9 +23,11 @@
  * - /api/financial - Module financier
  * - /api/stocks - Gestion stocks
  * - /api/housing - Logement
+ * - /api/transport - Transport et véhicules
  * - /api/reports - Rapports
  * - /api/notifications - Notifications
  * - /api/workflows - Workflows
+ * - /api/allocations - Allocations stratégiques
  * - /api/admin - Administration
  * 
  * AUTEUR: Équipe CROU
@@ -62,6 +64,7 @@ import { reportsRoutes } from '@/modules/reports/reports.routes';
 import { notificationsRoutes } from '@/modules/notifications/notifications.routes';
 import { workflowRoutes } from '@/modules/workflows/workflow.routes';
 import { transportRoutes } from '@/modules/transport/transport.routes';
+import { allocationsRoutes } from '@/modules/allocations/allocations.routes';
 import adminRoutes from '@/modules/admin/index';
 
 // Configuration environnement
@@ -183,6 +186,7 @@ app.use('/api/reports', reportsRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/workflows', workflowRoutes);
 app.use('/api/transport', transportRoutes);
+app.use('/api/allocations', allocationsRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Route par défaut
