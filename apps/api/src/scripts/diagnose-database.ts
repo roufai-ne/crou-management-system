@@ -13,7 +13,7 @@
  * DATE: 2025-11-05
  */
 
-import { AppDataSource } from '../../../../../packages/database/src/config/typeorm.config';
+import { AppDataSource } from '../../../../packages/database/src/config/typeorm.config';
 
 async function diagnoseDatabaseState() {
   try {
