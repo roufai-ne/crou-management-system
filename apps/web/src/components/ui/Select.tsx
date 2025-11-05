@@ -37,7 +37,7 @@ export interface SelectOption {
 export interface SelectProps {
   value?: string | number | (string | number)[];
   onChange?: (value: string | number | (string | number)[]) => void;
-  options: SelectOption[];
+  options?: SelectOption[];  // Optionnel avec valeur par défaut []
   placeholder?: string;
   disabled?: boolean;
   multiple?: boolean;
@@ -64,7 +64,7 @@ const sizeClasses = {
 export function Select({
   value,
   onChange,
-  options,
+  options = [],  // Valeur par défaut: tableau vide
   placeholder = 'Sélectionner...',
   disabled = false,
   multiple = false,
