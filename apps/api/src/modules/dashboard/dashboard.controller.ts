@@ -257,4 +257,55 @@ export class DashboardController {
       });
     }
   }
+
+  /**
+   * GET /api/dashboard/data
+   * Données agrégées complètes du dashboard
+   */
+  static async getData(req: Request, res: Response) {
+    try {
+      const { level, startDate, endDate } = req.query;
+      const tenantId = req.query.tenantId as string || (req as any).user?.tenantId;
+
+      if (!tenantId) {
+        return res.status(401).json({
+          success: false,
+          error: 'Tenant ID manquant'
+        });
+      }
+
+      const parsedStartDate = startDate ? new Date(startDate as string) : undefined;
+      const parsedEndDate = endDate ? new Date(endDate as string) : undefined;
+
+      // Agréger toutes les données du dashboard
+      const [globalKPIs, moduleKPIs, evolution, expenses, alerts, activities] = await Promise.all([
+        DashboardService.getGlobalKPIs(tenantId, parsedStartDate, parsedEndDate),
+        DashboardService.getModuleKPIs(tenantId, parsedStartDate, parsedEndDate),
+        DashboardService.getEvolutionData(tenantId, parsedStartDate, parsedEndDate),
+        DashboardService.getExpenseBreakdown(tenantId, parsedStartDate, parsedEndDate),
+        DashboardService.getAlerts(tenantId, 10),
+        DashboardService.getRecentActivities(tenantId, 10)
+      ]);
+
+      res.json({
+        success: true,
+        data: {
+          level: level || 'crou',
+          globalKPIs,
+          moduleKPIs,
+          evolution,
+          expenses,
+          alerts,
+          activities,
+          tenantId
+        }
+      });
+    } catch (error) {
+      console.error('Erreur getData:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erreur lors de la récupération des données dashboard'
+      });
+    }
+  }
 }
