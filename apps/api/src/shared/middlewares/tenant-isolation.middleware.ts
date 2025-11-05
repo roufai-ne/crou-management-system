@@ -55,9 +55,18 @@ export const injectTenantIdMiddleware = (options: TenantIsolationOptions = {}) =
             // Récupérer le contexte tenant
             const tenantContext = await multiTenantService.getTenantContext(req.user.id);
             if (!tenantContext) {
+                // Si le tenant est optionnel (par défaut), logger et continuer
+                if (options.strictMode !== true) {
+                    logger.warn(`Utilisateur ${req.user.id} sans tenant - mode permissif activé`);
+                    return next();
+                }
+
+                // En mode strict uniquement, bloquer la requête
                 return res.status(403).json({
                     error: 'Contexte tenant manquant',
-                    message: 'Impossible de déterminer le tenant de l\'utilisateur'
+                    message: 'Votre compte n\'est pas associé à un tenant. Veuillez contacter l\'administrateur.',
+                    help: 'Les utilisateurs doivent être associés à un CROU ou au Ministère.',
+                    userId: req.user.id
                 });
             }
 
