@@ -1,17 +1,27 @@
 /**
  * FICHIER: packages\database\src\seeders\tenant.seeder.ts
- * SEEDER: Tenants - Ministère + 8 CROU du Niger
- * 
+ * SEEDER: Tenants - Ministère + 8 CROU du Niger avec hiérarchie
+ *
  * DESCRIPTION:
  * Création des tenants multi-tenant selon structure officielle CROU Niger
- * 1 Ministère + 8 CROU régionaux avec configuration spécifique
+ * 1 Ministère + 8 CROU régionaux avec configuration hiérarchique
  * Données réelles des régions du Niger
- * 
+ *
  * TENANTS CRÉÉS:
- * - Ministère MESRIT (supervision nationale)
- * - CROU Niamey (capitale)  
- * - CROU Dosso, Maradi, Tahoua, Zinder, Agadez, Tillabéri, Diffa
- * 
+ * - Ministère MESRIT (niveau 0 - supervision nationale)
+ * - CROU Niamey (niveau 1 - capitale)
+ * - CROU Dosso, Maradi, Tahoua, Zinder, Agadez, Tillabéri, Diffa (niveau 1)
+ *
+ * HIÉRARCHIE:
+ * - Niveau 0: Ministère (parent null, path: "ministere")
+ * - Niveau 1: CROUs (parent: Ministère, path: "ministere/crou_xxx")
+ * - Niveau 2: Services (parent: CROU, path: "ministere/crou_xxx/service_xxx") [à créer]
+ *
+ * FONCTIONNALITÉS:
+ * - Création initiale des tenants avec hiérarchie
+ * - Mise à jour de la hiérarchie pour bases existantes
+ * - Validation des relations parent-enfant
+ *
  * AUTEUR: Équipe CROU
  * DATE: Décembre 2024
  */
@@ -25,24 +35,47 @@ export async function seedTenants(dataSource: DataSource): Promise<void> {
   // Vérifier si les tenants existent déjà
   const existingCount = await tenantRepository.count();
   if (existingCount > 0) {
-    console.log('⚠️  Tenants déjà créés, passage...');
+    console.log('⚠️  Tenants déjà créés, mise à jour hiérarchie si nécessaire...');
+
+    // Vérifier si la hiérarchie est déjà configurée
+    const ministere = await tenantRepository.findOne({
+      where: { type: TenantType.MINISTERE }
+    });
+
+    if (ministere && !ministere.path) {
+      // Mise à jour de la hiérarchie pour les tenants existants
+      await updateExistingTenantsHierarchy(dataSource);
+    }
     return;
   }
 
-  // Données des tenants Niger (Ministère + 8 CROU)
-  const tenantData = [
-    // Niveau Ministère
-    {
-      name: 'Ministère de l\'Enseignement Supérieur',
-      code: 'ministere',
-      type: TenantType.MINISTERE,
-      region: null,
-      config: {
-        centralizedPurchasing: true,
-        supervisionLevel: 'national',
-        reportingFrequency: 'monthly'
-      }
-    },
+  // ========================================
+  // ÉTAPE 1: Créer le Ministère (niveau 0)
+  // ========================================
+  const ministereData = {
+    name: 'Ministère de l\'Enseignement Supérieur',
+    code: 'ministere',
+    type: TenantType.MINISTERE,
+    region: null,
+    level: 0,
+    path: 'ministere',
+    parentId: null,
+    serviceType: null,
+    config: {
+      centralizedPurchasing: true,
+      supervisionLevel: 'national',
+      reportingFrequency: 'monthly'
+    }
+  };
+
+  const ministere = tenantRepository.create(ministereData);
+  await tenantRepository.save(ministere);
+  console.log('✅ Ministère créé (niveau 0)');
+
+  // ========================================
+  // ÉTAPE 2: Créer les CROUs (niveau 1)
+  // ========================================
+  const crouData = [
     
     // CROU Régionaux
     {
@@ -143,9 +176,62 @@ export async function seedTenants(dataSource: DataSource): Promise<void> {
     }
   ];
 
-  // Création des tenants
-  const tenants = tenantData.map(data => tenantRepository.create(data));
-  await tenantRepository.save(tenants);
+  // Créer les CROUs avec la hiérarchie
+  const crous = crouData.map(data => tenantRepository.create({
+    ...data,
+    level: 1,
+    parentId: ministere.id,
+    path: `ministere/${data.code}`,
+    serviceType: null
+  }));
+  await tenantRepository.save(crous);
+  console.log(`✅ ${crous.length} CROUs créés (niveau 1)`);
 
-  console.log(`✅ ${tenants.length} tenants créés (1 Ministère + 8 CROU)`);
+  console.log(`\n✅ ${1 + crous.length} tenants créés au total (1 Ministère + ${crous.length} CROU)`);
+  console.log('📊 Hiérarchie tenant configurée:');
+  console.log(`   Niveau 0: Ministère (${ministere.name})`);
+  console.log(`   Niveau 1: ${crous.length} CROUs`);
+}
+
+/**
+ * Mettre à jour la hiérarchie des tenants existants
+ * Utilisé lors de la migration d'une base existante
+ */
+async function updateExistingTenantsHierarchy(dataSource: DataSource): Promise<void> {
+  const tenantRepository = dataSource.getRepository(Tenant);
+
+  // Récupérer le ministère
+  const ministere = await tenantRepository.findOne({
+    where: { type: TenantType.MINISTERE }
+  });
+
+  if (!ministere) {
+    console.error('❌ Ministère introuvable, impossible de mettre à jour la hiérarchie');
+    return;
+  }
+
+  // Mettre à jour le ministère
+  await tenantRepository.update(ministere.id, {
+    level: 0,
+    path: ministere.code,
+    parentId: null
+  });
+  console.log('✅ Ministère mis à jour avec hiérarchie');
+
+  // Récupérer tous les CROUs
+  const crous = await tenantRepository.find({
+    where: { type: TenantType.CROU }
+  });
+
+  // Mettre à jour chaque CROU
+  for (const crou of crous) {
+    await tenantRepository.update(crou.id, {
+      level: 1,
+      parentId: ministere.id,
+      path: `${ministere.code}/${crou.code}`
+    });
+  }
+
+  console.log(`✅ ${crous.length} CROUs mis à jour avec hiérarchie`);
+  console.log('✅ Hiérarchie des tenants existants mise à jour avec succès');
 }
