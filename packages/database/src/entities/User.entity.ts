@@ -195,20 +195,59 @@ export class User {
 
   /**
    * Vérifier si l'utilisateur a une permission spécifique
-   * TODO: Réimplémenter avec le système RBAC complet
    */
   hasPermission(resource: string, action: string): boolean {
-    // Version simplifiée temporaire
-    return true; // TODO: Implémenter la logique RBAC
+    // Vérifier que l'utilisateur a un rôle et des permissions
+    if (!this.role || !this.role.permissions) {
+      return false;
+    }
+
+    // Chercher la permission correspondante
+    return this.role.permissions.some((permission: any) => {
+      const permResource = permission.resource || permission.name?.split(':')[0];
+      const permAction = permission.action || permission.name?.split(':')[1];
+
+      // Vérifier correspondance exacte
+      if (permResource === resource && permAction === action) {
+        return true;
+      }
+
+      // Vérifier wildcards
+      if (permResource === resource && permAction === '*') {
+        return true;
+      }
+
+      if (permResource === '*' && permAction === action) {
+        return true;
+      }
+
+      if (permResource === '*' && permAction === '*') {
+        return true;
+      }
+
+      return false;
+    });
   }
 
   /**
    * Obtenir toutes les permissions de l'utilisateur
-   * TODO: Réimplémenter avec le système RBAC complet
    */
   getAllPermissions(): string[] {
-    // Version simplifiée temporaire
-    return []; // TODO: Implémenter la logique RBAC
+    if (!this.role || !this.role.permissions) {
+      return [];
+    }
+
+    // Retourner la liste des permissions sous forme de chaînes
+    return this.role.permissions.map((permission: any) => {
+      if (permission.getDisplayName) {
+        return permission.getDisplayName();
+      }
+
+      const resource = permission.resource || permission.name?.split(':')[0] || '';
+      const action = permission.action || permission.name?.split(':')[1] || '';
+
+      return `${resource}:${action}`;
+    });
   }
 
   /**

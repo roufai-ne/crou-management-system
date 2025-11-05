@@ -155,7 +155,10 @@ export class AuthService {
   async refreshAccessToken(refreshTokenString: string, ipAddress?: string): Promise<{ accessToken: string; expiresIn: number }> {
     try {
       // 1. Vérifier le format du refresh token JWT
-      const refreshSecret = process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET || 'fallback-secret';
+      const refreshSecret = process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET;
+      if (!refreshSecret) {
+        throw new Error('JWT_REFRESH_SECRET ou JWT_SECRET doit être défini');
+      }
       const decoded = jwt.verify(refreshTokenString, refreshSecret) as any;
 
       if (decoded.type !== 'refresh') {
@@ -263,7 +266,10 @@ export class AuthService {
    */
   validateAccessToken(token: string): TokenPayload {
     try {
-      const jwtSecret = process.env.JWT_SECRET || 'fallback-secret';
+      const jwtSecret = process.env.JWT_SECRET;
+      if (!jwtSecret) {
+        throw new Error('JWT_SECRET doit être défini');
+      }
       const decoded = jwt.verify(token, jwtSecret) as TokenPayload;
       
       return decoded;
@@ -281,9 +287,13 @@ export class AuthService {
 
     // 2. Générer le refresh token
     const refreshTokenString = this.generateRefreshTokenString();
+    const refreshSecret = process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET;
+    if (!refreshSecret) {
+      throw new Error('JWT_REFRESH_SECRET ou JWT_SECRET doit être défini');
+    }
     const refreshTokenJWT = jwt.sign(
       { id: user.id, type: 'refresh', token: refreshTokenString },
-      process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET || 'fallback-secret',
+      refreshSecret,
       { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d' } as jwt.SignOptions
     );
 
@@ -310,8 +320,13 @@ export class AuthService {
    * Générer un token d'accès
    */
   private generateAccessToken(user: User): string {
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET doit être défini');
+    }
+
     const permissions = user.role?.permissions?.map((p: any) => p.getDisplayName()) || [];
-    
+
     const payload: Omit<TokenPayload, 'iat' | 'exp'> = {
       userId: user.id,
       email: user.email,
@@ -322,7 +337,7 @@ export class AuthService {
 
     return jwt.sign(
       payload,
-      process.env.JWT_SECRET || 'fallback-secret',
+      jwtSecret,
       { expiresIn: process.env.JWT_EXPIRES_IN || '15m' } as jwt.SignOptions
     );
   }

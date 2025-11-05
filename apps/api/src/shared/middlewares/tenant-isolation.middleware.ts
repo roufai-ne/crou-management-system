@@ -368,10 +368,19 @@ async function validateTenantAccess(
  * Extraire le tenant ID cible de la requête
  */
 function extractTargetTenantId(req: Request): string | undefined {
-    return req.params.tenantId ||
+    // Import de la validation
+    const { validateTenantId } = require('@/shared/utils/validation');
+
+    // Essayer d'extraire le tenant ID de différentes sources
+    const rawTenantId = req.params.tenantId ||
         req.body?.tenantId ||
-        req.query.tenantId as string ||
-        req.headers['x-target-tenant-id'] as string;
+        req.query.tenantId ||
+        req.headers['x-target-tenant-id'];
+
+    // Valider que c'est un UUID valide
+    const validatedTenantId = validateTenantId(rawTenantId);
+
+    return validatedTenantId || undefined;
 }
 
 /**

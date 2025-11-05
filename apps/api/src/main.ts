@@ -47,6 +47,7 @@ import { initializeDatabase, closeDatabase } from '../../../packages/database/sr
 import { errorHandler } from '@/shared/middlewares/error.middleware';
 import { requestLogger } from '@/shared/middlewares/logging.middleware';
 import { corsConfig } from '@/config/cors.config';
+import { validateEnvironment, displayConfig } from '@/config/env-validation';
 import { logger } from '@/shared/utils/logger';
 
 // Routes modules
@@ -62,6 +63,10 @@ import adminRoutes from '@/modules/admin/index';
 
 // Configuration environnement
 config();
+
+// Valider les variables d'environnement critiques
+const envConfig = validateEnvironment();
+displayConfig(envConfig);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
