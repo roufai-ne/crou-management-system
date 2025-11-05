@@ -42,8 +42,8 @@ import React from 'react';
 type VariantProps<T> = T extends (...args: any[]) => any
   ? Parameters<T>[0]
   : never;
-import { 
-  ArrowUpIcon, 
+import {
+  ArrowUpIcon,
   ArrowDownIcon,
   MinusIcon,
   TrendingUpIcon,
@@ -54,6 +54,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { cn } from '@/utils/cn';
 import { formatCurrency } from '@/utils/formatters';
+import { TrendSparkline } from './Sparkline';
 
 // Types pour les tendances
 export type TrendDirection = 'up' | 'down' | 'stable';
@@ -61,18 +62,24 @@ export type TrendDirection = 'up' | 'down' | 'stable';
 export interface KPITrend {
   /** Direction de la tendance */
   direction: TrendDirection;
-  
+
   /** Valeur de la tendance (pourcentage ou valeur absolue) */
   value: number;
-  
+
   /** Période de comparaison */
   period?: string;
-  
+
   /** Type de valeur (percentage ou absolute) */
   valueType?: 'percentage' | 'absolute';
-  
+
   /** Inverser la signification des couleurs (ex: coûts) */
   inverse?: boolean;
+
+  /** Données pour sparkline (array de valeurs historiques) */
+  sparklineData?: number[];
+
+  /** Labels pour sparkline tooltip */
+  sparklineLabels?: string[];
 }
 
 // Types pour les objectifs/cibles
@@ -344,8 +351,10 @@ export const KPICard: React.FC<KPICardProps> = ({
         
         {icon && (
           <div className={cn(
-            'flex-shrink-0 p-2 rounded-lg',
-            iconColor || 'text-primary-600 bg-primary-100 dark:bg-primary-900/20'
+            'flex-shrink-0 p-2.5 rounded-xl shadow-soft',
+            'bg-gradient-to-br transition-all duration-200',
+            'hover:shadow-md hover:scale-105',
+            iconColor || 'from-primary-500 to-primary-600 text-white'
           )}>
             {icon}
           </div>
@@ -368,22 +377,39 @@ export const KPICard: React.FC<KPICardProps> = ({
       
       {/* Indicateur de tendance */}
       {trend && !error && (
-        <div className="flex items-center gap-2 mb-4">
-          <span className={cn(trendVariants({ 
-            direction: trend.direction, 
-            inverse: trend.inverse 
-          }))}>
-            {renderTrendIcon(trend.direction)}
-            {trend.valueType === 'percentage' ? `${trend.value}%` : formatValue(trend.value)}
-          </span>
-          {trend.period && (
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              {trend.period}
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-3">
+            <span className={cn(trendVariants({
+              direction: trend.direction,
+              inverse: trend.inverse
+            }))}>
+              {renderTrendIcon(trend.direction)}
+              {trend.valueType === 'percentage' ? `${trend.value}%` : formatValue(trend.value)}
             </span>
+            {trend.period && (
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {trend.period}
+              </span>
+            )}
+          </div>
+
+          {/* Sparkline si données disponibles */}
+          {trend.sparklineData && trend.sparklineData.length > 0 && (
+            <TrendSparkline
+              data={trend.sparklineData}
+              trend={trend.direction}
+              showArea
+              showGradient
+              height={40}
+              animate
+              formatValue={formatValue}
+              labels={trend.sparklineLabels}
+              showTooltip
+            />
           )}
         </div>
       )}
-      
+
       {/* Barre de progression pour les objectifs */}
       {target && target.showProgress !== false && !error && (
         <div className="mb-4">

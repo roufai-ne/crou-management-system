@@ -23,13 +23,14 @@
  * DATE: Décembre 2024
  */
 
-import { 
-  Entity, 
-  PrimaryGeneratedColumn, 
-  Column, 
-  ManyToOne, 
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
   OneToMany,
-  CreateDateColumn, 
+  OneToOne,
+  CreateDateColumn,
   UpdateDateColumn,
   JoinColumn,
   Index
@@ -40,6 +41,8 @@ import { Tenant } from './Tenant.entity';
 import { VehicleMaintenance } from './VehicleMaintenance.entity';
 import { VehicleUsage } from './VehicleUsage.entity';
 import { VehicleFuel } from './VehicleFuel.entity';
+import { ScheduledTrip } from './ScheduledTrip.entity';
+import { Driver } from './Driver.entity';
 
 // Types de véhicules selon PRD
 export enum VehicleType {
@@ -269,6 +272,10 @@ export class Vehicle {
   @IsString()
   updatedBy: string;
 
+  // Relation inverse pour Driver
+  @OneToOne(() => Driver, driver => driver.assignedVehicle, { nullable: true })
+  assignedDriver: Driver;
+
   // Relations
   @OneToMany(() => VehicleMaintenance, maintenance => maintenance.vehicle, { cascade: true })
   maintenances: VehicleMaintenance[];
@@ -278,6 +285,9 @@ export class Vehicle {
 
   @OneToMany(() => VehicleFuel, fuel => fuel.vehicle, { cascade: true })
   fuels: VehicleFuel[];
+
+  @OneToMany(() => ScheduledTrip, trip => trip.vehicle)
+  scheduledTrips: ScheduledTrip[];
 
   // Méthodes de validation
   /**

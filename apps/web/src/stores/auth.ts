@@ -77,41 +77,27 @@ export const useAuth = create<AuthState>()(
       login: async (email: string, password: string) => {
         const { lastLoginAttempt } = get();
         const now = Date.now();
-        
+
         // Vérifier le délai entre les tentatives (2 secondes minimum)
         if (lastLoginAttempt && (now - lastLoginAttempt) < 2000) {
           const remainingTime = Math.ceil((2000 - (now - lastLoginAttempt)) / 1000);
-          set({ 
+          set({
             error: `Veuillez patienter ${remainingTime} seconde(s) avant de réessayer.`,
-            isLoading: false 
+            isLoading: false
           });
           return;
         }
-        
+
         set({ isLoading: true, error: null, lastLoginAttempt: now });
-        
+
         try {
           // Utiliser le service d'authentification API
+          // Le service gère lui-même la mise à jour du store via setUser() et setTokens()
           const { authService } = await import('@/services/api/authService');
-          const response = await authService.login(email, password);
-          
+          await authService.login(email, password);
+
+          // Réinitialiser isLoading et lastLoginAttempt
           set({
-            isAuthenticated: true,
-            user: {
-              id: response.user.id,
-              email: response.user.email,
-              firstName: response.user.name.split(' ')[0] || '',
-              lastName: response.user.name.split(' ').slice(1).join(' ') || '',
-              name: response.user.name,
-              role: response.user.role as UserRole,
-              tenantId: response.user.tenantId,
-              tenantType: response.user.tenant.type,
-              level: response.user.tenant.type === 'ministere' ? 'ministere' : 'crou',
-              permissions: ['all', 'read', 'write', 'admin'], // À adapter selon la réponse API
-              lastLoginAt: new Date()
-            },
-            accessToken: response.accessToken,
-            refreshToken: response.refreshToken,
             isLoading: false,
             error: null,
             lastLoginAttempt: null

@@ -1,0 +1,133 @@
+Module,Endpoint,Method,Auth,Permissions,Rate Limit,Notes
+Auth,/login,POST,No,None,5/15min,Public
+Auth,/refresh,POST,No,None,5/15min,Public
+Auth,/logout,POST,JWT,None,5/15min,
+Auth,/profile,GET,JWT,None,5/15min,
+Dashboard,/kpis/global,GET,JWT,dashboard:read,30/min,
+Dashboard,/kpis/modules,GET,JWT,dashboard:read,30/min,
+Dashboard,/evolution,GET,JWT,dashboard:read,30/min,
+Dashboard,/expenses,GET,JWT,dashboard:read,30/min,
+Dashboard,/alerts,GET,JWT,dashboard:read,30/min,
+Dashboard,/activities,GET,JWT,dashboard:read,30/min,
+Dashboard,/alerts/:alertId/acknowledge,POST,JWT,dashboard:write,30/min,
+Financial,/budgets,GET,JWT,financial:read,50/15min,
+Financial,/budgets,POST,JWT,financial:write,50/15min,
+Financial,/budgets/:id,GET,JWT,financial:read,50/15min,
+Financial,/budgets/:id,PUT,JWT,financial:write,50/15min,
+Financial,/budgets/:id,DELETE,JWT,financial:write,50/15min,
+Financial,/budgets/:id/validate,POST,JWT,financial:validate,50/15min,
+Financial,/budgets/:id/submit,POST,JWT,financial:write,50/15min,
+Financial,/transactions,GET,JWT,financial:read,50/15min,
+Financial,/transactions,POST,JWT,financial:write,50/15min,
+Financial,/transactions/:id,GET,JWT,financial:read,50/15min,
+Financial,/transactions/:id,PUT,JWT,financial:write,50/15min,
+Financial,/transactions/:id/validate,POST,JWT,financial:validate,50/15min,
+Financial,/categories,GET,JWT,financial:read,50/15min,
+Financial,/categories,POST,JWT,financial:write,50/15min,
+Financial,/categories/:id,PUT,JWT,financial:write,50/15min,
+Financial,/reports,GET,JWT,financial:read,50/15min,
+Financial,/reports/budget-execution,GET,JWT,financial:read,50/15min,
+Financial,/reports/transactions,GET,JWT,financial:read,50/15min,
+Financial,/reports/export/:format,GET,JWT,financial:read,50/15min,
+Financial,/validations/pending,GET,JWT,financial:validate,50/15min,
+Financial,/validations/history,GET,JWT,financial:read,50/15min,
+Financial,/dashboard/kpis,GET,JWT,financial:read,50/15min,
+Financial,/dashboard/evolution,GET,JWT,financial:read,50/15min,
+Financial,/dashboard/alerts,GET,JWT,financial:read,50/15min,
+Stocks,/stocks,GET,JWT,stocks:read,100/15min,
+Stocks,/stocks,POST,JWT,stocks:write,100/15min,
+Stocks,/stocks/:id,GET,JWT,stocks:read,100/15min,
+Stocks,/stocks/:id,PUT,JWT,stocks:write,100/15min,
+Stocks,/stocks/:id,DELETE,JWT,stocks:write,100/15min,
+Stocks,/movements,GET,JWT,stocks:read,100/15min,
+Stocks,/movements,POST,JWT,stocks:write,100/15min,
+Stocks,/movements/:id,GET,JWT,stocks:read,100/15min,
+Stocks,/movements/:id,PUT,JWT,stocks:write,100/15min,
+Stocks,/movements/:id/confirm,POST,JWT,stocks:write,100/15min,
+Stocks,/alerts,GET,JWT,stocks:read,100/15min,
+Stocks,/alerts/:id,GET,JWT,stocks:read,100/15min,
+Stocks,/alerts/:id/resolve,POST,JWT,stocks:write,100/15min,
+Stocks,/alerts/:id/escalate,POST,JWT,stocks:validate,100/15min,
+Stocks,/inventory,GET,JWT,stocks:read,100/15min,
+Stocks,/inventory/start,POST,JWT,stocks:write,100/15min,
+Stocks,/inventory/:id/complete,POST,JWT,stocks:write,100/15min,
+Stocks,/reports/stock-levels,GET,JWT,stocks:read,100/15min,
+Stocks,/reports/movements,GET,JWT,stocks:read,100/15min,
+Stocks,/reports/alerts,GET,JWT,stocks:read,100/15min,
+Stocks,/reports/export/:format,GET,JWT,stocks:read,100/15min,
+Stocks,/dashboard/kpis,GET,JWT,stocks:read,100/15min,
+Stocks,/dashboard/evolution,GET,JWT,stocks:read,100/15min,
+Stocks,/dashboard/alerts,GET,JWT,stocks:read,100/15min,
+Stocks,/suppliers,GET,JWT,stocks:read,100/15min,
+Stocks,/suppliers,POST,JWT,stocks:write,100/15min,
+Stocks,/suppliers/stats/overview,GET,JWT,stocks:read,100/15min,
+Stocks,/suppliers/:id,GET,JWT,stocks:read,100/15min,
+Stocks,/suppliers/:id,PUT,JWT,stocks:write,100/15min,
+Stocks,/suppliers/:id,DELETE,JWT,stocks:write,100/15min,
+Housing,/,GET,JWT,housing:read,None,MISSING RATE LIMIT
+Housing,/,POST,JWT,housing:write,None,MISSING RATE LIMIT
+Housing,/:id,GET,JWT,housing:read,None,MISSING RATE LIMIT
+Housing,/:id,PUT,JWT,housing:write,None,MISSING RATE LIMIT
+Housing,/:id,DELETE,JWT,housing:write,None,MISSING RATE LIMIT
+Housing,/:id/stats,GET,JWT,housing:read,None,MISSING RATE LIMIT
+Reports,/,GET,JWT,NONE,None,MISSING PERMS
+Reports,/generate,POST,JWT,NONE,None,MISSING PERMS
+Reports,/:reportId,GET,JWT,NONE,None,MISSING PERMS
+Reports,/:reportId,DELETE,JWT,NONE,None,MISSING PERMS
+Reports,/export/:reportId,GET,JWT,NONE,None,LEGACY
+Reports,/export/:reportId/excel,GET,JWT,NONE,None,MISSING PERMS
+Reports,/export/:reportId/pdf,GET,JWT,NONE,None,MISSING PERMS
+Notifications,/,GET,JWT,NONE,None,MISSING PERMS
+Notifications,/:notificationId/read,PUT,JWT,NONE,None,MISSING PERMS
+Notifications,/:notificationId,DELETE,JWT,NONE,None,MISSING PERMS
+Workflows,/,GET,JWT,NONE,None,MISSING PERMS
+Workflows,/,POST,JWT,NONE,None,MISSING PERMS
+Workflows,/:workflowId,GET,JWT,NONE,None,MISSING PERMS
+Workflows,/:workflowId,PUT,JWT,NONE,None,MISSING PERMS
+Workflows,/:workflowId,DELETE,JWT,NONE,None,MISSING PERMS
+Workflows,/:workflowId/instances,POST,JWT,NONE,None,MISSING PERMS
+Workflows,/instances/:instanceId,GET,JWT,NONE,None,MISSING PERMS
+Workflows,/instances/:instanceId/actions,POST,JWT,NONE,None,MISSING PERMS
+Transport,/vehicles,GET,JWT,transport:read,50/15min,
+Transport,/vehicles,POST,JWT,transport:write,50/15min,
+Transport,/vehicles/:id,GET,JWT,transport:read,50/15min,
+Transport,/vehicles/:id,PUT,JWT,transport:write,50/15min,
+Transport,/vehicles/:id,DELETE,JWT,transport:write,50/15min,
+Transport,/usages,GET,JWT,transport:read,50/15min,
+Transport,/usages,POST,JWT,transport:write,50/15min,
+Transport,/usages/:id,GET,JWT,transport:read,50/15min,
+Transport,/usages/:id,PUT,JWT,transport:write,50/15min,
+Transport,/usages/:id,DELETE,JWT,transport:write,50/15min,
+Transport,/maintenances,GET,JWT,transport:read,50/15min,
+Transport,/maintenances,POST,JWT,transport:write,50/15min,
+Transport,/maintenances/:id,GET,JWT,transport:read,50/15min,
+Transport,/maintenances/:id,PUT,JWT,transport:write,50/15min,
+Transport,/maintenances/:id,DELETE,JWT,transport:write,50/15min,
+Transport,/drivers/available,GET,JWT,transport:read,50/15min,BEFORE /:id
+Transport,/drivers/alerts,GET,JWT,transport:read,50/15min,BEFORE /:id
+Transport,/drivers/statistics,GET,JWT,transport:read,50/15min,BEFORE /:id
+Transport,/drivers,GET,JWT,transport:read,50/15min,
+Transport,/drivers,POST,JWT,transport:write,50/15min,
+Transport,/drivers/:id,GET,JWT,transport:read,50/15min,
+Transport,/drivers/:id,PUT,JWT,transport:write,50/15min,
+Transport,/drivers/:id,DELETE,JWT,transport:write,50/15min,
+Transport,/drivers/:id/assign-vehicle,POST,JWT,transport:write,50/15min,
+Transport,/drivers/:id/unassign-vehicle,POST,JWT,transport:write,50/15min,
+Transport,/routes/active,GET,JWT,transport:read,50/15min,BEFORE /:id
+Transport,/routes,GET,JWT,transport:read,50/15min,
+Transport,/routes,POST,JWT,transport:write,50/15min,
+Transport,/routes/:id,GET,JWT,transport:read,50/15min,
+Transport,/routes/:id,PUT,JWT,transport:write,50/15min,
+Transport,/routes/:id,DELETE,JWT,transport:write,50/15min,
+Transport,/scheduled-trips/statistics,GET,JWT,transport:read,50/15min,BEFORE /:id
+Transport,/scheduled-trips,GET,JWT,transport:read,50/15min,
+Transport,/scheduled-trips,POST,JWT,transport:write,50/15min,
+Transport,/scheduled-trips/:id,GET,JWT,transport:read,50/15min,
+Transport,/scheduled-trips/:id,PUT,JWT,transport:write,50/15min,
+Transport,/scheduled-trips/:id,DELETE,JWT,transport:write,50/15min,
+Transport,/scheduled-trips/:id/start,POST,JWT,transport:write,50/15min,
+Transport,/scheduled-trips/:id/complete,POST,JWT,transport:write,50/15min,
+Transport,/scheduled-trips/:id/cancel,POST,JWT,transport:write,50/15min,
+Transport,/metrics,GET,JWT,transport:read,50/15min,
+Admin,/health,GET,JWT,admin:access,via audit,
+Admin,/permissions/available,GET,JWT,admin:permissions:read,via audit,

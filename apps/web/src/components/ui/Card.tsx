@@ -68,15 +68,15 @@ const cardVariants = (props: {
 
   // Classes de base
   const baseClasses = [
-    'relative bg-white dark:bg-gray-800 rounded-lg transition-all duration-200',
+    'relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg transition-all duration-200',
     'focus-within:ring-2 focus-within:ring-primary-500 focus-within:ring-offset-2'
   ];
 
   // Classes de variantes
   const variantClasses = {
-    elevated: 'shadow-md hover:shadow-lg',
+    elevated: 'shadow-card hover:shadow-card-hover hover:bg-white/90 dark:hover:bg-gray-800/90',
     outlined: 'border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600',
-    filled: 'bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600'
+    filled: 'bg-gray-50/90 dark:bg-gray-700/90 backdrop-blur-sm border border-gray-200 dark:border-gray-600'
   };
 
   // Classes de tailles

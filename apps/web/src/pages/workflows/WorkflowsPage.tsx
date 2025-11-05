@@ -37,6 +37,7 @@ import { WorkflowCard } from '@/components/workflows/WorkflowCard';
 import { WorkflowInstanceCard } from '@/components/workflows/WorkflowInstanceCard';
 import { useAuth } from '@/stores/auth';
 import toast from 'react-hot-toast';
+import { workflowService } from '@/services/api/workflowService';
 
 export default function WorkflowsPage() {
   const { hasPermission } = useAuth();
@@ -157,7 +158,7 @@ export default function WorkflowsPage() {
 
   const handleActivateWorkflow = async (id: string) => {
     try {
-      // TODO: Appeler l'API
+      await workflowService.activateWorkflow(id);
       toast.success('Workflow activé avec succès');
     } catch (error: any) {
       toast.error(error.message || 'Erreur lors de l\'activation');
@@ -166,7 +167,7 @@ export default function WorkflowsPage() {
 
   const handleDeactivateWorkflow = async (id: string) => {
     try {
-      // TODO: Appeler l'API
+      await workflowService.deactivateWorkflow(id);
       toast.success('Workflow désactivé avec succès');
     } catch (error: any) {
       toast.error(error.message || 'Erreur lors de la désactivation');
@@ -183,7 +184,7 @@ export default function WorkflowsPage() {
 
   const handleApproveInstance = async (id: string) => {
     try {
-      // TODO: Appeler l'API
+      await workflowService.approveInstance(id);
       toast.success('Instance approuvée avec succès');
     } catch (error: any) {
       toast.error(error.message || 'Erreur lors de l\'approbation');
@@ -192,7 +193,7 @@ export default function WorkflowsPage() {
 
   const handleRejectInstance = async (id: string) => {
     try {
-      // TODO: Appeler l'API
+      await workflowService.rejectInstance(id, 'Instance rejetée');
       toast.success('Instance rejetée');
     } catch (error: any) {
       toast.error(error.message || 'Erreur lors du rejet');

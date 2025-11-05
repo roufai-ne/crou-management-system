@@ -12,6 +12,7 @@ import {
   JoinColumn
 } from 'typeorm';
 import { User } from './User.entity';
+import { Tenant } from './Tenant.entity';
 
 export enum AuditAction {
   CREATE = 'create',
@@ -55,8 +56,20 @@ export class AuditLog {
   @Column({ type: 'varchar', length: 100 })
   tableName: string;
 
+  // Nom de la ressource (pour compatibilité API)
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  resource: string;
+
   @Column({ type: 'varchar', length: 255, nullable: true })
   recordId: string;
+
+  // ID de la ressource (pour compatibilité API)
+  @Column({ type: 'varchar', length: 255, nullable: true, name: 'resource_id' })
+  resourceId: string;
+
+  // Succès ou échec de l'opération (pour sécurité)
+  @Column({ type: 'boolean', default: true })
+  success: boolean;
 
   @Column({ type: 'jsonb', nullable: true })
   oldValues: Record<string, any>;
@@ -69,6 +82,20 @@ export class AuditLog {
 
   @Column({ type: 'text', nullable: true })
   userAgent: string;
+
+  // Session ID (pour traçabilité)
+  @Column({ type: 'varchar', length: 255, nullable: true, name: 'session_id' })
+  sessionId: string;
+
+  // Tenant ID (pour multi-tenant)
+  @Column({ type: 'uuid', nullable: true, name: 'tenant_id' })
+  tenantId: string;
+
+  @ManyToOne(() => Tenant, {
+    onDelete: 'SET NULL'
+  })
+  @JoinColumn({ name: 'tenant_id' })
+  tenant: Tenant;
 
   @Column({ type: 'jsonb', nullable: true })
   metadata: Record<string, any>;

@@ -13,12 +13,13 @@
  * DATE: Décembre 2024
  */
 
-import { 
-  Entity, 
-  PrimaryGeneratedColumn, 
-  Column, 
-  ManyToOne, 
-  CreateDateColumn, 
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  CreateDateColumn,
   UpdateDateColumn,
   JoinColumn,
   Index
@@ -27,6 +28,8 @@ import { IsEnum, IsNumber, IsString, IsOptional, Min } from 'class-validator';
 
 import { Vehicle } from './Vehicle.entity';
 import { Tenant } from './Tenant.entity';
+import { Driver } from './Driver.entity';
+import { ScheduledTrip } from './ScheduledTrip.entity';
 
 export enum UsageType {
   TRANSPORT_ETUDIANTS = 'transport_etudiants', // Transport étudiants
@@ -82,10 +85,19 @@ export class VehicleUsage {
   @Min(0)
   kilometrageParcouru: number;
 
-  // Conducteur
-  @Column({ type: 'varchar', length: 255 })
+  // Conducteur (legacy - nom en string)
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  @IsOptional()
   @IsString()
   conducteur: string;
+
+  // Relation avec Driver (nouveau)
+  @Column({ type: 'uuid', name: 'driver_id', nullable: true })
+  driverId: string;
+
+  @ManyToOne(() => Driver, driver => driver.usages, { nullable: true })
+  @JoinColumn({ name: 'driver_id' })
+  driver: Driver;
 
   // Dates
   @Column({ type: 'timestamp' })
@@ -106,6 +118,10 @@ export class VehicleUsage {
   @Column({ type: 'varchar', length: 255 })
   @IsString()
   createdBy: string;
+
+  // Relations
+  @OneToMany(() => ScheduledTrip, trip => trip.vehicleUsage)
+  scheduledTrips: ScheduledTrip[];
 
   // Méthodes
   calculateKilometers(): number {

@@ -189,7 +189,7 @@ export interface AdminStatistics {
 }
 
 class AdminService {
-  private baseUrl = '/api/admin';
+  private baseUrl = '/admin';
 
   // === GESTION DES UTILISATEURS ===
 
@@ -628,6 +628,139 @@ class AdminService {
       throw error;
     }
   }
+
+  // ==================== Méthodes de Sécurité ====================
+
+  /**
+   * Récupère les alertes de sécurité
+   */
+  async getSecurityAlerts(params?: {
+    severity?: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+    type?: string;
+    resolved?: boolean;
+    page?: number;
+    limit?: number;
+  }): Promise<{
+    alerts: SecurityAlert[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    try {
+      const queryParams = new URLSearchParams();
+      if (params?.severity) queryParams.append('severity', params.severity);
+      if (params?.type) queryParams.append('type', params.type);
+      if (params?.resolved !== undefined) queryParams.append('resolved', params.resolved.toString());
+      if (params?.page) queryParams.append('page', params.page.toString());
+      if (params?.limit) queryParams.append('limit', params.limit.toString());
+
+      const response = await apiClient.get(`${this.baseUrl}/security/alerts?${queryParams.toString()}`);
+      return response.data.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des alertes:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Résout une alerte de sécurité
+   */
+  async resolveSecurityAlert(alertId: string, notes?: string): Promise<void> {
+    try {
+      await apiClient.post(`${this.baseUrl}/security/alerts/${alertId}/resolve`, { notes });
+    } catch (error) {
+      console.error('Erreur lors de la résolution de l\'alerte:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Récupère les statistiques de sécurité
+   */
+  async getSecurityStats(): Promise<SecurityStats> {
+    try {
+      const response = await apiClient.get(`${this.baseUrl}/security/stats`);
+      return response.data.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des statistiques de sécurité:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Débloque un compte utilisateur
+   */
+  async unlockUser(userId: string, reason?: string): Promise<void> {
+    try {
+      await apiClient.post(`${this.baseUrl}/security/users/${userId}/unlock`, { reason });
+    } catch (error) {
+      console.error('Erreur lors du déblocage du compte:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Récupère la liste des comptes bloqués
+   */
+  async getBlockedAccounts(params?: {
+    page?: number;
+    limit?: number;
+  }): Promise<{
+    accounts: BlockedAccount[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    try {
+      const queryParams = new URLSearchParams();
+      if (params?.page) queryParams.append('page', params.page.toString());
+      if (params?.limit) queryParams.append('limit', params.limit.toString());
+
+      const response = await apiClient.get(`${this.baseUrl}/security/blocked-accounts?${queryParams.toString()}`);
+      return response.data.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des comptes bloqués:', error);
+      throw error;
+    }
+  }
+}
+
+// Types pour la sécurité
+export interface SecurityAlert {
+  id: string;
+  type: 'FAILED_LOGIN' | 'SUSPICIOUS_ACTIVITY' | 'RATE_LIMIT' | 'UNAUTHORIZED_ACCESS' | 'ACCOUNT_LOCKED';
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  description: string;
+  userId?: string;
+  userName?: string;
+  userEmail?: string;
+  ipAddress?: string;
+  userAgent?: string;
+  timestamp: string;
+  resolved: boolean;
+  resolvedAt?: string;
+  resolvedBy?: string;
+  metadata?: Record<string, any>;
+}
+
+export interface SecurityStats {
+  activeAlerts: number;
+  totalAlerts: number;
+  resolvedAlerts: number;
+  blockedAccounts: number;
+  failedLogins24h: number;
+  suspiciousActivities: number;
+}
+
+export interface BlockedAccount {
+  userId: string;
+  userName: string;
+  userEmail: string;
+  blockedAt: string;
+  blockedUntil: string;
+  reason: string;
+  failedAttempts: number;
+  lastAttemptIp?: string;
 }
 
 export const adminService = new AdminService();

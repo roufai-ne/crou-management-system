@@ -1,6 +1,16 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import { cn } from '@/utils/cn';
 import { ChevronRightIcon, HomeIcon, EllipsisHorizontalIcon } from '@heroicons/react/24/outline';
+import {
+  ChartBarIcon,
+  BanknotesIcon,
+  CubeIcon,
+  HomeModernIcon,
+  TruckIcon,
+  DocumentTextIcon,
+  CogIcon
+} from '@heroicons/react/24/solid';
 
 // Type pour les variantes de props (remplace VariantProps de class-variance-authority)
 type VariantProps<T> = T extends (...args: any[]) => any
@@ -50,6 +60,27 @@ const breadcrumbItemVariants = (props: {
   return cn(baseClasses, 'text-gray-500');
 };
 
+// Configuration des routes avec labels et icônes
+const routeConfig: Record<string, { label: string; icon?: React.ReactNode }> = {
+  'dashboard': { label: 'Tableau de Bord', icon: <ChartBarIcon className="w-4 h-4" /> },
+  'financial': { label: 'Gestion Financière', icon: <BanknotesIcon className="w-4 h-4" /> },
+  'budgets': { label: 'Budgets' },
+  'expenses': { label: 'Dépenses' },
+  'revenues': { label: 'Recettes' },
+  'stocks': { label: 'Stocks & Approvisionnement', icon: <CubeIcon className="w-4 h-4" /> },
+  'inventory': { label: 'Inventaire' },
+  'suppliers': { label: 'Fournisseurs' },
+  'housing': { label: 'Logement Universitaire', icon: <HomeModernIcon className="w-4 h-4" /> },
+  'residences': { label: 'Résidences' },
+  'rooms': { label: 'Chambres' },
+  'transport': { label: 'Transport', icon: <TruckIcon className="w-4 h-4" /> },
+  'reports': { label: 'Rapports', icon: <DocumentTextIcon className="w-4 h-4" /> },
+  'admin': { label: 'Administration', icon: <CogIcon className="w-4 h-4" /> },
+  'users': { label: 'Utilisateurs' },
+  'new': { label: 'Nouveau' },
+  'edit': { label: 'Modifier' }
+};
+
 // Interface pour un élément de breadcrumb
 export interface BreadcrumbItem {
   label: string;
@@ -58,9 +89,43 @@ export interface BreadcrumbItem {
   onClick?: () => void;
 }
 
+// Hook pour auto-générer le breadcrumb depuis l'URL
+export const useBreadcrumbs = (): BreadcrumbItem[] => {
+  const location = useLocation();
+
+  return useMemo(() => {
+    const segments = location.pathname.split('/').filter(Boolean);
+
+    if (segments.length === 0) {
+      return [];
+    }
+
+    const items: BreadcrumbItem[] = [];
+
+    segments.forEach((segment, index) => {
+      const href = '/' + segments.slice(0, index + 1).join('/');
+
+      // Ignorer les IDs (nombres ou UUIDs)
+      const isId = /^[\d-]+$/.test(segment) || segment.length > 20;
+      if (isId) return;
+
+      // Récupérer la config
+      const config = routeConfig[segment];
+
+      items.push({
+        label: config?.label || segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' '),
+        href,
+        icon: config?.icon
+      });
+    });
+
+    return items;
+  }, [location.pathname]);
+};
+
 // Interface des props
 interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
-  items: BreadcrumbItem[];
+  items?: BreadcrumbItem[]; // Optionnel - auto-génération si non fourni
   size?: 'sm' | 'md' | 'lg';
   variant?: 'default' | 'minimal';
   separator?: React.ReactNode;
@@ -68,11 +133,12 @@ interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
   showHome?: boolean;
   homeHref?: string;
   onHomeClick?: () => void;
+  showIcons?: boolean; // Afficher les icônes des routes
 }
 
 // Composant Breadcrumb
 export const Breadcrumb: React.FC<BreadcrumbProps> = ({
-  items,
+  items: providedItems,
   size = 'md',
   variant = 'default',
   separator = <ChevronRightIcon className="w-4 h-4 text-gray-400" />,
@@ -80,9 +146,12 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({
   showHome = true,
   homeHref = '/',
   onHomeClick,
+  showIcons = true,
   className,
   ...props
 }) => {
+  const autoItems = useBreadcrumbs();
+  const items = providedItems || autoItems;
   const [isCollapsed, setIsCollapsed] = useState(false);
   const containerRef = useRef<HTMLElement>(null);
 
@@ -173,7 +242,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({
                     onClick={() => handleItemClick(item)}
                     className={breadcrumbItemVariants({ isClickable: true })}
                   >
-                    {item.icon && (
+                    {showIcons && item.icon && (
                       <span className="w-4 h-4 flex-shrink-0">
                         {item.icon}
                       </span>
@@ -185,7 +254,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({
                     className={breadcrumbItemVariants({ isActive: isLast })}
                     aria-current={isLast ? 'page' : undefined}
                   >
-                    {item.icon && (
+                    {showIcons && item.icon && (
                       <span className="w-4 h-4 flex-shrink-0">
                         {item.icon}
                       </span>

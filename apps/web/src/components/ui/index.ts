@@ -86,7 +86,6 @@ export {
   ModalFooter,
   ModalActions,
   ModalContent,
-  ModalTitle,
   AlertDialog,
   DrawerModal,
   modalVariants

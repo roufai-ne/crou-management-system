@@ -30,7 +30,7 @@ import { authenticateJWT } from '@/shared/middlewares/auth.middleware';
 import { checkPermissions } from '@/shared/middlewares/permissions.middleware';
 import rateLimit from 'express-rate-limit';
 
-const router = Router();
+const router: Router = Router();
 
 // Rate limiting pour les requêtes dashboard
 const dashboardLimiter = rateLimit({

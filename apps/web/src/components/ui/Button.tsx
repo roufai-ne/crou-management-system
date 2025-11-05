@@ -52,7 +52,9 @@
  */
 
 import React from 'react';
+import { motion, HTMLMotionProps } from 'framer-motion';
 import { cn } from '@/utils/cn';
+import { hoverTap } from '@/utils/animations';
 
 // Type pour les variantes de props (remplace VariantProps de class-variance-authority)
 type VariantProps<T> = T extends (...args: any[]) => any
@@ -221,6 +223,9 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
   /** Texte alternatif pour l'accessibilité (requis pour iconOnly) */
   'aria-label'?: string;
+
+  /** Désactiver les animations */
+  disableAnimation?: boolean;
 }
 
 // Composant Button principal
@@ -238,6 +243,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       rightIcon,
       children,
       'aria-label': ariaLabel,
+      disableAnimation = false,
       ...props
     },
     ref
@@ -252,14 +258,22 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     // Détermination de la taille du spinner selon la taille du bouton
     const spinnerSize = size === 'xs' ? 'xs' : size === 'sm' ? 'sm' : size === 'lg' || size === 'xl' ? 'lg' : 'md';
 
+    const buttonClasses = cn(buttonVariants({ variant, size, fullWidth, iconOnly }), className);
+
+    // Props d'animation
+    const animationProps = !disableAnimation && !(disabled || loading) ? hoverTap : {};
+
+    const ButtonComponent = disableAnimation ? 'button' : motion.button;
+
     return (
-      <button
+      <ButtonComponent
         ref={ref}
-        className={cn(buttonVariants({ variant, size, fullWidth, iconOnly }), className)}
+        className={buttonClasses}
         disabled={disabled || loading}
         aria-label={ariaLabel}
         aria-busy={loading}
         data-loading={loading}
+        {...(animationProps as any)}
         {...props}
       >
         {/* Icône de gauche ou spinner de chargement */}
@@ -287,7 +301,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
         {/* Pour les boutons iconOnly, afficher l'icône ou le spinner */}
         {iconOnly && !loading && children}
-      </button>
+      </ButtonComponent>
     );
   }
 );

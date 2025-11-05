@@ -19,17 +19,18 @@
 
 import React from 'react';
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
-import { 
-  Users, 
-  Shield, 
-  Building, 
-  BarChart3, 
-  FileText, 
+import {
+  Users,
+  Shield,
+  Building,
+  BarChart3,
+  FileText,
   Settings,
   AlertTriangle,
   Activity
 } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { useAuth } from '@/stores/auth';
 
 interface AdminLayoutProps {
   children?: React.ReactNode;
@@ -82,13 +83,7 @@ const adminNavItems = [
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const location = useLocation();
-
-  // TODO: Récupérer les permissions de l'utilisateur depuis le store d'auth
-  const userPermissions = ['users.read', 'users.write', 'roles.read', 'tenants.read', 'audit.read', 'security.read', 'stats.read', 'admin.write'];
-
-  const hasPermission = (permission: string) => {
-    return userPermissions.includes(permission) || userPermissions.includes('admin.write');
-  };
+  const { hasPermission } = useAuth();
 
   const filteredNavItems = adminNavItems.filter(item => hasPermission(item.permission));
 

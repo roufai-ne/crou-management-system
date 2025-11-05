@@ -1,0 +1,83 @@
+# ============================================
+# Docker Compose - Développement
+# ============================================
+# Configuration pour développement local avec hot-reload
+# Usage: docker-compose -f docker-compose.dev.yml up
+
+version: '3.8'
+
+services:
+  # Base de données PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: crou-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: crou_dev
+      POSTGRES_PASSWORD: crou_dev_password
+      POSTGRES_DB: crou_dev_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    networks:
+      - crou-dev-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crou_dev -d crou_dev_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis pour cache et sessions
+  redis:
+    image: redis:7-alpine
+    container_name: crou-redis-dev
+    restart: unless-stopped
+    command: redis-server --requirepass redis_dev_password
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - crou-dev-network
+
+  # pgAdmin (Interface graphique PostgreSQL)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: crou-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@crou.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - crou-dev-network
+    depends_on:
+      - postgres
+
+  # Redis Commander (Interface graphique Redis)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: crou-redis-commander
+    restart: unless-stopped
+    environment:
+      - REDIS_HOSTS=local:redis:6379:0:redis_dev_password
+    ports:
+      - "8081:8081"
+    networks:
+      - crou-dev-network
+    depends_on:
+      - redis
+
+volumes:
+  postgres_dev_data:
+  redis_dev_data:
+  pgadmin_data:
+
+networks:
+  crou-dev-network:
+    driver: bridge

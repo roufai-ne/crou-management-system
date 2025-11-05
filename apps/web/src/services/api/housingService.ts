@@ -227,7 +227,7 @@ export interface HousingMetrics {
 }
 
 class HousingService {
-  private baseUrl = '/api/housing';
+  private baseUrl = '/housing';
 
   // === CITÉS UNIVERSITAIRES ===
 

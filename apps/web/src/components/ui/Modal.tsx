@@ -42,7 +42,7 @@ export const modalVariants = (props: {
   };
 
   return cn(
-    'relative bg-white dark:bg-gray-800 rounded-lg shadow-xl',
+    'relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-lg shadow-2xl',
     'transform transition-all duration-300 ease-out',
     'w-full',
     sizeClasses[size]
@@ -180,13 +180,13 @@ export function Modal({
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${overlayClassName || 'bg-black bg-opacity-50'
+      className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${overlayClassName || 'backdrop-blur-md bg-black/20 dark:bg-black/40'
         }`}
       onClick={handleOverlayClick}
     >
       <div
         ref={modalRef}
-        className={`bg-white rounded-lg shadow-xl w-full ${sizeClasses[size]} ${className}`}
+        className={`bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-lg shadow-2xl w-full ${sizeClasses[size]} ${className}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? 'modal-title' : undefined}

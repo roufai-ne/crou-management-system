@@ -39,7 +39,7 @@ import bcrypt from 'bcryptjs';
 
 import { Tenant } from './Tenant.entity';
 // import { AuditLog } from './AuditLog.entity'; // Temporairement désactivé
-import { Role } from './Role.simple.entity';
+import { Role } from './Role.entity';
 
 // Types des rôles utilisateurs selon PRD
 export enum UserRole {
@@ -87,13 +87,28 @@ export class User {
   @IsString()
   name: string;
 
+  // Nom et prénom séparés (pour compatibilité API)
+  @Column({ type: 'varchar', length: 100, nullable: true, name: 'first_name' })
+  @IsString()
+  @IsOptional()
+  firstName: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: true, name: 'last_name' })
+  @IsString()
+  @IsOptional()
+  lastName: string;
+
+  // Statut actif/inactif (pour compatibilité API)
+  @Column({ type: 'boolean', default: true, name: 'is_active' })
+  isActive: boolean;
+
   // Relation avec le rôle RBAC
   @Column({ type: 'uuid', name: 'role_id' })
   roleId: string;
 
   @ManyToOne(() => Role, role => role.users, {
     onDelete: 'RESTRICT',
-    eager: true
+    eager: false
   })
   @JoinColumn({ name: 'role_id' })
   role: Role;

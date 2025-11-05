@@ -16,6 +16,7 @@ import { useAuth } from '@/stores/auth';
 import { Container, Card, Badge, Button, Grid, Section, KPICard, Tabs } from '@/components/ui';
 import { BanknotesIcon, DocumentArrowDownIcon, ChartBarIcon, CurrencyDollarIcon, PlusIcon, ListBulletIcon } from '@heroicons/react/24/outline';
 import { BudgetsPage } from './BudgetsPage';
+import { TransactionsTab } from './TransactionsTab';
 import { StocksPage } from '../stocks/StocksPage';
 import { ExportButton } from '@/components/reports/ExportButton';
 
@@ -114,28 +115,11 @@ export const FinancialPage: React.FC = () => {
       icon: <BanknotesIcon className="h-4 w-4" />,
       content: <StocksPage />
     },
-    { 
-      id: 'transactions', 
-      label: 'Transactions', 
+    {
+      id: 'transactions',
+      label: 'Transactions',
       icon: <BanknotesIcon className="h-4 w-4" />,
-      content: (
-        <Card>
-          <Card.Header>
-            <Card.Title>Gestion des Transactions</Card.Title>
-          </Card.Header>
-          <Card.Content>
-            <div className="text-center py-12">
-              <BanknotesIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Module Transactions en Développement
-              </h3>
-              <p className="text-gray-600">
-                La gestion des transactions sera disponible dans la prochaine version.
-              </p>
-            </div>
-          </Card.Content>
-        </Card>
-      )
+      content: <TransactionsTab />
     },
     { 
       id: 'reports', 

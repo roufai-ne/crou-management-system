@@ -20,7 +20,7 @@
  * DATE: Décembre 2024
  */
 
-import { AppDataSource } from '../../../../../packages/database/src/config/typeorm.config';
+import { AppDataSource } from '../../../../../packages/database/src/config/datasource';
 import { Tenant, TenantType } from '../../../../../packages/database/src/entities/Tenant.entity';
 import { User } from '../../../../../packages/database/src/entities/User.entity';
 import { Repository, SelectQueryBuilder, ObjectLiteral } from 'typeorm';
@@ -367,8 +367,8 @@ export class TenantRepository<T extends ObjectLiteral> {
       entityData,
       this.tenantContext
     );
-    
-    return this.repository.create(entityWithTenant);
+
+    return this.repository.create(entityWithTenant) as unknown as T;
   }
 
   /**

@@ -29,7 +29,7 @@ import {
 } from '@/shared/middlewares/tenant-isolation.middleware';
 import { auditMiddleware } from '@/shared/middlewares/audit.middleware';
 import { TenantIsolationUtils } from '@/shared/utils/tenant-isolation.utils';
-import { AppDataSource } from '../../../../../packages/database/src/config/typeorm.config';
+import { AppDataSource } from '../../../../../packages/database/src/config/datasource';
 import { User, UserStatus } from '../../../../../packages/database/src/entities/User.entity';
 import { Tenant } from '../../../../../packages/database/src/entities/Tenant.entity';
 import { AuditLog } from '../../../../../packages/database/src/entities/AuditLog.entity';

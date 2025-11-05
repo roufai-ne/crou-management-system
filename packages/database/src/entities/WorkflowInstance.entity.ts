@@ -56,39 +56,39 @@ export enum InstancePriority {
 @Index(['createdAt'])
 export class WorkflowInstance {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column({ type: 'uuid', name: 'workflow_id' })
-  workflowId: string;
+  workflowId!: string;
 
   @Column({ type: 'uuid', name: 'current_step_id', nullable: true })
-  currentStepId: string;
+  currentStepId!: string | null;
 
   @Column({ type: 'varchar', length: 100 })
-  entityType: string; // Type d'entité (Budget, Transaction, etc.)
+  entityType!: string; // Type d'entité (Budget, Transaction, etc.)
 
   @Column({ type: 'uuid' })
-  entityId: string; // ID de l'entité concernée
+  entityId!: string; // ID de l'entité concernée
 
   @Column({
     type: 'enum',
     enum: InstanceStatus,
     default: InstanceStatus.PENDING
   })
-  status: InstanceStatus;
+  status!: InstanceStatus;
 
   @Column({
     type: 'enum',
     enum: InstancePriority,
     default: InstancePriority.MEDIUM
   })
-  priority: InstancePriority;
+  priority!: InstancePriority;
 
   @Column({ type: 'varchar', length: 500, nullable: true })
-  title: string; // Titre de l'instance
+  title!: string | null; // Titre de l'instance
 
   @Column({ type: 'text', nullable: true })
-  description: string; // Description de l'instance
+  description!: string | null; // Description de l'instance
 
   @Column({ type: 'jsonb', nullable: true })
   context: any; // Contexte de l'instance
@@ -97,16 +97,16 @@ export class WorkflowInstance {
   metadata: any; // Métadonnées supplémentaires
 
   @Column({ type: 'timestamp', nullable: true })
-  startedAt: Date; // Date de début
+  startedAt!: Date | null; // Date de début
 
   @Column({ type: 'timestamp', nullable: true })
-  completedAt: Date; // Date de fin
+  completedAt!: Date | null; // Date de fin
 
   @Column({ type: 'timestamp', nullable: true })
-  expiredAt: Date; // Date d'expiration
+  expiredAt!: Date | null; // Date d'expiration
 
   @Column({ type: 'uuid', name: 'initiated_by' })
-  initiatedBy: string; // Utilisateur qui a initié
+  initiatedBy!: string; // Utilisateur qui a initié
 
   @Column({ type: 'uuid', name: 'assigned_to', nullable: true })
   assignedTo: string | null; // Utilisateur assigné
@@ -115,37 +115,37 @@ export class WorkflowInstance {
   delegatedTo: string | null; // Utilisateur délégué
 
   @Column({ type: 'varchar', length: 500, nullable: true })
-  rejectionReason: string; // Raison du rejet
+  rejectionReason!: string | null; // Raison du rejet
 
   @Column({ type: 'varchar', length: 500, nullable: true })
-  cancellationReason: string; // Raison de l'annulation
+  cancellationReason!: string | null; // Raison de l'annulation
 
   @Column({ type: 'uuid', name: 'tenant_id' })
-  tenantId: string;
+  tenantId!: string;
 
   @Column({ type: 'uuid', name: 'created_by' })
-  createdBy: string;
+  createdBy!: string;
 
   @Column({ type: 'uuid', name: 'updated_by', nullable: true })
-  updatedBy: string;
+  updatedBy!: string | null;
 
   @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
+  updatedAt!: Date;
 
   // Relations
   @ManyToOne(() => Workflow, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'workflow_id' })
-  workflow: Workflow;
+  workflow!: Workflow;
 
   @ManyToOne(() => WorkflowStep, { nullable: true })
   @JoinColumn({ name: 'current_step_id' })
-  currentStep: WorkflowStep;
+  currentStep!: WorkflowStep | null;
 
   @OneToMany(() => WorkflowAction, action => action.instance, { cascade: true })
-  actions: WorkflowAction[];
+  actions!: WorkflowAction[];
 
   // Méthodes métier
   /**
@@ -339,9 +339,9 @@ export class WorkflowInstance {
    * Vérifier si l'instance peut être déléguée
    */
   canBeDelegated(): boolean {
-    return this.isActive() && 
-           !this.isExpired() && 
-           this.currentStep?.canDelegateTo();
+    return this.isActive() &&
+           !this.isExpired() &&
+           !!this.currentStep?.canDelegateTo();
   }
 
   /**

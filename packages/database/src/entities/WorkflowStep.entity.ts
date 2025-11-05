@@ -59,46 +59,46 @@ export enum StepPriority {
 @Index(['workflowId', 'status'])
 export class WorkflowStep {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column({ type: 'uuid', name: 'workflow_id' })
-  workflowId: string;
+  workflowId!: string;
 
   @Column({ type: 'varchar', length: 255 })
-  name: string;
+  name!: string;
 
   @Column({ type: 'varchar', length: 500, nullable: true })
-  description: string;
+  description!: string | null;
 
   @Column({ type: 'int' })
-  order: number;
+  order!: number;
 
   @Column({
     type: 'enum',
     enum: StepType,
     default: StepType.APPROVAL
   })
-  type: StepType;
+  type!: StepType;
 
   @Column({
     type: 'enum',
     enum: StepPriority,
     default: StepPriority.MEDIUM
   })
-  priority: StepPriority;
+  priority!: StepPriority;
 
   @Column({
     type: 'enum',
     enum: StepStatus,
     default: StepStatus.PENDING
   })
-  status: StepStatus;
+  status!: StepStatus;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  role: string; // Rôle autorisé pour cette étape
+  role!: string | null; // Rôle autorisé pour cette étape
 
   @Column({ type: 'jsonb', nullable: true })
-  permissions: string[]; // Permissions requises
+  permissions!: string[] | null; // Permissions requises
 
   @Column({ type: 'jsonb', nullable: true })
   conditions: any; // Conditions d'activation
@@ -107,39 +107,39 @@ export class WorkflowStep {
   actions: any; // Actions à effectuer
 
   @Column({ type: 'int', nullable: true })
-  timeoutHours: number; // Timeout en heures
+  timeoutHours!: number | null; // Timeout en heures
 
   @Column({ type: 'boolean', default: false })
-  isRequired: boolean; // Étape obligatoire
+  isRequired!: boolean; // Étape obligatoire
 
   @Column({ type: 'boolean', default: false })
-  canSkip: boolean; // Peut être ignorée
+  canSkip!: boolean; // Peut être ignorée
 
   @Column({ type: 'boolean', default: false })
-  canReject: boolean; // Peut rejeter
+  canReject!: boolean; // Peut rejeter
 
   @Column({ type: 'boolean', default: true })
-  canDelegate: boolean; // Peut déléguer
+  canDelegate!: boolean; // Peut déléguer
 
   @Column({ type: 'jsonb', nullable: true })
   metadata: any; // Métadonnées supplémentaires
 
   @Column({ type: 'boolean', default: true })
-  isActive: boolean;
+  isActive!: boolean;
 
   @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
+  updatedAt!: Date;
 
   // Relations
   @ManyToOne(() => Workflow, workflow => workflow.steps, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'workflow_id' })
-  workflow: Workflow;
+  workflow!: Workflow;
 
   @OneToMany(() => WorkflowInstance, instance => instance.currentStep)
-  instances: WorkflowInstance[];
+  instances!: WorkflowInstance[];
 
   // Méthodes métier
   /**

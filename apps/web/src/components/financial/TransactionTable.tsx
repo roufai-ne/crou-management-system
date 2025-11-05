@@ -289,27 +289,27 @@ export function TransactionTable({
 
           <Select
             value={filters.type}
-            onValueChange={(value) => setFilters(prev => ({ ...prev, type: value }))}
-          >
-            <option value="">Tous les types</option>
-            {Object.entries(typeConfig).map(([value, config]) => (
-              <option key={value} value={value}>
-                {config.label}
-              </option>
-            ))}
-          </Select>
+            onChange={(value) => setFilters(prev => ({ ...prev, type: value as string }))}
+            options={[
+              { value: '', label: 'Tous les types' },
+              ...Object.entries(typeConfig).map(([value, config]) => ({
+                value,
+                label: config.label
+              }))
+            ]}
+          />
 
           <Select
             value={filters.status}
-            onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
-          >
-            <option value="">Tous les statuts</option>
-            {Object.entries(statusConfig).map(([value, config]) => (
-              <option key={value} value={value}>
-                {config.label}
-              </option>
-            ))}
-          </Select>
+            onChange={(value) => setFilters(prev => ({ ...prev, status: value as string }))}
+            options={[
+              { value: '', label: 'Tous les statuts' },
+              ...Object.entries(statusConfig).map(([value, config]) => ({
+                value,
+                label: config.label
+              }))
+            ]}
+          />
 
           <Input
             type="date"

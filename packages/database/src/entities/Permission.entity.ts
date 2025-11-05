@@ -40,8 +40,7 @@ import {
   UpdateDateColumn
 } from 'typeorm';
 import { IsString, IsArray, IsOptional, Length, IsIn } from 'class-validator';
-
-// Import différé pour éviter les imports circulaires
+import { Role } from './Role.entity';
 
 // Actions possibles sur les ressources
 export enum PermissionAction {
@@ -101,9 +100,9 @@ export class Permission {
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
 
-  // Relations - Utilisation de fonction pour éviter les imports circulaires
-  @ManyToMany(() => require('./Role.entity').Role, (role: any) => role.permissions)
-  roles: any[];
+  // Relations
+  @ManyToMany(() => Role, (role) => role.permissions)
+  roles: Role[];
 
   // Audit trail
   @CreateDateColumn()

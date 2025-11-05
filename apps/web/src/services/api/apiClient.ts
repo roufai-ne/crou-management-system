@@ -22,7 +22,7 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } f
 import { authService } from './authService';
 
 // Configuration de base de l'API
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 const API_TIMEOUT = 30000; // 30 secondes
 
 // Interface pour les réponses API standardisées
@@ -320,6 +320,89 @@ export class ApiClient {
     getEvolution: (params?: any) => this.get('/dashboard/evolution', { params }),
     getAlerts: (params?: any) => this.get('/dashboard/alerts', { params }),
     getActivities: (params?: any) => this.get('/dashboard/activities', { params }),
+  };
+
+  // Module Admin
+  admin = {
+    // Users management
+    getUsers: (params?: any) => this.get('/admin/users', { params }),
+    getUser: (id: string) => this.get(`/admin/users/${id}`),
+    createUser: (data: any) => this.post('/admin/users', data),
+    updateUser: (id: string, data: any) => this.put(`/admin/users/${id}`, data),
+    deleteUser: (id: string) => this.delete(`/admin/users/${id}`),
+    toggleUserStatus: (id: string, data: any) => this.post(`/admin/users/${id}/toggle-status`, data),
+    resetUserPassword: (id: string) => this.post(`/admin/users/${id}/reset-password`),
+
+    // Roles management
+    getRoles: (params?: any) => this.get('/admin/roles', { params }),
+    getRole: (id: string) => this.get(`/admin/roles/${id}`),
+    createRole: (data: any) => this.post('/admin/roles', data),
+    updateRole: (id: string, data: any) => this.put(`/admin/roles/${id}`, data),
+    deleteRole: (id: string) => this.delete(`/admin/roles/${id}`),
+    getPermissions: (params?: any) => this.get('/admin/roles/permissions', { params }),
+    createPermission: (data: any) => this.post('/admin/roles/permissions', data),
+    getRolesMatrix: (params?: any) => this.get('/admin/roles/matrix', { params }),
+    updateRolePermissions: (id: string, data: any) => this.post(`/admin/roles/${id}/permissions`, data),
+
+    // Tenants management
+    getTenants: (params?: any) => this.get('/admin/tenants', { params }),
+    getTenant: (id: string) => this.get(`/admin/tenants/${id}`),
+    createTenant: (data: any) => this.post('/admin/tenants', data),
+    updateTenant: (id: string, data: any) => this.put(`/admin/tenants/${id}`, data),
+    toggleTenantStatus: (id: string, data: any) => this.post(`/admin/tenants/${id}/toggle-status`, data),
+    getTenantUsers: (id: string, params?: any) => this.get(`/admin/tenants/${id}/users`, { params }),
+    getTenantsGlobalStats: (params?: any) => this.get('/admin/tenants/stats/global', { params }),
+
+    // Statistics
+    getStatsOverview: (params?: any) => this.get('/admin/stats/overview', { params }),
+    getStatsUsers: (params?: any) => this.get('/admin/stats/users', { params }),
+    getStatsActivity: (params?: any) => this.get('/admin/stats/activity', { params }),
+    getStatsPerformance: (params?: any) => this.get('/admin/stats/performance', { params }),
+    exportStats: (params?: any) => this.get('/admin/stats/export', { params }),
+
+    // Security
+    getSecurityAlerts: (params?: any) => this.get('/admin/security/alerts', { params }),
+    resolveSecurityAlert: (id: string, data: any) => this.post(`/admin/security/alerts/${id}/resolve`, data),
+    getSecurityStats: () => this.get('/admin/security/stats'),
+    unlockUser: (id: string, data: any) => this.post(`/admin/security/users/${id}/unlock`, data),
+    getBlockedAccounts: (params?: any) => this.get('/admin/security/blocked-accounts', { params }),
+
+    // Audit
+    getAuditLogs: (params?: any) => this.get('/admin/audit/logs', { params }),
+    getAuditReports: (params?: any) => this.get('/admin/audit/reports', { params }),
+    getSuspiciousActivities: (params?: any) => this.get('/admin/audit/suspicious', { params }),
+    getAuditStats: () => this.get('/admin/audit/stats'),
+    archiveAuditLogs: (data: any) => this.post('/admin/audit/archive', data),
+    getUserActivity: (userId: string, params?: any) => this.get(`/admin/audit/user/${userId}`, { params }),
+
+    // General admin
+    getPermissionsAvailable: () => this.get('/admin/permissions/available'),
+    getHealth: () => this.get('/admin/health'),
+  };
+
+  // Module Transport
+  transport = {
+    drivers: {
+      getDrivers: (params?: any) => this.get('/transport/drivers', { params }),
+      createDriver: (data: any) => this.post('/transport/drivers', data),
+      getDriver: (id: string) => this.get(`/transport/drivers/${id}`),
+      updateDriver: (id: string, data: any) => this.put(`/transport/drivers/${id}`, data),
+      deleteDriver: (id: string) => this.delete(`/transport/drivers/${id}`),
+      assignVehicle: (id: string, data: any) => this.post(`/transport/drivers/${id}/assign-vehicle`, data),
+      unassignVehicle: (id: string) => this.post(`/transport/drivers/${id}/unassign-vehicle`),
+      getAvailableDrivers: () => this.get('/transport/drivers/available'),
+      getDriverAlerts: () => this.get('/transport/drivers/alerts'),
+      getDriverStatistics: () => this.get('/transport/drivers/statistics'),
+    },
+
+    routes: {
+      getRoutes: (params?: any) => this.get('/transport/routes', { params }),
+      createRoute: (data: any) => this.post('/transport/routes', data),
+      getRoute: (id: string) => this.get(`/transport/routes/${id}`),
+      updateRoute: (id: string, data: any) => this.put(`/transport/routes/${id}`, data),
+      deleteRoute: (id: string) => this.delete(`/transport/routes/${id}`),
+      getActiveRoutes: () => this.get('/transport/routes/active'),
+    },
   };
 }
 

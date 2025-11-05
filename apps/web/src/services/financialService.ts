@@ -19,7 +19,7 @@
  */
 
 import axios from 'axios';
-import { CROUUser } from '@/stores/auth';
+import { User } from '@/stores/auth';
 
 // ================================================================================================
 // TYPES ET INTERFACES
@@ -216,13 +216,13 @@ class FinancialService {
 
   // Endpoints API
   private readonly endpoints = {
-    budgets: '/api/financial/budgets',
-    subventions: '/api/financial/subventions',
-    transactions: '/api/financial/transactions',
-    validation: '/api/financial/validation',
-    reports: '/api/financial/reports',
-    categories: '/api/financial/categories',
-    export: '/api/financial/export'
+    budgets: '/financial/budgets',
+    subventions: '/financial/subventions',
+    transactions: '/financial/transactions',
+    validation: '/financial/validation',
+    reports: '/financial/reports',
+    categories: '/financial/categories',
+    export: '/financial/export'
   };
 
   public static getInstance(): FinancialService {
@@ -288,7 +288,7 @@ class FinancialService {
   // GESTION BUDGETS
   // ================================================================================================
 
-  async getBudgets(user: CROUUser, filters?: FinancialFilters): Promise<Budget[]> {
+  async getBudgets(user: User, filters?: FinancialFilters): Promise<Budget[]> {
     const params = {
       level: user.level,
       crouId: user.level === 'crou' ? user.crouId : undefined,
@@ -352,7 +352,7 @@ class FinancialService {
   // GESTION SUBVENTIONS
   // ================================================================================================
 
-  async getSubventions(user: CROUUser, filters?: FinancialFilters): Promise<Subvention[]> {
+  async getSubventions(user: User, filters?: FinancialFilters): Promise<Subvention[]> {
     const params = {
       level: user.level,
       crouId: user.level === 'crou' ? user.crouId : undefined,
@@ -449,10 +449,19 @@ class FinancialService {
   // ================================================================================================
 
   async getTransactions(budgetId: string, filters?: FinancialFilters): Promise<FinancialTransaction[]> {
+    // Si un exercice est fourni, définir les dates de début et fin de l'année
+    let dateDebut = filters?.dateDebut;
+    let dateFin = filters?.dateFin;
+
+    if (filters?.exercice && !dateDebut && !dateFin) {
+      dateDebut = new Date(filters.exercice, 0, 1); // 1er janvier
+      dateFin = new Date(filters.exercice, 11, 31, 23, 59, 59); // 31 décembre
+    }
+
     const params = {
-      budgetId,
-      dateDebut: filters?.dateDebut?.toISOString(),
-      dateFin: filters?.dateFin?.toISOString(),
+      budgetId: budgetId || undefined,
+      dateDebut: dateDebut?.toISOString(),
+      dateFin: dateFin?.toISOString(),
       categories: filters?.categories?.join(','),
       statuts: filters?.statuts?.join(','),
       montantMin: filters?.montantMin,
@@ -476,6 +485,101 @@ class FinancialService {
       console.error('Erreur création transaction:', error);
       throw new Error(error.response?.data?.message || 'Erreur lors de la création de la transaction');
     }
+  }
+
+  async getTransaction(id: string): Promise<FinancialTransaction> {
+    return this.request<FinancialTransaction>(
+      `${this.endpoints.transactions}/${id}`,
+      undefined,
+      this.CACHE_TTL.transactions
+    );
+  }
+
+  async updateTransaction(id: string, updates: Partial<FinancialTransaction>): Promise<FinancialTransaction> {
+    try {
+      const response = await axios.put(`${this.endpoints.transactions}/${id}`, updates);
+      this.clearTransactionCache();
+      this.clearBudgetCache();
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur mise à jour transaction:', error);
+      throw new Error(error.response?.data?.message || 'Erreur lors de la mise à jour de la transaction');
+    }
+  }
+
+  async deleteTransaction(id: string): Promise<void> {
+    try {
+      await axios.delete(`${this.endpoints.transactions}/${id}`);
+      this.clearTransactionCache();
+      this.clearBudgetCache();
+    } catch (error: any) {
+      console.error('Erreur suppression transaction:', error);
+      throw new Error(error.response?.data?.message || 'Erreur lors de la suppression de la transaction');
+    }
+  }
+
+  async submitTransaction(id: string): Promise<FinancialTransaction> {
+    try {
+      const response = await axios.post(`${this.endpoints.transactions}/${id}/validate`, {
+        action: 'submit'
+      });
+      this.clearTransactionCache();
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur soumission transaction:', error);
+      throw new Error(error.response?.data?.message || 'Erreur lors de la soumission de la transaction');
+    }
+  }
+
+  async approveTransaction(id: string): Promise<FinancialTransaction> {
+    try {
+      const response = await axios.post(`${this.endpoints.transactions}/${id}/validate`, {
+        action: 'approve'
+      });
+      this.clearTransactionCache();
+      this.clearBudgetCache();
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur approbation transaction:', error);
+      throw new Error(error.response?.data?.message || 'Erreur lors de l\'approbation de la transaction');
+    }
+  }
+
+  async rejectTransaction(id: string, reason: string): Promise<FinancialTransaction> {
+    try {
+      const response = await axios.post(`${this.endpoints.transactions}/${id}/validate`, {
+        action: 'reject',
+        reason
+      });
+      this.clearTransactionCache();
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur rejet transaction:', error);
+      throw new Error(error.response?.data?.message || 'Erreur lors du rejet de la transaction');
+    }
+  }
+
+  async executeTransaction(id: string): Promise<FinancialTransaction> {
+    try {
+      const response = await axios.post(`${this.endpoints.transactions}/${id}/validate`, {
+        action: 'execute'
+      });
+      this.clearTransactionCache();
+      this.clearBudgetCache();
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur exécution transaction:', error);
+      throw new Error(error.response?.data?.message || 'Erreur lors de l\'exécution de la transaction');
+    }
+  }
+
+  async getTransactionStats(budgetId?: string): Promise<any> {
+    const params = budgetId ? { budgetId } : {};
+    return this.request<any>(
+      `${this.endpoints.transactions}/stats`,
+      params,
+      this.CACHE_TTL.transactions
+    );
   }
 
   // ================================================================================================

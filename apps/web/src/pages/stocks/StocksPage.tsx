@@ -39,6 +39,7 @@ import { useAuth } from '@/stores/auth';
 import { useStockItems, useStockMovements, useStockAlerts, useStocksStatistics } from '@/hooks/useStocks';
 import { StockItem, CreateStockItemRequest, StockMovement, StockAlert } from '@/services/api/stocksService';
 import { ExportButton } from '@/components/reports/ExportButton';
+import { SuppliersTab } from '@/components/stocks/SuppliersTab';
 
 export const StocksPage: React.FC = () => {
   const { user } = useAuth();
@@ -442,37 +443,11 @@ export const StocksPage: React.FC = () => {
         </div>
       )
     },
-    { 
-      id: 'suppliers', 
-      label: 'Fournisseurs', 
+    {
+      id: 'suppliers',
+      label: 'Fournisseurs',
       icon: <UserGroupIcon className="h-4 w-4" />,
-      content: (
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Fournisseurs</h3>
-            <Button leftIcon={<PlusIcon className="h-4 w-4" />}>
-              Nouveau Fournisseur
-            </Button>
-          </div>
-
-          <Card>
-            <Card.Header>
-              <Card.Title>Liste des Fournisseurs</Card.Title>
-            </Card.Header>
-            <Card.Content>
-              <div className="text-center py-12">
-                <UserGroupIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Module Fournisseurs en Développement
-                </h3>
-                <p className="text-gray-600">
-                  La gestion des fournisseurs sera disponible dans la prochaine version.
-                </p>
-              </div>
-            </Card.Content>
-          </Card>
-        </div>
-      )
+      content: <SuppliersTab />
     }
   ];
 

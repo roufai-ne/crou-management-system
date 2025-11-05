@@ -1,11 +1,11 @@
 /**
  * FICHIER: apps/api/src/modules/dashboard/dashboard.controller.ts
  * CONTROLLER: Module Dashboard - Contrôleur centralisé
- * 
+ *
  * DESCRIPTION:
  * Contrôleur centralisé pour le dashboard principal
  * Agrégation des données de tous les modules
- * 
+ *
  * ENDPOINTS:
  * - GET /kpis/global - KPIs globaux
  * - GET /kpis/modules - KPIs par module
@@ -13,12 +13,13 @@
  * - GET /expenses - Répartition des dépenses
  * - GET /alerts - Alertes récentes
  * - GET /activities - Activités récentes
- * 
+ *
  * AUTEUR: Équipe CROU
  * DATE: Décembre 2024
  */
 
 import { Request, Response } from 'express';
+import { DashboardService } from './dashboard.service';
 
 export class DashboardController {
   /**
@@ -28,20 +29,23 @@ export class DashboardController {
   static async getGlobalKPIs(req: Request, res: Response) {
     try {
       const { startDate, endDate } = req.query;
-      
-      // Données mockées pour le moment
-      const globalKPIs = {
-        totalBudget: 50000000,
-        executedBudget: 35000000,
-        executionRate: 70.0,
-        totalStudents: 1200,
-        housedStudents: 1100,
-        occupancyRate: 91.7,
-        satisfaction: 4.2,
-        stockValue: 2500000,
-        operationalVehicles: 45,
-        activeAlerts: 3
-      };
+      const tenantId = (req as any).user?.tenantId;
+
+      if (!tenantId) {
+        return res.status(401).json({
+          success: false,
+          error: 'Tenant ID manquant'
+        });
+      }
+
+      const parsedStartDate = startDate ? new Date(startDate as string) : undefined;
+      const parsedEndDate = endDate ? new Date(endDate as string) : undefined;
+
+      const globalKPIs = await DashboardService.getGlobalKPIs(
+        tenantId,
+        parsedStartDate,
+        parsedEndDate
+      );
 
       res.json({
         success: true,
@@ -63,48 +67,23 @@ export class DashboardController {
   static async getModuleKPIs(req: Request, res: Response) {
     try {
       const { startDate, endDate } = req.query;
-      
-      // Données mockées pour le moment
-      const moduleKPIs = {
-        financial: {
-          budget: 50000000,
-          executed: 35000000,
-          remaining: 15000000,
-          executionRate: 70.0,
-          monthlyVariation: 5.2,
-          trend: 'up' as const,
-          change: 2.1,
-          target: 75.0
-        },
-        students: {
-          total: 1200,
-          housed: 1100,
-          occupancyRate: 91.7,
-          satisfaction: 4.2,
-          monthlyVariation: 2.3,
-          trend: 'stable' as const,
-          change: 0.5,
-          target: 95.0
-        },
-        stocks: {
-          totalValue: 2500000,
-          lowStockItems: 12,
-          outOfStockItems: 3,
-          monthlyVariation: -1.2,
-          trend: 'down' as const,
-          change: -0.8,
-          target: 3000000
-        },
-        transport: {
-          totalVehicles: 50,
-          operationalVehicles: 45,
-          maintenanceDue: 8,
-          monthlyVariation: 0.0,
-          trend: 'stable' as const,
-          change: 0.0,
-          target: 48
-        }
-      };
+      const tenantId = (req as any).user?.tenantId;
+
+      if (!tenantId) {
+        return res.status(401).json({
+          success: false,
+          error: 'Tenant ID manquant'
+        });
+      }
+
+      const parsedStartDate = startDate ? new Date(startDate as string) : undefined;
+      const parsedEndDate = endDate ? new Date(endDate as string) : undefined;
+
+      const moduleKPIs = await DashboardService.getModuleKPIs(
+        tenantId,
+        parsedStartDate,
+        parsedEndDate
+      );
 
       res.json({
         success: true,
@@ -127,32 +106,11 @@ export class DashboardController {
     try {
       const { startDate, endDate, groupBy = 'month' } = req.query;
       
-      // Données mockées pour le moment
+      // TODO: Implémenter avec le service
       const evolutionData = {
-        financial: [
-          { period: '2024-01', budget: 4000000, executed: 3200000 },
-          { period: '2024-02', budget: 4200000, executed: 3500000 },
-          { period: '2024-03', budget: 4500000, executed: 3800000 },
-          { period: '2024-04', budget: 4800000, executed: 4000000 },
-          { period: '2024-05', budget: 5000000, executed: 4200000 },
-          { period: '2024-06', budget: 5200000, executed: 4500000 }
-        ],
-        students: [
-          { period: '2024-01', total: 1150, housed: 1050 },
-          { period: '2024-02', total: 1170, housed: 1070 },
-          { period: '2024-03', total: 1180, housed: 1080 },
-          { period: '2024-04', total: 1190, housed: 1090 },
-          { period: '2024-05', total: 1200, housed: 1100 },
-          { period: '2024-06', total: 1200, housed: 1100 }
-        ],
-        stocks: [
-          { period: '2024-01', value: 2200000, items: 450 },
-          { period: '2024-02', value: 2300000, items: 460 },
-          { period: '2024-03', value: 2400000, items: 470 },
-          { period: '2024-04', value: 2450000, items: 475 },
-          { period: '2024-05', value: 2500000, items: 480 },
-          { period: '2024-06', value: 2500000, items: 480 }
-        ]
+        financial: [],
+        students: [],
+        stocks: []
       };
 
       res.json({
@@ -163,7 +121,7 @@ export class DashboardController {
       console.error('Erreur getEvolutionData:', error);
       res.status(500).json({
         success: false,
-        error: 'Erreur lors de la récupération des données d\'évolution'
+        error: 'Erreur lors de la récupération des données d evolution'
       });
     }
   }
@@ -176,7 +134,7 @@ export class DashboardController {
     try {
       const { startDate, endDate } = req.query;
       
-      // Données mockées pour le moment
+      // TODO: Implémenter avec le service
       const expenseBreakdown = {
         categories: [
           { name: 'Logement', amount: 20000000, percentage: 57.1, color: '#3B82F6' },
@@ -211,44 +169,23 @@ export class DashboardController {
   static async getAlerts(req: Request, res: Response) {
     try {
       const { limit = 50 } = req.query;
-      
-      // Données mockées pour le moment
-      const alerts = [
-        {
-          id: '1',
-          type: 'budget',
-          severity: 'warning',
-          title: 'Budget dépassé',
-          message: 'Le budget du module financier a été dépassé de 5%',
-          module: 'financial',
-          createdAt: new Date().toISOString(),
-          acknowledged: false
-        },
-        {
-          id: '2',
-          type: 'stock',
-          severity: 'error',
-          title: 'Stock épuisé',
-          message: 'Le stock de matériel de bureau est épuisé',
-          module: 'stocks',
-          createdAt: new Date(Date.now() - 3600000).toISOString(),
-          acknowledged: false
-        },
-        {
-          id: '3',
-          type: 'maintenance',
-          severity: 'info',
-          title: 'Maintenance due',
-          message: '3 véhicules nécessitent une maintenance',
-          module: 'transport',
-          createdAt: new Date(Date.now() - 7200000).toISOString(),
-          acknowledged: true
-        }
-      ];
+      const tenantId = (req as any).user?.tenantId;
+
+      if (!tenantId) {
+        return res.status(401).json({
+          success: false,
+          error: 'Tenant ID manquant'
+        });
+      }
+
+      const alerts = await DashboardService.getRecentAlerts(
+        tenantId,
+        Number(limit)
+      );
 
       res.json({
         success: true,
-        data: alerts.slice(0, Number(limit))
+        data: alerts
       });
     } catch (error) {
       console.error('Erreur getAlerts:', error);
@@ -266,44 +203,23 @@ export class DashboardController {
   static async getRecentActivities(req: Request, res: Response) {
     try {
       const { limit = 100 } = req.query;
-      
-      // Données mockées pour le moment
-      const activities = [
-        {
-          id: '1',
-          type: 'transaction',
-          action: 'created',
-          description: 'Nouvelle transaction créée',
-          module: 'financial',
-          user: 'Admin User',
-          timestamp: new Date().toISOString(),
-          metadata: { amount: 50000, category: 'Logement' }
-        },
-        {
-          id: '2',
-          type: 'stock',
-          action: 'updated',
-          description: 'Stock mis à jour',
-          module: 'stocks',
-          user: 'Stock Manager',
-          timestamp: new Date(Date.now() - 1800000).toISOString(),
-          metadata: { item: 'Matériel de bureau', quantity: 100 }
-        },
-        {
-          id: '3',
-          type: 'student',
-          action: 'registered',
-          description: 'Nouvel étudiant enregistré',
-          module: 'students',
-          user: 'Student Manager',
-          timestamp: new Date(Date.now() - 3600000).toISOString(),
-          metadata: { studentId: 'STU001', name: 'John Doe' }
-        }
-      ];
+      const tenantId = (req as any).user?.tenantId;
+
+      if (!tenantId) {
+        return res.status(401).json({
+          success: false,
+          error: 'Tenant ID manquant'
+        });
+      }
+
+      const activities = await DashboardService.getRecentActivities(
+        tenantId,
+        Number(limit)
+      );
 
       res.json({
         success: true,
-        data: activities.slice(0, Number(limit))
+        data: activities
       });
     } catch (error) {
       console.error('Erreur getRecentActivities:', error);
@@ -315,25 +231,29 @@ export class DashboardController {
   }
 
   /**
-   * POST /api/dashboard/alerts/acknowledge
+   * POST /api/dashboard/alerts/:alertId/acknowledge
    * Marquer une alerte comme lue
    */
   static async acknowledgeAlert(req: Request, res: Response) {
     try {
       const { alertId } = req.params;
-      
-      // Logique de reconnaissance d'alerte
-      console.log(`Alerte ${alertId} marquée comme lue`);
-      
-      res.json({
-        success: true,
-        message: 'Alerte marquée comme lue'
-      });
+      const userId = (req as any).user?.userId;
+
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          error: 'User ID manquant'
+        });
+      }
+
+      const result = await DashboardService.acknowledgeAlert(alertId, userId);
+
+      res.json(result);
     } catch (error) {
       console.error('Erreur acknowledgeAlert:', error);
       res.status(500).json({
         success: false,
-        error: 'Erreur lors de la reconnaissance de l\'alerte'
+        error: 'Erreur lors de la reconnaissance de l alerte'
       });
     }
   }

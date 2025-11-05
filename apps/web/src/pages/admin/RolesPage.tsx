@@ -43,6 +43,8 @@ import { Checkbox } from '@/components/ui/Checkbox';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 import { cn } from '@/utils/cn';
 import { Card } from '@/components/ui/Card';
+import { adminService, type UserRole as ApiRole } from '@/services/api/adminService';
+import { RoleCreateModal, RoleEditModal } from '@/components/admin/RoleModals';
 
 // Types pour les rôles et permissions
 interface Permission {
@@ -129,55 +131,28 @@ export const RolesPage: React.FC = () => {
   const loadRoles = async () => {
     setLoading(true);
     try {
-      // TODO: Remplacer par l'appel API réel
-      const mockRoles: Role[] = [
-        {
-          id: '1',
-          name: 'Ministre',
-          description: 'Accès complet à tous les modules et données',
-          tenantType: 'ministere',
-          isSystemRole: true,
-          permissions: [], // TODO: Charger les permissions réelles
-          userCount: 1,
-          createdAt: '2024-01-01T00:00:00Z',
-          updatedAt: '2024-01-01T00:00:00Z'
-        },
-        {
-          id: '2',
-          name: 'Directeur CROU',
-          description: 'Gestion complète du CROU local',
-          tenantType: 'crou',
-          isSystemRole: true,
-          permissions: [],
-          userCount: 8,
-          createdAt: '2024-01-01T00:00:00Z',
-          updatedAt: '2024-01-01T00:00:00Z'
-        },
-        {
-          id: '3',
-          name: 'Comptable',
-          description: 'Gestion financière et comptable',
-          tenantType: 'crou',
-          isSystemRole: true,
-          permissions: [],
-          userCount: 12,
-          createdAt: '2024-01-01T00:00:00Z',
-          updatedAt: '2024-01-01T00:00:00Z'
-        },
-        {
-          id: '4',
-          name: 'Gestionnaire Stocks',
-          description: 'Gestion des stocks et approvisionnements',
-          tenantType: 'crou',
-          isSystemRole: false,
-          permissions: [],
-          userCount: 8,
-          createdAt: '2024-02-15T00:00:00Z',
-          updatedAt: '2024-02-15T00:00:00Z'
-        }
-      ];
+      const apiRoles = await adminService.getRoles();
 
-      setRoles(mockRoles);
+      // Map API roles to local Role interface
+      const mappedRoles: Role[] = apiRoles.map((apiRole: ApiRole) => ({
+        id: apiRole.id,
+        name: apiRole.name,
+        description: apiRole.description,
+        tenantType: 'both' as const, // Default, can be enhanced later
+        isSystemRole: apiRole.isSystem,
+        permissions: apiRole.permissions.map(perm => ({
+          id: perm.id,
+          resource: perm.resource || perm.module,
+          actions: [perm.action],
+          description: perm.description,
+          category: perm.module
+        })),
+        userCount: 0, // Not available from API yet
+        createdAt: apiRole.createdAt,
+        updatedAt: apiRole.updatedAt
+      }));
+
+      setRoles(mappedRoles);
     } catch (error) {
       console.error('Erreur lors du chargement des rôles:', error);
     } finally {
@@ -335,8 +310,7 @@ export const RolesPage: React.FC = () => {
   const handleDeleteRole = async (roleId: string) => {
     if (confirm('Êtes-vous sûr de vouloir supprimer ce rôle ?')) {
       try {
-        // TODO: Appel API pour supprimer le rôle
-        console.log('Suppression rôle:', roleId);
+        await adminService.deleteRole(roleId);
         await loadRoles();
       } catch (error) {
         console.error('Erreur lors de la suppression:', error);
@@ -438,7 +412,24 @@ export const RolesPage: React.FC = () => {
       {showEditModal && selectedRole && (
         <RoleEditModal
           isOpen={showEditModal}
-          role={selectedRole}
+          role={{
+            id: selectedRole.id,
+            name: selectedRole.name,
+            description: selectedRole.description,
+            permissions: selectedRole.permissions.map(perm => ({
+              id: perm.id,
+              name: `${perm.resource}:${perm.actions[0]}`,
+              description: perm.description,
+              module: perm.category,
+              action: perm.actions[0],
+              resource: perm.resource,
+              createdAt: selectedRole.createdAt,
+              updatedAt: selectedRole.updatedAt
+            })),
+            isSystem: selectedRole.isSystemRole,
+            createdAt: selectedRole.createdAt,
+            updatedAt: selectedRole.updatedAt
+          } as ApiRole}
           onClose={() => {
             setShowEditModal(false);
             setSelectedRole(null);
@@ -540,53 +531,6 @@ const PermissionsMatrix: React.FC<{ roles: Role[] }> = ({ roles }) => {
   );
 };
 
-// Composants de modales (à implémenter)
-const RoleCreateModal: React.FC<{
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
-}> = ({ isOpen, onClose, onSuccess }) => {
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg">
-      <div className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Créer un nouveau rôle</h3>
-        <p>Formulaire de création de rôle à implémenter...</p>
-        <div className="flex justify-end space-x-3 mt-6">
-          <Button variant="outline" onClick={onClose}>
-            Annuler
-          </Button>
-          <Button onClick={onSuccess}>
-            Créer
-          </Button>
-        </div>
-      </div>
-    </Modal>
-  );
-};
-
-const RoleEditModal: React.FC<{
-  isOpen: boolean;
-  role: Role;
-  onClose: () => void;
-  onSuccess: () => void;
-}> = ({ isOpen, role, onClose, onSuccess }) => {
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg">
-      <div className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Modifier le rôle</h3>
-        <p>Formulaire de modification pour {role.name}...</p>
-        <div className="flex justify-end space-x-3 mt-6">
-          <Button variant="outline" onClick={onClose}>
-            Annuler
-          </Button>
-          <Button onClick={onSuccess}>
-            Sauvegarder
-          </Button>
-        </div>
-      </div>
-    </Modal>
-  );
-};
 
 const RolePermissionsModal: React.FC<{
   isOpen: boolean;

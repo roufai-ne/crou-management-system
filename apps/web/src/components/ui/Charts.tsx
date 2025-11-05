@@ -259,9 +259,9 @@ export interface LineChartProps extends BaseChartProps {
 }
 
 export const LineChart: React.FC<LineChartProps> = ({
-  data,
+  data = [],
   xKey,
-  lines,
+  lines = [],
   width = '100%',
   height = 300,
   margin = { top: 20, right: 30, left: 20, bottom: 20 },
@@ -352,9 +352,9 @@ export interface BarChartProps extends BaseChartProps {
 }
 
 export const BarChart: React.FC<BarChartProps> = ({
-  data,
+  data = [],
   xKey,
-  bars,
+  bars = [],
   width = '100%',
   height = 300,
   margin = { top: 20, right: 30, left: 20, bottom: 20 },
@@ -458,7 +458,7 @@ export interface PieChartProps extends BaseChartProps {
 }
 
 export const PieChart: React.FC<PieChartProps> = ({
-  data,
+  data = [],
   valueKey,
   nameKey,
   width = '100%',
@@ -477,7 +477,7 @@ export const PieChart: React.FC<PieChartProps> = ({
 }) => {
   if (loading) return <ChartLoading height={height} />;
   if (error) return <ChartError error={error} height={height} />;
-  
+
   // Calculer les pourcentages
   const total = data.reduce((sum, item) => sum + item[valueKey], 0);
   const dataWithPercentages = data.map(item => ({
@@ -551,9 +551,9 @@ export interface AreaChartProps extends BaseChartProps {
 }
 
 export const AreaChart: React.FC<AreaChartProps> = ({
-  data,
+  data = [],
   xKey,
-  areas,
+  areas = [],
   width = '100%',
   height = 300,
   margin = { top: 20, right: 30, left: 20, bottom: 20 },

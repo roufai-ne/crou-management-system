@@ -1,0 +1,73 @@
+# ============================================
+# .dockerignore - API Backend CROU
+# ============================================
+# Fichiers à exclure lors du build Docker
+
+# Node modules (seront installés dans le container)
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Environnement et secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.cert
+
+# Tests
+coverage/
+.nyc_output/
+*.test.ts
+*.spec.ts
+__tests__/
+test/
+
+# Documentation
+*.md
+!README.md
+docs/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Temporary
+tmp/
+temp/
+*.tmp
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Cache
+.cache/
+.turbo/
+.eslintcache

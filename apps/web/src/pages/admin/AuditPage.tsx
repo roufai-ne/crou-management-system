@@ -50,6 +50,9 @@ import { KPICard } from '@/components/ui/KPICard';
 import { Tabs } from '@/components/ui/Tabs';
 import { CROUSelector } from '@/components/ui/CROUSelector';
 import { DateInput } from '@/components/ui/DateInput';
+import { adminService, type AuditLog as ApiAuditLog } from '@/services/api/adminService';
+import { Toast } from '@/components/ui/Toast';
+import { exportAuditLogsToPDF } from '@/utils/pdfExport';
 
 // Types pour les logs d'audit
 interface AuditLog {
@@ -160,7 +163,73 @@ export const AuditPage: React.FC = () => {
   const loadAuditLogs = async () => {
     setLoading(true);
     try {
-      // TODO: Remplacer par l'appel API réel
+      const params: any = {
+        page: currentPage,
+        limit: itemsPerPage
+      };
+
+      if (filters.userId) params.userId = filters.userId;
+      if (filters.action) params.action = filters.action;
+      if (filters.resource) params.resource = filters.resource;
+      if (filters.tenantId) params.tenantId = filters.tenantId;
+      if (filters.dateFrom) params.startDate = filters.dateFrom;
+      if (filters.dateTo) params.endDate = filters.dateTo;
+      if (filters.ipAddress) params.ipAddress = filters.ipAddress;
+      if (filters.success) params.success = filters.success === 'true';
+
+      const response = await adminService.getAuditLogs(params);
+
+      // Map API logs to local AuditLog interface
+      const mappedLogs: AuditLog[] = response.logs.map((apiLog: ApiAuditLog) => ({
+        id: apiLog.id,
+        userId: apiLog.userId,
+        userName: apiLog.user?.firstName ? `${apiLog.user.firstName} ${apiLog.user.lastName}` : undefined,
+        userEmail: apiLog.user?.email,
+        action: apiLog.action,
+        resource: apiLog.resource,
+        resourceId: apiLog.resourceId,
+        oldValues: apiLog.oldValues,
+        newValues: apiLog.newValues,
+        ipAddress: apiLog.ipAddress,
+        userAgent: apiLog.userAgent,
+        tenantId: apiLog.tenantId,
+        tenantName: apiLog.tenant?.name,
+        sessionId: apiLog.sessionId,
+        metadata: apiLog.metadata,
+        success: apiLog.success,
+        createdAt: new Date(apiLog.createdAt)
+      }));
+
+      setLogs(mappedLogs);
+      setTotalLogs(response.total);
+      setTotalPages(Math.ceil(response.total / itemsPerPage));
+
+      // Calculate basic stats from loaded logs
+      const successCount = mappedLogs.filter(l => l.success).length;
+      const failedCount = mappedLogs.filter(l => !l.success).length;
+      const uniqueUserIds = new Set(mappedLogs.map(l => l.userId).filter(Boolean));
+
+      const mockStats: AuditStats = {
+        totalLogs: response.total,
+        todayLogs: mappedLogs.filter(l => {
+          const today = new Date();
+          const logDate = new Date(l.createdAt);
+          return logDate.toDateString() === today.toDateString();
+        }).length,
+        successfulActions: successCount,
+        failedActions: failedCount,
+        uniqueUsers: uniqueUserIds.size,
+        topActions: [],
+        topResources: [],
+        activityByHour: []
+      };
+      setStats(mockStats);
+
+    } catch (error: any) {
+      console.error('Erreur lors du chargement des logs d\'audit:', error);
+      Toast.error('Erreur lors du chargement des logs d\'audit');
+
+      // Fallback to mock data if API fails
       const mockLogs: AuditLog[] = [
         {
           id: '1',
@@ -464,8 +533,78 @@ export const AuditPage: React.FC = () => {
 
   // Actions
   const handleExport = (format: 'excel' | 'pdf' | 'csv') => {
-    // TODO: Implémenter l'export des logs
-    console.log(`Export des logs en format ${format}`);
+    try {
+      if (format === 'csv') {
+        // Export as CSV
+        const csvHeaders = ['Date/Heure', 'Utilisateur', 'Email', 'Action', 'Ressource', 'IP', 'Résultat', 'Tenant'];
+        const csvRows = logs.map(log => [
+          new Date(log.createdAt).toLocaleString('fr-FR'),
+          log.userName || 'N/A',
+          log.userEmail || 'N/A',
+          log.action,
+          log.resource,
+          log.ipAddress || 'N/A',
+          log.success ? 'Succès' : 'Échec',
+          log.tenantName || 'N/A'
+        ]);
+
+        const csvContent = [
+          csvHeaders.join(','),
+          ...csvRows.map(row => row.map(cell => `"${cell}"`).join(','))
+        ].join('\n');
+
+        const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `audit_logs_${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+
+        Toast.success('Export CSV réussi');
+      } else if (format === 'excel') {
+        // For Excel, use CSV with .xls extension (simple approach)
+        const csvHeaders = ['Date/Heure', 'Utilisateur', 'Email', 'Action', 'Ressource', 'IP', 'Résultat', 'Tenant'];
+        const csvRows = logs.map(log => [
+          new Date(log.createdAt).toLocaleString('fr-FR'),
+          log.userName || 'N/A',
+          log.userEmail || 'N/A',
+          log.action,
+          log.resource,
+          log.ipAddress || 'N/A',
+          log.success ? 'Succès' : 'Échec',
+          log.tenantName || 'N/A'
+        ]);
+
+        const csvContent = [
+          csvHeaders.join('\t'),
+          ...csvRows.map(row => row.join('\t'))
+        ].join('\n');
+
+        const blob = new Blob(['\uFEFF' + csvContent], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `audit_logs_${new Date().toISOString().split('T')[0]}.xls`;
+        link.click();
+
+        Toast.success('Export Excel réussi');
+      } else if (format === 'pdf') {
+        // Export as PDF using jsPDF
+        const pdfData = logs.map(log => ({
+          id: log.id,
+          createdAt: log.createdAt,
+          userName: log.userName || 'N/A',
+          action: log.action,
+          resource: log.resource,
+          ipAddress: log.ipAddress || 'N/A',
+          success: log.success
+        }));
+
+        exportAuditLogsToPDF(pdfData);
+        Toast.success('Export PDF réussi');
+      }
+    } catch (error: any) {
+      console.error('Erreur lors de l\'export:', error);
+      Toast.error('Erreur lors de l\'export des logs');
+    }
   };
 
   const resetFilters = () => {

@@ -20,7 +20,7 @@
  * DATE: Décembre 2024
  */
 
-import { AppDataSource } from '../../../../../packages/database/src/config/typeorm.config';
+import { AppDataSource } from '../../../../../packages/database/src/config/datasource';
 import { AuditLog, AuditAction } from '../../../../../packages/database/src/entities/AuditLog.entity';
 import { User } from '../../../../../packages/database/src/entities/User.entity';
 import { Repository, Between, MoreThan, LessThan, In } from 'typeorm';

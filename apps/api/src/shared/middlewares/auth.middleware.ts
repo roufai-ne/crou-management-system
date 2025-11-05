@@ -78,7 +78,7 @@ export const authenticateJWT = (req: Request, res: Response, next: NextFunction)
       });
     }
 
-    if (error instanceof jwt.JsonWebTokenError || error?.message === 'Token invalide') {
+    if (error instanceof jwt.JsonWebTokenError || (error as any)?.message === 'Token invalide') {
       return res.status(401).json({
         error: 'Token invalide',
         message: 'Token d\'authentification invalide'

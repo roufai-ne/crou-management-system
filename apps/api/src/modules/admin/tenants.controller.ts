@@ -25,7 +25,7 @@ import { authenticateJWT } from '@/shared/middlewares/auth.middleware';
 import { checkPermissions } from '@/shared/middlewares/permissions.middleware';
 import { ministerialAccessMiddleware } from '@/shared/middlewares/tenant-isolation.middleware';
 import { auditMiddleware } from '@/shared/middlewares/audit.middleware';
-import { AppDataSource } from '../../../../../packages/database/src/config/typeorm.config';
+import { AppDataSource } from '../../../../../packages/database/src/config/datasource';
 import { Tenant, TenantType } from '../../../../../packages/database/src/entities/Tenant.entity';
 import { User } from '../../../../../packages/database/src/entities/User.entity';
 import { AuditService } from '@/shared/services/audit.service';

@@ -149,73 +149,50 @@ export class AuthService {
    */
   async login(email: string, password: string): Promise<LoginResponse> {
     try {
-      // En mode développement, simuler une connexion réussie
-      if (import.meta.env.DEV) {
+      // DÉSACTIVÉ: Mode développement avec mock data
+      // Toujours utiliser l'API réelle
+      /* if (import.meta.env.DEV) {
         console.log('🔓 Connexion en mode développement - simulation');
-        
-        const mockResponse: LoginResponse = {
-          user: {
-            id: 'dev-user',
-            email: email,
-            name: 'Utilisateur Dev',
-            role: 'admin',
-            status: 'active',
-            tenantId: 'niamey',
-            tenant: {
-              id: 'niamey',
-              name: 'CROU Niamey',
-              type: 'crou',
-              code: 'NI',
-              region: 'Niamey'
-            }
-          },
-          accessToken: 'dev-token',
-          refreshToken: 'dev-refresh-token',
-          expiresIn: 3600
-        };
+        ...
+      } */
 
-        // Mettre à jour le store avec les bonnes méthodes
-        const authStore = useAuth.getState();
-        authStore.setUser({
-          id: mockResponse.user.id,
-          email: mockResponse.user.email,
-          firstName: mockResponse.user.name.split(' ')[0] || '',
-          lastName: mockResponse.user.name.split(' ').slice(1).join(' ') || '',
-          name: mockResponse.user.name,
-          role: mockResponse.user.role as any,
-          tenantId: mockResponse.user.tenantId,
-          tenantType: mockResponse.user.tenant.type,
-          level: mockResponse.user.tenant.type === 'ministere' ? 'ministere' : 'crou',
-          permissions: ['all', 'read', 'write', 'admin', 'dashboard:read', 'financial:read', 'stocks:read', 'housing:read', 'transport:read', 'reports:read', 'admin:read'],
-          lastLoginAt: new Date()
-        });
-        authStore.setTokens(mockResponse.accessToken, mockResponse.refreshToken);
-
-        return mockResponse;
-      }
-
-      // En production, appeler l'API réelle
-      const response = await this.api.post<LoginResponse>('/login', {
+      // Appeler l'API réelle
+      const response = await this.api.post<any>('/login', {
         email,
         password,
       });
 
-      const { user, accessToken, refreshToken, expiresIn } = response.data;
+      // Extraire les données de la réponse (structure: { success, data: { user, tokens } })
+      console.log('🔍 Login response:', response.data);
+
+      const responseData = response.data.data || response.data;
+      const user = responseData.user;
+      const tokens = responseData.tokens || responseData;
+
+      console.log('🔍 Response data:', responseData);
+      console.log('🔍 User:', user);
+      console.log('🔍 Tokens:', tokens);
+
+      if (!user) {
+        throw new Error('Données utilisateur manquantes dans la réponse');
+      }
+
+      const { accessToken, refreshToken, expiresIn } = tokens;
 
       // Mettre à jour le store avec les bonnes méthodes
       const authStore = useAuth.getState();
       authStore.setUser({
         id: user.id,
         email: user.email,
-        firstName: user.name.split(' ')[0] || '',
-        lastName: user.name.split(' ').slice(1).join(' ') || '',
-        name: user.name,
-        role: user.role as any,
-        tenantId: user.tenantId,
-        tenantType: user.tenant.type,
-        level: user.tenant.type === 'ministere' ? 'ministere' : 'crou',
-        permissions: ['all', 'read', 'write', 'admin'], // À adapter selon la réponse API
-        lastLoginAt: new Date()
+        firstName: user.name?.split(' ')[0] || '',
+        lastName: user.name?.split(' ').slice(1).join(' ') || '',
+        name: user.name || user.email,
+        role: (user.role?.name || user.role) as any,
+        tenantId: user.tenant?.id || user.tenantId,
+        tenantType: user.tenant?.type || 'crou',
+        level: user.tenant?.type === 'ministere' ? 'ministere' : 'crou',
+        permissions: user.permissions || [],
+        lastLoginAt: user.lastLoginAt ? new Date(user.lastLoginAt) : new Date()
       });
       authStore.setTokens(accessToken, refreshToken);
 
@@ -312,14 +289,16 @@ export class AuthService {
         throw new Error('Aucun refresh token disponible');
       }
 
-      const response = await this.api.post<RefreshResponse>('/refresh', {
+      const response = await this.api.post<any>('/refresh', {
         refreshToken,
       });
 
-      const { accessToken, refreshToken: newRefreshToken, expiresIn } = response.data;
+      // Extraire les données de la réponse (structure: { success, data: { accessToken, refreshToken, expiresIn } })
+      const responseData = response.data.data || response.data;
+      const { accessToken, refreshToken: newRefreshToken, expiresIn } = responseData;
 
       // Mettre à jour le store
-      authStore.setTokens(accessToken, newRefreshToken);
+      authStore.setTokens(accessToken, newRefreshToken || refreshToken);
 
       // Programmer le prochain refresh
       this.scheduleTokenRefresh(expiresIn);

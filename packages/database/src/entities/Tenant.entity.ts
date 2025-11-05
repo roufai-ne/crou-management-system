@@ -22,34 +22,34 @@ export enum TenantType {
 @Entity('tenants')
 export class Tenant {
   @PrimaryGeneratedColumn('uuid')
-  id: string = '';
+  id: string;
 
   @Column({ type: 'varchar', length: 255, unique: true })
-  name: string = '';
+  name: string;
 
   @Column({ type: 'varchar', length: 50, unique: true })
-  code: string = '';
+  code: string;
 
   @Column({ type: 'enum', enum: TenantType })
-  type: TenantType = TenantType.CROU;
+  type: TenantType;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  region: string | null = null;
+  region: string | null;
 
   @Column({ type: 'jsonb', nullable: true })
-  config: Record<string, any> = {};
+  config: Record<string, any>;
 
   @Column({ type: 'boolean', default: true })
-  isActive: boolean = true;
+  isActive: boolean;
 
   // Relations
   @OneToMany(() => User, user => user.tenant)
-  users: User[] ;
+  users: User[];
 
   // Audit
   @CreateDateColumn()
-  createdAt: Date = new Date();
+  createdAt: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date = new Date();
+  updatedAt: Date;
 }

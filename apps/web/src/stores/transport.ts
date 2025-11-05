@@ -57,6 +57,16 @@ interface TransportState {
   maintenanceRecords: MaintenanceRecord[];
   maintenanceLoading: boolean;
   maintenanceError: string | null;
+
+  // Usages
+  usages: any[];
+  usagesLoading: boolean;
+  usagesError: string | null;
+
+  // Maintenances
+  maintenances: any[];
+  maintenancesLoading: boolean;
+  maintenancesError: string | null;
   
   // Métriques
   metrics: TransportMetrics | null;
@@ -145,23 +155,31 @@ export const useTransport = create<TransportState & TransportActions>()(
         vehicles: [],
         vehiclesLoading: false,
         vehiclesError: null,
-        
+
         drivers: [],
         driversLoading: false,
         driversError: null,
-        
+
         routes: [],
         routesLoading: false,
         routesError: null,
-        
+
         scheduledTrips: [],
         tripsLoading: false,
         tripsError: null,
-        
+
         maintenanceRecords: [],
         maintenanceLoading: false,
         maintenanceError: null,
-        
+
+        usages: [],
+        usagesLoading: false,
+        usagesError: null,
+
+        maintenances: [],
+        maintenancesLoading: false,
+        maintenancesError: null,
+
         metrics: null,
         metricsLoading: false,
         metricsError: null,
@@ -186,16 +204,15 @@ export const useTransport = create<TransportState & TransportActions>()(
         // Actions pour les véhicules
         loadVehicles: async (tenantId: string, filters?: Partial<TransportState['filters']>) => {
           set({ vehiclesLoading: true, vehiclesError: null });
-          
+
           try {
             const currentFilters = { ...get().filters, ...filters };
             const response = await transportService.getVehicles({
-              tenantId,
               ...currentFilters,
               page: get().pagination.page,
               limit: get().pagination.limit
             });
-            
+
             set({
               vehicles: response.vehicles,
               pagination: {
@@ -411,17 +428,17 @@ export const useTransport = create<TransportState & TransportActions>()(
         // Actions pour la maintenance
         loadMaintenanceRecords: async (tenantId: string, filters?: any) => {
           set({ maintenanceLoading: true, maintenanceError: null });
-          
+
           try {
-            const response = await transportService.getMaintenanceRecords({
+            const response = await transportService.getMaintenances({
               tenantId,
               ...filters,
               page: get().pagination.page,
               limit: get().pagination.limit
             });
-            
+
             set({
-              maintenanceRecords: response.records,
+              maintenanceRecords: response.maintenances,
               maintenanceLoading: false,
               lastFetch: Date.now()
             });
@@ -432,20 +449,20 @@ export const useTransport = create<TransportState & TransportActions>()(
             });
           }
         },
-        
+
         createMaintenanceRecord: async (data: any, tenantId: string) => {
           try {
-            await transportService.createMaintenanceRecord(data);
+            await transportService.createMaintenance(data);
             await get().loadMaintenanceRecords(tenantId);
           } catch (error: any) {
             set({ maintenanceError: error.message || 'Erreur lors de la création de l\'enregistrement de maintenance' });
             throw error;
           }
         },
-        
+
         updateMaintenanceRecord: async (id: string, data: any, tenantId: string) => {
           try {
-            await transportService.updateMaintenanceRecord(id, data);
+            await transportService.updateMaintenance(id, data);
             await get().loadMaintenanceRecords(tenantId);
           } catch (error: any) {
             set({ maintenanceError: error.message || 'Erreur lors de la mise à jour de l\'enregistrement de maintenance' });

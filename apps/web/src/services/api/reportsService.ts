@@ -236,7 +236,7 @@ export interface ConsolidatedReportData extends ReportData {
 }
 
 class ReportsService {
-  private baseUrl = '/api/reports';
+  private baseUrl = '/reports';
 
   // === TEMPLATES DE RAPPORTS ===
 

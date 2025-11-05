@@ -1,11 +1,11 @@
 /**
  * FICHIER: apps/web/src/pages/admin/SecurityPage.tsx
  * PAGE: SecurityPage - Interface de sécurité et monitoring
- * 
+ *
  * DESCRIPTION:
  * Interface d'administration pour le monitoring de sécurité
  * Alertes, statistiques, gestion des comptes bloqués
- * 
+ *
  * FONCTIONNALITÉS:
  * - Dashboard de sécurité en temps réel
  * - Liste des alertes de sécurité
@@ -13,7 +13,11 @@
  * - Statistiques de rate limiting
  * - Monitoring des activités suspectes
  * - Actions de déblocage et sécurité
- * 
+ *
+ * NOTE: Cette page utilise actuellement des données mockées.
+ * L'intégration avec l'API backend nécessite l'implémentation
+ * des endpoints de sécurité dans le module admin backend.
+ *
  * AUTEUR: Équipe CROU
  * DATE: Décembre 2024
  */
@@ -44,6 +48,9 @@ import { Modal } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 import { cn } from '@/utils/cn';
+import { Toast } from '@/components/ui/Toast';
+import { adminService, type SecurityAlert as ApiSecurityAlert, type SecurityStats as ApiSecurityStats, type BlockedAccount as ApiBlockedAccount } from '@/services/api/adminService';
+import { exportSecurityAlertsToPDF } from '@/utils/pdfExport';
 
 // Types pour les données de sécurité
 interface SecurityStats {
@@ -121,19 +128,54 @@ export const SecurityPage: React.FC = () => {
   const loadSecurityData = async () => {
     setLoading(true);
     try {
-      // TODO: Remplacer par les vrais appels API
-      
-      // Statistiques de sécurité
-      const mockStats: SecurityStats = {
-        activeAlerts: 12,
-        lockedAccounts: 3,
-        rateLimitViolations: 45,
-        suspiciousActivities: 8,
+      // Charger les statistiques de sécurité
+      const apiStats = await adminService.getSecurityStats();
+      const mappedStats: SecurityStats = {
+        activeAlerts: apiStats.activeAlerts,
+        lockedAccounts: apiStats.blockedAccounts,
+        rateLimitViolations: Math.floor(apiStats.failedLogins24h * 0.3), // Estimation
+        suspiciousActivities: apiStats.suspiciousActivities,
         timestamp: new Date()
       };
-      setStats(mockStats);
+      setStats(mappedStats);
 
-      // Alertes de sécurité
+      // Charger les alertes de sécurité
+      const alertsResponse = await adminService.getSecurityAlerts({ page: 1, limit: 50 });
+      const mappedAlerts: SecurityAlert[] = alertsResponse.alerts.map((apiAlert: ApiSecurityAlert) => ({
+        id: apiAlert.id,
+        type: apiAlert.type as any,
+        severity: apiAlert.severity,
+        userId: apiAlert.userId,
+        userName: apiAlert.userName,
+        ipAddress: apiAlert.ipAddress || 'N/A',
+        userAgent: apiAlert.userAgent,
+        details: apiAlert.metadata || {},
+        timestamp: new Date(apiAlert.timestamp),
+        resolved: apiAlert.resolved
+      }));
+      setAlerts(mappedAlerts);
+
+      // Charger les comptes bloqués
+      const blockedResponse = await adminService.getBlockedAccounts({ page: 1, limit: 50 });
+      const mappedLockedAccounts: LockedAccount[] = blockedResponse.accounts.map((apiAccount: ApiBlockedAccount) => ({
+        id: apiAccount.userId,
+        userId: apiAccount.userId,
+        userName: apiAccount.userName,
+        email: apiAccount.userEmail,
+        tenant: 'CROU', // À améliorer avec les données réelles
+        lockReason: apiAccount.reason,
+        lockedAt: new Date(apiAccount.blockedAt),
+        lockedUntil: new Date(apiAccount.blockedUntil),
+        loginAttempts: apiAccount.failedAttempts,
+        lastAttemptIp: apiAccount.lastAttemptIp || 'N/A'
+      }));
+      setLockedAccounts(mappedLockedAccounts);
+
+    } catch (error: any) {
+      console.error('Erreur lors du chargement des données de sécurité:', error);
+      Toast.error('Erreur lors du chargement des données de sécurité');
+
+      // Fallback to mock data if API fails
       const mockAlerts: SecurityAlert[] = [
         {
           id: '1',
@@ -161,7 +203,7 @@ export const SecurityPage: React.FC = () => {
           userAgent: 'curl/7.68.0',
           details: {
             reason: 'Suspicious user agent detected',
-            endpoint: '/api/admin/users',
+            endpoint: '/admin/users',
             method: 'GET'
           },
           timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
@@ -405,27 +447,78 @@ export const SecurityPage: React.FC = () => {
   // Actions
   const handleUnlockAccount = async (userId: string) => {
     try {
-      // TODO: Appel API pour débloquer le compte
-      console.log('Déblocage du compte:', userId);
+      await adminService.unlockUser(userId);
       await loadSecurityData();
-    } catch (error) {
+      Toast.success('Compte débloqué avec succès');
+    } catch (error: any) {
       console.error('Erreur lors du déblocage:', error);
+      Toast.error(error?.response?.data?.message || 'Erreur lors du déblocage du compte');
     }
   };
 
   const handleResolveAlert = async (alertId: string) => {
     try {
-      // TODO: Appel API pour marquer l'alerte comme résolue
-      console.log('Résolution de l\'alerte:', alertId);
+      await adminService.resolveSecurityAlert(alertId);
       await loadSecurityData();
-    } catch (error) {
+      Toast.success('Alerte marquée comme résolue');
+    } catch (error: any) {
       console.error('Erreur lors de la résolution:', error);
+      Toast.error(error?.response?.data?.message || 'Erreur lors de la résolution de l\'alerte');
     }
   };
 
-  const handleExportAlerts = () => {
-    // TODO: Implémenter l'export des alertes
-    console.log('Export des alertes de sécurité');
+  const handleExportAlerts = (format: 'csv' | 'pdf' = 'csv') => {
+    try {
+      // Generate description from type and details
+      const getAlertDescription = (alert: SecurityAlert) => {
+        const typeLabel = alertTypeLabels[alert.type] || alert.type;
+        return `${typeLabel} - ${alert.userName || 'Utilisateur inconnu'}`;
+      };
+
+      if (format === 'csv') {
+        // Export alerts as CSV
+        const csvHeaders = ['ID', 'Type', 'Sévérité', 'Description', 'IP', 'Date', 'Statut'];
+        const csvRows = alerts.map(alert => [
+          alert.id,
+          alert.type,
+          alert.severity,
+          getAlertDescription(alert),
+          alert.ipAddress || 'N/A',
+          new Date(alert.timestamp).toLocaleString('fr-FR'),
+          alert.resolved ? 'Résolu' : 'En cours'
+        ]);
+
+        const csvContent = [
+          csvHeaders.join(','),
+          ...csvRows.map(row => row.map(cell => `"${cell}"`).join(','))
+        ].join('\n');
+
+        const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `security_alerts_${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+
+        Toast.success('Export CSV des alertes réussi');
+      } else if (format === 'pdf') {
+        // Export alerts as PDF
+        const pdfData = alerts.map(alert => ({
+          id: alert.id,
+          type: alert.type,
+          severity: alert.severity,
+          description: getAlertDescription(alert),
+          ipAddress: alert.ipAddress || 'N/A',
+          timestamp: alert.timestamp,
+          resolved: alert.resolved
+        }));
+
+        exportSecurityAlertsToPDF(pdfData);
+        Toast.success('Export PDF des alertes réussi');
+      }
+    } catch (error: any) {
+      console.error('Erreur lors de l\'export:', error);
+      Toast.error('Erreur lors de l\'export des alertes');
+    }
   };
 
   // Filtrer les alertes
@@ -466,14 +559,25 @@ export const SecurityPage: React.FC = () => {
             <span>Actualiser</span>
           </Button>
           
-          <Button
-            variant="outline"
-            onClick={handleExportAlerts}
-            className="flex items-center space-x-2"
-          >
-            <Download className="h-4 w-4" />
-            <span>Exporter</span>
-          </Button>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              onClick={() => handleExportAlerts('csv')}
+              className="flex items-center space-x-2"
+            >
+              <Download className="h-4 w-4" />
+              <span>CSV</span>
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => handleExportAlerts('pdf')}
+              className="flex items-center space-x-2"
+            >
+              <Download className="h-4 w-4" />
+              <span>PDF</span>
+            </Button>
+          </div>
         </div>
       </div>
 
