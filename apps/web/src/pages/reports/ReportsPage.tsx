@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Container, Card, Badge, Button, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui';
-import { 
+import {
   DocumentTextIcon,
   ClockIcon,
   CalendarIcon,
-  ChartBarIcon
+  ChartBarIcon,
+  PlusIcon
 } from '@heroicons/react/24/outline';
 import { useQuickReports } from '@/hooks/useReports';
 
