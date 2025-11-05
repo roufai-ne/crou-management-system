@@ -39,13 +39,14 @@ export async function seedUsersRBAC(dataSource: DataSource): Promise<void> {
   const roleRepository = dataSource.getRepository(Role);
 
   // Vérifier si les utilisateurs RBAC existent déjà
-  const existingUsersWithRoles = await userRepository.find({ 
-    where: { roleId: { $ne: null } as any },
-    take: 1 
-  });
-  
-  if (existingUsersWithRoles.length > 0) {
-    console.log('⚠️  Utilisateurs RBAC déjà créés, passage...');
+  // Compter les utilisateurs avec un roleId (utilisent le système RBAC)
+  const existingUsersCount = await userRepository
+    .createQueryBuilder('user')
+    .where('user.roleId IS NOT NULL')
+    .getCount();
+
+  if (existingUsersCount > 0) {
+    console.log(`⚠️  ${existingUsersCount} utilisateur(s) RBAC déjà créé(s), passage...`);
     return;
   }
 
