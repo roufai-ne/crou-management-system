@@ -1,40 +1,34 @@
 /**
  * FICHIER: packages\database\src\seeders\run-seeders.ts
  * SCRIPT: Exécution de tous les seeders
+ *
+ * DESCRIPTION:
+ * Point d'entrée principal pour les seeders
+ * Délègue au système RBAC complet (run-rbac-seeders.ts)
+ *
+ * USAGE:
+ * npm run db:seed
+ *
+ * AUTEUR: Équipe CROU
+ * DATE: Décembre 2024
  */
 
-import { AppDataSource } from '../config/typeorm.config';
-// import { seedTenants } from './tenant.seeder';
-// import { seedUsers } from './user.seeder';
+import { runRBACseeders } from './run-rbac-seeders';
 
 async function runAllSeeders() {
   try {
     console.log('🌱 Démarrage des seeders CROU...');
-    
-    // Initialiser la connexion si nécessaire
-    if (!AppDataSource.isInitialized) {
-      console.log('🔌 Initialisation connexion base...');
-      await AppDataSource.initialize();
-      console.log('✅ Connexion établie');
-    }
+    console.log('📋 Exécution des seeders RBAC (tenants, rôles, permissions, utilisateurs)...\n');
 
-    // TODO: Implémenter les seeders
-    console.log('📊 Seeders temporairement désactivés...');
-    // await seedTenants(AppDataSource);
-    // await seedUsers(AppDataSource);
+    // Exécuter les seeders RBAC complets
+    await runRBACseeders();
 
-    console.log('✅ Base de données initialisée !');
-    
+    console.log('\n✅ Base de données initialisée avec succès !');
+
   } catch (error: any) {
-    console.error('❌ Erreur lors de l\'exécution des seeders:', error);
+    console.error('\n❌ Erreur lors de l\'exécution des seeders:', error);
     console.error('Stack trace:', error.stack);
     process.exit(1);
-  } finally {
-    // Fermer la connexion proprement
-    if (AppDataSource.isInitialized) {
-      await AppDataSource.destroy();
-      console.log('🔌 Connexion fermée');
-    }
   }
 }
 
