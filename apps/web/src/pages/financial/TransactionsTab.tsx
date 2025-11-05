@@ -71,8 +71,9 @@ export function TransactionsTab() {
         financialService.getTransactionStats()
       ]);
 
-      setTransactions(transactionsData);
-      setBudgets(budgetsData);
+      // S'assurer que les données sont des tableaux
+      setTransactions(Array.isArray(transactionsData) ? transactionsData : []);
+      setBudgets(Array.isArray(budgetsData) ? budgetsData : []);
       setStats(statsData);
     } catch (error) {
       console.error('Erreur chargement données:', error);
