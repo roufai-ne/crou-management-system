@@ -74,8 +74,6 @@ interface UserCreateData {
  * Liste des utilisateurs avec filtres et pagination
  */
 router.get('/',
-  authenticateJWT,
-  checkPermissions(['admin:users:read']),
   injectTenantIdMiddleware({ strictMode: false }),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {
@@ -231,8 +229,6 @@ router.get('/',
  * Détail d'un utilisateur
  */
 router.get('/:id',
-  authenticateJWT,
-  checkPermissions(['admin:users:read']),
   injectTenantIdMiddleware({ strictMode: false }),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {
@@ -320,8 +316,6 @@ router.get('/:id',
  * Création d'un nouvel utilisateur
  */
 router.post('/',
-  authenticateJWT,
-  checkPermissions(['admin:users:create']),
   injectTenantIdMiddleware({ strictMode: false }),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {
@@ -446,8 +440,6 @@ router.post('/',
  * Modification d'un utilisateur
  */
 router.put('/:id',
-  authenticateJWT,
-  checkPermissions(['admin:users:update']),
   injectTenantIdMiddleware({ strictMode: false }),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {
@@ -589,8 +581,6 @@ router.put('/:id',
  * Suppression d'un utilisateur
  */
 router.delete('/:id',
-  authenticateJWT,
-  checkPermissions(['admin:users:delete']),
   injectTenantIdMiddleware({ strictMode: false }),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {
@@ -671,8 +661,6 @@ router.delete('/:id',
  * Activer/désactiver un utilisateur
  */
 router.post('/:id/toggle-status',
-  authenticateJWT,
-  checkPermissions(['admin:users:update']),
   injectTenantIdMiddleware({ strictMode: false }),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {
@@ -769,8 +757,6 @@ router.post('/:id/toggle-status',
  * Réinitialiser le mot de passe d'un utilisateur
  */
 router.post('/:id/reset-password',
-  authenticateJWT,
-  checkPermissions(['admin:users:reset_password']),
   injectTenantIdMiddleware({ strictMode: false }),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {
