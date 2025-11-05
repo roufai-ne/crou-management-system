@@ -504,7 +504,8 @@ export class AuthService {
       throw new Error('JWT_SECRET doit être défini');
     }
 
-    const permissions = user.role?.permissions?.map((p: any) => p.getDisplayName()) || [];
+    // Utiliser getAllPermissions() qui gère correctement les objets plain et les entités
+    const permissions = user.getAllPermissions();
 
     const payload: Omit<TokenPayload, 'iat' | 'exp'> = {
       userId: user.id,
@@ -532,7 +533,6 @@ export class AuthService {
    * Créer le profil utilisateur pour la réponse
    */
   private createUserProfile(user: User): UserProfile {
-    const role = user.role as any;
     return {
       id: user.id,
       email: user.email,
@@ -547,13 +547,8 @@ export class AuthService {
         name: user.tenant?.name || '',
         type: user.tenant?.type || ''
       },
-      permissions: role?.permissions?.map((p: any) => {
-        // Les permissions sont des objets JSON (pas des instances de classe) depuis le SQL brut
-        if (typeof p.getDisplayName === 'function') {
-          return p.getDisplayName();
-        }
-        return `${p.resource}:${p.actions}`;
-      }) || [],
+      // Utiliser getAllPermissions() qui gère correctement les objets plain et les entités
+      permissions: user.getAllPermissions(),
       lastLoginAt: user.lastLoginAt
     };
   }
