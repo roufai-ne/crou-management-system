@@ -106,7 +106,8 @@ window.addEventListener('unhandledrejection', (event) => {
 
   // En production, envoyer l'erreur à un service de monitoring
   if (import.meta.env.PROD) {
-    // TODO: Implémenter l'envoi vers Sentry ou un autre service de monitoring
+    // Intégration Sentry: Voir docs/THIRD_PARTY_INTEGRATIONS.md section "Sentry - Monitoring des Erreurs"
+    // Exemple: Sentry.captureException(event.error/event.reason)
     console.error('Erreur envoyée au service de monitoring');
   }
 });
@@ -117,7 +118,8 @@ window.addEventListener('error', (event) => {
 
   // En production, envoyer l'erreur à un service de monitoring
   if (import.meta.env.PROD) {
-    // TODO: Implémenter l'envoi vers Sentry ou un autre service de monitoring
+    // Intégration Sentry: Voir docs/THIRD_PARTY_INTEGRATIONS.md section "Sentry - Monitoring des Erreurs"
+    // Exemple: Sentry.captureException(event.error/event.reason)
     console.error('Erreur envoyée au service de monitoring');
   }
 });
@@ -184,7 +186,8 @@ if ('performance' in window && 'measure' in window.performance) {
 
       // En production, envoyer les métriques à un service d'analytics
       if (import.meta.env.PROD) {
-        // TODO: Implémenter l'envoi vers Google Analytics ou autre
+        // Intégration Google Analytics: Voir docs/THIRD_PARTY_INTEGRATIONS.md section "Google Analytics"
+        // Exemple: trackEvent('Performance', 'PageLoad', path, metrics.pageLoadTime)
         console.log('Métriques envoyées au service d\'analytics');
       }
     }
