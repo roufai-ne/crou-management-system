@@ -136,6 +136,7 @@ export const TenantsPage: React.FC = () => {
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
   const [showTenantDetails, setShowTenantDetails] = useState(false);
   const [showTenantConfig, setShowTenantConfig] = useState(false);
+  const [showCreateTenant, setShowCreateTenant] = useState(false);
 
   // Charger les tenants
   const loadTenants = async () => {
@@ -293,8 +294,6 @@ export const TenantsPage: React.FC = () => {
       ];
 
       setTenants(mockTenants);
-    } catch (error) {
-      console.error('Erreur lors du chargement des tenants:', error);
     } finally {
       setLoading(false);
     }
@@ -496,7 +495,7 @@ export const TenantsPage: React.FC = () => {
           
           <Button
             className="flex items-center space-x-2"
-            disabled // TODO: Implémenter la création de tenant
+            onClick={() => setShowCreateTenant(true)}
           >
             <Plus className="h-4 w-4" />
             <span>Nouveau Tenant</span>
@@ -593,6 +592,17 @@ export const TenantsPage: React.FC = () => {
           onSave={() => {
             setShowTenantConfig(false);
             setSelectedTenant(null);
+            loadTenants();
+          }}
+        />
+      )}
+
+      {showCreateTenant && (
+        <TenantCreateModal
+          isOpen={showCreateTenant}
+          onClose={() => setShowCreateTenant(false)}
+          onSave={() => {
+            setShowCreateTenant(false);
             loadTenants();
           }}
         />
@@ -705,6 +715,232 @@ const TenantsOverview: React.FC<{ tenants: Tenant[] }> = ({ tenants }) => {
         </div>
       </Card>
     </div>
+  );
+};
+
+// Modale de création d'un tenant
+const TenantCreateModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: () => void;
+}> = ({ isOpen, onClose, onSave }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    type: 'crou' as 'ministere' | 'region' | 'crou',
+    code: '',
+    region: '',
+    parentId: '',
+    address: '',
+    phone: '',
+    email: '',
+    allowedModules: ['dashboard'] as string[],
+  });
+  const [creating, setCreating] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreating(true);
+
+    try {
+      // Préparer les données pour l'API
+      const tenantData = {
+        name: formData.name,
+        type: formData.type,
+        code: formData.code,
+        region: formData.region || undefined,
+        parentId: formData.parentId || undefined,
+        address: formData.address || undefined,
+        phone: formData.phone || undefined,
+        email: formData.email || undefined,
+        isActive: true,
+        config: {
+          features: formData.allowedModules.reduce((acc, module) => ({
+            ...acc,
+            [module]: true
+          }), {} as Record<string, boolean>),
+          settings: {}
+        }
+      };
+
+      await adminService.createTenant(tenantData);
+
+      Toast.success('Tenant créé avec succès');
+      onSave();
+    } catch (error: any) {
+      Toast.error(error.message || 'Erreur lors de la création du tenant');
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const toggleModule = (moduleKey: string) => {
+    setFormData(prev => ({
+      ...prev,
+      allowedModules: prev.allowedModules.includes(moduleKey)
+        ? prev.allowedModules.filter(m => m !== moduleKey)
+        : [...prev.allowedModules, moduleKey]
+    }));
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} size="lg">
+      <form onSubmit={handleSubmit} className="p-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
+          Créer un nouveau tenant
+        </h3>
+
+        <div className="space-y-4">
+          {/* Informations de base */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Nom <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                placeholder="CROU Niamey"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Code <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.code}
+                onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                placeholder="CROU-NIA"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Type <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={formData.type}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                required
+              >
+                <option value="crou">CROU</option>
+                <option value="region">Région</option>
+                <option value="ministere">Ministère</option>
+              </select>
+            </div>
+
+            {formData.type === 'crou' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Région
+                </label>
+                <input
+                  type="text"
+                  value={formData.region}
+                  onChange={(e) => setFormData({ ...formData, region: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                  placeholder="Niamey"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Contact */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Email
+              </label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                placeholder="contact@crou-niamey.ne"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Téléphone
+              </label>
+              <input
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                placeholder="+227 XX XX XX XX"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Adresse
+            </label>
+            <input
+              type="text"
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+              placeholder="Adresse complète"
+            />
+          </div>
+
+          {/* Modules autorisés */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Modules autorisés
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {availableModules.map((module) => (
+                <label
+                  key={module.key}
+                  className={`
+                    flex items-center p-3 border rounded-lg cursor-pointer transition-colors
+                    ${formData.allowedModules.includes(module.key)
+                      ? 'border-primary-500 bg-primary-50'
+                      : 'border-gray-300 hover:bg-gray-50'
+                    }
+                    ${module.required ? 'opacity-50 cursor-not-allowed' : ''}
+                  `}
+                >
+                  <input
+                    type="checkbox"
+                    checked={formData.allowedModules.includes(module.key)}
+                    onChange={() => !module.required && toggleModule(module.key)}
+                    disabled={module.required}
+                    className="mr-2"
+                  />
+                  <div className="flex-1">
+                    <div className="font-medium text-sm">{module.name}</div>
+                    <div className="text-xs text-gray-500">{module.description}</div>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end space-x-3 mt-6">
+          <Button type="button" variant="outline" onClick={onClose} disabled={creating}>
+            Annuler
+          </Button>
+          <Button type="submit" disabled={creating}>
+            {creating ? 'Création en cours...' : 'Créer le tenant'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 };
 

@@ -254,8 +254,6 @@ export const SecurityPage: React.FC = () => {
       ];
       setLockedAccounts(mockLockedAccounts);
 
-    } catch (error) {
-      console.error('Erreur lors du chargement des données de sécurité:', error);
     } finally {
       setLoading(false);
     }

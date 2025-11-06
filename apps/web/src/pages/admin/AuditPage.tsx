@@ -370,8 +370,6 @@ export const AuditPage: React.FC = () => {
       };
       setStats(mockStats);
 
-    } catch (error) {
-      console.error('Erreur lors du chargement des logs d\'audit:', error);
     } finally {
       setLoading(false);
     }
