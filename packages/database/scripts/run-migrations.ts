@@ -41,14 +41,12 @@ const AppDataSource = new DataSource({
 
   // Entités
   entities: [
-    join(__dirname, '../src/entities/**/*.entity.ts'),
-    join(__dirname, '../src/entities/*.entity.ts')
+    join(__dirname, '../src/entities/**/*.entity.ts')
   ],
 
   // Migrations
   migrations: [
-    join(__dirname, '../src/migrations/**/*.ts'),
-    join(__dirname, '../src/migrations/*.ts')
+    join(__dirname, '../src/migrations/**/*.ts')
   ],
 
   // Configuration
