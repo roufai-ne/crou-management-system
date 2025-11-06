@@ -5,7 +5,8 @@ import {
   ClockIcon,
   CalendarIcon,
   ChartBarIcon,
-  PlusIcon
+  PlusIcon,
+  PencilIcon
 } from '@heroicons/react/24/outline';
 import { useQuickReports } from '@/hooks/useReports';
 
