@@ -33,6 +33,9 @@ export type { SelectProps, SelectOption } from './Select';
 export { CROUSelector, RoleSelector } from './CROUSelector';
 export type { CROUSelectorProps, RoleSelectorProps } from './CROUSelector';
 
+export { TenantSelector } from './TenantSelector';
+export type { TenantSelectorProps, Tenant } from './TenantSelector';
+
 // Composants de contrôle de formulaire
 export { Checkbox, CheckboxGroup } from './Checkbox';
 export type { CheckboxProps } from './Checkbox';
@@ -158,17 +161,42 @@ export { ThemeToggle } from './ThemeToggle';
 export { LoadingBar, Loading } from './Loading';
 export type { LoadingBarProps, LoadingProps } from './Loading';
 
+export { LoadingScreen } from './LoadingScreen';
+
+export { Skeleton } from './Skeleton';
+
+export { Progress } from './Progress';
+
+export { ProgressCircle } from './ProgressCircle';
+
 // Composants de feedback
 export { Alert } from './Alert';
 export type { AlertProps } from './Alert';
 
-export { LoadingScreen } from './LoadingScreen';
-
 export { Toast, ToastProvider, useToast } from './Toast';
 export type { ToastProps, ToastData, ToastPosition } from './Toast';
 
+export { Toaster } from './Toaster';
+
 export { Tooltip } from './Tooltip';
 export type { TooltipProps, TooltipPosition, TooltipTrigger } from './Tooltip';
+
+// Composants utilitaires avancés
+export { ErrorBoundary } from './ErrorBoundary';
+
+export { EmptyState } from './EmptyState';
+
+export { NumberCounter } from './NumberCounter';
+
+export { PageTransition } from './PageTransition';
+
+export { CommandPalette } from './CommandPalette';
+
+export { AnimatedList } from './AnimatedList';
+
+export { Sparkline } from './Sparkline';
+
+export { IconFallback } from './IconFallback';
 
 // Types communs
 export interface BaseComponentProps {
