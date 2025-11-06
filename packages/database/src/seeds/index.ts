@@ -10,6 +10,7 @@
  * 1. Tenants (organisations)
  * 2. Roles & Permissions
  * 3. Users (utilisateurs initiaux)
+ * 4. Test Data (données de test - dev uniquement)
  *
  * USAGE:
  * - Depuis l'app: import { runAllSeeds } from './seeds';
@@ -23,6 +24,7 @@ import { DataSource } from 'typeorm';
 import { seedTenants } from './001-tenants.seed';
 import { seedRolesAndPermissions } from './002-roles-permissions.seed';
 import { seedUsers } from './003-users.seed';
+import { seedTestData } from './004-test-data.seed';
 
 /**
  * Exécute tous les seeds dans l'ordre
@@ -38,18 +40,23 @@ export const runAllSeeds = async (dataSource: DataSource): Promise<void> => {
 
   try {
     // 1. Seeds des Tenants
-    console.log('📦 Étape 1/3: Création des organisations...');
+    console.log('📦 Étape 1/4: Création des organisations...');
     await seedTenants(dataSource);
     console.log('');
 
     // 2. Seeds des Rôles et Permissions
-    console.log('🔐 Étape 2/3: Création des rôles et permissions...');
+    console.log('🔐 Étape 2/4: Création des rôles et permissions...');
     await seedRolesAndPermissions(dataSource);
     console.log('');
 
     // 3. Seeds des Utilisateurs
-    console.log('👥 Étape 3/3: Création des utilisateurs...');
+    console.log('👥 Étape 3/4: Création des utilisateurs...');
     await seedUsers(dataSource);
+    console.log('');
+
+    // 4. Seeds des données de test (optionnel, dev uniquement)
+    console.log('🧪 Étape 4/4: Création des données de test (dev uniquement)...');
+    await seedTestData(dataSource);
     console.log('');
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
@@ -64,6 +71,9 @@ export const runAllSeeds = async (dataSource: DataSource): Promise<void> => {
     console.log('   🔐 Rôles: 8');
     console.log('   🎫 Permissions: 40');
     console.log('   👤 Utilisateurs: 26');
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('   🧪 Données de test: Créées');
+    }
     console.log('');
     console.log('🔑 ACCÈS SUPER ADMIN:');
     console.log('   Email: admin@crou.ne');
