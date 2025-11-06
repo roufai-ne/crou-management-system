@@ -273,6 +273,13 @@ const TabBadge: React.FC<{ count: number | string; size?: 'sm' | 'md' | 'lg' }> 
   );
 };
 
+// Type étendu pour Tabs avec sous-composants
+interface TabsComponent extends React.FC<TabsProps> {
+  List: typeof TabsList;
+  Trigger: typeof TabsTrigger;
+  Content: typeof TabsContent;
+}
+
 // Composant Tabs principal
 const Tabs: React.FC<TabsProps> = ({
   tabs,
@@ -532,19 +539,9 @@ const Tabs: React.FC<TabsProps> = ({
   );
 };
 
-// (compatibility primitives are declared later in the file)
-
+// Définir displayName avant d'utiliser le composant
 Tabs.displayName = 'Tabs';
 
-// Export des types et composants
-export {
-  Tabs,
-  TabBadge,
-  tabsContainerVariants,
-  tabsListVariants,
-  tabButtonVariants,
-  tabContentVariants
-};
 // Composants individuels pour compatibilité
 export const TabsList = ({ children, className, ...props }: { children: React.ReactNode; className?: string; [key: string]: any }) => (
   <div className={cn('flex border-b border-gray-200 dark:border-gray-700', className)} {...props}>
@@ -553,14 +550,14 @@ export const TabsList = ({ children, className, ...props }: { children: React.Re
 );
 
 export const TabsTrigger = ({ children, className, active, ...props }: { children: React.ReactNode; className?: string; active?: boolean; [key: string]: any }) => (
-  <button 
+  <button
     className={cn(
       'px-4 py-2 text-sm font-medium transition-colors',
-      active 
-        ? 'text-primary-600 border-b-2 border-primary-600' 
+      active
+        ? 'text-primary-600 border-b-2 border-primary-600'
         : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300',
       className
-    )} 
+    )}
     {...props}
   >
     {children}
@@ -573,5 +570,22 @@ export const TabsContent = ({ children, className, ...props }: { children: React
   </div>
 );
 
+// Attacher les sous-composants au composant principal pour permettre Tabs.List, Tabs.Trigger, Tabs.Content
+const TabsWithSubComponents = Tabs as TabsComponent;
+TabsWithSubComponents.List = TabsList;
+TabsWithSubComponents.Trigger = TabsTrigger;
+TabsWithSubComponents.Content = TabsContent;
+TabsWithSubComponents.displayName = 'Tabs';
+
+// Export des types et composants
+export {
+  TabsWithSubComponents as Tabs,
+  TabBadge,
+  tabsContainerVariants,
+  tabsListVariants,
+  tabButtonVariants,
+  tabContentVariants
+};
+
 // TabsProps and TabItem are exported where they are declared above.
-export default Tabs;
+export default TabsWithSubComponents;

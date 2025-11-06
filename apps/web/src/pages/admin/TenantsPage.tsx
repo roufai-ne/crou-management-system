@@ -50,9 +50,12 @@ import { Toast } from '@/components/ui/Toast';
 interface Tenant {
   id: string;
   name: string;
-  type: 'ministere' | 'crou';
+  type: 'ministere' | 'ministry' | 'region' | 'crou';
   code: string;
   region?: string;
+  parentId?: string; // ID du tenant parent (pour hiérarchie à 3 niveaux)
+  path?: string; // Chemin hiérarchique (ex: "/ministere/region-idf/crou-paris")
+  hierarchyLevel?: number; // 0=ministry, 1=region, 2=crou
   address?: string;
   phone?: string;
   email?: string;
@@ -327,11 +330,25 @@ export const TenantsPage: React.FC = () => {
       key: 'type',
       label: 'Type',
       sortable: true,
-      render: (tenant) => (
-        <Badge variant={tenant.type === 'ministere' ? 'primary' : 'secondary'}>
-          {tenant.type === 'ministere' ? 'Ministère' : 'CROU'}
-        </Badge>
-      )
+      render: (tenant) => {
+        const typeLabels = {
+          ministere: 'Ministère',
+          ministry: 'Ministère',
+          region: 'Région',
+          crou: 'CROU'
+        };
+        const typeVariants: Record<string, 'primary' | 'secondary' | 'info'> = {
+          ministere: 'primary',
+          ministry: 'primary',
+          region: 'info',
+          crou: 'secondary'
+        };
+        return (
+          <Badge variant={typeVariants[tenant.type] || 'secondary'}>
+            {typeLabels[tenant.type] || tenant.type}
+          </Badge>
+        );
+      }
     },
     {
       key: 'users',

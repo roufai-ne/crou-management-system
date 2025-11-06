@@ -4,17 +4,20 @@
  *
  * DESCRIPTION:
  * Store Zustand pour gérer l'état des allocations budgétaires et stocks
- * Support hiérarchique Ministère → CROU
+ * Support hiérarchique à 3 niveaux (Ministère → Région → CROU)
  *
  * FONCTIONNALITÉS:
- * - Gestion allocations budgétaires
- * - Gestion allocations stocks
- * - Historique et filtres
+ * - Gestion allocations budgétaires et stocks
+ * - Support hiérarchie 3 niveaux (ministry, region, crou)
+ * - Flux budgétaires cascadés
+ * - Arbre hiérarchique des allocations
+ * - Historique et filtres avancés
  * - Validation et exécution
- * - Statistiques
+ * - Statistiques et résumés
  *
  * AUTEUR: Équipe CROU
- * DATE: Décembre 2024
+ * DATE: Janvier 2025
+ * VERSION: 2.0 (Support hiérarchie 3 niveaux)
  */
 
 import { create } from 'zustand';
@@ -27,6 +30,7 @@ import allocationService, {
   type AllocationFilters,
   type CreateBudgetAllocationRequest,
   type CreateStockAllocationRequest,
+  type HierarchyLevel,
   AllocationStatus
 } from '@/services/api/allocationService';
 
@@ -41,15 +45,30 @@ interface AllocationState {
   stockAllocations: StockAllocation[];
   summary: AllocationSummary | null;
 
+  // Hiérarchie (nouveau - support 3 niveaux)
+  tenantHierarchy: {
+    ministry: { id: string; name: string } | null;
+    regions: Array<{
+      id: string;
+      name: string;
+      crous: Array<{ id: string; name: string }>;
+    }>;
+  } | null;
+  budgetFlow: any | null; // Flux budgétaire
+  allocationTree: (Allocation & { children?: Allocation[] }) | null; // Arbre d'allocations
+  statistics: any | null; // Statistiques par niveau
+
   // UI State
   isLoading: boolean;
   isCreating: boolean;
   isValidating: boolean;
   isExecuting: boolean;
+  isCascading: boolean; // Nouveau - pour allocations cascadées
   error: string | null;
 
   // Filtres
   filters: AllocationFilters;
+  selectedLevel?: HierarchyLevel; // Nouveau - niveau sélectionné
 
   // Dernière mise à jour
   lastUpdated: string | null;
@@ -63,6 +82,16 @@ interface AllocationActions {
   loadSummary: (tenantId?: string, exercice?: number) => Promise<void>;
   loadAllocationsForCROU: (crouId: string) => Promise<void>;
 
+  // Nouveau - Support hiérarchie à 3 niveaux
+  loadAllocationsByLevel: (level: HierarchyLevel, filters?: AllocationFilters) => Promise<void>;
+  loadAllocationsForTenant: (tenantId: string, level?: HierarchyLevel) => Promise<void>;
+  loadTenantHierarchy: () => Promise<void>;
+  loadChildAllocations: (parentAllocationId: string) => Promise<void>;
+  loadAllocationTree: (rootAllocationId: string) => Promise<void>;
+  loadBudgetFlow: (budgetId: string, exercice?: number) => Promise<void>;
+  loadStatistics: (filters?: { exercice?: number; level?: HierarchyLevel; tenantId?: string }) => Promise<void>;
+  loadPendingAllocations: (level?: HierarchyLevel) => Promise<void>;
+
   // CRUD Allocations
   createBudgetAllocation: (data: CreateBudgetAllocationRequest) => Promise<BudgetAllocation>;
   createStockAllocation: (data: CreateStockAllocationRequest) => Promise<StockAllocation>;
@@ -70,9 +99,24 @@ interface AllocationActions {
   executeAllocation: (allocationId: string) => Promise<void>;
   cancelAllocation: (allocationId: string, reason: string) => Promise<void>;
 
+  // Nouveau - Allocations cascadées
+  createCascadingAllocation: (request: {
+    parentAllocationId: string;
+    distributions: Array<{
+      targetTenantId: string;
+      targetTenantLevel: HierarchyLevel;
+      montant?: number;
+      quantity?: number;
+      libelle?: string;
+      description?: string;
+    }>;
+    validateParent?: boolean;
+  }) => Promise<{ parent: Allocation; children: Allocation[] }>;
+
   // Filtres
   setFilters: (filters: AllocationFilters) => void;
   clearFilters: () => void;
+  setSelectedLevel: (level?: HierarchyLevel) => void;
 
   // UI
   clearError: () => void;
@@ -90,12 +134,18 @@ const initialState: AllocationState = {
   budgetAllocations: [],
   stockAllocations: [],
   summary: null,
+  tenantHierarchy: null,
+  budgetFlow: null,
+  allocationTree: null,
+  statistics: null,
   isLoading: false,
   isCreating: false,
   isValidating: false,
   isExecuting: false,
+  isCascading: false,
   error: null,
   filters: {},
+  selectedLevel: undefined,
   lastUpdated: null
 };
 
@@ -206,6 +256,152 @@ export const useAllocationStore = create<AllocationStore>()(
       },
 
       // ========================================
+      // HIÉRARCHIE À 3 NIVEAUX (NOUVEAU)
+      // ========================================
+
+      loadAllocationsByLevel: async (level: HierarchyLevel, filters?: AllocationFilters) => {
+        try {
+          set({ isLoading: true, error: null });
+          const allocations = await allocationService.getAllocationsByLevel(level, filters);
+          set({
+            allocations,
+            selectedLevel: level,
+            isLoading: false,
+            lastUpdated: new Date().toISOString()
+          });
+        } catch (error: any) {
+          set({
+            error: error.message || `Erreur lors du chargement des allocations pour le niveau ${level}`,
+            isLoading: false
+          });
+        }
+      },
+
+      loadAllocationsForTenant: async (tenantId: string, level?: HierarchyLevel) => {
+        try {
+          set({ isLoading: true, error: null });
+          const allocations = await allocationService.getAllocationHistory({
+            tenantId,
+            level
+          });
+          set({
+            allocations,
+            isLoading: false,
+            lastUpdated: new Date().toISOString()
+          });
+        } catch (error: any) {
+          set({
+            error: error.message || 'Erreur lors du chargement des allocations du tenant',
+            isLoading: false
+          });
+        }
+      },
+
+      loadTenantHierarchy: async () => {
+        try {
+          set({ isLoading: true, error: null });
+          const hierarchy = await allocationService.getTenantHierarchy();
+          set({
+            tenantHierarchy: hierarchy,
+            isLoading: false,
+            lastUpdated: new Date().toISOString()
+          });
+        } catch (error: any) {
+          set({
+            error: error.message || 'Erreur lors du chargement de la hiérarchie',
+            isLoading: false
+          });
+        }
+      },
+
+      loadChildAllocations: async (parentAllocationId: string) => {
+        try {
+          set({ isLoading: true, error: null });
+          const childAllocations = await allocationService.getChildAllocations(parentAllocationId);
+
+          // Ajouter les allocations enfant à la liste principale
+          set((state) => ({
+            allocations: [...state.allocations, ...childAllocations],
+            isLoading: false,
+            lastUpdated: new Date().toISOString()
+          }));
+        } catch (error: any) {
+          set({
+            error: error.message || 'Erreur lors du chargement des allocations enfant',
+            isLoading: false
+          });
+        }
+      },
+
+      loadAllocationTree: async (rootAllocationId: string) => {
+        try {
+          set({ isLoading: true, error: null });
+          const tree = await allocationService.getAllocationTree(rootAllocationId);
+          set({
+            allocationTree: tree,
+            isLoading: false,
+            lastUpdated: new Date().toISOString()
+          });
+        } catch (error: any) {
+          set({
+            error: error.message || 'Erreur lors du chargement de l\'arbre d\'allocations',
+            isLoading: false
+          });
+        }
+      },
+
+      loadBudgetFlow: async (budgetId: string, exercice?: number) => {
+        try {
+          set({ isLoading: true, error: null });
+          const flow = await allocationService.getBudgetFlow(budgetId, exercice);
+          set({
+            budgetFlow: flow,
+            isLoading: false,
+            lastUpdated: new Date().toISOString()
+          });
+        } catch (error: any) {
+          set({
+            error: error.message || 'Erreur lors du chargement du flux budgétaire',
+            isLoading: false
+          });
+        }
+      },
+
+      loadStatistics: async (filters?: { exercice?: number; level?: HierarchyLevel; tenantId?: string }) => {
+        try {
+          set({ isLoading: true, error: null });
+          const statistics = await allocationService.getAllocationStatistics(filters);
+          set({
+            statistics,
+            isLoading: false,
+            lastUpdated: new Date().toISOString()
+          });
+        } catch (error: any) {
+          set({
+            error: error.message || 'Erreur lors du chargement des statistiques',
+            isLoading: false
+          });
+        }
+      },
+
+      loadPendingAllocations: async (level?: HierarchyLevel) => {
+        try {
+          set({ isLoading: true, error: null });
+          const allocations = await allocationService.getPendingAllocations(level);
+          set({
+            allocations,
+            isLoading: false,
+            lastUpdated: new Date().toISOString()
+          });
+        } catch (error: any) {
+          set({
+            error: error.message || 'Erreur lors du chargement des allocations en attente',
+            isLoading: false
+          });
+        }
+      },
+
+      // ========================================
       // CRUD ALLOCATIONS
       // ========================================
 
@@ -308,6 +504,43 @@ export const useAllocationStore = create<AllocationStore>()(
       },
 
       // ========================================
+      // ALLOCATIONS CASCADÉES (NOUVEAU)
+      // ========================================
+
+      createCascadingAllocation: async (request: {
+        parentAllocationId: string;
+        distributions: Array<{
+          targetTenantId: string;
+          targetTenantLevel: HierarchyLevel;
+          montant?: number;
+          quantity?: number;
+          libelle?: string;
+          description?: string;
+        }>;
+        validateParent?: boolean;
+      }) => {
+        try {
+          set({ isCascading: true, error: null });
+          const result = await allocationService.createCascadingAllocation(request);
+
+          // Ajouter les nouvelles allocations
+          set((state) => ({
+            allocations: [result.parent, ...result.children, ...state.allocations],
+            isCascading: false,
+            lastUpdated: new Date().toISOString()
+          }));
+
+          return result;
+        } catch (error: any) {
+          set({
+            error: error.message || 'Erreur lors de la création de l\'allocation cascadée',
+            isCascading: false
+          });
+          throw error;
+        }
+      },
+
+      // ========================================
       // FILTRES
       // ========================================
 
@@ -317,6 +550,10 @@ export const useAllocationStore = create<AllocationStore>()(
 
       clearFilters: () => {
         set({ filters: {} });
+      },
+
+      setSelectedLevel: (level?: HierarchyLevel) => {
+        set({ selectedLevel: level });
       },
 
       // ========================================
@@ -403,6 +640,68 @@ export const useAllocationSummary = () => {
   const loadSummary = useAllocationStore((state) => state.loadSummary);
 
   return { summary, isLoading, loadSummary };
+};
+
+/**
+ * Hook pour la hiérarchie à 3 niveaux (nouveau)
+ */
+export const useAllocationHierarchy = () => {
+  const tenantHierarchy = useAllocationStore((state) => state.tenantHierarchy);
+  const selectedLevel = useAllocationStore((state) => state.selectedLevel);
+  const isLoading = useAllocationStore((state) => state.isLoading);
+  const loadTenantHierarchy = useAllocationStore((state) => state.loadTenantHierarchy);
+  const loadAllocationsByLevel = useAllocationStore((state) => state.loadAllocationsByLevel);
+  const setSelectedLevel = useAllocationStore((state) => state.setSelectedLevel);
+
+  return {
+    tenantHierarchy,
+    selectedLevel,
+    isLoading,
+    loadTenantHierarchy,
+    loadAllocationsByLevel,
+    setSelectedLevel
+  };
+};
+
+/**
+ * Hook pour les allocations cascadées (nouveau)
+ */
+export const useCascadingAllocations = () => {
+  const isCascading = useAllocationStore((state) => state.isCascading);
+  const createCascadingAllocation = useAllocationStore((state) => state.createCascadingAllocation);
+  const loadChildAllocations = useAllocationStore((state) => state.loadChildAllocations);
+  const loadAllocationTree = useAllocationStore((state) => state.loadAllocationTree);
+  const allocationTree = useAllocationStore((state) => state.allocationTree);
+
+  return {
+    isCascading,
+    createCascadingAllocation,
+    loadChildAllocations,
+    loadAllocationTree,
+    allocationTree
+  };
+};
+
+/**
+ * Hook pour le flux budgétaire (nouveau)
+ */
+export const useBudgetFlow = () => {
+  const budgetFlow = useAllocationStore((state) => state.budgetFlow);
+  const isLoading = useAllocationStore((state) => state.isLoading);
+  const loadBudgetFlow = useAllocationStore((state) => state.loadBudgetFlow);
+
+  return { budgetFlow, isLoading, loadBudgetFlow };
+};
+
+/**
+ * Hook pour les statistiques d'allocations (nouveau)
+ */
+export const useAllocationStatistics = () => {
+  const statistics = useAllocationStore((state) => state.statistics);
+  const isLoading = useAllocationStore((state) => state.isLoading);
+  const loadStatistics = useAllocationStore((state) => state.loadStatistics);
+
+  return { statistics, isLoading, loadStatistics };
 };
 
 export default useAllocationStore;

@@ -36,10 +36,14 @@ export interface LoginResponse {
     tenant: {
       id: string;
       name: string;
-      type: 'ministere' | 'crou';
+      type: 'ministere' | 'ministry' | 'region' | 'crou';
       code: string;
-      region: string;
+      region?: string;
+      parentId?: string; // ID du tenant parent dans la hiérarchie
+      path?: string; // Chemin hiérarchique
     };
+    permissions?: string[];
+    lastLoginAt?: string;
   };
   accessToken: string;
   refreshToken: string;
@@ -62,10 +66,13 @@ export interface UserProfile {
   tenant: {
     id: string;
     name: string;
-    type: 'ministere' | 'crou';
+    type: 'ministere' | 'ministry' | 'region' | 'crou';
     code: string;
-    region: string;
+    region?: string;
+    parentId?: string;
+    path?: string;
   };
+  permissions?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -181,6 +188,35 @@ export class AuthService {
 
       // Mettre à jour le store avec les bonnes méthodes
       const authStore = useAuth.getState();
+
+      // Mapper le type de tenant vers le niveau hiérarchique normalisé
+      const tenantType = user.tenant?.type || 'crou';
+      const hierarchyLevel = (() => {
+        if (tenantType === 'ministere' || tenantType === 'ministry') return 'ministry';
+        if (tenantType === 'region') return 'region';
+        return 'crou';
+      })();
+
+      // Calculer les identifiants de hiérarchie selon le niveau
+      const hierarchyIds = (() => {
+        const ids: { ministryId?: string; regionId?: string; crouId?: string } = {};
+
+        if (hierarchyLevel === 'ministry') {
+          ids.ministryId = user.tenant?.id || user.tenantId;
+        } else if (hierarchyLevel === 'region') {
+          ids.regionId = user.tenant?.id || user.tenantId;
+          // Si le backend fournit le ministryId parent
+          ids.ministryId = user.tenant?.parentId || undefined;
+        } else if (hierarchyLevel === 'crou') {
+          ids.crouId = user.tenant?.id || user.tenantId;
+          // Si le backend fournit la région et le ministère parents
+          ids.regionId = user.tenant?.parentId || undefined;
+          // TODO: Récupérer ministryId depuis la hiérarchie complète si disponible
+        }
+
+        return ids;
+      })();
+
       authStore.setUser({
         id: user.id,
         email: user.email,
@@ -188,11 +224,32 @@ export class AuthService {
         lastName: user.name?.split(' ').slice(1).join(' ') || '',
         name: user.name || user.email,
         role: (user.role?.name || user.role) as any,
+
+        // Hiérarchie organisationnelle (support 3 niveaux)
         tenantId: user.tenant?.id || user.tenantId,
-        tenantType: user.tenant?.type || 'crou',
-        level: user.tenant?.type === 'ministere' ? 'ministere' : 'crou',
+        tenantType: tenantType as any,
+        hierarchyLevel,
+
+        // Identifiants hiérarchiques
+        ...hierarchyIds,
+
+        // Métadonnées du tenant
+        tenantName: user.tenant?.name,
+        tenantCode: user.tenant?.code,
+        tenantPath: user.tenant?.path,
+
+        // Permissions
         permissions: user.permissions || [],
-        lastLoginAt: user.lastLoginAt ? new Date(user.lastLoginAt) : new Date()
+        canManageBudget: user.permissions?.includes('budget:manage') || false,
+        canManageAllocations: user.permissions?.includes('allocations:manage') || false,
+        canValidateAllocations: user.permissions?.includes('allocations:validate') || false,
+        canViewAllTenants: user.permissions?.includes('tenants:view:all') || user.role === 'admin' || false,
+
+        // Métadonnées
+        lastLoginAt: user.lastLoginAt ? new Date(user.lastLoginAt) : new Date(),
+
+        // Rétrocompatibilité
+        level: user.tenant?.type === 'ministere' ? 'ministere' : (user.tenant?.type === 'region' ? 'region' : 'crou')
       });
       authStore.setTokens(accessToken, refreshToken);
 

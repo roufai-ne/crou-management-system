@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Card } from '@/components/ui/Card';
-import { financialService } from '@/services/financialService';
+import { financialService } from '@/services/api/financialService';
 import { useAuth } from '@/stores/auth';
 
 // Types de transaction

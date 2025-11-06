@@ -31,7 +31,7 @@ import { AuditService } from '@/shared/services/audit.service';
 import { AuditAction } from '../../../../../packages/database/src/entities/AuditLog.entity';
 import { logger } from '@/shared/utils/logger';
 import { TenantHierarchyService } from '@/modules/tenants/tenant-hierarchy.service';
-import { AppDataSource } from '@/config/database';
+import { AppDataSource } from '../../../../../packages/database/src/config/datasource';
 
 const multiTenantService = new MultiTenantService();
 const auditService = new AuditService();

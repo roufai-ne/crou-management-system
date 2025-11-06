@@ -14,9 +14,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/stores/auth';
 import { Container, Card, Badge, Button, Grid, Section, KPICard, Tabs } from '@/components/ui';
-import { BanknotesIcon, DocumentArrowDownIcon, ChartBarIcon, CurrencyDollarIcon, PlusIcon, ListBulletIcon } from '@heroicons/react/24/outline';
+import { BanknotesIcon, DocumentArrowDownIcon, ChartBarIcon, CurrencyDollarIcon, PlusIcon, ListBulletIcon, ArrowsRightLeftIcon } from '@heroicons/react/24/outline';
 import { BudgetsPage } from './BudgetsPage';
 import { TransactionsTab } from './TransactionsTab';
+import { AllocationsPage } from './AllocationsPage';
 import { StocksPage } from '../stocks/StocksPage';
 import { ExportButton } from '@/components/reports/ExportButton';
 
@@ -25,9 +26,9 @@ export const FinancialPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
 
   const tabs = [
-    { 
-      id: 'overview', 
-      label: 'Vue d\'ensemble', 
+    {
+      id: 'overview',
+      label: 'Vue d\'ensemble',
       icon: <ChartBarIcon className="h-4 w-4" />,
       content: (
         <div className="space-y-8">
@@ -103,15 +104,15 @@ export const FinancialPage: React.FC = () => {
         </div>
       )
     },
-    { 
-      id: 'budgets', 
-      label: 'Budgets', 
+    {
+      id: 'budgets',
+      label: 'Budgets',
       icon: <ListBulletIcon className="h-4 w-4" />,
       content: <BudgetsPage />
     },
-    { 
-      id: 'stocks', 
-      label: 'Stocks', 
+    {
+      id: 'stocks',
+      label: 'Stocks',
       icon: <BanknotesIcon className="h-4 w-4" />,
       content: <StocksPage />
     },
@@ -121,9 +122,15 @@ export const FinancialPage: React.FC = () => {
       icon: <BanknotesIcon className="h-4 w-4" />,
       content: <TransactionsTab />
     },
-    { 
-      id: 'reports', 
-      label: 'Rapports', 
+    {
+      id: 'allocations',
+      label: 'Allocations',
+      icon: <ArrowsRightLeftIcon className="h-4 w-4" />,
+      content: <AllocationsPage />
+    },
+    {
+      id: 'reports',
+      label: 'Rapports',
       icon: <DocumentArrowDownIcon className="h-4 w-4" />,
       content: (
         <Card>

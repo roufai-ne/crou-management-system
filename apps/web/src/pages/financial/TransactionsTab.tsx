@@ -19,7 +19,7 @@ import { Grid, KPICard } from '@/components/ui';
 import { TransactionTable } from '@/components/financial/TransactionTable';
 import { TransactionForm, TransactionFormData } from '@/components/financial/TransactionForm';
 import { TransactionDetailModal } from '@/components/financial/TransactionDetailModal';
-import { financialService } from '@/services/financialService';
+import { financialService } from '@/services/api/financialService';
 import { useAuth } from '@/stores/auth';
 import {
   TrendingUp,

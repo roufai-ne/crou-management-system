@@ -21,7 +21,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { AppDataSource } from '@/config/database';
+import { AppDataSource } from '../../../../../packages/database/src/config/datasource';
 import { AllocationsService, AllocationStatus, AllocationType } from './allocations.service';
 import { authenticateJWT } from '@/shared/middlewares/auth.middleware';
 import { checkPermissions } from '@/shared/middlewares/permissions.middleware';

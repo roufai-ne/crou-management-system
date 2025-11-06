@@ -1,41 +1,108 @@
 /**
- * FICHIER: apps/web/src/services/api/financialService.ts
- * SERVICE: FinancialService - Service pour les données financières
+ * FICHIER: apps/web/src/services/api/financialService.consolidated.ts
+ * SERVICE: FinancialService - Service consolidé pour les données financières
  *
  * DESCRIPTION:
- * Service pour la gestion des données financières (budgets, transactions, rapports)
+ * Service unifié pour la gestion financière complète
+ * Fusion des fonctionnalités simples (API) et complexes (business logic)
  * Support multi-tenant avec permissions granulaires
- * Gestion des workflows de validation
  *
  * FONCTIONNALITÉS:
- * - Gestion des budgets (création, modification, validation)
- * - Gestion des transactions (recettes, dépenses)
+ * - Gestion des budgets (création, modification, validation, workflows)
+ * - Gestion des transactions (recettes, dépenses, validations)
+ * - Gestion des subventions gouvernementales
  * - Rapports financiers (Excel, PDF)
- * - Suivi des subventions et allocations
- * - Workflows de validation par montants
+ * - Workflows de validation multiniveau
+ * - Cache intelligent avec TTL
  *
  * AUTEUR: Équipe CROU
  * DATE: Décembre 2024
+ * VERSION: 2.0 (Consolidée)
  */
 
 import { apiClient } from './apiClient';
+import { User } from '@/stores/auth';
 
-// Types pour les budgets
+// ================================================================================================
+// TYPES ET INTERFACES
+// ================================================================================================
+
+// --- BUDGETS ---
+
 export interface Budget {
   id: string;
-  title: string;
+
+  // Identification
+  crouId?: string; // null pour budget national Ministère
+  tenantId: string;
+  exercice: number; // Année budgétaire
+
+  // Type et libellé
+  type: 'national' | 'crou' | 'service';
+  libelle: string;
+  title: string; // Alias pour compatibilité
   description?: string;
   category: string;
-  amount: number;
-  spent: number;
-  remaining: number;
-  status: 'draft' | 'pending' | 'approved' | 'rejected' | 'active' | 'closed';
+
+  // Montants
+  amount: number; // Montant initial (compatibilité simple)
+  montantInitial: number;
+  montantRealise: number;
+  montantEngage: number;
+  montantDisponible: number;
+  spent: number; // Alias pour compatibilité
+  remaining: number; // Alias pour compatibilité
+  tauxExecution: number;
+
+  // Statut
+  statut: 'draft' | 'submitted' | 'pending' | 'approved' | 'rejected' | 'active' | 'closed';
+  status: 'draft' | 'pending' | 'approved' | 'rejected' | 'active' | 'closed'; // Alias
+
+  // Métadonnées
   fiscalYear: string;
-  tenantId: string;
   createdBy: string;
-  createdAt: Date;
-  updatedAt: Date;
-  validations: BudgetValidation[];
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  approvedBy?: string;
+  approvedAt?: string | Date;
+
+  // Workflow
+  validationLevel: number; // 0=CROU, 1=Ministère
+  nextValidator?: string;
+  validationHistory: ValidationStep[];
+  validations: BudgetValidation[]; // Alias pour compatibilité
+
+  // Catégorisation
+  categories: BudgetCategory[];
+  trimestres: BudgetTrimester[];
+}
+
+export interface BudgetCategory {
+  id: string;
+  budgetId: string;
+  nom: string;
+  name: string; // Alias pour compatibilité
+  code: string; // Ex: "ALIM", "LOG", "TRANS", "ADMIN"
+  montantInitial: number;
+  montantRealise: number;
+  montantEngage: number;
+  pourcentage: number;
+  percentage: number; // Alias pour compatibilité
+  seuils: {
+    alerte: number; // % d'alerte
+    critique: number; // % critique
+  };
+}
+
+export interface BudgetTrimester {
+  id: string;
+  budgetId: string;
+  trimestre: 1 | 2 | 3 | 4;
+  montantPrevu: number;
+  montantRealise: number;
+  ecartAbsolu: number;
+  ecartPourcentage: number;
+  statut: 'pending' | 'in_progress' | 'completed' | 'closed';
 }
 
 export interface BudgetValidation {
@@ -43,43 +110,131 @@ export interface BudgetValidation {
   budgetId: string;
   validatorId: string;
   validatorName: string;
+  validatorRole?: string;
   status: 'pending' | 'approved' | 'rejected';
   comment?: string;
-  validatedAt?: Date;
+  validatedAt?: Date | string;
   level: number;
+}
+
+export interface ValidationStep {
+  id: string;
+  entityId: string; // ID du budget ou subvention
+  entityType: 'budget' | 'subvention' | 'transaction';
+  level: number;
+  validatorId: string;
+  validatorName: string;
+  validatorRole: string;
+  action: 'submit' | 'approve' | 'reject' | 'request_changes';
+  commentaire?: string;
+  comment?: string; // Alias pour compatibilité
+  timestamp: string | Date;
+
+  // Données de validation
+  documentsChecked?: string[];
+  amountValidated?: number;
+  conditions?: string[];
 }
 
 export interface CreateBudgetRequest {
   title: string;
+  libelle?: string; // Alias
   description?: string;
   category: string;
   amount: number;
+  montantInitial?: number; // Alias
   fiscalYear: string;
+  exercice?: number; // Alias
+  type?: 'national' | 'crou' | 'service';
+  crouId?: string;
+  categories?: BudgetCategory[];
+  trimestres?: BudgetTrimester[];
 }
 
 export interface UpdateBudgetRequest {
   title?: string;
+  libelle?: string;
   description?: string;
   category?: string;
   amount?: number;
+  montantInitial?: number;
 }
 
-// Types pour les transactions
+// --- SUBVENTIONS ---
+
+export interface Subvention {
+  id: string;
+  crouId?: string; // null pour subventions nationales
+  exercice: number;
+  trimestre: 1 | 2 | 3 | 4;
+  type: 'fonctionnement' | 'investissement' | 'social' | 'exceptionnelle';
+  libelle: string;
+
+  // Montants
+  montantDemande: number;
+  montantAccorde: number;
+  montantVerse: number;
+  montantRestant: number;
+
+  // Statuts et workflow
+  statut: 'draft' | 'submitted' | 'reviewed' | 'approved' | 'disbursed' | 'completed';
+  dateSubmission?: string;
+  dateApproval?: string;
+  dateDisbursement?: string;
+
+  // Documents et justifications
+  documentsRequis: string[];
+  documentsUploaded: string[];
+  justifications: string;
+  observations?: string;
+
+  // Workflow de validation
+  validationHistory: ValidationStep[];
+  nextValidator?: string;
+}
+
+// --- TRANSACTIONS ---
+
 export interface Transaction {
   id: string;
+
+  // Identification
+  crouId?: string;
+  tenantId: string;
+  budgetId?: string;
+  categoryId?: string;
+
+  // Détails
   description: string;
+  libelle?: string; // Alias pour compatibilité
   amount: number;
-  type: 'credit' | 'debit';
+  montant?: number; // Alias pour compatibilité
+  type: 'credit' | 'debit' | 'engagement' | 'realisation' | 'annulation' | 'virement';
   category: string;
   subcategory?: string;
-  status: 'pending' | 'approved' | 'rejected' | 'completed';
+
+  // Références
   reference?: string;
-  budgetId?: string;
-  tenantId: string;
+  fournisseur?: string;
+  numeroPiece?: string;
+  numeroCommande?: string;
+  pieceJustificative?: string;
+
+  // Dates
+  date?: string | Date;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+
+  // Statut et validation
+  status: 'draft' | 'pending' | 'approved' | 'rejected' | 'completed' | 'paid';
+  statut?: 'draft' | 'pending' | 'approved' | 'rejected' | 'paid'; // Alias
   createdBy: string;
-  createdAt: Date;
-  updatedAt: Date;
+  validatedBy?: string;
+  validatedAt?: string | Date;
+
+  // Validations
   validations: TransactionValidation[];
+  validationHistory?: ValidationStep[]; // Pour compatibilité
 }
 
 export interface TransactionValidation {
@@ -89,18 +244,30 @@ export interface TransactionValidation {
   validatorName: string;
   status: 'pending' | 'approved' | 'rejected';
   comment?: string;
-  validatedAt?: Date;
+  validatedAt?: Date | string;
   level: number;
+}
+
+export interface FinancialTransaction extends Transaction {
+  // Extension avec tous les champs de la version complexe
 }
 
 export interface CreateTransactionRequest {
   description: string;
+  libelle?: string;
   amount: number;
-  type: 'credit' | 'debit';
+  montant?: number;
+  type: 'credit' | 'debit' | 'engagement' | 'realisation' | 'annulation' | 'virement';
   category: string;
   subcategory?: string;
   reference?: string;
   budgetId?: string;
+  categoryId?: string;
+  date?: string;
+  fournisseur?: string;
+  numeroPiece?: string;
+  numeroCommande?: string;
+  pieceJustificative?: string;
 }
 
 export interface UpdateTransactionRequest {
@@ -110,40 +277,80 @@ export interface UpdateTransactionRequest {
   subcategory?: string;
   reference?: string;
   budgetId?: string;
+  date?: string;
+  fournisseur?: string;
+  numeroPiece?: string;
+  pieceJustificative?: string;
 }
 
-// Types pour les rapports
+// --- RAPPORTS ---
+
 export interface FinancialReport {
   id: string;
   title: string;
-  type: 'budget' | 'transaction' | 'cashflow' | 'consolidated';
+  type: 'budget' | 'transaction' | 'cashflow' | 'consolidated' | 'budget_execution' | 'subvention_status' | 'category_analysis' | 'comparative';
   format: 'excel' | 'pdf';
   status: 'pending' | 'generating' | 'completed' | 'failed';
+
+  // Période et filtres
+  periode?: {
+    debut: string;
+    fin: string;
+  };
   filters: ReportFilters;
-  generatedAt?: Date;
+
+  // Données et métadonnées
+  data?: any; // Structure dépend du type de rapport
+  generatedAt?: Date | string;
   downloadUrl?: string;
+  downloadUrls?: Record<string, string>;
+
+  // Identification
   tenantId: string;
+  crouIds?: string[]; // Vide pour rapport national
   createdBy: string;
-  createdAt: Date;
+  createdAt: Date | string;
+  generatedBy?: string; // Alias
+
+  // Export
+  formats?: ('excel' | 'pdf')[];
 }
 
 export interface ReportFilters {
-  dateFrom?: Date;
-  dateTo?: Date;
+  dateFrom?: Date | string;
+  dateTo?: Date | string;
+  dateDebut?: Date | string; // Alias
+  dateFin?: Date | string; // Alias
   category?: string;
+  categories?: string[];
   status?: string;
+  statuts?: string[];
   budgetId?: string;
   tenantId?: string;
+  crouIds?: string[];
+  exercice?: number;
+  trimestre?: number;
+  montantMin?: number;
+  montantMax?: number;
+  validationLevel?: number;
+  seuils?: { min: number; max: number };
 }
 
 export interface CreateReportRequest {
   title: string;
-  type: 'budget' | 'transaction' | 'cashflow' | 'consolidated';
+  type: 'budget' | 'transaction' | 'cashflow' | 'consolidated' | 'budget_execution' | 'subvention_status' | 'category_analysis' | 'comparative';
   format: 'excel' | 'pdf';
+  formats?: ('excel' | 'pdf')[];
   filters: ReportFilters;
+  periode?: {
+    debut: Date | string;
+    fin: Date | string;
+  };
+  crouIds?: string[];
 }
 
-// Types pour les métriques
+// --- MÉTRIQUES ---
+
 export interface FinancialMetrics {
   totalBudget: number;
   totalSpent: number;
@@ -166,38 +373,166 @@ export interface FinancialMetrics {
   pendingValidations: number;
 }
 
-class FinancialService {
-  private baseUrl = '/financial';
+export interface FinancialFilters {
+  crouIds?: string[];
+  exercice?: number;
+  trimestre?: number;
+  categories?: string[];
+  statuts?: string[];
+  dateDebut?: Date | string;
+  dateFin?: Date | string;
+  dateFrom?: Date | string; // Alias
+  dateTo?: Date | string; // Alias
+  montantMin?: number;
+  montantMax?: number;
+  validationLevel?: number;
+  page?: number;
+  limit?: number;
+  status?: string;
+  category?: string;
+  fiscalYear?: string;
+  tenantId?: string;
+  type?: string;
+}
 
-  // === BUDGETS ===
+// ================================================================================================
+// SERVICE PRINCIPAL
+// ================================================================================================
+
+class FinancialService {
+  private static instance: FinancialService;
+  private cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
+
+  // Cache TTL selon criticité des données
+  private readonly CACHE_TTL = {
+    budgets: 5 * 60 * 1000, // 5 minutes
+    subventions: 3 * 60 * 1000, // 3 minutes
+    transactions: 1 * 60 * 1000, // 1 minute
+    reports: 15 * 60 * 1000, // 15 minutes
+    categories: 30 * 60 * 1000, // 30 minutes
+    metrics: 2 * 60 * 1000 // 2 minutes
+  };
+
+  // Endpoints API
+  private readonly baseUrl = '/financial';
+  private readonly endpoints = {
+    budgets: `${this.baseUrl}/budgets`,
+    subventions: `${this.baseUrl}/subventions`,
+    transactions: `${this.baseUrl}/transactions`,
+    validation: `${this.baseUrl}/validation`,
+    reports: `${this.baseUrl}/reports`,
+    categories: `${this.baseUrl}/categories`,
+    metrics: `${this.baseUrl}/metrics`,
+    export: `${this.baseUrl}/export`
+  };
+
+  public static getInstance(): FinancialService {
+    if (!FinancialService.instance) {
+      FinancialService.instance = new FinancialService();
+    }
+    return FinancialService.instance;
+  }
+
+  // ================================================================================================
+  // GESTION CACHE
+  // ================================================================================================
+
+  private getCacheKey(endpoint: string, params?: any): string {
+    return `financial_${endpoint}_${JSON.stringify(params || {})}`;
+  }
+
+  private setCache(key: string, data: any, ttl: number): void {
+    this.cache.set(key, { data, timestamp: Date.now(), ttl });
+  }
+
+  private getCache(key: string): any | null {
+    const cached = this.cache.get(key);
+    if (!cached || Date.now() - cached.timestamp > cached.ttl) {
+      this.cache.delete(key);
+      return null;
+    }
+    return cached.data;
+  }
+
+  clearBudgetCache(): void {
+    const keys = Array.from(this.cache.keys()).filter(key => key.includes('budgets'));
+    keys.forEach(key => this.cache.delete(key));
+  }
+
+  clearSubventionCache(): void {
+    const keys = Array.from(this.cache.keys()).filter(key => key.includes('subventions'));
+    keys.forEach(key => this.cache.delete(key));
+  }
+
+  clearTransactionCache(): void {
+    const keys = Array.from(this.cache.keys()).filter(key => key.includes('transactions'));
+    keys.forEach(key => this.cache.delete(key));
+  }
+
+  clearAllCache(): void {
+    this.cache.clear();
+  }
+
+  // ================================================================================================
+  // GESTION BUDGETS
+  // ================================================================================================
 
   /**
    * Récupère la liste des budgets
+   * Support pour les deux signatures (simple et avec User)
    */
-  async getBudgets(params?: {
-    page?: number;
-    limit?: number;
-    status?: string;
-    category?: string;
-    fiscalYear?: string;
-    tenantId?: string;
-  }): Promise<{
-    budgets: Budget[];
-    total: number;
-    page: number;
-    limit: number;
-  }> {
+  async getBudgets(
+    userOrParams?: User | FinancialFilters,
+    filters?: FinancialFilters
+  ): Promise<Budget[] | { budgets: Budget[]; total: number; page: number; limit: number }> {
     try {
-      const queryParams = new URLSearchParams();
-      if (params?.page) queryParams.append('page', params.page.toString());
-      if (params?.limit) queryParams.append('limit', params.limit.toString());
-      if (params?.status) queryParams.append('status', params.status);
-      if (params?.category) queryParams.append('category', params.category);
-      if (params?.fiscalYear) queryParams.append('fiscalYear', params.fiscalYear);
-      if (params?.tenantId) queryParams.append('tenantId', params.tenantId);
+      // Déterminer si c'est un User ou des params
+      let params: any = {};
 
-      const response = await apiClient.get(`${this.baseUrl}/budgets?${queryParams.toString()}`);
-      return response.data;
+      if (userOrParams && 'level' in userOrParams) {
+        // C'est un User (version complexe)
+        const user = userOrParams as User;
+        params = {
+          level: user.level,
+          crouId: user.level === 'crou' ? user.crouId : undefined,
+          crouIds: filters?.crouIds?.join(','),
+          exercice: filters?.exercice || new Date().getFullYear(),
+          trimestre: filters?.trimestre,
+          statuts: filters?.statuts?.join(',')
+        };
+      } else {
+        // Ce sont des params directs (version simple)
+        const filterParams = (userOrParams as FinancialFilters) || {};
+        params = {
+          page: filterParams.page,
+          limit: filterParams.limit,
+          status: filterParams.status,
+          category: filterParams.category,
+          fiscalYear: filterParams.fiscalYear,
+          tenantId: filterParams.tenantId
+        };
+      }
+
+      // Vérifier le cache
+      const cacheKey = this.getCacheKey('budgets', params);
+      const cached = this.getCache(cacheKey);
+      if (cached) return cached;
+
+      // Construire query string
+      const queryParams = new URLSearchParams();
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          queryParams.append(key, String(value));
+        }
+      });
+
+      const response = await apiClient.get(`${this.endpoints.budgets}?${queryParams.toString()}`);
+      const data = response.data;
+
+      // Mettre en cache
+      this.setCache(cacheKey, data, this.CACHE_TTL.budgets);
+
+      return data;
     } catch (error) {
       console.error('Erreur lors de la récupération des budgets:', error);
       throw error;
@@ -209,8 +544,15 @@ class FinancialService {
    */
   async getBudget(id: string): Promise<Budget> {
     try {
-      const response = await apiClient.get(`${this.baseUrl}/budgets/${id}`);
-      return response.data;
+      const cacheKey = this.getCacheKey(`budget_${id}`);
+      const cached = this.getCache(cacheKey);
+      if (cached) return cached;
+
+      const response = await apiClient.get(`${this.endpoints.budgets}/${id}`);
+      const data = response.data;
+
+      this.setCache(cacheKey, data, this.CACHE_TTL.budgets);
+      return data;
     } catch (error) {
       console.error('Erreur lors de la récupération du budget:', error);
       throw error;
@@ -222,11 +564,12 @@ class FinancialService {
    */
   async createBudget(data: CreateBudgetRequest): Promise<Budget> {
     try {
-      const response = await apiClient.post(`${this.baseUrl}/budgets`, data);
+      const response = await apiClient.post(this.endpoints.budgets, data);
+      this.clearBudgetCache();
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur lors de la création du budget:', error);
-      throw error;
+      throw new Error(error.response?.data?.message || 'Erreur lors de la création du budget');
     }
   }
 
@@ -235,11 +578,12 @@ class FinancialService {
    */
   async updateBudget(id: string, data: UpdateBudgetRequest): Promise<Budget> {
     try {
-      const response = await apiClient.put(`${this.baseUrl}/budgets/${id}`, data);
+      const response = await apiClient.put(`${this.endpoints.budgets}/${id}`, data);
+      this.clearBudgetCache();
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur lors de la mise à jour du budget:', error);
-      throw error;
+      throw new Error(error.response?.data?.message || 'Erreur lors de la mise à jour du budget');
     }
   }
 
@@ -248,7 +592,8 @@ class FinancialService {
    */
   async deleteBudget(id: string): Promise<void> {
     try {
-      await apiClient.delete(`${this.baseUrl}/budgets/${id}`);
+      await apiClient.delete(`${this.endpoints.budgets}/${id}`);
+      this.clearBudgetCache();
     } catch (error) {
       console.error('Erreur lors de la suppression du budget:', error);
       throw error;
@@ -256,14 +601,15 @@ class FinancialService {
   }
 
   /**
-   * Valide un budget
+   * Valide un budget (version simple)
    */
   async validateBudget(id: string, status: 'approved' | 'rejected', comment?: string): Promise<Budget> {
     try {
-      const response = await apiClient.post(`${this.baseUrl}/budgets/${id}/validate`, {
+      const response = await apiClient.post(`${this.endpoints.budgets}/${id}/validate`, {
         status,
         comment
       });
+      this.clearBudgetCache();
       return response.data;
     } catch (error) {
       console.error('Erreur lors de la validation du budget:', error);
@@ -271,39 +617,214 @@ class FinancialService {
     }
   }
 
-  // === TRANSACTIONS ===
+  /**
+   * Soumet un budget pour approbation
+   */
+  async submitBudgetForApproval(id: string, comment?: string): Promise<Budget> {
+    try {
+      const response = await apiClient.post(`${this.endpoints.validation}/budget/${id}/submit`, {
+        comment
+      });
+      this.clearBudgetCache();
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur soumission budget:', error);
+      throw new Error(error.response?.data?.message || 'Erreur lors de la soumission du budget');
+    }
+  }
+
+  /**
+   * Approuve un budget (workflow)
+   */
+  async approveBudget(id: string, userId: string, comment?: string): Promise<Budget> {
+    try {
+      const response = await apiClient.post(`${this.endpoints.validation}/budget/${id}/approve`, {
+        userId,
+        comment,
+        timestamp: new Date().toISOString()
+      });
+      this.clearBudgetCache();
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur approbation budget:', error);
+      throw new Error(error.response?.data?.message || "Erreur lors de l'approbation du budget");
+    }
+  }
+
+  /**
+   * Rejette un budget (workflow)
+   */
+  async rejectBudget(id: string, userId: string, comment: string): Promise<Budget> {
+    try {
+      const response = await apiClient.post(`${this.endpoints.validation}/budget/${id}/reject`, {
+        userId,
+        comment,
+        timestamp: new Date().toISOString()
+      });
+      this.clearBudgetCache();
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur rejet budget:', error);
+      throw new Error(error.response?.data?.message || 'Erreur lors du rejet du budget');
+    }
+  }
+
+  // ================================================================================================
+  // GESTION SUBVENTIONS
+  // ================================================================================================
+
+  /**
+   * Récupère la liste des subventions
+   */
+  async getSubventions(user: User, filters?: FinancialFilters): Promise<Subvention[]> {
+    try {
+      const params = {
+        level: user.level,
+        crouId: user.level === 'crou' ? user.crouId : undefined,
+        crouIds: filters?.crouIds?.join(','),
+        exercice: filters?.exercice || new Date().getFullYear(),
+        trimestre: filters?.trimestre,
+        statuts: filters?.statuts?.join(',')
+      };
+
+      const cacheKey = this.getCacheKey('subventions', params);
+      const cached = this.getCache(cacheKey);
+      if (cached) return cached;
+
+      const queryParams = new URLSearchParams();
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          queryParams.append(key, String(value));
+        }
+      });
+
+      const response = await apiClient.get(`${this.endpoints.subventions}?${queryParams.toString()}`);
+      const data = response.data;
+
+      this.setCache(cacheKey, data, this.CACHE_TTL.subventions);
+      return data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des subventions:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Crée une nouvelle subvention
+   */
+  async createSubvention(subvention: Partial<Subvention>): Promise<Subvention> {
+    try {
+      const response = await apiClient.post(this.endpoints.subventions, subvention);
+      this.clearSubventionCache();
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur création subvention:', error);
+      throw new Error(error.response?.data?.message || 'Erreur lors de la création de la subvention');
+    }
+  }
+
+  /**
+   * Soumet une subvention pour approbation
+   */
+  async submitSubventionForApproval(id: string, documents: string[], comment?: string): Promise<Subvention> {
+    try {
+      const response = await apiClient.post(`${this.endpoints.validation}/subvention/${id}/submit`, {
+        documents,
+        comment
+      });
+      this.clearSubventionCache();
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur soumission subvention:', error);
+      throw new Error(error.response?.data?.message || 'Erreur lors de la soumission de la subvention');
+    }
+  }
+
+  /**
+   * Approuve une subvention
+   */
+  async approveSubvention(id: string, userId: string, montantAccorde?: number, comment?: string): Promise<Subvention> {
+    try {
+      const response = await apiClient.post(`${this.endpoints.validation}/subvention/${id}/approve`, {
+        userId,
+        montantAccorde,
+        comment,
+        timestamp: new Date().toISOString()
+      });
+      this.clearSubventionCache();
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur approbation subvention:', error);
+      throw new Error(error.response?.data?.message || "Erreur lors de l'approbation de la subvention");
+    }
+  }
+
+  // ================================================================================================
+  // GESTION TRANSACTIONS
+  // ================================================================================================
 
   /**
    * Récupère la liste des transactions
+   * Support pour les deux signatures
    */
-  async getTransactions(params?: {
-    page?: number;
-    limit?: number;
-    type?: string;
-    category?: string;
-    status?: string;
-    dateFrom?: Date;
-    dateTo?: Date;
-    tenantId?: string;
-  }): Promise<{
-    transactions: Transaction[];
-    total: number;
-    page: number;
-    limit: number;
-  }> {
+  async getTransactions(
+    budgetIdOrParams?: string | FinancialFilters,
+    filters?: FinancialFilters
+  ): Promise<Transaction[] | { transactions: Transaction[]; total: number; page: number; limit: number }> {
     try {
-      const queryParams = new URLSearchParams();
-      if (params?.page) queryParams.append('page', params.page.toString());
-      if (params?.limit) queryParams.append('limit', params.limit.toString());
-      if (params?.type) queryParams.append('type', params.type);
-      if (params?.category) queryParams.append('category', params.category);
-      if (params?.status) queryParams.append('status', params.status);
-      if (params?.dateFrom) queryParams.append('dateFrom', params.dateFrom.toISOString());
-      if (params?.dateTo) queryParams.append('dateTo', params.dateTo.toISOString());
-      if (params?.tenantId) queryParams.append('tenantId', params.tenantId);
+      let params: any = {};
 
-      const response = await apiClient.get(`${this.baseUrl}/transactions?${queryParams.toString()}`);
-      return response.data;
+      if (typeof budgetIdOrParams === 'string') {
+        // Version complexe avec budgetId
+        const budgetId = budgetIdOrParams;
+        let dateDebut = filters?.dateDebut || filters?.dateFrom;
+        let dateFin = filters?.dateFin || filters?.dateTo;
+
+        if (filters?.exercice && !dateDebut && !dateFin) {
+          dateDebut = new Date(filters.exercice, 0, 1);
+          dateFin = new Date(filters.exercice, 11, 31, 23, 59, 59);
+        }
+
+        params = {
+          budgetId: budgetId || undefined,
+          dateDebut: dateDebut ? new Date(dateDebut).toISOString() : undefined,
+          dateFin: dateFin ? new Date(dateFin).toISOString() : undefined,
+          categories: filters?.categories?.join(','),
+          statuts: filters?.statuts?.join(','),
+          montantMin: filters?.montantMin,
+          montantMax: filters?.montantMax
+        };
+      } else {
+        // Version simple avec params
+        const filterParams = (budgetIdOrParams as FinancialFilters) || {};
+        params = {
+          page: filterParams.page,
+          limit: filterParams.limit,
+          type: filterParams.type,
+          category: filterParams.category,
+          status: filterParams.status,
+          dateFrom: filterParams.dateFrom ? new Date(filterParams.dateFrom).toISOString() : undefined,
+          dateTo: filterParams.dateTo ? new Date(filterParams.dateTo).toISOString() : undefined,
+          tenantId: filterParams.tenantId
+        };
+      }
+
+      const cacheKey = this.getCacheKey('transactions', params);
+      const cached = this.getCache(cacheKey);
+      if (cached) return cached;
+
+      const queryParams = new URLSearchParams();
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          queryParams.append(key, String(value));
+        }
+      });
+
+      const response = await apiClient.get(`${this.endpoints.transactions}?${queryParams.toString()}`);
+      const data = response.data;
+
+      this.setCache(cacheKey, data, this.CACHE_TTL.transactions);
+      return data;
     } catch (error) {
       console.error('Erreur lors de la récupération des transactions:', error);
       throw error;
@@ -315,8 +836,15 @@ class FinancialService {
    */
   async getTransaction(id: string): Promise<Transaction> {
     try {
-      const response = await apiClient.get(`${this.baseUrl}/transactions/${id}`);
-      return response.data;
+      const cacheKey = this.getCacheKey(`transaction_${id}`);
+      const cached = this.getCache(cacheKey);
+      if (cached) return cached;
+
+      const response = await apiClient.get(`${this.endpoints.transactions}/${id}`);
+      const data = response.data;
+
+      this.setCache(cacheKey, data, this.CACHE_TTL.transactions);
+      return data;
     } catch (error) {
       console.error('Erreur lors de la récupération de la transaction:', error);
       throw error;
@@ -328,11 +856,13 @@ class FinancialService {
    */
   async createTransaction(data: CreateTransactionRequest): Promise<Transaction> {
     try {
-      const response = await apiClient.post(`${this.baseUrl}/transactions`, data);
+      const response = await apiClient.post(this.endpoints.transactions, data);
+      this.clearTransactionCache();
+      this.clearBudgetCache();
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur lors de la création de la transaction:', error);
-      throw error;
+      throw new Error(error.response?.data?.message || 'Erreur lors de la création de la transaction');
     }
   }
 
@@ -341,11 +871,13 @@ class FinancialService {
    */
   async updateTransaction(id: string, data: UpdateTransactionRequest): Promise<Transaction> {
     try {
-      const response = await apiClient.put(`${this.baseUrl}/transactions/${id}`, data);
+      const response = await apiClient.put(`${this.endpoints.transactions}/${id}`, data);
+      this.clearTransactionCache();
+      this.clearBudgetCache();
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur lors de la mise à jour de la transaction:', error);
-      throw error;
+      throw new Error(error.response?.data?.message || 'Erreur lors de la mise à jour de la transaction');
     }
   }
 
@@ -354,22 +886,25 @@ class FinancialService {
    */
   async deleteTransaction(id: string): Promise<void> {
     try {
-      await apiClient.delete(`${this.baseUrl}/transactions/${id}`);
-    } catch (error) {
+      await apiClient.delete(`${this.endpoints.transactions}/${id}`);
+      this.clearTransactionCache();
+      this.clearBudgetCache();
+    } catch (error: any) {
       console.error('Erreur lors de la suppression de la transaction:', error);
-      throw error;
+      throw new Error(error.response?.data?.message || 'Erreur lors de la suppression de la transaction');
     }
   }
 
   /**
-   * Valide une transaction
+   * Valide une transaction (version simple)
    */
   async validateTransaction(id: string, status: 'approved' | 'rejected', comment?: string): Promise<Transaction> {
     try {
-      const response = await apiClient.post(`${this.baseUrl}/transactions/${id}/validate`, {
+      const response = await apiClient.post(`${this.endpoints.transactions}/${id}/validate`, {
         status,
         comment
       });
+      this.clearTransactionCache();
       return response.data;
     } catch (error) {
       console.error('Erreur lors de la validation de la transaction:', error);
@@ -377,23 +912,125 @@ class FinancialService {
     }
   }
 
-  // === MÉTRIQUES ===
+  /**
+   * Soumet une transaction pour validation
+   */
+  async submitTransaction(id: string): Promise<Transaction> {
+    try {
+      const response = await apiClient.post(`${this.endpoints.transactions}/${id}/validate`, {
+        action: 'submit'
+      });
+      this.clearTransactionCache();
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur soumission transaction:', error);
+      throw new Error(error.response?.data?.message || 'Erreur lors de la soumission de la transaction');
+    }
+  }
+
+  /**
+   * Approuve une transaction
+   */
+  async approveTransaction(id: string): Promise<Transaction> {
+    try {
+      const response = await apiClient.post(`${this.endpoints.transactions}/${id}/validate`, {
+        action: 'approve'
+      });
+      this.clearTransactionCache();
+      this.clearBudgetCache();
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur approbation transaction:', error);
+      throw new Error(error.response?.data?.message || "Erreur lors de l'approbation de la transaction");
+    }
+  }
+
+  /**
+   * Rejette une transaction
+   */
+  async rejectTransaction(id: string, reason: string): Promise<Transaction> {
+    try {
+      const response = await apiClient.post(`${this.endpoints.transactions}/${id}/validate`, {
+        action: 'reject',
+        reason
+      });
+      this.clearTransactionCache();
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur rejet transaction:', error);
+      throw new Error(error.response?.data?.message || 'Erreur lors du rejet de la transaction');
+    }
+  }
+
+  /**
+   * Exécute une transaction
+   */
+  async executeTransaction(id: string): Promise<Transaction> {
+    try {
+      const response = await apiClient.post(`${this.endpoints.transactions}/${id}/validate`, {
+        action: 'execute'
+      });
+      this.clearTransactionCache();
+      this.clearBudgetCache();
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur exécution transaction:', error);
+      throw new Error(error.response?.data?.message || "Erreur lors de l'exécution de la transaction");
+    }
+  }
+
+  /**
+   * Récupère les statistiques des transactions
+   */
+  async getTransactionStats(budgetId?: string): Promise<any> {
+    try {
+      const params = budgetId ? { budgetId } : {};
+      const cacheKey = this.getCacheKey('transaction_stats', params);
+      const cached = this.getCache(cacheKey);
+      if (cached) return cached;
+
+      const queryParams = new URLSearchParams();
+      if (budgetId) queryParams.append('budgetId', budgetId);
+
+      const response = await apiClient.get(`${this.endpoints.transactions}/stats?${queryParams.toString()}`);
+      const data = response.data;
+
+      this.setCache(cacheKey, data, this.CACHE_TTL.transactions);
+      return data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des stats de transactions:', error);
+      throw error;
+    }
+  }
+
+  // ================================================================================================
+  // MÉTRIQUES
+  // ================================================================================================
 
   /**
    * Récupère les métriques financières
    */
   async getMetrics(tenantId?: string): Promise<FinancialMetrics> {
     try {
+      const cacheKey = this.getCacheKey('metrics', { tenantId });
+      const cached = this.getCache(cacheKey);
+      if (cached) return cached;
+
       const params = tenantId ? `?tenantId=${tenantId}` : '';
-      const response = await apiClient.get(`${this.baseUrl}/metrics${params}`);
-      return response.data;
+      const response = await apiClient.get(`${this.endpoints.metrics}${params}`);
+      const data = response.data;
+
+      this.setCache(cacheKey, data, this.CACHE_TTL.metrics);
+      return data;
     } catch (error) {
       console.error('Erreur lors de la récupération des métriques financières:', error);
       throw error;
     }
   }
 
-  // === RAPPORTS ===
+  // ================================================================================================
+  // RAPPORTS
+  // ================================================================================================
 
   /**
    * Récupère la liste des rapports
@@ -411,6 +1048,10 @@ class FinancialService {
     limit: number;
   }> {
     try {
+      const cacheKey = this.getCacheKey('reports', params);
+      const cached = this.getCache(cacheKey);
+      if (cached) return cached;
+
       const queryParams = new URLSearchParams();
       if (params?.page) queryParams.append('page', params.page.toString());
       if (params?.limit) queryParams.append('limit', params.limit.toString());
@@ -418,8 +1059,11 @@ class FinancialService {
       if (params?.status) queryParams.append('status', params.status);
       if (params?.tenantId) queryParams.append('tenantId', params.tenantId);
 
-      const response = await apiClient.get(`${this.baseUrl}/reports?${queryParams.toString()}`);
-      return response.data;
+      const response = await apiClient.get(`${this.endpoints.reports}?${queryParams.toString()}`);
+      const data = response.data;
+
+      this.setCache(cacheKey, data, this.CACHE_TTL.reports);
+      return data;
     } catch (error) {
       console.error('Erreur lors de la récupération des rapports:', error);
       throw error;
@@ -431,7 +1075,7 @@ class FinancialService {
    */
   async createReport(data: CreateReportRequest): Promise<FinancialReport> {
     try {
-      const response = await apiClient.post(`${this.baseUrl}/reports`, data);
+      const response = await apiClient.post(this.endpoints.reports, data);
       return response.data;
     } catch (error) {
       console.error('Erreur lors de la création du rapport:', error);
@@ -440,11 +1084,37 @@ class FinancialService {
   }
 
   /**
+   * Génère un rapport financier (version complexe)
+   */
+  async generateFinancialReport(
+    type: FinancialReport['type'],
+    periode: { debut: Date | string; fin: Date | string },
+    crouIds: string[] = [],
+    filters?: FinancialFilters
+  ): Promise<FinancialReport> {
+    try {
+      const response = await apiClient.post(this.endpoints.reports, {
+        type,
+        periode: {
+          debut: typeof periode.debut === 'string' ? periode.debut : periode.debut.toISOString(),
+          fin: typeof periode.fin === 'string' ? periode.fin : periode.fin.toISOString()
+        },
+        crouIds,
+        filters
+      });
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur génération rapport:', error);
+      throw new Error(error.response?.data?.message || 'Erreur lors de la génération du rapport');
+    }
+  }
+
+  /**
    * Télécharge un rapport
    */
   async downloadReport(id: string): Promise<Blob> {
     try {
-      const response = await apiClient.get(`${this.baseUrl}/reports/${id}/download`, {
+      const response = await apiClient.get(`${this.endpoints.reports}/${id}/download`, {
         responseType: 'blob'
       });
       return response.data;
@@ -453,6 +1123,31 @@ class FinancialService {
       throw error;
     }
   }
+
+  /**
+   * Exporte un rapport dans un format spécifique
+   */
+  async exportReport(reportId: string, format: 'excel' | 'pdf'): Promise<string> {
+    try {
+      const response = await apiClient.post(
+        `${this.endpoints.export}/${reportId}`,
+        { format },
+        { responseType: 'blob' }
+      );
+
+      // Créer URL de téléchargement
+      const blob = new Blob([response.data]);
+      const url = window.URL.createObjectURL(blob);
+      return url;
+    } catch (error: any) {
+      console.error('Erreur export rapport:', error);
+      throw new Error(error.response?.data?.message || "Erreur lors de l'export du rapport");
+    }
+  }
+
+  // ================================================================================================
+  // CATÉGORIES
+  // ================================================================================================
 
   /**
    * Récupère les catégories disponibles
@@ -467,8 +1162,15 @@ class FinancialService {
     }>;
   }>> {
     try {
-      const response = await apiClient.get(`${this.baseUrl}/categories`);
-      return response.data;
+      const cacheKey = this.getCacheKey('categories');
+      const cached = this.getCache(cacheKey);
+      if (cached) return cached;
+
+      const response = await apiClient.get(this.endpoints.categories);
+      const data = response.data;
+
+      this.setCache(cacheKey, data, this.CACHE_TTL.categories);
+      return data;
     } catch (error) {
       console.error('Erreur lors de la récupération des catégories:', error);
       throw error;
@@ -476,4 +1178,64 @@ class FinancialService {
   }
 }
 
-export const financialService = new FinancialService();
+// ================================================================================================
+// UTILITAIRES FINANCIERS
+// ================================================================================================
+
+export const FinancialUtils = {
+  // Calculer le taux d'exécution budgétaire
+  calculateExecutionRate: (realise: number, initial: number): number => {
+    return initial > 0 ? Math.round((realise / initial) * 100) : 0;
+  },
+
+  // Calculer l'écart budgétaire
+  calculateVariance: (realise: number, prevu: number): { absolute: number; percentage: number } => {
+    const absolute = realise - prevu;
+    const percentage = prevu > 0 ? Math.round((absolute / prevu) * 100) : 0;
+    return { absolute, percentage };
+  },
+
+  // Formater montant en FCFA
+  formatCurrency: (amount: number): string => {
+    return new Intl.NumberFormat('fr-FR', {
+      style: 'currency',
+      currency: 'XOF',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  },
+
+  // Déterminer le niveau d'alerte selon seuils
+  getAlertLevel: (
+    percentage: number,
+    seuils: { alerte: number; critique: number }
+  ): 'normal' | 'warning' | 'critical' => {
+    if (percentage >= seuils.critique) return 'critical';
+    if (percentage >= seuils.alerte) return 'warning';
+    return 'normal';
+  },
+
+  // Valider montant selon rôle utilisateur
+  validateAmount: (amount: number, userRole: string): { valid: boolean; message?: string } => {
+    const limits: Record<string, number> = {
+      comptable: 1000000, // 1M FCFA
+      chef_financier: 10000000, // 10M FCFA
+      directeur: 50000000, // 50M FCFA
+      directeur_finances: Number.MAX_SAFE_INTEGER
+    };
+
+    const limit = limits[userRole] || 0;
+    if (amount > limit) {
+      return {
+        valid: false,
+        message: `Montant dépassant votre limite d'autorisation (${FinancialUtils.formatCurrency(limit)})`
+      };
+    }
+
+    return { valid: true };
+  }
+};
+
+// Instance singleton
+export const financialService = FinancialService.getInstance();
+export default financialService;

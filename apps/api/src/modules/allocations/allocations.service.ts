@@ -26,7 +26,7 @@
 import { DataSource, Repository } from 'typeorm';
 import { logger } from '@/shared/utils/logger';
 import { TenantHierarchyService } from '../tenants/tenant-hierarchy.service';
-import { Tenant, TenantType } from '@database/entities/Tenant.entity';
+import { Tenant, TenantType } from '../../../../../packages/database/src/entities/Tenant.entity';
 
 export enum AllocationType {
   BUDGET = 'budget',

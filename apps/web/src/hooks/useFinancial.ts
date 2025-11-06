@@ -26,11 +26,12 @@ import {
   Budget,
   Subvention,
   FinancialTransaction,
+  Transaction,
   FinancialReport,
   FinancialFilters,
   ValidationStep,
   FinancialUtils
-} from '@/services/financialService';
+} from '@/services/api/financialService';
 import toast from 'react-hot-toast';
 
 // ================================================================================================

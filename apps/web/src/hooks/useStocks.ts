@@ -20,26 +20,20 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/stores/auth';
-import { 
-  useStocks, 
-  useStockItems, 
-  useStockMovements, 
-  useStockAlerts, 
-  useStocksMetrics 
-} from '@/stores/stocks';
+import { useStocks } from '@/stores/stocks';
 import { StockItem, StockMovement, StockAlert, StocksMetrics } from '@/services/api/stocksService';
 
 // Hook pour les articles de stock
 export const useStockItems = () => {
   const { user } = useAuth();
-  const { 
-    items, 
-    loading, 
-    error, 
-    loadItems, 
-    createItem, 
-    updateItem, 
-    deleteItem 
+  const {
+    items,
+    itemsLoading,
+    itemsError,
+    loadItems,
+    createItem,
+    updateItem,
+    deleteItem
   } = useStocks();
 
   const [filters, setFilters] = useState({
@@ -90,8 +84,8 @@ export const useStockItems = () => {
 
   return {
     items,
-    loading,
-    error,
+    loading: itemsLoading,
+    error: itemsError,
     filters,
     createItem: handleCreateItem,
     updateItem: handleUpdateItem,
@@ -105,12 +99,12 @@ export const useStockItems = () => {
 // Hook pour les mouvements de stock
 export const useStockMovements = () => {
   const { user } = useAuth();
-  const { 
-    movements, 
-    loading, 
-    error, 
-    loadMovements, 
-    createMovement 
+  const {
+    movements,
+    movementsLoading,
+    movementsError,
+    loadMovements,
+    createMovement
   } = useStocks();
 
   const [filters, setFilters] = useState({
@@ -147,8 +141,8 @@ export const useStockMovements = () => {
 
   return {
     movements,
-    loading,
-    error,
+    loading: movementsLoading,
+    error: movementsError,
     filters,
     createMovement: handleCreateMovement,
     updateFilters,
@@ -160,13 +154,13 @@ export const useStockMovements = () => {
 // Hook pour les alertes de stock
 export const useStockAlerts = () => {
   const { user } = useAuth();
-  const { 
-    alerts, 
-    loading, 
-    error, 
-    loadAlerts, 
-    markAlertAsRead, 
-    criticalAlerts 
+  const {
+    alerts,
+    alertsLoading,
+    alertsError,
+    loadAlerts,
+    markAlertAsRead,
+    getCriticalAlerts
   } = useStocks();
 
   // Charger les alertes au montage
@@ -181,6 +175,7 @@ export const useStockAlerts = () => {
     await markAlertAsRead(alertId);
   }, [markAlertAsRead]);
 
+  const criticalAlerts = getCriticalAlerts();
   const unreadAlerts = (alerts || []).filter(alert => !alert.isRead);
   const warningAlerts = (alerts || []).filter(alert => alert.niveau === 'warning');
   const dangerAlerts = (alerts || []).filter(alert => alert.niveau === 'danger');
@@ -191,8 +186,8 @@ export const useStockAlerts = () => {
     warningAlerts,
     dangerAlerts,
     unreadAlerts,
-    loading,
-    error,
+    loading: alertsLoading,
+    error: alertsError,
     markAsRead: handleMarkAsRead,
     refresh: () => user?.tenantId ? loadAlerts(user.tenantId) : Promise.resolve()
   };
@@ -201,11 +196,11 @@ export const useStockAlerts = () => {
 // Hook pour les métriques de stock
 export const useStocksMetrics = () => {
   const { user } = useAuth();
-  const { 
-    metrics, 
-    loading, 
-    error, 
-    loadMetrics 
+  const {
+    metrics,
+    metricsLoading,
+    metricsError,
+    loadMetrics
   } = useStocks();
 
   // Charger les métriques au montage
@@ -217,8 +212,8 @@ export const useStocksMetrics = () => {
 
   return {
     metrics,
-    loading,
-    error,
+    loading: metricsLoading,
+    error: metricsError,
     refresh: () => user?.tenantId ? loadMetrics(user.tenantId) : Promise.resolve()
   };
 };
@@ -259,8 +254,7 @@ export const useSuppliers = () => {
 
 // Hook pour les statistiques avancées
 export const useStocksStatistics = () => {
-  const { items, movements, alerts } = useStocks();
-  const { metrics } = useStocksMetrics();
+  const { items, movements, alerts, metrics } = useStocks();
 
   // Calculer les statistiques en temps réel
   const statistics = {

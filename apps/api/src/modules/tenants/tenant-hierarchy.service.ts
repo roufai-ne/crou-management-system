@@ -20,7 +20,7 @@
  */
 
 import { DataSource, Repository, In } from 'typeorm';
-import { Tenant, TenantType } from '@database/entities/Tenant.entity';
+import { Tenant, TenantType } from '../../../../../packages/database/src/entities/Tenant.entity';
 import { logger } from '@/shared/utils/logger';
 
 export interface TenantAccessScope {
