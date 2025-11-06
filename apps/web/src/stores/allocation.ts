@@ -667,14 +667,22 @@ export const useAllocationHierarchy = () => {
  * Hook pour les allocations cascadées (nouveau)
  */
 export const useCascadingAllocations = () => {
+  const allocations = useAllocationStore((state) => state.allocations);
+  const isLoading = useAllocationStore((state) => state.isLoading);
   const isCascading = useAllocationStore((state) => state.isCascading);
+  const loadAllocations = useAllocationStore((state) => state.loadAllocations);
+  const loadPendingAllocations = useAllocationStore((state) => state.loadPendingAllocations);
   const createCascadingAllocation = useAllocationStore((state) => state.createCascadingAllocation);
   const loadChildAllocations = useAllocationStore((state) => state.loadChildAllocations);
   const loadAllocationTree = useAllocationStore((state) => state.loadAllocationTree);
   const allocationTree = useAllocationStore((state) => state.allocationTree);
 
   return {
+    allocations,
+    isLoading,
     isCascading,
+    loadAllocations,
+    loadPendingAllocations,
     createCascadingAllocation,
     loadChildAllocations,
     loadAllocationTree,
