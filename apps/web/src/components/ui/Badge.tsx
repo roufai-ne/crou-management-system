@@ -45,7 +45,7 @@ const badgeVariants = (props: {
 };
 
 // Interface des props
-interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
+export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info' | 'outline' | 'red' | 'green' | 'danger' | 'default';
   size?: 'sm' | 'md' | 'lg';
   rounded?: boolean;

@@ -10,7 +10,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Table, Modal, Input, Select, Badge } from '@/components/ui';
+import { Card, Button, Table, Modal, Input, NativeSelect, Badge } from '@/components/ui';
 import {
   PlusIcon,
   PencilIcon,
@@ -218,7 +218,7 @@ export const SuppliersTab: React.FC<SuppliersTabProps> = ({ onError }) => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Select
+            <NativeSelect
               value={filterType}
               onChange={(e) => setFilterType(e.target.value as SupplierType | 'all')}
             >
@@ -226,8 +226,8 @@ export const SuppliersTab: React.FC<SuppliersTabProps> = ({ onError }) => {
               {Object.values(SupplierType).map(type => (
                 <option key={type} value={type}>{getTypeLabel(type)}</option>
               ))}
-            </Select>
-            <Select
+            </NativeSelect>
+            <NativeSelect
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as SupplierStatus | 'all')}
             >
@@ -235,7 +235,7 @@ export const SuppliersTab: React.FC<SuppliersTabProps> = ({ onError }) => {
               {Object.values(SupplierStatus).map(status => (
                 <option key={status} value={status}>{status.toUpperCase()}</option>
               ))}
-            </Select>
+            </NativeSelect>
           </div>
         </Card.Content>
       </Card>
@@ -362,7 +362,7 @@ export const SuppliersTab: React.FC<SuppliersTabProps> = ({ onError }) => {
             value={formData.nomCommercial || ''}
             onChange={(e) => setFormData({ ...formData, nomCommercial: e.target.value })}
           />
-          <Select
+          <NativeSelect
             label="Type *"
             value={formData.type}
             onChange={(e) => setFormData({ ...formData, type: e.target.value as SupplierType })}
@@ -371,7 +371,7 @@ export const SuppliersTab: React.FC<SuppliersTabProps> = ({ onError }) => {
             {Object.values(SupplierType).map(type => (
               <option key={type} value={type}>{getTypeLabel(type)}</option>
             ))}
-          </Select>
+          </NativeSelect>
           <div className="grid grid-cols-2 gap-4">
             <Input
               label="Téléphone"
@@ -451,7 +451,7 @@ export const SuppliersTab: React.FC<SuppliersTabProps> = ({ onError }) => {
             value={formData.nomCommercial || ''}
             onChange={(e) => setFormData({ ...formData, nomCommercial: e.target.value })}
           />
-          <Select
+          <NativeSelect
             label="Type *"
             value={formData.type}
             onChange={(e) => setFormData({ ...formData, type: e.target.value as SupplierType })}
@@ -459,8 +459,8 @@ export const SuppliersTab: React.FC<SuppliersTabProps> = ({ onError }) => {
             {Object.values(SupplierType).map(type => (
               <option key={type} value={type}>{getTypeLabel(type)}</option>
             ))}
-          </Select>
-          <Select
+          </NativeSelect>
+          <NativeSelect
             label="Statut"
             value={formData.status}
             onChange={(e) => setFormData({ ...formData, status: e.target.value as SupplierStatus })}
@@ -468,7 +468,7 @@ export const SuppliersTab: React.FC<SuppliersTabProps> = ({ onError }) => {
             {Object.values(SupplierStatus).map(status => (
               <option key={status} value={status}>{status.toUpperCase()}</option>
             ))}
-          </Select>
+          </NativeSelect>
           <div className="grid grid-cols-2 gap-4">
             <Input
               label="Téléphone"

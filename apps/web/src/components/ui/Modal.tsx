@@ -447,3 +447,10 @@ export function DrawerModal({
   // TODO: Implémenter le vrai drawer modal
   return <Modal {...props} />;
 }
+
+// Attach subcomponents for convenient namespace usage (Modal.Header, Modal.Body, ...)
+(Modal as any).Header = ModalHeader;
+(Modal as any).Body = ModalBody;
+(Modal as any).Footer = ModalFooter;
+(Modal as any).Actions = ModalActions;
+(Modal as any).Content = ModalContent;

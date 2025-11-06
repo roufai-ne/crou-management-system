@@ -30,6 +30,9 @@ export type { TextareaProps } from './Textarea';
 export { Select } from './Select';
 export type { SelectProps, SelectOption } from './Select';
 
+export { NativeSelect } from './NativeSelect';
+export type { NativeSelectProps } from './NativeSelect';
+
 export { CROUSelector, RoleSelector } from './CROUSelector';
 export type { CROUSelectorProps, RoleSelectorProps } from './CROUSelector';
 
@@ -47,8 +50,29 @@ export { Switch, SwitchGroup } from './Switch';
 export type { SwitchProps, SwitchIcons, SwitchGroupProps, SwitchGroupOption } from './Switch';
 
 // Composants d'affichage de données
-export { Table } from './Table';
-export type { TableProps, TableColumn } from './Table';
+// Table data-driven (avec colonnes et données)
+export { Table as DataTable } from './Table';
+export type { TableProps as DataTableProps, TableColumn } from './Table';
+
+// Table composable (avec Table.Header, Table.Row, etc.)
+export {
+  Table,
+  SimpleTableHeader,
+  SimpleTableBody,
+  SimpleTableFooter,
+  SimpleTableRow,
+  SimpleTableHead,
+  SimpleTableCell
+} from './SimpleTable';
+export type {
+  SimpleTableProps,
+  SimpleTableHeaderProps,
+  SimpleTableBodyProps,
+  SimpleTableFooterProps,
+  SimpleTableRowProps,
+  SimpleTableHeadProps,
+  SimpleTableCellProps
+} from './SimpleTable';
 
 export { KPICard, KPIGrid, KPIComparison } from './KPICard';
 export type { KPICardProps, KPITrend, KPITarget, KPIType } from './KPICard';
