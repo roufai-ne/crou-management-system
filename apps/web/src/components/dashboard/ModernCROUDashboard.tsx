@@ -20,10 +20,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { Container, Card, Badge, Button, Grid, Section, KPICard, KPIGrid, CardHeader, CardTitle, CardContent } from '@/components/ui';
-import { 
-  BanknotesIcon, 
-  HomeModernIcon, 
-  TruckIcon, 
+import {
+  BanknotesIcon,
+  HomeModernIcon,
+  TruckIcon,
   CubeIcon,
   ChartBarIcon,
   UserGroupIcon,
@@ -36,13 +36,16 @@ import {
   ArrowPathIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/stores/auth';
-import { 
-  useFinancialMetrics, 
-  useStocksMetrics, 
-  useHousingMetrics, 
+import {
+  useFinancialMetrics,
+  useStocksMetrics,
+  useHousingMetrics,
   useTransportMetrics,
-  useAlerts 
+  useAlerts
 } from '@/hooks/useDashboard';
+import { StocksDashboard } from './StocksDashboard';
+import { HousingDashboard } from './HousingDashboard';
+import { TransportDashboard } from './TransportDashboard';
 
 export const ModernCROUDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -392,52 +395,19 @@ export const ModernCROUDashboard: React.FC = () => {
 
       {activeTab === 'stocks' && (
         <div className="space-y-8">
-          <Section title="Dashboard Stocks">
-            <KPIGrid kpis={stocksKPIs} columns={4} />
-          </Section>
-          <div className="text-center py-12">
-            <CubeIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Module Stocks en Développement
-            </h3>
-            <p className="text-gray-600">
-              Le dashboard détaillé des stocks sera disponible dans la prochaine version.
-            </p>
-          </div>
+          <StocksDashboard />
         </div>
       )}
 
       {activeTab === 'housing' && (
         <div className="space-y-8">
-          <Section title="Dashboard Logement">
-            <KPIGrid kpis={housingKPIs} columns={4} />
-          </Section>
-          <div className="text-center py-12">
-            <HomeModernIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Module Logement en Développement
-            </h3>
-            <p className="text-gray-600">
-              Le dashboard détaillé du logement sera disponible dans la prochaine version.
-            </p>
-          </div>
+          <HousingDashboard />
         </div>
       )}
 
       {activeTab === 'transport' && (
         <div className="space-y-8">
-          <Section title="Dashboard Transport">
-            <KPIGrid kpis={transportKPIs} columns={4} />
-          </Section>
-          <div className="text-center py-12">
-            <TruckIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Module Transport en Développement
-            </h3>
-            <p className="text-gray-600">
-              Le dashboard détaillé du transport sera disponible dans la prochaine version.
-            </p>
-          </div>
+          <TransportDashboard />
         </div>
       )}
     </div>
