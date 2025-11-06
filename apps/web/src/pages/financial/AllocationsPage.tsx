@@ -286,7 +286,7 @@ export const AllocationsPage: React.FC = () => {
           value={displayStats.total}
           trend="stable"
           trendValue={`${filteredAllocations.length} affichées`}
-          icon={ArrowRightLeft}
+          icon={<ArrowRightLeft className="h-5 w-5" />}
           variant="primary"
         />
 
@@ -295,7 +295,7 @@ export const AllocationsPage: React.FC = () => {
           value={displayStats.pending}
           trend={displayStats.pending > 0 ? 'up' : 'stable'}
           trendValue="À valider"
-          icon={Clock}
+          icon={<Clock className="h-5 w-5" />}
           variant="warning"
         />
 
@@ -304,7 +304,7 @@ export const AllocationsPage: React.FC = () => {
           value={displayStats.approved}
           trend="up"
           trendValue="Validées"
-          icon={CheckCircle}
+          icon={<CheckCircle className="h-5 w-5" />}
           variant="success"
         />
 
@@ -313,7 +313,7 @@ export const AllocationsPage: React.FC = () => {
           value={`${(displayStats.totalAmount / 1000000).toFixed(1)}M`}
           trend="up"
           trendValue="FCFA"
-          icon={TrendingUp}
+          icon={<TrendingUp className="h-5 w-5" />}
           variant="secondary"
         />
       </div>
