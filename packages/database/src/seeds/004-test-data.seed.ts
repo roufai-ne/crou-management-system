@@ -21,15 +21,15 @@
 import { DataSource } from 'typeorm';
 import { Tenant } from '../entities/Tenant.entity';
 import { User } from '../entities/User.entity';
-import { Budget } from '../entities/financial/Budget.entity';
-import { BudgetCategory } from '../entities/financial/BudgetCategory.entity';
-import { Transaction } from '../entities/financial/Transaction.entity';
-import { Stock } from '../entities/stocks/Stock.entity';
-import { StockMovement } from '../entities/stocks/StockMovement.entity';
-import { Supplier } from '../entities/stocks/Supplier.entity';
-import { Housing } from '../entities/housing/Housing.entity';
-import { Room } from '../entities/housing/Room.entity';
-import { Vehicle } from '../entities/transport/Vehicle.entity';
+import { Budget } from '../entities/Budget.entity';
+import { BudgetCategory } from '../entities/BudgetCategory.entity';
+import { Transaction } from '../entities/Transaction.entity';
+import { Stock } from '../entities/Stock.entity';
+import { StockMovement } from '../entities/StockMovement.entity';
+import { Supplier } from '../entities/Supplier.entity';
+import { Housing } from '../entities/Housing.entity';
+import { Room } from '../entities/Room.entity';
+import { Vehicle } from '../entities/Vehicle.entity';
 
 export const seedTestData = async (dataSource: DataSource): Promise<void> => {
   // Vérifier l'environnement
