@@ -1,13 +1,13 @@
 /**
- * FICHIER: packages/database/src/config/datasource-migration.js
+ * FICHIER: packages/database/src/config/datasource-migration.cjs
  * CONFIG: DataSource pour migrations TypeORM (CommonJS)
  *
  * DESCRIPTION:
  * Configuration compatible avec la CLI TypeORM
- * Fichier JavaScript pour éviter les problèmes d'imports ESM
+ * Extension .cjs pour forcer CommonJS dans un projet ESM (type: "module")
  *
  * AUTEUR: Équipe CROU
- * DATE: Octobre 2025
+ * DATE: Octobre 2025, mis à jour Janvier 2025
  */
 
 const { DataSource } = require('typeorm');

@@ -12,7 +12,7 @@
 #### Configuration
 1. **Fichiers créés**:
    - `packages/database/src/config/datasource.ts` - DataSource pour l'application
-   - `packages/database/src/config/datasource-migration.js` - DataSource pour la CLI TypeORM (CommonJS)
+   - `packages/database/src/config/datasource-migration.cjs` - DataSource pour la CLI TypeORM (CommonJS)
 
 2. **Configuration tsconfig.json mis à jour**:
    ```json
@@ -37,10 +37,10 @@
 3. **Scripts ajoutés dans package.json**:
    ```json
    {
-     "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/config/datasource-migration.js",
-     "migration:run": "typeorm-ts-node-commonjs migration:run -d src/config/datasource-migration.js",
-     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/config/datasource-migration.js",
-     "migration:show": "typeorm-ts-node-commonjs migration:show -d src/config/datasource-migration.js",
+     "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/config/datasource-migration.cjs",
+     "migration:run": "typeorm-ts-node-commonjs migration:run -d src/config/datasource-migration.cjs",
+     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/config/datasource-migration.cjs",
+     "migration:show": "typeorm-ts-node-commonjs migration:show -d src/config/datasource-migration.cjs",
      "migration:create": "typeorm-ts-node-commonjs migration:create"
    }
    ```
