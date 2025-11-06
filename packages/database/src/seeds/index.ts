@@ -21,6 +21,8 @@
  */
 
 import { DataSource } from 'typeorm';
+import { fileURLToPath } from 'url';
+import { pathToFileURL } from 'url';
 import { seedTenants } from './001-tenants.seed';
 import { seedRolesAndPermissions } from './002-roles-permissions.seed';
 import { seedUsers } from './003-users.seed';
@@ -125,7 +127,10 @@ export const runSeedsFromCLI = async (): Promise<void> => {
   }
 };
 
-// Exécution si appelé directement
-if (require.main === module) {
+// Exécution si appelé directement depuis CLI
+// En ESM, on détecte l'exécution directe via import.meta.url
+const isMainModule = import.meta.url === pathToFileURL(process.argv[1]).href;
+
+if (isMainModule) {
   runSeedsFromCLI();
 }
