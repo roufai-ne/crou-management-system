@@ -31,18 +31,21 @@ const AppDataSource = new DataSource({
   // SSL
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
 
-  // Entités - Chemin vers les fichiers TypeScript
+  // Entités - Chemin vers les fichiers TypeScript (pattern récursif)
   entities: [
+    path.join(__dirname, '../entities/**/*.entity.ts'),
     path.join(__dirname, '../entities/*.entity.ts')
   ],
 
   // Migrations
   migrations: [
+    path.join(__dirname, '../migrations/**/*.ts'),
     path.join(__dirname, '../migrations/*.ts')
   ],
 
   // Subscribers
   subscribers: [
+    path.join(__dirname, '../subscribers/**/*.ts'),
     path.join(__dirname, '../subscribers/*.ts')
   ],
 
