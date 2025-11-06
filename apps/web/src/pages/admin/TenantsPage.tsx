@@ -1109,42 +1109,251 @@ const TenantConfigModal: React.FC<{
   onClose: () => void;
   onSave: () => void;
 }> = ({ isOpen, tenant, onClose, onSave }) => {
+  const [config, setConfig] = useState({
+    allowedModules: tenant.config.allowedModules,
+    dataRetentionDays: tenant.config.dataRetentionDays,
+    customSettings: tenant.config.customSettings
+  });
+  const [saving, setSaving] = useState(false);
+
+  const toggleModule = (moduleKey: string) => {
+    // Dashboard est toujours requis
+    const module = availableModules.find(m => m.key === moduleKey);
+    if (module?.required) return;
+
+    setConfig(prev => ({
+      ...prev,
+      allowedModules: prev.allowedModules.includes(moduleKey)
+        ? prev.allowedModules.filter(m => m !== moduleKey)
+        : [...prev.allowedModules, moduleKey]
+    }));
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      // Préparer les données de configuration
+      const updateData = {
+        config: {
+          features: config.allowedModules.reduce((acc, module) => ({
+            ...acc,
+            [module]: true
+          }), {} as Record<string, boolean>),
+          settings: {
+            ...config.customSettings,
+            dataRetentionDays: config.dataRetentionDays
+          }
+        }
+      };
+
+      await adminService.updateTenant(tenant.id, updateData);
+
+      Toast.success('Configuration mise à jour avec succès');
+      onSave();
+    } catch (error: any) {
+      Toast.error(error.message || 'Erreur lors de la sauvegarde');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <div className="p-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
           Configuration : {tenant.name}
         </h3>
-        
+
         <div className="space-y-6">
-          <p className="text-gray-600 dark:text-gray-400">
-            Interface de configuration à implémenter...
-          </p>
-          
-          {/* TODO: Implémenter l'interface de configuration */}
-          <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-            <h4 className="font-medium text-gray-900 dark:text-white mb-2">
-              Modules Actuels
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {tenant.config.allowedModules.map((moduleKey) => {
-                const module = availableModules.find(m => m.key === moduleKey);
-                return (
-                  <Badge key={moduleKey} variant="secondary">
-                    {module?.name || moduleKey}
-                  </Badge>
-                );
-              })}
+          {/* Modules autorisés */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+              Modules Autorisés
+            </label>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+              Sélectionnez les modules accessibles pour ce tenant
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {availableModules.map((module) => (
+                <label
+                  key={module.key}
+                  className={`
+                    flex items-start p-3 border rounded-lg cursor-pointer transition-colors
+                    ${config.allowedModules.includes(module.key)
+                      ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                      : 'border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    }
+                    ${module.required ? 'opacity-50 cursor-not-allowed' : ''}
+                  `}
+                >
+                  <input
+                    type="checkbox"
+                    checked={config.allowedModules.includes(module.key)}
+                    onChange={() => toggleModule(module.key)}
+                    disabled={module.required}
+                    className="mt-0.5 mr-3"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center">
+                      <module.icon className="h-4 w-4 mr-2" />
+                      <span className="font-medium text-sm text-gray-900 dark:text-white">
+                        {module.name}
+                      </span>
+                      {module.required && (
+                        <Badge variant="primary" className="ml-2 text-xs">Requis</Badge>
+                      )}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      {module.description}
+                    </div>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Rétention des données */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Rétention des données (jours)
+            </label>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+              Durée de conservation des données avant archivage automatique
+            </p>
+            <select
+              value={config.dataRetentionDays}
+              onChange={(e) => setConfig({ ...config, dataRetentionDays: parseInt(e.target.value) })}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            >
+              <option value={365}>1 an (365 jours)</option>
+              <option value={730}>2 ans (730 jours)</option>
+              <option value={1095}>3 ans (1095 jours) - Recommandé</option>
+              <option value={1825}>5 ans (1825 jours)</option>
+              <option value={2555}>7 ans (2555 jours) - Légal</option>
+            </select>
+          </div>
+
+          {/* Paramètres spécifiques CROU */}
+          {tenant.type === 'crou' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Paramètres spécifiques CROU
+              </label>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+                    Capacité d'accueil étudiants
+                  </label>
+                  <input
+                    type="number"
+                    value={config.customSettings.studentCapacity || 0}
+                    onChange={(e) => setConfig({
+                      ...config,
+                      customSettings: {
+                        ...config.customSettings,
+                        studentCapacity: parseInt(e.target.value) || 0
+                      }
+                    })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                    placeholder="Ex: 15000"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+                    Capacité logement
+                  </label>
+                  <input
+                    type="number"
+                    value={config.customSettings.housingCapacity || 0}
+                    onChange={(e) => setConfig({
+                      ...config,
+                      customSettings: {
+                        ...config.customSettings,
+                        housingCapacity: parseInt(e.target.value) || 0
+                      }
+                    })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                    placeholder="Ex: 3000"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Paramètres spécifiques Ministère */}
+          {tenant.type === 'ministere' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Paramètres niveau Ministère
+              </label>
+              <div className="space-y-3">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={config.customSettings.canAccessAllTenants || false}
+                    onChange={(e) => setConfig({
+                      ...config,
+                      customSettings: {
+                        ...config.customSettings,
+                        canAccessAllTenants: e.target.checked
+                      }
+                    })}
+                    className="mr-2"
+                  />
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    Accès en lecture à tous les CROUs
+                  </span>
+                </label>
+                <div>
+                  <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+                    Niveau de reporting
+                  </label>
+                  <select
+                    value={config.customSettings.reportingLevel || 'national'}
+                    onChange={(e) => setConfig({
+                      ...config,
+                      customSettings: {
+                        ...config.customSettings,
+                        reportingLevel: e.target.value
+                      }
+                    })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  >
+                    <option value="national">National (tous CROUs)</option>
+                    <option value="regional">Régional (par région)</option>
+                    <option value="individual">Individuel (par CROU)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Résumé */}
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <div className="flex items-start">
+              <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 mr-2" />
+              <div className="flex-1">
+                <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+                  Résumé de la configuration
+                </h4>
+                <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
+                  <li>• {config.allowedModules.length} modules activés</li>
+                  <li>• Rétention: {Math.floor(config.dataRetentionDays / 365)} an(s)</li>
+                  {tenant.type === 'crou' && config.customSettings.studentCapacity && (
+                    <li>• Capacité: {config.customSettings.studentCapacity.toLocaleString()} étudiants</li>
+                  )}
+                </ul>
+              </div>
             </div>
           </div>
         </div>
-        
+
         <div className="flex justify-end space-x-3 mt-6">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} disabled={saving}>
             Annuler
           </Button>
-          <Button onClick={onSave}>
-            Sauvegarder
+          <Button onClick={handleSave} disabled={saving}>
+            {saving ? 'Sauvegarde en cours...' : 'Sauvegarder'}
           </Button>
         </div>
       </div>

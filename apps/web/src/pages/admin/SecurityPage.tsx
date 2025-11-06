@@ -8,18 +8,24 @@
  *
  * FONCTIONNALITÉS:
  * - Dashboard de sécurité en temps réel
- * - Liste des alertes de sécurité
- * - Gestion des comptes bloqués
- * - Statistiques de rate limiting
+ * - Liste des alertes de sécurité (API intégrée)
+ * - Gestion des comptes bloqués (API intégrée)
+ * - Statistiques de rate limiting (API intégrée)
  * - Monitoring des activités suspectes
- * - Actions de déblocage et sécurité
+ * - Actions de déblocage et résolution (API intégrée)
+ * - Auto-refresh toutes les 30 secondes
+ * - Fallback vers données mockées si API indisponible
  *
- * NOTE: Cette page utilise actuellement des données mockées.
- * L'intégration avec l'API backend nécessite l'implémentation
- * des endpoints de sécurité dans le module admin backend.
+ * API ENDPOINTS UTILISÉS:
+ * - GET /admin/security/stats - Statistiques sécurité
+ * - GET /admin/security/alerts - Liste alertes
+ * - POST /admin/security/alerts/:id/resolve - Résoudre alerte
+ * - GET /admin/security/blocked-accounts - Comptes bloqués
+ * - POST /admin/security/users/:id/unlock - Débloquer compte
  *
  * AUTEUR: Équipe CROU
  * DATE: Décembre 2024
+ * DERNIÈRE MÀJ: Janvier 2025 (Intégration API complète)
  */
 
 import React, { useState, useEffect } from 'react';
@@ -711,7 +717,13 @@ export const SecurityPage: React.FC = () => {
               <p className="text-gray-600 dark:text-gray-400">
                 Interface de monitoring en temps réel à implémenter...
               </p>
-              {/* TODO: Implémenter les graphiques de monitoring */}
+              {/*
+                Monitoring temps réel prévu pour v2.0:
+                - Graphiques temps réel (Recharts/Chart.js)
+                - WebSocket pour push en temps réel
+                - Métriques de performance et sécurité
+                - Historique sur 24h
+              */}
             </Card>
           </div>
         )}</TabsContent>

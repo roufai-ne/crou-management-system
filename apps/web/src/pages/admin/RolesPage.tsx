@@ -506,18 +506,24 @@ const PermissionsMatrix: React.FC<{ roles: Role[] }> = ({ roles }) => {
                             </Badge>
                           </div>
                         </td>
-                        {roles.map(role => (
-                          <td key={role.id} className="py-2 px-4 text-center">
-                            {/* TODO: Vérifier si le rôle a cette permission */}
-                            <div className="flex justify-center">
-                              {Math.random() > 0.5 ? (
-                                <Check className="h-4 w-4 text-green-500" />
-                              ) : (
-                                <X className="h-4 w-4 text-gray-300" />
-                              )}
-                            </div>
-                          </td>
-                        ))}
+                        {roles.map(role => {
+                          // Vérifier si le rôle a cette permission
+                          const hasPermission = role.permissions.some(perm =>
+                            perm.resource === resource.key && perm.actions.includes(action)
+                          );
+
+                          return (
+                            <td key={role.id} className="py-2 px-4 text-center">
+                              <div className="flex justify-center">
+                                {hasPermission ? (
+                                  <Check className="h-4 w-4 text-green-500" />
+                                ) : (
+                                  <X className="h-4 w-4 text-gray-300" />
+                                )}
+                              </div>
+                            </td>
+                          );
+                        })}
                       </tr>
                     ))
                   )}

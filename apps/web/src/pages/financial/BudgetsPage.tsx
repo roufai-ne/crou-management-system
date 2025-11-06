@@ -94,6 +94,34 @@ export const BudgetsPage: React.FC = () => {
     }
   };
 
+  // Export des budgets
+  const handleExportBudgets = () => {
+    const exportData = budgets.map(b => ({
+      Titre: b.title,
+      Catégorie: b.category,
+      'Exercice Fiscal': b.fiscalYear,
+      'Montant Alloué': `${b.amount.toLocaleString('fr-FR')} XOF`,
+      'Montant Dépensé': `${b.spent.toLocaleString('fr-FR')} XOF`,
+      'Montant Disponible': `${(b.amount - b.spent).toLocaleString('fr-FR')} XOF`,
+      'Taux Utilisation': `${Math.round((b.spent / b.amount) * 100)}%`,
+      Statut: b.status,
+      'Date Début': new Date(b.startDate).toLocaleDateString('fr-FR'),
+      'Date Fin': new Date(b.endDate).toLocaleDateString('fr-FR')
+    }));
+
+    const headers = Object.keys(exportData[0] || {});
+    const csvContent = [
+      headers.join(';'),
+      ...exportData.map(row => headers.map(h => row[h as keyof typeof row] || '').join(';'))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `budgets_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+  };
+
   // Colonnes du tableau
   const columns = [
     {
@@ -240,7 +268,7 @@ export const BudgetsPage: React.FC = () => {
             <Button
               variant="outline"
               leftIcon={<DocumentArrowDownIcon className="h-4 w-4" />}
-              onClick={() => {/* TODO: Export */}}
+              onClick={handleExportBudgets}
             >
               Exporter
             </Button>

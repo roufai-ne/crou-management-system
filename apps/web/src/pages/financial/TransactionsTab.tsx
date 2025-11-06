@@ -284,8 +284,31 @@ export function TransactionsTab() {
 
   // Exporter les transactions
   const handleExport = () => {
-    // TODO: Implémenter l'export
-    alert('Fonction d\'export à implémenter');
+    // Préparer les données pour l'export
+    const exportData = transactions.map(t => ({
+      Date: new Date(t.createdAt).toLocaleDateString('fr-FR'),
+      Référence: t.reference,
+      Type: t.type.toUpperCase(),
+      Catégorie: t.category || '-',
+      Montant: `${t.amount.toLocaleString('fr-FR')} ${t.currency}`,
+      Bénéficiaire: t.beneficiary || '-',
+      Statut: t.status,
+      Description: t.description || ''
+    }));
+
+    // Créer CSV
+    const headers = Object.keys(exportData[0] || {});
+    const csvContent = [
+      headers.join(';'),
+      ...exportData.map(row => headers.map(h => row[h as keyof typeof row] || '').join(';'))
+    ].join('\n');
+
+    // Télécharger
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `transactions_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
   };
 
   // Calculer les statistiques locales
