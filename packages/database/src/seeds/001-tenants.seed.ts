@@ -35,6 +35,10 @@ export const seedTenants = async (dataSource: DataSource): Promise<void> => {
     // contactPhone: '+227 20 73 31 29',
     // address: 'Avenue du Général de Gaulle, Niamey',
     isActive: true,
+    // Hiérarchie: Niveau 0 (racine)
+    parentId: null,
+    path: 'MINISTERE',
+    level: 0,
     config: {
       canManageAllCROUs: true,
       hasGlobalAccess: true,
@@ -53,6 +57,7 @@ export const seedTenants = async (dataSource: DataSource): Promise<void> => {
     code: 'CROU_NIAMEY',
     name: 'CROU Niamey',
     type: TenantType.CROU,
+    region: 'Niamey',
     // contactEmail: 'contact@crou-niamey.ne',
     // contactPhone: '+227 20 73 42 15',
     // address: 'Campus Universitaire Abdou Moumouni, Niamey',
@@ -80,6 +85,7 @@ export const seedTenants = async (dataSource: DataSource): Promise<void> => {
     code: 'CROU_MARADI',
     name: 'CROU Maradi',
     type: TenantType.CROU,
+    region: 'Maradi',
     // contactEmail: 'contact@crou-maradi.ne',
     // contactPhone: '+227 20 41 02 34',
     // address: 'Université de Maradi, Maradi',
@@ -105,6 +111,7 @@ export const seedTenants = async (dataSource: DataSource): Promise<void> => {
     code: 'CROU_ZINDER',
     name: 'CROU Zinder',
     type: TenantType.CROU,
+    region: 'Zinder',
     // contactEmail: 'contact@crou-zinder.ne',
     // contactPhone: '+227 20 51 03 45',
     // address: 'Université de Zinder, Zinder',
@@ -129,6 +136,7 @@ export const seedTenants = async (dataSource: DataSource): Promise<void> => {
     code: 'CROU_TAHOUA',
     name: 'CROU Tahoua',
     type: TenantType.CROU,
+    region: 'Tahoua',
     // contactEmail: 'contact@crou-tahoua.ne',
     // contactPhone: '+227 20 61 04 56',
     // address: 'Université de Tahoua, Tahoua',
@@ -153,6 +161,7 @@ export const seedTenants = async (dataSource: DataSource): Promise<void> => {
     code: 'CROU_AGADEZ',
     name: 'CROU Agadez',
     type: TenantType.CROU,
+    region: 'Agadez',
     // contactEmail: 'contact@crou-agadez.ne',
     // contactPhone: '+227 20 44 05 67',
     // address: 'Université d\'Agadez, Agadez',
@@ -177,6 +186,7 @@ export const seedTenants = async (dataSource: DataSource): Promise<void> => {
     code: 'CROU_DOSSO',
     name: 'CROU Dosso',
     type: TenantType.CROU,
+    region: 'Dosso',
     // contactEmail: 'contact@crou-dosso.ne',
     // contactPhone: '+227 20 65 06 78',
     // address: 'Université de Dosso, Dosso',
@@ -201,6 +211,7 @@ export const seedTenants = async (dataSource: DataSource): Promise<void> => {
     code: 'CROU_DIFFA',
     name: 'CROU Diffa',
     type: TenantType.CROU,
+    region: 'Diffa',
     // contactEmail: 'contact@crou-diffa.ne',
     // contactPhone: '+227 20 53 07 89',
     // address: 'Université de Diffa, Diffa',
@@ -225,6 +236,7 @@ export const seedTenants = async (dataSource: DataSource): Promise<void> => {
     code: 'CROU_TILLABERY',
     name: 'CROU Tillabéry',
     type: TenantType.CROU,
+    region: 'Tillabéry',
     // contactEmail: 'contact@crou-tillabery.ne',
     // contactPhone: '+227 20 71 08 90',
     // address: 'Université de Tillabéry, Tillabéry',
@@ -244,9 +256,44 @@ export const seedTenants = async (dataSource: DataSource): Promise<void> => {
     }
   });
 
-  // Enregistrer tous les tenants
+  // Enregistrer d'abord le Ministère pour obtenir son ID
+  const savedMinistere = await tenantRepository.save(ministere);
+
+  // Maintenant, définir le parentId pour tous les CROU
+  crouNiamey.parentId = savedMinistere.id;
+  crouNiamey.path = `${savedMinistere.path}/${crouNiamey.code}`;
+  crouNiamey.level = 1;
+
+  crouMaradi.parentId = savedMinistere.id;
+  crouMaradi.path = `${savedMinistere.path}/${crouMaradi.code}`;
+  crouMaradi.level = 1;
+
+  crouZinder.parentId = savedMinistere.id;
+  crouZinder.path = `${savedMinistere.path}/${crouZinder.code}`;
+  crouZinder.level = 1;
+
+  crouTahoua.parentId = savedMinistere.id;
+  crouTahoua.path = `${savedMinistere.path}/${crouTahoua.code}`;
+  crouTahoua.level = 1;
+
+  crouAgadez.parentId = savedMinistere.id;
+  crouAgadez.path = `${savedMinistere.path}/${crouAgadez.code}`;
+  crouAgadez.level = 1;
+
+  crouDosso.parentId = savedMinistere.id;
+  crouDosso.path = `${savedMinistere.path}/${crouDosso.code}`;
+  crouDosso.level = 1;
+
+  crouDiffa.parentId = savedMinistere.id;
+  crouDiffa.path = `${savedMinistere.path}/${crouDiffa.code}`;
+  crouDiffa.level = 1;
+
+  crouTillabery.parentId = savedMinistere.id;
+  crouTillabery.path = `${savedMinistere.path}/${crouTillabery.code}`;
+  crouTillabery.level = 1;
+
+  // Enregistrer tous les CROU
   await tenantRepository.save([
-    ministere,
     crouNiamey,
     crouMaradi,
     crouZinder,

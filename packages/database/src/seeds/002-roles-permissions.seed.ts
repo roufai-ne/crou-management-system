@@ -56,58 +56,58 @@ export const seedRolesAndPermissions = async (dataSource: DataSource): Promise<v
 
   // --- Module Admin - Users ---
   const adminUsersRead = await permissionRepository.save({
-    resource: 'admin:users',
+    resource: 'users',
     actions: ['read'],
     description: 'Consulter les utilisateurs'
   });
 
   const adminUsersWrite = await permissionRepository.save({
-    resource: 'admin:users',
+    resource: 'users',
     actions: ['create', 'update'],
     description: 'Créer/Modifier les utilisateurs'
   });
 
   const adminUsersDelete = await permissionRepository.save({
-    resource: 'admin:users',
+    resource: 'users',
     actions: ['delete'],
     description: 'Supprimer les utilisateurs'
   });
 
   // --- Module Admin - Roles ---
   const adminRolesRead = await permissionRepository.save({
-    resource: 'admin:roles',
+    resource: 'admin',
     actions: ['read'],
     description: 'Consulter les rôles'
   });
 
   const adminRolesWrite = await permissionRepository.save({
-    resource: 'admin:roles',
+    resource: 'admin',
     actions: ['create', 'update'],
     description: 'Créer/Modifier les rôles'
   });
 
   // --- Module Admin - Tenants ---
   const adminTenantsRead = await permissionRepository.save({
-    resource: 'admin:tenants',
+    resource: 'tenants',
     actions: ['read'],
     description: 'Consulter les organisations'
   });
 
   const adminTenantsWrite = await permissionRepository.save({
-    resource: 'admin:tenants',
+    resource: 'tenants',
     actions: ['create', 'update'],
     description: 'Créer/Modifier les organisations'
   });
 
   // --- Module Admin - Security & Audit ---
   const adminSecurityRead = await permissionRepository.save({
-    resource: 'admin:security',
+    resource: 'admin',
     actions: ['read'],
     description: 'Consulter les alertes de sécurité'
   });
 
   const adminAuditRead = await permissionRepository.save({
-    resource: 'admin:audit',
+    resource: 'audit',
     actions: ['read'],
     description: 'Consulter les logs d\'audit'
   });
@@ -163,13 +163,13 @@ export const seedRolesAndPermissions = async (dataSource: DataSource): Promise<v
   });
 
   const stocksMovements = await permissionRepository.save({
-    resource: 'stocks:movements',
+    resource: 'stocks',
     actions: ['create', 'update', 'read'],
     description: 'Gérer les mouvements de stocks'
   });
 
   const stocksSuppliers = await permissionRepository.save({
-    resource: 'stocks:suppliers',
+    resource: 'stocks',
     actions: ['create', 'update', 'read'],
     description: 'Gérer les fournisseurs'
   });
@@ -194,13 +194,13 @@ export const seedRolesAndPermissions = async (dataSource: DataSource): Promise<v
   });
 
   const housingOccupancy = await permissionRepository.save({
-    resource: 'housing:occupancy',
+    resource: 'housing',
     actions: ['create', 'update', 'read'],
     description: 'Gérer les occupations'
   });
 
   const housingMaintenance = await permissionRepository.save({
-    resource: 'housing:maintenance',
+    resource: 'housing',
     actions: ['create', 'update', 'read'],
     description: 'Gérer la maintenance'
   });
@@ -225,13 +225,13 @@ export const seedRolesAndPermissions = async (dataSource: DataSource): Promise<v
   });
 
   const transportUsage = await permissionRepository.save({
-    resource: 'transport:usage',
+    resource: 'transport',
     actions: ['create', 'update', 'read'],
     description: 'Gérer les utilisations'
   });
 
   const transportMaintenance = await permissionRepository.save({
-    resource: 'transport:maintenance',
+    resource: 'transport',
     actions: ['create', 'update', 'read'],
     description: 'Gérer la maintenance des véhicules'
   });
@@ -257,32 +257,32 @@ export const seedRolesAndPermissions = async (dataSource: DataSource): Promise<v
 
   // --- Module Workflows ---
   const workflowsRead = await permissionRepository.save({
-    resource: 'workflows',
+    resource: 'admin',
     actions: ['read'],
     description: 'Consulter les workflows'
   });
 
   const workflowsWrite = await permissionRepository.save({
-    resource: 'workflows',
+    resource: 'admin',
     actions: ['create', 'update'],
     description: 'Créer/Modifier les workflows'
   });
 
   const workflowsApprove = await permissionRepository.save({
-    resource: 'workflows',
+    resource: 'admin',
     actions: ['approve'],
     description: 'Approuver les workflows'
   });
 
   // --- Module Notifications ---
   const notificationsRead = await permissionRepository.save({
-    resource: 'notifications',
+    resource: 'admin',
     actions: ['read'],
     description: 'Consulter les notifications'
   });
 
   const notificationsWrite = await permissionRepository.save({
-    resource: 'notifications',
+    resource: 'admin',
     actions: ['create', 'update'],
     description: 'Créer des notifications'
   });
