@@ -6,7 +6,7 @@ import {
   CalendarIcon,
   ChartBarIcon,
   PlusIcon,
-  PencilIcon
+  PencilIcon, EyeIcon
 } from '@heroicons/react/24/outline';
 import { useQuickReports } from '@/hooks/useReports';
 
