@@ -21,15 +21,16 @@
 import { DataSource } from 'typeorm';
 import { Tenant } from '../entities/Tenant.entity';
 import { User } from '../entities/User.entity';
-import { Budget } from '../entities/Budget.entity';
+import { Budget, BudgetType, BudgetStatus } from '../entities/Budget.entity';
 import { BudgetCategory } from '../entities/BudgetCategory.entity';
-import { Transaction } from '../entities/Transaction.entity';
-import { Stock } from '../entities/Stock.entity';
-import { StockMovement } from '../entities/StockMovement.entity';
-import { Supplier } from '../entities/Supplier.entity';
-import { Housing } from '../entities/Housing.entity';
-import { Room } from '../entities/Room.entity';
-import { Vehicle } from '../entities/Vehicle.entity';
+import { BudgetCategoryType } from '../enums/budget.enum';
+import { Transaction, TransactionType, TransactionCategory, TransactionStatus } from '../entities/Transaction.entity';
+import { Stock, StockType, StockCategory, StockUnit, StockStatus } from '../entities/Stock.entity';
+import { StockMovement, MovementType, MovementReason } from '../entities/StockMovement.entity';
+import { Supplier, SupplierType, SupplierStatus } from '../entities/Supplier.entity';
+import { Housing, HousingType, HousingCategory, HousingStatus } from '../entities/Housing.entity';
+import { Room, RoomType, RoomStatus } from '../entities/Room.entity';
+import { Vehicle, VehicleType, VehicleStatus, FuelType } from '../entities/Vehicle.entity';
 
 export const seedTestData = async (dataSource: DataSource): Promise<void> => {
   // Vérifier l'environnement
@@ -86,46 +87,70 @@ export const seedTestData = async (dataSource: DataSource): Promise<void> => {
   // ===================================
   console.log('💰 Création des budgets de test...');
 
-  const categories = await budgetCategoryRepository.save([
-    budgetCategoryRepository.create({
-      code: 'PERSONNEL',
-      name: 'Personnel et Salaires',
-      type: 'PERSONNEL',
-      description: 'Rémunérations et charges sociales',
-      isActive: true,
-      tenantId: crouNiamey.id
-    }),
-    budgetCategoryRepository.create({
-      code: 'FONCTIONNEMENT',
-      name: 'Fonctionnement',
-      type: 'FONCTIONNEMENT',
-      description: 'Dépenses courantes',
-      isActive: true,
-      tenantId: crouNiamey.id
-    }),
-    budgetCategoryRepository.create({
-      code: 'INVESTISSEMENT',
-      name: 'Investissement',
-      type: 'INVESTISSEMENT',
-      description: 'Équipements et infrastructures',
-      isActive: true,
-      tenantId: crouNiamey.id
-    })
-  ]);
-
   const budget2025 = await budgetRepository.save(
     budgetRepository.create({
-      year: 2025,
-      totalAmount: 500000000, // 500 millions XOF
-      allocatedAmount: 300000000,
-      committedAmount: 150000000,
-      executedAmount: 100000000,
-      status: 'APPROVED',
       tenantId: crouNiamey.id,
+      exercice: 2025,
+      type: BudgetType.CROU,
+      libelle: 'Budget CROU Niamey 2025',
+      description: 'Budget annuel du CROU de Niamey pour l\'exercice 2025',
+      montantInitial: 500000000, // 500 millions XOF
+      montantRealise: 100000000,
+      montantEngage: 150000000,
+      montantDisponible: 250000000,
+      tauxExecution: 20,
+      status: BudgetStatus.ACTIVE,
+      validationLevel: 2,
+      createdBy: directeur.id,
       approvedBy: directeur.id,
       approvedAt: new Date()
     })
   );
+
+  await budgetCategoryRepository.save([
+    budgetCategoryRepository.create({
+      budgetId: budget2025.id,
+      libelle: 'Personnel et Salaires',
+      type: BudgetCategoryType.PERSONNEL,
+      description: 'Rémunérations et charges sociales',
+      code: 'PERS',
+      montantAlloue: 200000000,
+      montantRealise: 50000000,
+      montantEngage: 50000000,
+      montantDisponible: 100000000,
+      tauxExecution: 25,
+      isActive: true,
+      createdBy: directeur.id
+    }),
+    budgetCategoryRepository.create({
+      budgetId: budget2025.id,
+      libelle: 'Fonctionnement',
+      type: BudgetCategoryType.FONCTIONNEMENT,
+      description: 'Dépenses courantes',
+      code: 'FONC',
+      montantAlloue: 150000000,
+      montantRealise: 30000000,
+      montantEngage: 50000000,
+      montantDisponible: 70000000,
+      tauxExecution: 20,
+      isActive: true,
+      createdBy: directeur.id
+    }),
+    budgetCategoryRepository.create({
+      budgetId: budget2025.id,
+      libelle: 'Investissement',
+      type: BudgetCategoryType.INVESTISSEMENT,
+      description: 'Équipements et infrastructures',
+      code: 'INVT',
+      montantAlloue: 150000000,
+      montantRealise: 20000000,
+      montantEngage: 50000000,
+      montantDisponible: 80000000,
+      tauxExecution: 13.33,
+      isActive: true,
+      createdBy: directeur.id
+    })
+  ]);
 
   console.log('✅ Budgets créés: 1 budget avec 3 catégories');
 
@@ -136,37 +161,67 @@ export const seedTestData = async (dataSource: DataSource): Promise<void> => {
 
   await transactionRepository.save([
     transactionRepository.create({
+      tenantId: crouNiamey.id,
+      budgetId: budget2025.id,
+      libelle: 'Salaires du personnel - Janvier 2025',
+      description: 'Paiement des salaires mensuels',
+      type: TransactionType.DEPENSE,
+      category: TransactionCategory.SALAIRES,
+      status: TransactionStatus.EXECUTED,
+      montant: 15000000,
+      devise: 'XOF',
+      numeroPiece: 'SAL-2025-001',
       reference: 'TRX-2025-001',
-      type: 'EXPENSE',
-      amount: 15000000,
-      category: 'PERSONNEL',
-      description: 'Salaires du personnel - Janvier 2025',
-      status: 'COMPLETED',
+      beneficiaire: 'Personnel CROU Niamey',
+      modePaiement: 'Virement bancaire',
       date: new Date('2025-01-05'),
-      tenantId: crouNiamey.id,
-      createdBy: directeur.id
+      dateExecution: new Date('2025-01-05'),
+      validationLevel: 2,
+      createdBy: directeur.id,
+      approvedBy: directeur.id,
+      approvedAt: new Date('2025-01-05')
     }),
     transactionRepository.create({
+      tenantId: crouNiamey.id,
+      budgetId: budget2025.id,
+      libelle: 'Fournitures de bureau',
+      description: 'Achat de fournitures administratives',
+      type: TransactionType.DEPENSE,
+      category: TransactionCategory.FOURNITURES,
+      status: TransactionStatus.EXECUTED,
+      montant: 5000000,
+      devise: 'XOF',
+      numeroPiece: 'FOUR-2025-001',
       reference: 'TRX-2025-002',
-      type: 'EXPENSE',
-      amount: 5000000,
-      category: 'FONCTIONNEMENT',
-      description: 'Fournitures de bureau',
-      status: 'COMPLETED',
+      beneficiaire: 'Société SAHEL APPRO',
+      modePaiement: 'Chèque',
       date: new Date('2025-01-10'),
-      tenantId: crouNiamey.id,
-      createdBy: directeur.id
+      dateExecution: new Date('2025-01-12'),
+      validationLevel: 1,
+      createdBy: directeur.id,
+      approvedBy: directeur.id,
+      approvedAt: new Date('2025-01-10')
     }),
     transactionRepository.create({
-      reference: 'TRX-2025-003',
-      type: 'INCOME',
-      amount: 50000000,
-      category: 'SUBVENTION',
-      description: 'Subvention gouvernementale Q1 2025',
-      status: 'COMPLETED',
-      date: new Date('2025-01-15'),
       tenantId: crouNiamey.id,
-      createdBy: directeur.id
+      budgetId: budget2025.id,
+      libelle: 'Subvention gouvernementale Q1 2025',
+      description: 'Transfert trimestriel du Ministère',
+      type: TransactionType.RECETTE,
+      category: TransactionCategory.SUBVENTIONS,
+      status: TransactionStatus.EXECUTED,
+      montant: 50000000,
+      devise: 'XOF',
+      numeroPiece: 'SUB-2025-Q1',
+      reference: 'TRX-2025-003',
+      beneficiaire: 'CROU Niamey',
+      modePaiement: 'Virement bancaire',
+      date: new Date('2025-01-15'),
+      dateExecution: new Date('2025-01-15'),
+      validationLevel: 2,
+      createdBy: directeur.id,
+      approvedBy: directeur.id,
+      approvedAt: new Date('2025-01-15')
     })
   ]);
 
@@ -179,74 +234,142 @@ export const seedTestData = async (dataSource: DataSource): Promise<void> => {
 
   const fournisseur1 = await supplierRepository.save(
     supplierRepository.create({
+      tenantId: crouNiamey.id,
       code: 'FOUR-001',
       nom: 'Société SAHELIENNE APPROVISIONNEMENT',
       nomCommercial: 'SAHEL APPRO',
-      type: 'FOURNISSEUR',
-      status: 'ACTIF',
+      type: SupplierType.FOURNISSEUR,
+      status: SupplierStatus.ACTIF,
+      description: 'Fournisseur principal de denrées alimentaires',
       telephone: '+227 20 73 45 67',
       email: 'contact@sahel-appro.ne',
       adresse: 'Rue de la Tapoa, Niamey',
       ville: 'Niamey',
+      region: 'Niamey',
+      pays: 'Niger',
+      contactPrincipal: 'Amadou Diallo',
+      emailContact: 'a.diallo@sahel-appro.ne',
+      telephoneContact: '+227 90 12 34 56',
+      delaiPaiement: 30,
+      devise: 'XOF',
+      isActif: true,
       isPreference: true,
-      tenantId: crouNiamey.id
+      createdBy: directeur.id
     })
   );
 
   const stocks = await stockRepository.save([
     stockRepository.create({
+      tenantId: crouNiamey.id,
       code: 'STK-RIZ-001',
-      name: 'Riz Blanc 25kg',
-      category: 'ALIMENTATION',
-      quantity: 500,
-      unit: 'SAC',
-      minQuantity: 100,
-      unitPrice: 15000,
-      location: 'Magasin Central A',
-      tenantId: crouNiamey.id
+      libelle: 'Riz Blanc 25kg',
+      description: 'Riz blanc de qualité supérieure en sacs de 25kg',
+      type: StockType.CENTRALISE,
+      category: StockCategory.CEREALES,
+      unit: StockUnit.SAC,
+      status: StockStatus.ACTIF,
+      quantiteActuelle: 500,
+      quantiteReservee: 50,
+      quantiteDisponible: 450,
+      seuilMinimum: 100,
+      seuilMaximum: 1000,
+      prixUnitaire: 15000,
+      valeurStock: 7500000,
+      devise: 'XOF',
+      supplierId: fournisseur1.id,
+      fournisseur: fournisseur1.nom,
+      isPerissable: false,
+      isActif: true,
+      createdBy: directeur.id
     }),
     stockRepository.create({
+      tenantId: crouNiamey.id,
       code: 'STK-HUILE-001',
-      name: 'Huile Végétale 20L',
-      category: 'ALIMENTATION',
-      quantity: 200,
-      unit: 'BIDON',
-      minQuantity: 50,
-      unitPrice: 18000,
-      location: 'Magasin Central A',
-      tenantId: crouNiamey.id
+      libelle: 'Huile Végétale 20L',
+      description: 'Huile végétale en bidons de 20 litres',
+      type: StockType.CENTRALISE,
+      category: StockCategory.DENREES,
+      unit: StockUnit.LITRE,
+      status: StockStatus.ACTIF,
+      quantiteActuelle: 200,
+      quantiteReservee: 20,
+      quantiteDisponible: 180,
+      seuilMinimum: 50,
+      seuilMaximum: 500,
+      prixUnitaire: 18000,
+      valeurStock: 3600000,
+      devise: 'XOF',
+      supplierId: fournisseur1.id,
+      fournisseur: fournisseur1.nom,
+      isPerissable: false,
+      isActif: true,
+      createdBy: directeur.id
     }),
     stockRepository.create({
+      tenantId: crouNiamey.id,
       code: 'STK-BUR-001',
-      name: 'Papier A4 Ramette',
-      category: 'FOURNITURES',
-      quantity: 150,
-      unit: 'RAMETTE',
-      minQuantity: 30,
-      unitPrice: 2500,
-      location: 'Bureau Admin',
-      tenantId: crouNiamey.id
+      libelle: 'Papier A4 Ramette',
+      description: 'Ramettes de papier A4 blanc 80g',
+      type: StockType.LOCAL,
+      category: StockCategory.FOURNITURES,
+      unit: StockUnit.UNITE,
+      status: StockStatus.ACTIF,
+      quantiteActuelle: 150,
+      quantiteReservee: 10,
+      quantiteDisponible: 140,
+      seuilMinimum: 30,
+      seuilMaximum: 300,
+      prixUnitaire: 2500,
+      valeurStock: 375000,
+      devise: 'XOF',
+      isPerissable: false,
+      isActif: true,
+      createdBy: directeur.id
     })
   ]);
 
   await stockMovementRepository.save([
     stockMovementRepository.create({
       stockId: stocks[0].id,
-      type: 'ENTREE',
-      quantity: 500,
-      reference: 'ENT-2025-001',
-      reason: 'Réapprovisionnement initial',
       tenantId: crouNiamey.id,
-      createdBy: directeur.id
+      numero: 'ENT-2025-001',
+      libelle: 'Réapprovisionnement initial riz',
+      description: 'Livraison initiale de riz pour le trimestre',
+      type: MovementType.ENTREE,
+      reason: MovementReason.RECEPTION,
+      status: 'confirmed' as any,
+      quantite: 500,
+      quantiteAvant: 0,
+      quantiteApres: 500,
+      unit: 'SAC',
+      prixUnitaire: 15000,
+      valeurTotale: 7500000,
+      devise: 'XOF',
+      numeroBon: 'BON-2025-001',
+      fournisseur: fournisseur1.nom,
+      date: new Date('2025-01-05'),
+      dateConfirmation: new Date('2025-01-05'),
+      createdBy: directeur.id,
+      confirmedBy: directeur.id
     }),
     stockMovementRepository.create({
       stockId: stocks[0].id,
-      type: 'SORTIE',
-      quantity: 50,
-      reference: 'SOR-2025-001',
-      reason: 'Distribution restaurant universitaire',
       tenantId: crouNiamey.id,
-      createdBy: directeur.id
+      numero: 'SOR-2025-001',
+      libelle: 'Distribution restaurant universitaire',
+      description: 'Sortie pour préparation repas étudiants',
+      type: MovementType.SORTIE,
+      reason: MovementReason.CONSOMMATION,
+      status: 'confirmed' as any,
+      quantite: 50,
+      quantiteAvant: 500,
+      quantiteApres: 450,
+      unit: 'SAC',
+      destinataire: 'Restaurant Universitaire',
+      date: new Date('2025-01-08'),
+      dateConfirmation: new Date('2025-01-08'),
+      createdBy: directeur.id,
+      confirmedBy: directeur.id
     })
   ]);
 
@@ -259,51 +382,88 @@ export const seedTestData = async (dataSource: DataSource): Promise<void> => {
 
   const residenceA = await housingRepository.save(
     housingRepository.create({
+      tenantId: crouNiamey.id,
       code: 'RES-A',
-      name: 'Résidence A - Campus',
-      type: 'RESIDENCE',
-      capacity: 100,
-      address: 'Campus Universitaire Abdou Moumouni',
-      city: 'Niamey',
-      status: 'ACTIVE',
-      amenities: ['Électricité', 'Eau courante', 'Internet', 'Salle d\'étude'],
-      tenantId: crouNiamey.id
+      nom: 'Résidence A - Campus',
+      description: 'Résidence universitaire principale du campus',
+      type: HousingType.CITE_UNIVERSITAIRE,
+      category: HousingCategory.STANDARD,
+      status: HousingStatus.ACTIF,
+      adresse: 'Campus Universitaire Abdou Moumouni',
+      ville: 'Niamey',
+      region: 'Niamey',
+      nombreChambres: 100,
+      capaciteTotale: 200,
+      occupationActuelle: 150,
+      tauxOccupation: 75,
+      loyerMensuel: 15000,
+      caution: 30000,
+      devise: 'XOF',
+      equipements: ['Électricité', 'Eau courante', 'Internet'],
+      services: ['Salle d\'étude', 'Laverie'],
+      wifi: true,
+      securite: true,
+      dateOuverture: new Date('2020-01-01'),
+      isActif: true,
+      createdBy: directeur.id
     })
   );
 
   await roomRepository.save([
     roomRepository.create({
       housingId: residenceA.id,
-      roomNumber: 'A-101',
-      type: 'DOUBLE',
-      capacity: 2,
-      floor: 1,
-      status: 'AVAILABLE',
-      monthlyRent: 15000,
-      amenities: ['Lit', 'Bureau', 'Armoire'],
-      tenantId: crouNiamey.id
+      numero: 'A-101',
+      etage: '1',
+      batiment: 'A',
+      type: RoomType.DOUBLE,
+      status: RoomStatus.DISPONIBLE,
+      capacite: 2,
+      occupation: 0,
+      tauxOccupation: 0,
+      equipements: ['Lit', 'Bureau', 'Armoire'],
+      wifi: true,
+      loyerMensuel: 15000,
+      caution: 30000,
+      devise: 'XOF',
+      isActif: true,
+      createdBy: directeur.id
     }),
     roomRepository.create({
       housingId: residenceA.id,
-      roomNumber: 'A-102',
-      type: 'DOUBLE',
-      capacity: 2,
-      floor: 1,
-      status: 'OCCUPIED',
-      monthlyRent: 15000,
-      amenities: ['Lit', 'Bureau', 'Armoire'],
-      tenantId: crouNiamey.id
+      numero: 'A-102',
+      etage: '1',
+      batiment: 'A',
+      type: RoomType.DOUBLE,
+      status: RoomStatus.OCCUPE,
+      capacite: 2,
+      occupation: 2,
+      tauxOccupation: 100,
+      equipements: ['Lit', 'Bureau', 'Armoire'],
+      wifi: true,
+      loyerMensuel: 15000,
+      caution: 30000,
+      devise: 'XOF',
+      isActif: true,
+      createdBy: directeur.id
     }),
     roomRepository.create({
       housingId: residenceA.id,
-      roomNumber: 'A-201',
-      type: 'SIMPLE',
-      capacity: 1,
-      floor: 2,
-      status: 'AVAILABLE',
-      monthlyRent: 20000,
-      amenities: ['Lit', 'Bureau', 'Armoire', 'Climatisation'],
-      tenantId: crouNiamey.id
+      numero: 'A-201',
+      etage: '2',
+      batiment: 'A',
+      type: RoomType.SIMPLE,
+      status: RoomStatus.DISPONIBLE,
+      capacite: 1,
+      occupation: 0,
+      tauxOccupation: 0,
+      equipements: ['Lit', 'Bureau', 'Armoire', 'Climatisation'],
+      climatisation: true,
+      wifi: true,
+      loyerMensuel: 20000,
+      caution: 40000,
+      devise: 'XOF',
+      isActif: true,
+      createdBy: directeur.id
     })
   ]);
 
@@ -316,30 +476,58 @@ export const seedTestData = async (dataSource: DataSource): Promise<void> => {
 
   await vehicleRepository.save([
     vehicleRepository.create({
-      registrationNumber: 'NE-123-AB',
-      brand: 'Toyota',
-      model: 'HiLux',
-      year: 2023,
-      type: 'PICKUP',
-      status: 'AVAILABLE',
-      mileage: 15000,
-      fuelType: 'DIESEL',
-      capacity: 5,
-      acquisitionDate: new Date('2023-06-01'),
-      tenantId: crouNiamey.id
+      tenantId: crouNiamey.id,
+      immatriculation: 'NE-123-AB',
+      marque: 'Toyota',
+      modele: 'HiLux',
+      version: 'Double Cabin 4x4',
+      type: VehicleType.UTILITAIRE,
+      status: VehicleStatus.ACTIF,
+      annee: 2023,
+      couleur: 'Blanc',
+      typeCarburant: FuelType.DIESEL,
+      capacitePassagers: 5,
+      kilometrageActuel: 15000,
+      kilometrageAchat: 0,
+      prixAchat: 25000000,
+      valeurActuelle: 23000000,
+      consommationMoyenne: 10.5,
+      devise: 'XOF',
+      compagnieAssurance: 'SNAR Assurances',
+      numeroAssurance: 'ASS-2024-12345',
+      dateExpirationAssurance: new Date('2025-12-31'),
+      dateExpirationControle: new Date('2025-06-30'),
+      dateAchat: new Date('2023-06-01'),
+      dateMiseEnService: new Date('2023-06-01'),
+      isActif: true,
+      createdBy: directeur.id
     }),
     vehicleRepository.create({
-      registrationNumber: 'NE-456-CD',
-      brand: 'Peugeot',
-      model: 'Expert',
-      year: 2022,
-      type: 'VAN',
-      status: 'IN_USE',
-      mileage: 45000,
-      fuelType: 'DIESEL',
-      capacity: 9,
-      acquisitionDate: new Date('2022-03-15'),
-      tenantId: crouNiamey.id
+      tenantId: crouNiamey.id,
+      immatriculation: 'NE-456-CD',
+      marque: 'Peugeot',
+      modele: 'Expert',
+      version: 'L2H2 9 places',
+      type: VehicleType.MINIBUS,
+      status: VehicleStatus.ACTIF,
+      annee: 2022,
+      couleur: 'Gris',
+      typeCarburant: FuelType.DIESEL,
+      capacitePassagers: 9,
+      kilometrageActuel: 45000,
+      kilometrageAchat: 0,
+      prixAchat: 18000000,
+      valeurActuelle: 14000000,
+      consommationMoyenne: 8.5,
+      devise: 'XOF',
+      compagnieAssurance: 'SNAR Assurances',
+      numeroAssurance: 'ASS-2024-67890',
+      dateExpirationAssurance: new Date('2025-09-30'),
+      dateExpirationControle: new Date('2025-03-31'),
+      dateAchat: new Date('2022-03-15'),
+      dateMiseEnService: new Date('2022-03-15'),
+      isActif: true,
+      createdBy: directeur.id
     })
   ]);
 
