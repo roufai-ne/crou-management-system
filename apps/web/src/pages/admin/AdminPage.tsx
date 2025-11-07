@@ -52,49 +52,94 @@ export const AdminPage: React.FC = () => {
   const { auditLogs = [], loading: auditLoading, error: auditError } = useAdminAudit();
   const { statistics, loading: statsLoading, error: statsError } = useAdminStatistics();
 
+  // États pour les formulaires
+  const [formData, setFormData] = useState<any>({});
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+
+  // Réinitialiser le formulaire lors de l'ouverture des modals
+  const openCreateModal = (type: 'user' | 'role' | 'tenant' | 'permission') => {
+    setModalType(type);
+    setFormData({});
+    setSelectedPermissions([]);
+    setIsCreateModalOpen(true);
+  };
+
+  const openEditModal = (type: 'user' | 'role' | 'tenant' | 'permission', item: any) => {
+    setModalType(type);
+    setSelectedItem(item);
+    setFormData(item);
+    if (type === 'role' && item.permissions) {
+      setSelectedPermissions(item.permissions.map((p: any) => p.id));
+    }
+    setIsEditModalOpen(true);
+  };
+
   // Gestion de la création d'élément
-  const handleCreateItem = async (data: any) => {
+  const handleCreateItem = async () => {
     try {
+      const dataToSend = { ...formData };
+
+      // Pour les rôles, ajouter les permissions sélectionnées
+      if (modalType === 'role') {
+        dataToSend.permissions = selectedPermissions;
+      }
+
       switch (modalType) {
         case 'user':
-          await createUser(data);
+          await createUser(dataToSend);
           break;
         case 'role':
-          await createRole(data);
+          await createRole(dataToSend);
           break;
         case 'tenant':
-          await createTenant(data);
+          await createTenant(dataToSend);
           break;
         case 'permission':
-          await createPermission(data);
+          await createPermission(dataToSend);
           break;
       }
       setIsCreateModalOpen(false);
+      setFormData({});
+      setSelectedPermissions([]);
     } catch (err) {
       console.error('Erreur lors de la création:', err);
+      alert('Erreur lors de la création. Vérifiez les champs requis.');
     }
   };
 
   // Gestion de la modification d'élément
-  const handleUpdateItem = async (data: any) => {
+  const handleUpdateItem = async () => {
     try {
+      if (!selectedItem) return;
+
+      const dataToSend = { ...formData };
+
+      // Pour les rôles, ajouter les permissions sélectionnées
+      if (modalType === 'role') {
+        dataToSend.permissions = selectedPermissions;
+      }
+
       switch (modalType) {
         case 'user':
-          await updateUser(selectedItem.id, data);
+          await updateUser(selectedItem.id, dataToSend);
           break;
         case 'role':
-          await updateRole(selectedItem.id, data);
+          await updateRole(selectedItem.id, dataToSend);
           break;
         case 'tenant':
-          await updateTenant(selectedItem.id, data);
+          await updateTenant(selectedItem.id, dataToSend);
           break;
         case 'permission':
-          await updatePermission(selectedItem.id, data);
+          await updatePermission(selectedItem.id, dataToSend);
           break;
       }
       setIsEditModalOpen(false);
+      setFormData({});
+      setSelectedPermissions([]);
+      setSelectedItem(null);
     } catch (err) {
       console.error('Erreur lors de la modification:', err);
+      alert('Erreur lors de la modification. Vérifiez les champs requis.');
     }
   };
 
@@ -142,11 +187,7 @@ export const AdminPage: React.FC = () => {
             size="sm"
             variant="outline"
             leftIcon={<EyeIcon className="h-4 w-4" />}
-            onClick={() => {
-              setSelectedItem(role);
-              setModalType('role');
-              setIsEditModalOpen(true);
-            }}
+            onClick={() => openEditModal('role', role)}
           >
             Voir
           </Button>
@@ -199,11 +240,7 @@ export const AdminPage: React.FC = () => {
             size="sm"
             variant="outline"
             leftIcon={<EyeIcon className="h-4 w-4" />}
-            onClick={() => {
-              setSelectedItem(tenant);
-              setModalType('tenant');
-              setIsEditModalOpen(true);
-            }}
+            onClick={() => openEditModal('tenant', tenant)}
           >
             Voir
           </Button>
@@ -360,11 +397,7 @@ export const AdminPage: React.FC = () => {
             size="sm"
             variant="outline"
             leftIcon={<EyeIcon className="h-4 w-4" />}
-            onClick={() => {
-              setSelectedItem(user);
-              setModalType('user');
-              setIsEditModalOpen(true);
-            }}
+            onClick={() => openEditModal('user', user)}
           >
             Voir
           </Button>
@@ -372,11 +405,7 @@ export const AdminPage: React.FC = () => {
             size="sm"
             variant="outline"
             leftIcon={<PencilIcon className="h-4 w-4" />}
-            onClick={() => {
-              setSelectedItem(user);
-              setModalType('user');
-              setIsEditModalOpen(true);
-            }}
+            onClick={() => openEditModal('user', user)}
           >
             Modifier
           </Button>
@@ -403,10 +432,7 @@ export const AdminPage: React.FC = () => {
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Gestion des Utilisateurs</h3>
             <Button
-              onClick={() => {
-                setModalType('user');
-                setIsCreateModalOpen(true);
-              }}
+              onClick={() => openCreateModal('user')}
               leftIcon={<PlusIcon className="h-4 w-4" />}
             >
               Nouvel Utilisateur
@@ -423,11 +449,7 @@ export const AdminPage: React.FC = () => {
                 columns={userColumns}
                 loading={usersLoading}
                 emptyMessage="Aucun utilisateur trouvé"
-                onRowClick={(item) => {
-                  setSelectedItem(item);
-                  setModalType('user');
-                  setIsEditModalOpen(true);
-                }}
+                onRowClick={(item) => openEditModal('user', item)}
               />
             </Card.Content>
           </Card>
@@ -443,10 +465,7 @@ export const AdminPage: React.FC = () => {
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Gestion des Rôles</h3>
             <Button
-              onClick={() => {
-                setModalType('role');
-                setIsCreateModalOpen(true);
-              }}
+              onClick={() => openCreateModal('role')}
               leftIcon={<PlusIcon className="h-4 w-4" />}
             >
               Nouveau Rôle
@@ -463,11 +482,7 @@ export const AdminPage: React.FC = () => {
                 columns={roleColumns}
                 loading={rolesLoading}
                 emptyMessage="Aucun rôle trouvé"
-                onRowClick={(item) => {
-                  setSelectedItem(item);
-                  setModalType('role');
-                  setIsEditModalOpen(true);
-                }}
+                onRowClick={(item) => openEditModal('role', item)}
               />
             </Card.Content>
           </Card>
@@ -483,10 +498,7 @@ export const AdminPage: React.FC = () => {
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Gestion des Tenants</h3>
             <Button
-              onClick={() => {
-                setModalType('tenant');
-                setIsCreateModalOpen(true);
-              }}
+              onClick={() => openCreateModal('tenant')}
               leftIcon={<PlusIcon className="h-4 w-4" />}
             >
               Nouveau Tenant
@@ -503,11 +515,7 @@ export const AdminPage: React.FC = () => {
                 columns={tenantColumns}
                 loading={tenantsLoading}
                 emptyMessage="Aucun tenant trouvé"
-                onRowClick={(item) => {
-                  setSelectedItem(item);
-                  setModalType('tenant');
-                  setIsEditModalOpen(true);
-                }}
+                onRowClick={(item) => openEditModal('tenant', item)}
               />
             </Card.Content>
           </Card>
@@ -523,10 +531,7 @@ export const AdminPage: React.FC = () => {
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Gestion des Permissions</h3>
             <Button
-              onClick={() => {
-                setModalType('permission');
-                setIsCreateModalOpen(true);
-              }}
+              onClick={() => openCreateModal('permission')}
               leftIcon={<PlusIcon className="h-4 w-4" />}
             >
               Nouvelle Permission
@@ -543,11 +548,7 @@ export const AdminPage: React.FC = () => {
                 columns={permissionColumns}
                 loading={permissionsLoading}
                 emptyMessage="Aucune permission trouvée"
-                onRowClick={(item) => {
-                  setSelectedItem(item);
-                  setModalType('permission');
-                  setIsEditModalOpen(true);
-                }}
+                onRowClick={(item) => openEditModal('permission', item)}
               />
             </Card.Content>
           </Card>
@@ -950,17 +951,39 @@ export const AdminPage: React.FC = () => {
         <div className="space-y-4">
           {modalType === 'user' && (
             <>
-              <Input label="Nom" placeholder="Ex: John Doe" required />
-              <Input label="Email" type="email" placeholder="Ex: john.doe@crou.gov" required />
-              <Input label="Téléphone" placeholder="Ex: +227 90 12 34 56" />
+              <Input
+                label="Nom"
+                placeholder="Ex: John Doe"
+                value={formData.name || ''}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                required
+              />
+              <Input
+                label="Email"
+                type="email"
+                placeholder="Ex: john.doe@crou.gov"
+                value={formData.email || ''}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                required
+              />
+              <Input
+                label="Téléphone"
+                placeholder="Ex: +227 90 12 34 56"
+                value={formData.phone || ''}
+                onChange={(e) => setFormData({...formData, phone: e.target.value})}
+              />
               <Select
                 label="Rôle"
                 options={roles.map(r => ({ value: r.id, label: r.name }))}
+                value={formData.roleId || ''}
+                onChange={(e) => setFormData({...formData, roleId: e.target.value})}
                 required
               />
               <Select
                 label="Tenant"
                 options={tenants.map(t => ({ value: t.id, label: t.name }))}
+                value={formData.tenantId || ''}
+                onChange={(e) => setFormData({...formData, tenantId: e.target.value})}
                 required
               />
             </>
@@ -968,14 +991,36 @@ export const AdminPage: React.FC = () => {
 
           {modalType === 'role' && (
             <>
-              <Input label="Nom du rôle" placeholder="Ex: Gestionnaire" required />
-              <Input label="Description" placeholder="Description du rôle" />
+              <Input
+                label="Nom du rôle"
+                placeholder="Ex: Gestionnaire"
+                value={formData.name || ''}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                required
+              />
+              <Input
+                label="Description"
+                placeholder="Description du rôle"
+                value={formData.description || ''}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+              />
               <div className="border rounded p-4">
                 <label className="block text-sm font-medium mb-2">Permissions</label>
                 <div className="max-h-48 overflow-y-auto space-y-2">
                   {permissions.map(perm => (
                     <label key={perm.id} className="flex items-center gap-2">
-                      <input type="checkbox" className="rounded" />
+                      <input
+                        type="checkbox"
+                        className="rounded"
+                        checked={selectedPermissions.includes(perm.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedPermissions([...selectedPermissions, perm.id]);
+                          } else {
+                            setSelectedPermissions(selectedPermissions.filter(id => id !== perm.id));
+                          }
+                        }}
+                      />
                       <span className="text-sm">{perm.name}</span>
                     </label>
                   ))}
@@ -986,8 +1031,20 @@ export const AdminPage: React.FC = () => {
 
           {modalType === 'tenant' && (
             <>
-              <Input label="Nom du tenant" placeholder="Ex: CROU Niamey" required />
-              <Input label="Code" placeholder="Ex: CROU-NIA" required />
+              <Input
+                label="Nom du tenant"
+                placeholder="Ex: CROU Niamey"
+                value={formData.name || ''}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                required
+              />
+              <Input
+                label="Code"
+                placeholder="Ex: CROU-NIA"
+                value={formData.code || ''}
+                onChange={(e) => setFormData({...formData, code: e.target.value})}
+                required
+              />
               <Select
                 label="Type"
                 options={[
@@ -995,22 +1052,53 @@ export const AdminPage: React.FC = () => {
                   { value: 'crou', label: 'CROU' },
                   { value: 'cite', label: 'Cité Universitaire' }
                 ]}
+                value={formData.type || ''}
+                onChange={(e) => setFormData({...formData, type: e.target.value})}
                 required
               />
               <Select
                 label="Tenant Parent"
                 options={[{ value: '', label: 'Aucun' }, ...tenants.map(t => ({ value: t.id, label: t.name }))]}
+                value={formData.parentId || ''}
+                onChange={(e) => setFormData({...formData, parentId: e.target.value})}
               />
-              <Input label="Adresse" placeholder="Adresse du tenant" />
-              <Input label="Téléphone" placeholder="Ex: +227 20 12 34 56" />
+              <Input
+                label="Adresse"
+                placeholder="Adresse du tenant"
+                value={formData.address || ''}
+                onChange={(e) => setFormData({...formData, address: e.target.value})}
+              />
+              <Input
+                label="Téléphone"
+                placeholder="Ex: +227 20 12 34 56"
+                value={formData.phone || ''}
+                onChange={(e) => setFormData({...formData, phone: e.target.value})}
+              />
             </>
           )}
 
           {modalType === 'permission' && (
             <>
-              <Input label="Nom de la permission" placeholder="Ex: users:create" required />
-              <Input label="Description" placeholder="Description de la permission" />
-              <Input label="Ressource" placeholder="Ex: users" required />
+              <Input
+                label="Nom de la permission"
+                placeholder="Ex: users:create"
+                value={formData.name || ''}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                required
+              />
+              <Input
+                label="Description"
+                placeholder="Description de la permission"
+                value={formData.description || ''}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+              />
+              <Input
+                label="Ressource"
+                placeholder="Ex: users"
+                value={formData.resource || ''}
+                onChange={(e) => setFormData({...formData, resource: e.target.value})}
+                required
+              />
               <Select
                 label="Action"
                 options={[
@@ -1019,9 +1107,16 @@ export const AdminPage: React.FC = () => {
                   { value: 'update', label: 'Modifier' },
                   { value: 'delete', label: 'Supprimer' }
                 ]}
+                value={formData.action || ''}
+                onChange={(e) => setFormData({...formData, action: e.target.value})}
                 required
               />
-              <Input label="Module" placeholder="Ex: admin" />
+              <Input
+                label="Module"
+                placeholder="Ex: admin"
+                value={formData.module || ''}
+                onChange={(e) => setFormData({...formData, module: e.target.value})}
+              />
             </>
           )}
 
@@ -1029,7 +1124,7 @@ export const AdminPage: React.FC = () => {
             <Button variant="outline" onClick={() => setIsCreateModalOpen(false)}>
               Annuler
             </Button>
-            <Button variant="primary" onClick={() => handleCreateItem({})}>
+            <Button variant="primary" onClick={handleCreateItem}>
               Créer
             </Button>
           </div>
@@ -1045,19 +1140,39 @@ export const AdminPage: React.FC = () => {
         <div className="space-y-4">
           {modalType === 'user' && selectedItem && (
             <>
-              <Input label="Nom" placeholder="Ex: John Doe" defaultValue={selectedItem.name} required />
-              <Input label="Email" type="email" placeholder="Ex: john.doe@crou.gov" defaultValue={selectedItem.email} required />
-              <Input label="Téléphone" placeholder="Ex: +227 90 12 34 56" defaultValue={selectedItem.phone} />
+              <Input
+                label="Nom"
+                placeholder="Ex: John Doe"
+                value={formData.name || ''}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                required
+              />
+              <Input
+                label="Email"
+                type="email"
+                placeholder="Ex: john.doe@crou.gov"
+                value={formData.email || ''}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                required
+              />
+              <Input
+                label="Téléphone"
+                placeholder="Ex: +227 90 12 34 56"
+                value={formData.phone || ''}
+                onChange={(e) => setFormData({...formData, phone: e.target.value})}
+              />
               <Select
                 label="Rôle"
                 options={roles.map(r => ({ value: r.id, label: r.name }))}
-                defaultValue={selectedItem.roleId}
+                value={formData.roleId || ''}
+                onChange={(e) => setFormData({...formData, roleId: e.target.value})}
                 required
               />
               <Select
                 label="Tenant"
                 options={tenants.map(t => ({ value: t.id, label: t.name }))}
-                defaultValue={selectedItem.tenantId}
+                value={formData.tenantId || ''}
+                onChange={(e) => setFormData({...formData, tenantId: e.target.value})}
                 required
               />
               <Select
@@ -1067,7 +1182,8 @@ export const AdminPage: React.FC = () => {
                   { value: 'inactive', label: 'Inactif' },
                   { value: 'suspended', label: 'Suspendu' }
                 ]}
-                defaultValue={selectedItem.status}
+                value={formData.status || ''}
+                onChange={(e) => setFormData({...formData, status: e.target.value})}
                 required
               />
             </>
@@ -1075,8 +1191,19 @@ export const AdminPage: React.FC = () => {
 
           {modalType === 'role' && selectedItem && (
             <>
-              <Input label="Nom du rôle" placeholder="Ex: Gestionnaire" defaultValue={selectedItem.name} required />
-              <Input label="Description" placeholder="Description du rôle" defaultValue={selectedItem.description} />
+              <Input
+                label="Nom du rôle"
+                placeholder="Ex: Gestionnaire"
+                value={formData.name || ''}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                required
+              />
+              <Input
+                label="Description"
+                placeholder="Description du rôle"
+                value={formData.description || ''}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+              />
               <div className="border rounded p-4">
                 <label className="block text-sm font-medium mb-2">Permissions</label>
                 <div className="max-h-48 overflow-y-auto space-y-2">
@@ -1085,7 +1212,14 @@ export const AdminPage: React.FC = () => {
                       <input
                         type="checkbox"
                         className="rounded"
-                        defaultChecked={selectedItem.permissions?.some((p: any) => p.id === perm.id)}
+                        checked={selectedPermissions.includes(perm.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedPermissions([...selectedPermissions, perm.id]);
+                          } else {
+                            setSelectedPermissions(selectedPermissions.filter(id => id !== perm.id));
+                          }
+                        }}
                       />
                       <span className="text-sm">{perm.name}</span>
                     </label>
@@ -1097,8 +1231,20 @@ export const AdminPage: React.FC = () => {
 
           {modalType === 'tenant' && selectedItem && (
             <>
-              <Input label="Nom du tenant" placeholder="Ex: CROU Niamey" defaultValue={selectedItem.name} required />
-              <Input label="Code" placeholder="Ex: CROU-NIA" defaultValue={selectedItem.code} required />
+              <Input
+                label="Nom du tenant"
+                placeholder="Ex: CROU Niamey"
+                value={formData.name || ''}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                required
+              />
+              <Input
+                label="Code"
+                placeholder="Ex: CROU-NIA"
+                value={formData.code || ''}
+                onChange={(e) => setFormData({...formData, code: e.target.value})}
+                required
+              />
               <Select
                 label="Type"
                 options={[
@@ -1106,23 +1252,36 @@ export const AdminPage: React.FC = () => {
                   { value: 'crou', label: 'CROU' },
                   { value: 'cite', label: 'Cité Universitaire' }
                 ]}
-                defaultValue={selectedItem.type}
+                value={formData.type || ''}
+                onChange={(e) => setFormData({...formData, type: e.target.value})}
                 required
               />
               <Select
                 label="Tenant Parent"
                 options={[{ value: '', label: 'Aucun' }, ...tenants.map(t => ({ value: t.id, label: t.name }))]}
-                defaultValue={selectedItem.parentId}
+                value={formData.parentId || ''}
+                onChange={(e) => setFormData({...formData, parentId: e.target.value})}
               />
-              <Input label="Adresse" placeholder="Adresse du tenant" defaultValue={selectedItem.address} />
-              <Input label="Téléphone" placeholder="Ex: +227 20 12 34 56" defaultValue={selectedItem.phone} />
+              <Input
+                label="Adresse"
+                placeholder="Adresse du tenant"
+                value={formData.address || ''}
+                onChange={(e) => setFormData({...formData, address: e.target.value})}
+              />
+              <Input
+                label="Téléphone"
+                placeholder="Ex: +227 20 12 34 56"
+                value={formData.phone || ''}
+                onChange={(e) => setFormData({...formData, phone: e.target.value})}
+              />
               <Select
                 label="Statut"
                 options={[
                   { value: 'active', label: 'Actif' },
                   { value: 'inactive', label: 'Inactif' }
                 ]}
-                defaultValue={selectedItem.isActive ? 'active' : 'inactive'}
+                value={formData.isActive !== undefined ? (formData.isActive ? 'active' : 'inactive') : ''}
+                onChange={(e) => setFormData({...formData, isActive: e.target.value === 'active'})}
                 required
               />
             </>
@@ -1130,9 +1289,26 @@ export const AdminPage: React.FC = () => {
 
           {modalType === 'permission' && selectedItem && (
             <>
-              <Input label="Nom de la permission" placeholder="Ex: users:create" defaultValue={selectedItem.name} required />
-              <Input label="Description" placeholder="Description de la permission" defaultValue={selectedItem.description} />
-              <Input label="Ressource" placeholder="Ex: users" defaultValue={selectedItem.resource} required />
+              <Input
+                label="Nom de la permission"
+                placeholder="Ex: users:create"
+                value={formData.name || ''}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                required
+              />
+              <Input
+                label="Description"
+                placeholder="Description de la permission"
+                value={formData.description || ''}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+              />
+              <Input
+                label="Ressource"
+                placeholder="Ex: users"
+                value={formData.resource || ''}
+                onChange={(e) => setFormData({...formData, resource: e.target.value})}
+                required
+              />
               <Select
                 label="Action"
                 options={[
@@ -1141,10 +1317,16 @@ export const AdminPage: React.FC = () => {
                   { value: 'update', label: 'Modifier' },
                   { value: 'delete', label: 'Supprimer' }
                 ]}
-                defaultValue={selectedItem.action}
+                value={formData.action || ''}
+                onChange={(e) => setFormData({...formData, action: e.target.value})}
                 required
               />
-              <Input label="Module" placeholder="Ex: admin" defaultValue={selectedItem.module} />
+              <Input
+                label="Module"
+                placeholder="Ex: admin"
+                value={formData.module || ''}
+                onChange={(e) => setFormData({...formData, module: e.target.value})}
+              />
             </>
           )}
 
@@ -1152,7 +1334,7 @@ export const AdminPage: React.FC = () => {
             <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
               Annuler
             </Button>
-            <Button variant="primary" onClick={() => handleUpdateItem({})}>
+            <Button variant="primary" onClick={handleUpdateItem}>
               Modifier
             </Button>
           </div>
