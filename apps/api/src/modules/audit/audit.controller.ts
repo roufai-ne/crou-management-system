@@ -30,6 +30,99 @@ const router: Router = Router();
 const auditService = new AuditService();
 
 /**
+ * GET /api/audit ou /api/admin/audit-logs
+ * Route racine pour compatibilité frontend (alias de /logs)
+ */
+router.get('/',
+    authenticateJWT,
+    checkPermissions(['audit:read']),
+    auditMiddleware({ enabled: true, sensitiveResource: true }),
+    async (req: Request, res: Response) => {
+        try {
+            // Construire les filtres depuis les paramètres de requête
+            const filters: AuditSearchFilters = {
+                limit: parseInt(req.query.limit as string) || 50,
+                offset: parseInt(req.query.offset as string) || 0
+            };
+
+            // Filtres optionnels
+            if (req.query.userId && req.query.userId !== 'all') {
+                filters.userId = req.query.userId as string;
+            }
+
+            if (req.query.tenantId) {
+                filters.tenantId = req.query.tenantId as string;
+            } else if (req.user?.tenantId) {
+                filters.tenantId = req.user.tenantId;
+            }
+
+            if (req.query.action && req.query.action !== 'all') {
+                filters.action = req.query.action as AuditAction;
+            }
+
+            if (req.query.resource && req.query.resource !== 'all') {
+                filters.resource = req.query.resource as string;
+            }
+
+            if (req.query.dateFrom) {
+                filters.dateFrom = new Date(req.query.dateFrom as string);
+            }
+
+            if (req.query.dateTo) {
+                filters.dateTo = new Date(req.query.dateTo as string);
+            }
+
+            if (req.query.ipAddress) {
+                filters.ipAddress = req.query.ipAddress as string;
+            }
+
+            // Calculer pagination
+            const page = parseInt(req.query.page as string) || 1;
+            filters.offset = (page - 1) * filters.limit;
+
+            // Rechercher les logs
+            const result = await auditService.searchAuditLogs(filters);
+
+            res.json({
+                success: true,
+                data: {
+                    logs: result.logs.map(log => ({
+                        id: log.id,
+                        userId: log.userId,
+                        userName: log.user?.name || 'Utilisateur inconnu',
+                        userEmail: log.user?.email,
+                        action: log.action,
+                        resource: log.tableName,
+                        resourceId: log.recordId,
+                        oldValues: log.oldValues,
+                        newValues: log.newValues,
+                        ipAddress: log.ipAddress,
+                        userAgent: log.userAgent,
+                        createdAt: log.createdAt,
+                        metadata: log.metadata
+                    })),
+                    pagination: {
+                        total: result.total,
+                        page,
+                        limit: filters.limit,
+                        pages: Math.ceil(result.total / filters.limit)
+                    },
+                    filters
+                }
+            });
+
+        } catch (error) {
+            logger.error('Erreur recherche logs audit:', error);
+            res.status(500).json({
+                success: false,
+                error: 'Erreur serveur',
+                message: 'Erreur lors de la recherche des logs d\'audit'
+            });
+        }
+    }
+);
+
+/**
  * GET /api/audit/logs
  * Rechercher les logs d'audit avec filtres
  */
