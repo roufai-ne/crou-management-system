@@ -20,7 +20,7 @@
  */
 
 import React, { useState } from 'react';
-import { Container, Card, Badge, Button, Table, Modal, Input, Select, Tabs } from '@/components/ui';
+import { Container, Card, Badge, Button, DataTable, Modal, Input, Select, Tabs } from '@/components/ui';
 import { 
   UserGroupIcon,
   ShieldCheckIcon,
@@ -217,7 +217,7 @@ export const AdminPage: React.FC = () => {
               <Card.Title>Liste des Utilisateurs ({users.length})</Card.Title>
             </Card.Header>
             <Card.Content>
-              <Table
+              <DataTable
                 data={users}
                 columns={userColumns}
                 loading={usersLoading}

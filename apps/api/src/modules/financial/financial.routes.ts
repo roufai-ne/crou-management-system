@@ -155,6 +155,16 @@ router.post('/transactions',
 );
 
 /**
+ * GET /api/financial/transactions/stats
+ * Statistiques des transactions
+ * Permissions: financial:read
+ */
+router.get('/transactions/stats',
+  checkPermissions(['financial:read']),
+  FinancialController.getTransactionStats
+);
+
+/**
  * GET /api/financial/transactions/:id
  * Détails d'une transaction
  * Permissions: financial:read

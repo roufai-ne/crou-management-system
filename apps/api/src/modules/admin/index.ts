@@ -21,6 +21,7 @@ import { Router } from 'express';
 import { authenticateJWT } from '@/shared/middlewares/auth.middleware';
 import { checkPermissions } from '@/shared/middlewares/permissions.middleware';
 import { auditMiddleware } from '@/shared/middlewares/audit.middleware';
+import { injectTenantIdMiddleware } from '@/shared/middlewares/tenant-isolation.middleware';
 
 // Import des contrôleurs
 import usersController from './users.controller';
@@ -39,6 +40,7 @@ const router: Router = Router();
  */
 router.use(
   authenticateJWT,
+  injectTenantIdMiddleware({ strictMode: false }), // Injecter le contexte tenant
   checkPermissions(['admin:read']),
   auditMiddleware({
     enabled: true,
@@ -62,12 +64,17 @@ router.use('/tenants', tenantsController);
 
 // Statistiques d'utilisation
 router.use('/stats', statsController);
+router.use('/statistics', statsController); // Alias pour compatibilité frontend
 
 // Sécurité et monitoring
 router.use('/security', securityController);
 
 // Logs d'audit
 router.use('/audit', auditController);
+router.use('/audit-logs', auditController); // Alias pour compatibilité frontend
+
+// Permissions (sous-route de roles)
+router.use('/permissions', rolesController); // Alias pour compatibilité frontend
 
 /**
  * Route de santé pour l'interface d'administration
