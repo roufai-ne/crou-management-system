@@ -219,10 +219,16 @@ class AdminService {
       if (params?.limit) queryParams.append('limit', params.limit.toString());
 
       const response = await apiClient.get(`${this.baseUrl}/users?${queryParams.toString()}`);
-      return response.data;
+      const data = response.data?.data || response.data;
+      return {
+        users: Array.isArray(data.users) ? data.users : [],
+        total: data.total || 0,
+        page: data.page || 1,
+        limit: data.limit || 50
+      };
     } catch (error) {
       console.error('Erreur lors de la récupération des utilisateurs:', error);
-      throw error;
+      return { users: [], total: 0, page: 1, limit: 50 };
     }
   }
 
@@ -311,10 +317,17 @@ class AdminService {
     try {
       const response = await apiClient.get(`${this.baseUrl}/roles`);
       // Le backend retourne { success: true, data: { roles: [...], total: ... } }
-      return response.data.roles || response.data || [];
+      const data = response.data?.data || response.data;
+      if (Array.isArray(data.roles)) {
+        return data.roles;
+      }
+      if (Array.isArray(data)) {
+        return data;
+      }
+      return [];
     } catch (error) {
       console.error('Erreur lors de la récupération des rôles:', error);
-      throw error;
+      return [];
     }
   }
 
@@ -386,10 +399,17 @@ class AdminService {
     try {
       const response = await apiClient.get(`${this.baseUrl}/permissions`);
       // Le backend retourne { success: true, data: { permissions: [...], total: ... } }
-      return response.data.permissions || response.data || [];
+      const data = response.data?.data || response.data;
+      if (Array.isArray(data.permissions)) {
+        return data.permissions;
+      }
+      if (Array.isArray(data)) {
+        return data;
+      }
+      return [];
     } catch (error) {
       console.error('Erreur lors de la récupération des permissions:', error);
-      throw error;
+      return [];
     }
   }
 
@@ -415,10 +435,17 @@ class AdminService {
     try {
       const response = await apiClient.get(`${this.baseUrl}/tenants`);
       // Le backend retourne { success: true, data: { tenants: [...], total: ..., summary: ... } }
-      return response.data.tenants || response.data || [];
+      const data = response.data?.data || response.data;
+      if (Array.isArray(data.tenants)) {
+        return data.tenants;
+      }
+      if (Array.isArray(data)) {
+        return data;
+      }
+      return [];
     } catch (error) {
       console.error('Erreur lors de la récupération des tenants:', error);
-      throw error;
+      return [];
     }
   }
 
@@ -505,10 +532,16 @@ class AdminService {
       if (params?.limit) queryParams.append('limit', params.limit.toString());
 
       const response = await apiClient.get(`${this.baseUrl}/audit-logs?${queryParams.toString()}`);
-      return response.data;
+      const data = response.data?.data || response.data;
+      return {
+        logs: Array.isArray(data.logs) ? data.logs : [],
+        total: data.total || 0,
+        page: data.page || 1,
+        limit: data.limit || 50
+      };
     } catch (error) {
       console.error('Erreur lors de la récupération des logs d\'audit:', error);
-      throw error;
+      return { logs: [], total: 0, page: 1, limit: 50 };
     }
   }
 
