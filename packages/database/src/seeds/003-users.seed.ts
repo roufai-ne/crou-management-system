@@ -22,7 +22,7 @@
  */
 
 import { DataSource } from 'typeorm';
-import * as bcrypt from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 import { UserStatus } from '../entities/User.entity';
 import { User } from '../entities/User.entity';
 import { Role } from '../entities/Role.entity';
