@@ -310,7 +310,8 @@ class AdminService {
   async getRoles(): Promise<UserRole[]> {
     try {
       const response = await apiClient.get(`${this.baseUrl}/roles`);
-      return response.data;
+      // Le backend retourne { success: true, data: { roles: [...], total: ... } }
+      return response.data.roles || response.data || [];
     } catch (error) {
       console.error('Erreur lors de la récupération des rôles:', error);
       throw error;
@@ -384,7 +385,8 @@ class AdminService {
   async getPermissions(): Promise<Permission[]> {
     try {
       const response = await apiClient.get(`${this.baseUrl}/permissions`);
-      return response.data;
+      // Le backend retourne { success: true, data: { permissions: [...], total: ... } }
+      return response.data.permissions || response.data || [];
     } catch (error) {
       console.error('Erreur lors de la récupération des permissions:', error);
       throw error;
@@ -412,7 +414,8 @@ class AdminService {
   async getTenants(): Promise<Tenant[]> {
     try {
       const response = await apiClient.get(`${this.baseUrl}/tenants`);
-      return response.data;
+      // Le backend retourne { success: true, data: { tenants: [...], total: ..., summary: ... } }
+      return response.data.tenants || response.data || [];
     } catch (error) {
       console.error('Erreur lors de la récupération des tenants:', error);
       throw error;
