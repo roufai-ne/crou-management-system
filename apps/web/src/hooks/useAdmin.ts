@@ -85,8 +85,11 @@ export const useAdminUsers = () => {
     });
   }, [setUserFilters]);
 
+  // Forcer users à être un tableau
+  const safeUsers = Array.isArray(users) ? users : [];
+
   return {
-    users,
+    users: safeUsers,
     loading,
     error,
     filters,
@@ -115,6 +118,11 @@ export const useAdminRoles = () => {
     deleteRole
   } = useAdmin();
 
+  // Debug: vérifier le type de roles
+  useEffect(() => {
+    console.log('[useAdminRoles] roles type:', typeof roles, 'isArray:', Array.isArray(roles), 'value:', roles);
+  }, [roles]);
+
   // Charger les rôles au montage
   useEffect(() => {
     loadRoles();
@@ -133,8 +141,11 @@ export const useAdminRoles = () => {
     await deleteRole(id);
   }, [deleteRole]);
 
+  // Forcer roles à être un tableau
+  const safeRoles = Array.isArray(roles) ? roles : [];
+
   return {
-    roles,
+    roles: safeRoles,
     loading,
     error,
     createRole: handleCreateRole,
@@ -164,8 +175,11 @@ export const useAdminPermissions = () => {
     return await loadPermissionsByModule(module);
   }, [loadPermissionsByModule]);
 
+  // Forcer permissions à être un tableau
+  const safePermissions = Array.isArray(permissions) ? permissions : [];
+
   return {
-    permissions,
+    permissions: safePermissions,
     loading,
     error,
     loadPermissionsByModule: handleLoadPermissionsByModule,
@@ -203,8 +217,11 @@ export const useAdminTenants = () => {
     await deleteTenant(id);
   }, [deleteTenant]);
 
+  // Forcer tenants à être un tableau
+  const safeTenants = Array.isArray(tenants) ? tenants : [];
+
   return {
-    tenants,
+    tenants: safeTenants,
     loading,
     error,
     createTenant: handleCreateTenant,
@@ -251,8 +268,11 @@ export const useAdminAudit = () => {
     });
   }, [setAuditFilters]);
 
+  // Forcer auditLogs à être un tableau
+  const safeAuditLogs = Array.isArray(auditLogs) ? auditLogs : [];
+
   return {
-    auditLogs,
+    auditLogs: safeAuditLogs,
     loading,
     error,
     filters,
