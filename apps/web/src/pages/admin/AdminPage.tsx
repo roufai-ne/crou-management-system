@@ -68,7 +68,7 @@ export const AdminPage: React.FC = () => {
     setModalType(type);
     setSelectedItem(item);
     setFormData(item);
-    if (type === 'role' && item.permissions) {
+    if (type === 'role' && Array.isArray(item.permissions)) {
       setSelectedPermissions(item.permissions.map((p: any) => p.id));
     }
     setIsEditModalOpen(true);
@@ -441,11 +441,11 @@ export const AdminPage: React.FC = () => {
 
           <Card>
             <Card.Header>
-              <Card.Title>Liste des Utilisateurs ({users.length})</Card.Title>
+              <Card.Title>Liste des Utilisateurs ({(users || []).length})</Card.Title>
             </Card.Header>
             <Card.Content>
               <DataTable
-                data={users}
+                data={users || []}
                 columns={userColumns}
                 loading={usersLoading}
                 emptyMessage="Aucun utilisateur trouvé"
@@ -474,11 +474,11 @@ export const AdminPage: React.FC = () => {
 
           <Card>
             <Card.Header>
-              <Card.Title>Liste des Rôles ({roles.length})</Card.Title>
+              <Card.Title>Liste des Rôles ({(roles || []).length})</Card.Title>
             </Card.Header>
             <Card.Content>
               <DataTable
-                data={roles}
+                data={roles || []}
                 columns={roleColumns}
                 loading={rolesLoading}
                 emptyMessage="Aucun rôle trouvé"
@@ -507,11 +507,11 @@ export const AdminPage: React.FC = () => {
 
           <Card>
             <Card.Header>
-              <Card.Title>Liste des Tenants ({tenants.length})</Card.Title>
+              <Card.Title>Liste des Tenants ({(tenants || []).length})</Card.Title>
             </Card.Header>
             <Card.Content>
               <DataTable
-                data={tenants}
+                data={tenants || []}
                 columns={tenantColumns}
                 loading={tenantsLoading}
                 emptyMessage="Aucun tenant trouvé"
@@ -540,11 +540,11 @@ export const AdminPage: React.FC = () => {
 
           <Card>
             <Card.Header>
-              <Card.Title>Liste des Permissions ({permissions.length})</Card.Title>
+              <Card.Title>Liste des Permissions ({(permissions || []).length})</Card.Title>
             </Card.Header>
             <Card.Content>
               <DataTable
-                data={permissions}
+                data={permissions || []}
                 columns={permissionColumns}
                 loading={permissionsLoading}
                 emptyMessage="Aucune permission trouvée"
@@ -580,11 +580,11 @@ export const AdminPage: React.FC = () => {
 
           <Card>
             <Card.Header>
-              <Card.Title>Logs d'Audit ({auditLogs.length})</Card.Title>
+              <Card.Title>Logs d'Audit ({(auditLogs || []).length})</Card.Title>
             </Card.Header>
             <Card.Content>
               <DataTable
-                data={auditLogs}
+                data={auditLogs || []}
                 columns={auditColumns}
                 loading={auditLoading}
                 emptyMessage="Aucun log d'audit trouvé"
@@ -974,14 +974,14 @@ export const AdminPage: React.FC = () => {
               />
               <Select
                 label="Rôle"
-                options={roles.map(r => ({ value: r.id, label: r.name }))}
+                options={(roles || []).map(r => ({ value: r.id, label: r.name }))}
                 value={formData.roleId || ''}
                 onChange={(e) => setFormData({...formData, roleId: e.target.value})}
                 required
               />
               <Select
                 label="Tenant"
-                options={tenants.map(t => ({ value: t.id, label: t.name }))}
+                options={(tenants || []).map(t => ({ value: t.id, label: t.name }))}
                 value={formData.tenantId || ''}
                 onChange={(e) => setFormData({...formData, tenantId: e.target.value})}
                 required
@@ -1007,7 +1007,7 @@ export const AdminPage: React.FC = () => {
               <div className="border rounded p-4">
                 <label className="block text-sm font-medium mb-2">Permissions</label>
                 <div className="max-h-48 overflow-y-auto space-y-2">
-                  {permissions.map(perm => (
+                  {(permissions || []).map(perm => (
                     <label key={perm.id} className="flex items-center gap-2">
                       <input
                         type="checkbox"
@@ -1058,7 +1058,7 @@ export const AdminPage: React.FC = () => {
               />
               <Select
                 label="Tenant Parent"
-                options={[{ value: '', label: 'Aucun' }, ...tenants.map(t => ({ value: t.id, label: t.name }))]}
+                options={[{ value: '', label: 'Aucun' }, ...(tenants || []).map(t => ({ value: t.id, label: t.name }))]}
                 value={formData.parentId || ''}
                 onChange={(e) => setFormData({...formData, parentId: e.target.value})}
               />
@@ -1163,14 +1163,14 @@ export const AdminPage: React.FC = () => {
               />
               <Select
                 label="Rôle"
-                options={roles.map(r => ({ value: r.id, label: r.name }))}
+                options={(roles || []).map(r => ({ value: r.id, label: r.name }))}
                 value={formData.roleId || ''}
                 onChange={(e) => setFormData({...formData, roleId: e.target.value})}
                 required
               />
               <Select
                 label="Tenant"
-                options={tenants.map(t => ({ value: t.id, label: t.name }))}
+                options={(tenants || []).map(t => ({ value: t.id, label: t.name }))}
                 value={formData.tenantId || ''}
                 onChange={(e) => setFormData({...formData, tenantId: e.target.value})}
                 required
@@ -1207,7 +1207,7 @@ export const AdminPage: React.FC = () => {
               <div className="border rounded p-4">
                 <label className="block text-sm font-medium mb-2">Permissions</label>
                 <div className="max-h-48 overflow-y-auto space-y-2">
-                  {permissions.map(perm => (
+                  {(permissions || []).map(perm => (
                     <label key={perm.id} className="flex items-center gap-2">
                       <input
                         type="checkbox"
@@ -1258,7 +1258,7 @@ export const AdminPage: React.FC = () => {
               />
               <Select
                 label="Tenant Parent"
-                options={[{ value: '', label: 'Aucun' }, ...tenants.map(t => ({ value: t.id, label: t.name }))]}
+                options={[{ value: '', label: 'Aucun' }, ...(tenants || []).map(t => ({ value: t.id, label: t.name }))]}
                 value={formData.parentId || ''}
                 onChange={(e) => setFormData({...formData, parentId: e.target.value})}
               />
