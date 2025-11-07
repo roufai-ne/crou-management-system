@@ -81,15 +81,26 @@ router.get('/',
       const tenantContext = TenantIsolationUtils.extractTenantContext(req);
       const hasExtendedAccess = TenantIsolationUtils.hasExtendedAccess(req);
 
-      // Construire les filtres
+      // Construire les filtres (ignorer 'all' pour les filtres optionnels)
       const filters: UserSearchFilters = {
         search: req.query.search as string,
-        status: req.query.status as UserStatus,
-        roleId: req.query.roleId as string,
-        tenantId: req.query.tenantId as string,
+        status: req.query.status === 'all' ? undefined : req.query.status as UserStatus,
+        roleId: req.query.role === 'all' ? undefined : req.query.role as string,
+        tenantId: req.query.tenantId === 'all' ? undefined : req.query.tenantId as string,
         limit: parseInt(req.query.limit as string) || 50,
         offset: parseInt(req.query.offset as string) || 0
       };
+
+      // Filtre isActive (gérer le paramètre booléen ou 'all')
+      if (req.query.isActive && req.query.isActive !== 'all') {
+        const isActive = req.query.isActive === 'true' || req.query.isActive === '1';
+        if (isActive) {
+          filters.status = UserStatus.ACTIVE;
+        } else {
+          // Inactif peut être INACTIVE, SUSPENDED ou DELETED
+          // On ne filtre pas par status dans ce cas, géré plus bas
+        }
+      }
 
       if (req.query.dateFrom) {
         filters.dateFrom = new Date(req.query.dateFrom as string);
@@ -99,8 +110,9 @@ router.get('/',
         filters.dateTo = new Date(req.query.dateTo as string);
       }
 
-      // Si pas d'accès étendu, limiter au tenant de l'utilisateur
-      if (!hasExtendedAccess && tenantContext) {
+      // Si pas d'accès étendu (ou si pas du ministère), limiter au tenant de l'utilisateur
+      const isMinisterialUser = tenantContext?.tenantType === 'ministere';
+      if (!hasExtendedAccess && !isMinisterialUser && tenantContext) {
         filters.tenantId = tenantContext.tenantId;
       }
 
