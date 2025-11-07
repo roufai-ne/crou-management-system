@@ -287,4 +287,44 @@ export class ReportsController {
       });
     }
   }
+
+  /**
+   * Obtenir la liste des jobs de génération de rapports
+   */
+  static async getJobs(req: Request, res: Response) {
+    try {
+      const tenantId = (req as any).user?.tenantId;
+
+      if (!tenantId) {
+        return res.status(401).json({
+          success: false,
+          error: 'Tenant ID manquant'
+        });
+      }
+
+      // Pour l'instant, retourner une liste vide
+      // TODO: Implémenter la gestion des jobs de génération de rapports avec une queue
+      const jobs = [];
+
+      res.json({
+        success: true,
+        data: {
+          jobs,
+          total: 0,
+          pagination: {
+            page: 1,
+            limit: 10,
+            total: 0,
+            pages: 0
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Erreur getJobs:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erreur lors de la récupération des jobs'
+      });
+    }
+  }
 }

@@ -14,6 +14,7 @@ router.use(authMiddleware);
 
 // Routes des rapports
 router.get('/', ReportsController.getAllReports);
+router.get('/jobs', ReportsController.getJobs); // Doit être avant /:reportId pour éviter le conflit
 router.post('/generate', ReportsController.generateReport);
 router.get('/:reportId', ReportsController.getReport);
 router.delete('/:reportId', ReportsController.deleteReport);
