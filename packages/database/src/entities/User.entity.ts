@@ -270,7 +270,7 @@ export class User {
     const permissionStrings: string[] = [];
 
     for (const permission of this.role.permissions) {
-      const resource = permission.resource || permission.name?.split(':')[0] || '';
+      const resource = permission.resource || '';
 
       // Permission.actions est un ARRAY ["read", "write", "validate"]
       // Il faut créer une permission string par action
@@ -278,10 +278,6 @@ export class User {
         for (const action of permission.actions) {
           permissionStrings.push(`${resource}:${action}`);
         }
-      } else {
-        // Fallback pour les permissions au format "resource:action" (legacy)
-        const action = permission.action || permission.name?.split(':')[1] || '';
-        permissionStrings.push(`${resource}:${action}`);
       }
     }
 
