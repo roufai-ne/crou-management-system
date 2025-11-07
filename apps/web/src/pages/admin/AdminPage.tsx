@@ -944,46 +944,92 @@ export const AdminPage: React.FC = () => {
       <Modal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        title={`Nouveau ${modalType}`}
+        title={`Nouveau ${modalType === 'user' ? 'utilisateur' : modalType === 'role' ? 'rôle' : modalType === 'tenant' ? 'tenant' : 'permission'}`}
         size="lg"
       >
         <div className="space-y-4">
-          <Input
-            label="Nom"
-            placeholder="Ex: John Doe"
-            required
-          />
-          <Input
-            label="Email"
-            type="email"
-            placeholder="Ex: john.doe@crou.gov"
-            required
-          />
-          <Input
-            label="Téléphone"
-            placeholder="Ex: +227 90 12 34 56"
-            required
-          />
-          <Select
-            label="Rôle"
-            options={[
-              { value: 'admin', label: 'Administrateur' },
-              { value: 'user', label: 'Utilisateur' },
-              { value: 'viewer', label: 'Observateur' }
-            ]}
-            required
-          />
+          {modalType === 'user' && (
+            <>
+              <Input label="Nom" placeholder="Ex: John Doe" required />
+              <Input label="Email" type="email" placeholder="Ex: john.doe@crou.gov" required />
+              <Input label="Téléphone" placeholder="Ex: +227 90 12 34 56" />
+              <Select
+                label="Rôle"
+                options={roles.map(r => ({ value: r.id, label: r.name }))}
+                required
+              />
+              <Select
+                label="Tenant"
+                options={tenants.map(t => ({ value: t.id, label: t.name }))}
+                required
+              />
+            </>
+          )}
+
+          {modalType === 'role' && (
+            <>
+              <Input label="Nom du rôle" placeholder="Ex: Gestionnaire" required />
+              <Input label="Description" placeholder="Description du rôle" />
+              <div className="border rounded p-4">
+                <label className="block text-sm font-medium mb-2">Permissions</label>
+                <div className="max-h-48 overflow-y-auto space-y-2">
+                  {permissions.map(perm => (
+                    <label key={perm.id} className="flex items-center gap-2">
+                      <input type="checkbox" className="rounded" />
+                      <span className="text-sm">{perm.name}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {modalType === 'tenant' && (
+            <>
+              <Input label="Nom du tenant" placeholder="Ex: CROU Niamey" required />
+              <Input label="Code" placeholder="Ex: CROU-NIA" required />
+              <Select
+                label="Type"
+                options={[
+                  { value: 'ministere', label: 'Ministère' },
+                  { value: 'crou', label: 'CROU' },
+                  { value: 'cite', label: 'Cité Universitaire' }
+                ]}
+                required
+              />
+              <Select
+                label="Tenant Parent"
+                options={[{ value: '', label: 'Aucun' }, ...tenants.map(t => ({ value: t.id, label: t.name }))]}
+              />
+              <Input label="Adresse" placeholder="Adresse du tenant" />
+              <Input label="Téléphone" placeholder="Ex: +227 20 12 34 56" />
+            </>
+          )}
+
+          {modalType === 'permission' && (
+            <>
+              <Input label="Nom de la permission" placeholder="Ex: users:create" required />
+              <Input label="Description" placeholder="Description de la permission" />
+              <Input label="Ressource" placeholder="Ex: users" required />
+              <Select
+                label="Action"
+                options={[
+                  { value: 'create', label: 'Créer' },
+                  { value: 'read', label: 'Lire' },
+                  { value: 'update', label: 'Modifier' },
+                  { value: 'delete', label: 'Supprimer' }
+                ]}
+                required
+              />
+              <Input label="Module" placeholder="Ex: admin" />
+            </>
+          )}
+
           <div className="flex justify-end gap-3 pt-4">
-            <Button
-              variant="outline"
-              onClick={() => setIsCreateModalOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setIsCreateModalOpen(false)}>
               Annuler
             </Button>
-            <Button
-              variant="primary"
-              onClick={() => handleCreateItem({})}
-            >
+            <Button variant="primary" onClick={() => handleCreateItem({})}>
               Créer
             </Button>
           </div>
@@ -993,46 +1039,120 @@ export const AdminPage: React.FC = () => {
       <Modal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        title={`Modifier ${modalType}`}
+        title={`Modifier ${modalType === 'user' ? "l'utilisateur" : modalType === 'role' ? 'le rôle' : modalType === 'tenant' ? 'le tenant' : 'la permission'}`}
         size="lg"
       >
         <div className="space-y-4">
-          <Input
-            label="Nom"
-            placeholder="Ex: John Doe"
-            required
-          />
-          <Input
-            label="Email"
-            type="email"
-            placeholder="Ex: john.doe@crou.gov"
-            required
-          />
-          <Input
-            label="Téléphone"
-            placeholder="Ex: +227 90 12 34 56"
-            required
-          />
-          <Select
-            label="Rôle"
-            options={[
-              { value: 'admin', label: 'Administrateur' },
-              { value: 'user', label: 'Utilisateur' },
-              { value: 'viewer', label: 'Observateur' }
-            ]}
-            required
-          />
+          {modalType === 'user' && selectedItem && (
+            <>
+              <Input label="Nom" placeholder="Ex: John Doe" defaultValue={selectedItem.name} required />
+              <Input label="Email" type="email" placeholder="Ex: john.doe@crou.gov" defaultValue={selectedItem.email} required />
+              <Input label="Téléphone" placeholder="Ex: +227 90 12 34 56" defaultValue={selectedItem.phone} />
+              <Select
+                label="Rôle"
+                options={roles.map(r => ({ value: r.id, label: r.name }))}
+                defaultValue={selectedItem.roleId}
+                required
+              />
+              <Select
+                label="Tenant"
+                options={tenants.map(t => ({ value: t.id, label: t.name }))}
+                defaultValue={selectedItem.tenantId}
+                required
+              />
+              <Select
+                label="Statut"
+                options={[
+                  { value: 'active', label: 'Actif' },
+                  { value: 'inactive', label: 'Inactif' },
+                  { value: 'suspended', label: 'Suspendu' }
+                ]}
+                defaultValue={selectedItem.status}
+                required
+              />
+            </>
+          )}
+
+          {modalType === 'role' && selectedItem && (
+            <>
+              <Input label="Nom du rôle" placeholder="Ex: Gestionnaire" defaultValue={selectedItem.name} required />
+              <Input label="Description" placeholder="Description du rôle" defaultValue={selectedItem.description} />
+              <div className="border rounded p-4">
+                <label className="block text-sm font-medium mb-2">Permissions</label>
+                <div className="max-h-48 overflow-y-auto space-y-2">
+                  {permissions.map(perm => (
+                    <label key={perm.id} className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        className="rounded"
+                        defaultChecked={selectedItem.permissions?.some((p: any) => p.id === perm.id)}
+                      />
+                      <span className="text-sm">{perm.name}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {modalType === 'tenant' && selectedItem && (
+            <>
+              <Input label="Nom du tenant" placeholder="Ex: CROU Niamey" defaultValue={selectedItem.name} required />
+              <Input label="Code" placeholder="Ex: CROU-NIA" defaultValue={selectedItem.code} required />
+              <Select
+                label="Type"
+                options={[
+                  { value: 'ministere', label: 'Ministère' },
+                  { value: 'crou', label: 'CROU' },
+                  { value: 'cite', label: 'Cité Universitaire' }
+                ]}
+                defaultValue={selectedItem.type}
+                required
+              />
+              <Select
+                label="Tenant Parent"
+                options={[{ value: '', label: 'Aucun' }, ...tenants.map(t => ({ value: t.id, label: t.name }))]}
+                defaultValue={selectedItem.parentId}
+              />
+              <Input label="Adresse" placeholder="Adresse du tenant" defaultValue={selectedItem.address} />
+              <Input label="Téléphone" placeholder="Ex: +227 20 12 34 56" defaultValue={selectedItem.phone} />
+              <Select
+                label="Statut"
+                options={[
+                  { value: 'active', label: 'Actif' },
+                  { value: 'inactive', label: 'Inactif' }
+                ]}
+                defaultValue={selectedItem.isActive ? 'active' : 'inactive'}
+                required
+              />
+            </>
+          )}
+
+          {modalType === 'permission' && selectedItem && (
+            <>
+              <Input label="Nom de la permission" placeholder="Ex: users:create" defaultValue={selectedItem.name} required />
+              <Input label="Description" placeholder="Description de la permission" defaultValue={selectedItem.description} />
+              <Input label="Ressource" placeholder="Ex: users" defaultValue={selectedItem.resource} required />
+              <Select
+                label="Action"
+                options={[
+                  { value: 'create', label: 'Créer' },
+                  { value: 'read', label: 'Lire' },
+                  { value: 'update', label: 'Modifier' },
+                  { value: 'delete', label: 'Supprimer' }
+                ]}
+                defaultValue={selectedItem.action}
+                required
+              />
+              <Input label="Module" placeholder="Ex: admin" defaultValue={selectedItem.module} />
+            </>
+          )}
+
           <div className="flex justify-end gap-3 pt-4">
-            <Button
-              variant="outline"
-              onClick={() => setIsEditModalOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
               Annuler
             </Button>
-            <Button
-              variant="primary"
-              onClick={() => handleUpdateItem({})}
-            >
+            <Button variant="primary" onClick={() => handleUpdateItem({})}>
               Modifier
             </Button>
           </div>
