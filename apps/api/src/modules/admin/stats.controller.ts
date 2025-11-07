@@ -40,6 +40,120 @@ const router: Router = Router();
 const auditService = new AuditService();
 
 /**
+ * GET /api/admin/statistics (route racine pour compatibilité frontend)
+ * Statistiques administratives globales
+ */
+router.get('/',
+  injectTenantIdMiddleware({ strictMode: false }),
+  auditMiddleware({ enabled: true }),
+  async (req: Request, res: Response) => {
+    try {
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
+      const hasExtendedAccess = TenantIsolationUtils.hasExtendedAccess(req);
+
+      // Repositories
+      const userRepository = AppDataSource.getRepository(User);
+      const tenantRepository = AppDataSource.getRepository(Tenant);
+      const auditLogRepository = AppDataSource.getRepository(AuditLog);
+
+      // Construire les requêtes avec filtrage tenant si nécessaire
+      let userQuery = userRepository.createQueryBuilder('user');
+      let auditQuery = auditLogRepository.createQueryBuilder('audit');
+
+      if (!hasExtendedAccess && tenantContext) {
+        userQuery = userQuery.where('user.tenantId = :tenantId', { tenantId: tenantContext.tenantId });
+        auditQuery = auditQuery
+          .leftJoin('audit.user', 'user')
+          .where('user.tenantId = :tenantId', { tenantId: tenantContext.tenantId });
+      }
+
+      // Statistiques utilisateurs
+      const totalUsers = await userQuery.getCount();
+      const activeUsers = await userQuery.clone().andWhere('user.isActive = :active', { active: true }).getCount();
+      const inactiveUsers = totalUsers - activeUsers;
+
+      // Statistiques tenants (seulement pour accès étendu)
+      let totalTenants = 0;
+      let activeTenants = 0;
+      if (hasExtendedAccess) {
+        totalTenants = await tenantRepository.count();
+        activeTenants = await tenantRepository.count({ where: { isActive: true } });
+      }
+
+      // Statistiques rôles et permissions (TODO: implémenter)
+      const totalRoles = 5; // Placeholder
+      const totalPermissions = 50; // Placeholder
+      const activeRoles = 5;
+      const modulePermissions = 10;
+
+      // Statistiques d'activité
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+      const todayLogins = await auditQuery.clone()
+        .andWhere('audit.action = :action', { action: 'LOGIN' })
+        .andWhere('audit.createdAt >= :today', { today })
+        .getCount();
+
+      const thisWeekLogins = await auditQuery.clone()
+        .andWhere('audit.action = :action', { action: 'LOGIN' })
+        .andWhere('audit.createdAt >= :weekAgo', { weekAgo })
+        .getCount();
+
+      const todayAuditLogs = await auditQuery.clone()
+        .andWhere('audit.createdAt >= :today', { today })
+        .getCount();
+
+      const failedActions = await auditQuery.clone()
+        .andWhere('audit.metadata->\'success\' = :failed', { failed: 'false' })
+        .andWhere('audit.createdAt >= :weekAgo', { weekAgo })
+        .getCount();
+
+      // Retourner les statistiques
+      res.json({
+        success: true,
+        data: {
+          totalUsers,
+          activeUsers,
+          inactiveUsers,
+          totalTenants,
+          activeTenants,
+          totalRoles,
+          activeRoles,
+          totalPermissions,
+          modulePermissions,
+          todayLogins,
+          thisWeekLogins,
+          todayAuditLogs,
+          failedActions,
+          systemHealth: {
+            status: 'healthy',
+            uptime: process.uptime(),
+            memoryUsage: process.memoryUsage().heapUsed / 1024 / 1024,
+            diskUsage: 0,
+            lastBackup: new Date().toISOString()
+          },
+          activityStats: {
+            today: todayAuditLogs,
+            thisWeek: thisWeekLogins,
+            thisMonth: 0,
+            topActions: []
+          }
+        }
+      });
+    } catch (error) {
+      logger.error('Erreur récupération statistiques:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erreur serveur',
+        message: 'Erreur lors de la récupération des statistiques'
+      });
+    }
+  }
+);
+
+/**
  * Interface pour les statistiques d'utilisation
  */
 interface UsageStats {
