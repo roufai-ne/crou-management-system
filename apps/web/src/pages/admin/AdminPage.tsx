@@ -98,6 +98,207 @@ export const AdminPage: React.FC = () => {
     }
   };
 
+  // Colonnes du tableau des rôles
+  const roleColumns = [
+    {
+      key: 'name',
+      label: 'Nom du Rôle',
+      render: (role: any) => (
+        <div>
+          <p className="font-medium">{role.name}</p>
+          <p className="text-sm text-gray-500">{role.description || 'Aucune description'}</p>
+        </div>
+      )
+    },
+    {
+      key: 'permissions',
+      label: 'Permissions',
+      render: (role: any) => (
+        <Badge variant="secondary">{role.permissions?.length || 0} permissions</Badge>
+      )
+    },
+    {
+      key: 'users',
+      label: 'Utilisateurs',
+      render: (role: any) => (
+        <span className="text-sm text-gray-600">{role.usersCount || 0} utilisateurs</span>
+      )
+    },
+    {
+      key: 'status',
+      label: 'Statut',
+      render: (role: any) => (
+        <Badge variant={role.isActive ? 'success' : 'danger'}>
+          {role.isActive ? 'Actif' : 'Inactif'}
+        </Badge>
+      )
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      render: (role: any) => (
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            leftIcon={<EyeIcon className="h-4 w-4" />}
+            onClick={() => {
+              setSelectedItem(role);
+              setModalType('role');
+              setIsEditModalOpen(true);
+            }}
+          >
+            Voir
+          </Button>
+        </div>
+      )
+    }
+  ];
+
+  // Colonnes du tableau des tenants
+  const tenantColumns = [
+    {
+      key: 'name',
+      label: 'Nom du Tenant',
+      render: (tenant: any) => (
+        <div>
+          <p className="font-medium">{tenant.name}</p>
+          <p className="text-sm text-gray-500">{tenant.code}</p>
+        </div>
+      )
+    },
+    {
+      key: 'type',
+      label: 'Type',
+      render: (tenant: any) => (
+        <Badge variant="secondary">{tenant.type}</Badge>
+      )
+    },
+    {
+      key: 'parent',
+      label: 'Parent',
+      render: (tenant: any) => (
+        <span className="text-sm text-gray-600">{tenant.parent?.name || 'Aucun'}</span>
+      )
+    },
+    {
+      key: 'status',
+      label: 'Statut',
+      render: (tenant: any) => (
+        <Badge variant={tenant.isActive ? 'success' : 'danger'}>
+          {tenant.isActive ? 'Actif' : 'Inactif'}
+        </Badge>
+      )
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      render: (tenant: any) => (
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            leftIcon={<EyeIcon className="h-4 w-4" />}
+            onClick={() => {
+              setSelectedItem(tenant);
+              setModalType('tenant');
+              setIsEditModalOpen(true);
+            }}
+          >
+            Voir
+          </Button>
+        </div>
+      )
+    }
+  ];
+
+  // Colonnes du tableau des permissions
+  const permissionColumns = [
+    {
+      key: 'name',
+      label: 'Nom de la Permission',
+      render: (permission: any) => (
+        <div>
+          <p className="font-medium">{permission.name}</p>
+          <p className="text-sm text-gray-500">{permission.description || 'Aucune description'}</p>
+        </div>
+      )
+    },
+    {
+      key: 'resource',
+      label: 'Ressource',
+      render: (permission: any) => (
+        <Badge variant="secondary">{permission.resource}</Badge>
+      )
+    },
+    {
+      key: 'action',
+      label: 'Action',
+      render: (permission: any) => (
+        <Badge variant="info">{permission.action}</Badge>
+      )
+    },
+    {
+      key: 'module',
+      label: 'Module',
+      render: (permission: any) => (
+        <span className="text-sm text-gray-600">{permission.module || 'Global'}</span>
+      )
+    }
+  ];
+
+  // Colonnes du tableau des logs d'audit
+  const auditColumns = [
+    {
+      key: 'user',
+      label: 'Utilisateur',
+      render: (log: any) => (
+        <div>
+          <p className="font-medium">{log.userName || 'Inconnu'}</p>
+          <p className="text-sm text-gray-500">{log.userEmail}</p>
+        </div>
+      )
+    },
+    {
+      key: 'action',
+      label: 'Action',
+      render: (log: any) => (
+        <Badge variant="secondary">{log.action}</Badge>
+      )
+    },
+    {
+      key: 'resource',
+      label: 'Ressource',
+      render: (log: any) => (
+        <div>
+          <p className="font-medium">{log.resource}</p>
+          <p className="text-sm text-gray-500">{log.resourceId?.substring(0, 8)}</p>
+        </div>
+      )
+    },
+    {
+      key: 'timestamp',
+      label: 'Date',
+      render: (log: any) => (
+        <div>
+          <p className="font-medium">
+            {new Date(log.createdAt).toLocaleDateString()}
+          </p>
+          <p className="text-sm text-gray-500">
+            {new Date(log.createdAt).toLocaleTimeString()}
+          </p>
+        </div>
+      )
+    },
+    {
+      key: 'ip',
+      label: 'IP',
+      render: (log: any) => (
+        <span className="text-sm font-mono">{log.ipAddress || 'N/A'}</span>
+      )
+    }
+  ];
+
   // Colonnes du tableau des utilisateurs
   const userColumns = [
     {
@@ -257,15 +458,17 @@ export const AdminPage: React.FC = () => {
               <Card.Title>Liste des Rôles ({roles.length})</Card.Title>
             </Card.Header>
             <Card.Content>
-              <div className="text-center py-12">
-                <ShieldCheckIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Module Rôles en Développement
-                </h3>
-                <p className="text-gray-600">
-                  La gestion des rôles sera disponible dans la prochaine version.
-                </p>
-              </div>
+              <DataTable
+                data={roles}
+                columns={roleColumns}
+                loading={rolesLoading}
+                emptyMessage="Aucun rôle trouvé"
+                onRowClick={(item) => {
+                  setSelectedItem(item);
+                  setModalType('role');
+                  setIsEditModalOpen(true);
+                }}
+              />
             </Card.Content>
           </Card>
         </div>
@@ -295,15 +498,17 @@ export const AdminPage: React.FC = () => {
               <Card.Title>Liste des Tenants ({tenants.length})</Card.Title>
             </Card.Header>
             <Card.Content>
-              <div className="text-center py-12">
-                <BuildingOfficeIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Module Tenants en Développement
-                </h3>
-                <p className="text-gray-600">
-                  La gestion des tenants sera disponible dans la prochaine version.
-                </p>
-              </div>
+              <DataTable
+                data={tenants}
+                columns={tenantColumns}
+                loading={tenantsLoading}
+                emptyMessage="Aucun tenant trouvé"
+                onRowClick={(item) => {
+                  setSelectedItem(item);
+                  setModalType('tenant');
+                  setIsEditModalOpen(true);
+                }}
+              />
             </Card.Content>
           </Card>
         </div>
@@ -333,15 +538,17 @@ export const AdminPage: React.FC = () => {
               <Card.Title>Liste des Permissions ({permissions.length})</Card.Title>
             </Card.Header>
             <Card.Content>
-              <div className="text-center py-12">
-                <ShieldCheckIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Module Permissions en Développement
-                </h3>
-                <p className="text-gray-600">
-                  La gestion des permissions sera disponible dans la prochaine version.
-                </p>
-              </div>
+              <DataTable
+                data={permissions}
+                columns={permissionColumns}
+                loading={permissionsLoading}
+                emptyMessage="Aucune permission trouvée"
+                onRowClick={(item) => {
+                  setSelectedItem(item);
+                  setModalType('permission');
+                  setIsEditModalOpen(true);
+                }}
+              />
             </Card.Content>
           </Card>
         </div>
@@ -375,15 +582,12 @@ export const AdminPage: React.FC = () => {
               <Card.Title>Logs d'Audit ({auditLogs.length})</Card.Title>
             </Card.Header>
             <Card.Content>
-              <div className="text-center py-12">
-                <DocumentTextIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Module Audit en Développement
-                </h3>
-                <p className="text-gray-600">
-                  Les logs d'audit seront disponibles dans la prochaine version.
-                </p>
-              </div>
+              <DataTable
+                data={auditLogs}
+                columns={auditColumns}
+                loading={auditLoading}
+                emptyMessage="Aucun log d'audit trouvé"
+              />
             </Card.Content>
           </Card>
         </div>
