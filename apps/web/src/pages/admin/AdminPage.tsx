@@ -45,11 +45,27 @@ export const AdminPage: React.FC = () => {
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [modalType, setModalType] = useState<'user' | 'role' | 'tenant' | 'permission'>('user');
   
-  const { users = [], loading: usersLoading, error: usersError, createUser, updateUser, deleteUser, toggleUserStatus } = useAdminUsers();
+  const {
+    users = [],
+    loading: usersLoading,
+    error: usersError,
+    pagination: usersPagination,
+    updatePagination: updateUsersPagination,
+    createUser,
+    updateUser,
+    deleteUser,
+    toggleUserStatus
+  } = useAdminUsers();
   const { roles = [], loading: rolesLoading, error: rolesError, createRole, updateRole, deleteRole } = useAdminRoles();
-  const { permissions = [], loading: permissionsLoading, error: permissionsError, createPermission, updatePermission, deletePermission } = useAdminPermissions();
+  const { permissions = [], loading: permissionsLoading, error: permissionsError } = useAdminPermissions();
   const { tenants = [], loading: tenantsLoading, error: tenantsError, createTenant, updateTenant, deleteTenant } = useAdminTenants();
-  const { auditLogs = [], loading: auditLoading, error: auditError } = useAdminAudit();
+  const {
+    auditLogs = [],
+    loading: auditLoading,
+    error: auditError,
+    pagination: auditPagination,
+    updatePagination: updateAuditPagination
+  } = useAdminAudit();
   const { statistics, loading: statsLoading, error: statsError } = useAdminStatistics();
 
   // États pour les formulaires
@@ -67,10 +83,22 @@ export const AdminPage: React.FC = () => {
   const openEditModal = (type: 'user' | 'role' | 'tenant' | 'permission', item: any) => {
     setModalType(type);
     setSelectedItem(item);
-    setFormData(item);
-    if (type === 'role' && Array.isArray(item.permissions)) {
+
+    // Préparer les données du formulaire selon le type
+    if (type === 'user') {
+      // Pour les utilisateurs, extraire roleId et tenantId depuis les objets role et tenant
+      setFormData({
+        ...item,
+        roleId: item.role?.id || item.roleId || '',
+        tenantId: item.tenant?.id || item.tenantId || ''
+      });
+    } else if (type === 'role' && Array.isArray(item.permissions)) {
+      setFormData(item);
       setSelectedPermissions(item.permissions.map((p: any) => p.id));
+    } else {
+      setFormData(item);
     }
+
     setIsEditModalOpen(true);
   };
 
@@ -95,7 +123,8 @@ export const AdminPage: React.FC = () => {
           await createTenant(dataToSend);
           break;
         case 'permission':
-          await createPermission(dataToSend);
+          // Permissions creation not yet implemented
+          console.warn('Permission creation not yet implemented');
           break;
       }
       setIsCreateModalOpen(false);
@@ -130,7 +159,8 @@ export const AdminPage: React.FC = () => {
           await updateTenant(selectedItem.id, dataToSend);
           break;
         case 'permission':
-          await updatePermission(selectedItem.id, dataToSend);
+          // Permissions update not yet implemented
+          console.warn('Permission update not yet implemented');
           break;
       }
       setIsEditModalOpen(false);
@@ -166,7 +196,7 @@ export const AdminPage: React.FC = () => {
       key: 'users',
       label: 'Utilisateurs',
       render: (role: any) => (
-        <span className="text-sm text-gray-600">{role.usersCount || 0} utilisateurs</span>
+        <span className="text-sm text-gray-600">{role.userCount || role.users?.length || 0} utilisateurs</span>
       )
     },
     {
@@ -252,34 +282,33 @@ export const AdminPage: React.FC = () => {
   // Colonnes du tableau des permissions
   const permissionColumns = [
     {
-      key: 'name',
-      label: 'Nom de la Permission',
+      key: 'resource',
+      label: 'Ressource',
       render: (permission: any) => (
         <div>
-          <p className="font-medium">{permission.name}</p>
+          <p className="font-medium">{permission.resource}</p>
           <p className="text-sm text-gray-500">{permission.description || 'Aucune description'}</p>
         </div>
       )
     },
     {
-      key: 'resource',
-      label: 'Ressource',
+      key: 'actions',
+      label: 'Actions',
       render: (permission: any) => (
-        <Badge variant="secondary">{permission.resource}</Badge>
+        <div className="flex flex-wrap gap-1">
+          {(Array.isArray(permission.actions) ? permission.actions : [permission.action]).map((action: string, index: number) => (
+            <Badge key={index} variant="info">{action}</Badge>
+          ))}
+        </div>
       )
     },
     {
-      key: 'action',
-      label: 'Action',
+      key: 'status',
+      label: 'Statut',
       render: (permission: any) => (
-        <Badge variant="info">{permission.action}</Badge>
-      )
-    },
-    {
-      key: 'module',
-      label: 'Module',
-      render: (permission: any) => (
-        <span className="text-sm text-gray-600">{permission.module || 'Global'}</span>
+        <Badge variant={permission.isActive ? 'success' : 'danger'}>
+          {permission.isActive ? 'Actif' : 'Inactif'}
+        </Badge>
       )
     }
   ];
@@ -441,7 +470,7 @@ export const AdminPage: React.FC = () => {
 
           <Card>
             <Card.Header>
-              <Card.Title>Liste des Utilisateurs ({(users || []).length})</Card.Title>
+              <Card.Title>Liste des Utilisateurs ({usersPagination?.total || 0})</Card.Title>
             </Card.Header>
             <Card.Content>
               <DataTable
@@ -450,6 +479,13 @@ export const AdminPage: React.FC = () => {
                 loading={usersLoading}
                 emptyMessage="Aucun utilisateur trouvé"
                 onRowClick={(item) => openEditModal('user', item)}
+                pagination={usersPagination ? {
+                  page: usersPagination.page,
+                  limit: usersPagination.limit,
+                  total: usersPagination.total,
+                  onPageChange: (page) => updateUsersPagination({ page }),
+                  onLimitChange: (limit) => updateUsersPagination({ limit, page: 1 })
+                } : undefined}
               />
             </Card.Content>
           </Card>
@@ -580,7 +616,7 @@ export const AdminPage: React.FC = () => {
 
           <Card>
             <Card.Header>
-              <Card.Title>Logs d'Audit ({(auditLogs || []).length})</Card.Title>
+              <Card.Title>Logs d'Audit ({auditPagination?.total || 0})</Card.Title>
             </Card.Header>
             <Card.Content>
               <DataTable
@@ -588,6 +624,13 @@ export const AdminPage: React.FC = () => {
                 columns={auditColumns}
                 loading={auditLoading}
                 emptyMessage="Aucun log d'audit trouvé"
+                pagination={auditPagination ? {
+                  page: auditPagination.page,
+                  limit: auditPagination.limit,
+                  total: auditPagination.total,
+                  onPageChange: (page) => updateAuditPagination({ page }),
+                  onLimitChange: (limit) => updateAuditPagination({ limit, page: 1 })
+                } : undefined}
               />
             </Card.Content>
           </Card>
@@ -976,14 +1019,14 @@ export const AdminPage: React.FC = () => {
                 label="Rôle"
                 options={(roles || []).map(r => ({ value: r.id, label: r.name }))}
                 value={formData.roleId || ''}
-                onChange={(e) => setFormData({...formData, roleId: e.target.value})}
+                onChange={(value) => setFormData({...formData, roleId: value})}
                 required
               />
               <Select
                 label="Tenant"
                 options={(tenants || []).map(t => ({ value: t.id, label: t.name }))}
                 value={formData.tenantId || ''}
-                onChange={(e) => setFormData({...formData, tenantId: e.target.value})}
+                onChange={(value) => setFormData({...formData, tenantId: value})}
                 required
               />
             </>
@@ -1021,7 +1064,7 @@ export const AdminPage: React.FC = () => {
                           }
                         }}
                       />
-                      <span className="text-sm">{perm.name}</span>
+                      <span className="text-sm">{perm.resource} ({perm.actions.join(', ')})</span>
                     </label>
                   ))}
                 </div>
@@ -1053,14 +1096,14 @@ export const AdminPage: React.FC = () => {
                   { value: 'service', label: 'Service' }
                 ]}
                 value={formData.type || ''}
-                onChange={(e) => setFormData({...formData, type: e.target.value})}
+                onChange={(value) => setFormData({...formData, type: value})}
                 required
               />
               <Select
                 label="Tenant Parent"
                 options={[{ value: '', label: 'Aucun' }, ...(tenants || []).map(t => ({ value: t.id, label: t.name }))]}
                 value={formData.parentId || ''}
-                onChange={(e) => setFormData({...formData, parentId: e.target.value})}
+                onChange={(value) => setFormData({...formData, parentId: value})}
               />
               <Input
                 label="Région"
@@ -1079,7 +1122,7 @@ export const AdminPage: React.FC = () => {
                     { value: 'restauration', label: 'Restauration' }
                   ]}
                   value={formData.serviceType || ''}
-                  onChange={(e) => setFormData({...formData, serviceType: e.target.value})}
+                  onChange={(value) => setFormData({...formData, serviceType: value})}
                 />
               )}
             </>
@@ -1091,7 +1134,7 @@ export const AdminPage: React.FC = () => {
                 label="Ressource"
                 placeholder="Ex: users, financial, reports"
                 value={formData.resource || ''}
-                onChange={(e) => setFormData({...formData, resource: e.target.value})}
+                onChange={(value) => setFormData({...formData, resource: value})}
                 required
               />
               <div className="border rounded p-4">
@@ -1171,14 +1214,14 @@ export const AdminPage: React.FC = () => {
                 label="Rôle"
                 options={(roles || []).map(r => ({ value: r.id, label: r.name }))}
                 value={formData.roleId || ''}
-                onChange={(e) => setFormData({...formData, roleId: e.target.value})}
+                onChange={(value) => setFormData({...formData, roleId: value})}
                 required
               />
               <Select
                 label="Tenant"
                 options={(tenants || []).map(t => ({ value: t.id, label: t.name }))}
                 value={formData.tenantId || ''}
-                onChange={(e) => setFormData({...formData, tenantId: e.target.value})}
+                onChange={(value) => setFormData({...formData, tenantId: value})}
                 required
               />
               <Select
@@ -1189,7 +1232,7 @@ export const AdminPage: React.FC = () => {
                   { value: 'suspended', label: 'Suspendu' }
                 ]}
                 value={formData.status || ''}
-                onChange={(e) => setFormData({...formData, status: e.target.value})}
+                onChange={(value) => setFormData({...formData, status: value})}
                 required
               />
             </>
@@ -1227,7 +1270,7 @@ export const AdminPage: React.FC = () => {
                           }
                         }}
                       />
-                      <span className="text-sm">{perm.name}</span>
+                      <span className="text-sm">{perm.resource} ({perm.actions.join(', ')})</span>
                     </label>
                   ))}
                 </div>
@@ -1259,14 +1302,14 @@ export const AdminPage: React.FC = () => {
                   { value: 'service', label: 'Service' }
                 ]}
                 value={formData.type || ''}
-                onChange={(e) => setFormData({...formData, type: e.target.value})}
+                onChange={(value) => setFormData({...formData, type: value})}
                 required
               />
               <Select
                 label="Tenant Parent"
                 options={[{ value: '', label: 'Aucun' }, ...(tenants || []).map(t => ({ value: t.id, label: t.name }))]}
                 value={formData.parentId || ''}
-                onChange={(e) => setFormData({...formData, parentId: e.target.value})}
+                onChange={(value) => setFormData({...formData, parentId: value})}
               />
               <Input
                 label="Région"
@@ -1285,7 +1328,7 @@ export const AdminPage: React.FC = () => {
                     { value: 'restauration', label: 'Restauration' }
                   ]}
                   value={formData.serviceType || ''}
-                  onChange={(e) => setFormData({...formData, serviceType: e.target.value})}
+                  onChange={(value) => setFormData({...formData, serviceType: value})}
                 />
               )}
               <Select
@@ -1295,7 +1338,7 @@ export const AdminPage: React.FC = () => {
                   { value: 'inactive', label: 'Inactif' }
                 ]}
                 value={formData.isActive !== undefined ? (formData.isActive ? 'active' : 'inactive') : ''}
-                onChange={(e) => setFormData({...formData, isActive: e.target.value === 'active'})}
+                onChange={(value) => setFormData({...formData, isActive: value === 'active'})}
                 required
               />
             </>
@@ -1307,7 +1350,7 @@ export const AdminPage: React.FC = () => {
                 label="Ressource"
                 placeholder="Ex: users, financial, reports"
                 value={formData.resource || ''}
-                onChange={(e) => setFormData({...formData, resource: e.target.value})}
+                onChange={(value) => setFormData({...formData, resource: value})}
                 required
               />
               <div className="border rounded p-4">

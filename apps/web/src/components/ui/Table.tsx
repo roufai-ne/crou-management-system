@@ -205,7 +205,7 @@ export function Table<T extends { id: string | number }>({
     <tbody className="bg-white divide-y divide-gray-200">
       {data.map((item, index) => (
         <tr
-          key={item.id}
+          key={item.id || `row-${index}`}
           className={`hover:bg-gray-50 ${
             onRowClick ? 'cursor-pointer' : ''
           } ${rowClassName?.(item, index) || ''}`}

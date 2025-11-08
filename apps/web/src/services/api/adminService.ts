@@ -83,6 +83,9 @@ export interface Role {
   description?: string;
   tenantType?: string;
   permissions?: Permission[];
+  users?: User[]; // Liste des utilisateurs (chargée avec includeUsers=true)
+  userCount?: number; // Nombre d'utilisateurs (toujours retourné par l'API)
+  permissionCount?: number; // Nombre de permissions (toujours retourné par l'API)
   isSystem?: boolean;
   isActive?: boolean;
   createdAt?: string;
@@ -334,9 +337,10 @@ class AdminService {
   /**
    * Récupère la liste des rôles
    */
-  async getRoles(): Promise<UserRole[]> {
+  async getRoles(): Promise<Role[]> {
     try {
-      const response = await apiClient.get(`${this.baseUrl}/roles`);
+      // Inclure les permissions et les utilisateurs pour afficher les compteurs
+      const response = await apiClient.get(`${this.baseUrl}/roles?includePermissions=true&includeUsers=true`);
       // Le backend retourne { success: true, data: { roles: [...], total: ... } }
       const data = response.data?.data || response.data;
       if (Array.isArray(data.roles)) {
@@ -355,7 +359,7 @@ class AdminService {
   /**
    * Récupère un rôle par ID
    */
-  async getRole(id: string): Promise<UserRole> {
+  async getRole(id: string): Promise<Role> {
     try {
       const response = await apiClient.get(`${this.baseUrl}/roles/${id}`);
       return response.data;
@@ -372,7 +376,7 @@ class AdminService {
     name: string;
     description: string;
     permissions: string[];
-  }): Promise<UserRole> {
+  }): Promise<Role> {
     try {
       const response = await apiClient.post(`${this.baseUrl}/roles`, data);
       return response.data;
@@ -389,7 +393,7 @@ class AdminService {
     name?: string;
     description?: string;
     permissions?: string[];
-  }): Promise<UserRole> {
+  }): Promise<Role> {
     try {
       const response = await apiClient.put(`${this.baseUrl}/roles/${id}`, data);
       return response.data;
