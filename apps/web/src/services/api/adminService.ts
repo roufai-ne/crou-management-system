@@ -21,127 +21,148 @@
 import { apiClient } from './apiClient';
 
 // Types pour les utilisateurs
+export enum UserStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  SUSPENDED = 'suspended',
+  PENDING = 'pending'
+}
+
 export interface User {
   id: string;
-  tenantId: string;
-  tenant?: Tenant; // Populated on fetch
   email: string;
-  firstName: string;
-  lastName: string;
+  name: string;
+  firstName?: string; // Optionnel, séparé de name
+  lastName?: string; // Optionnel, séparé de name
   phone?: string;
-  role: UserRole;
-  permissions: Permission[];
-  isActive: boolean;
+  avatar?: string;
+  department?: string;
+  status: UserStatus;
+  isActive: boolean; // Calculé depuis status === 'active'
+  roleId: string;
+  role?: Role; // Relation chargée
+  tenantId: string;
+  tenant?: Tenant; // Relation chargée
   lastLoginAt?: string;
+  loginAttempts?: number;
   createdAt: string;
   updatedAt: string;
+  createdBy?: string;
+  updatedBy?: string;
 }
 
 export interface CreateUserRequest {
   email: string;
-  firstName: string;
-  lastName: string;
-  phone?: string;
-  role: UserRole;
-  permissions: string[];
-  tenantId: string;
+  name: string;
+  firstName?: string;
+  lastName?: string;
   password: string;
+  roleId: string;
+  tenantId: string;
+  phone?: string;
+  department?: string;
+  status?: UserStatus;
 }
 
 export interface UpdateUserRequest {
   email?: string;
+  name?: string;
   firstName?: string;
   lastName?: string;
   phone?: string;
-  role?: UserRole;
-  permissions?: string[];
+  department?: string;
+  roleId?: string;
+  tenantId?: string;
+  status?: UserStatus;
   isActive?: boolean;
 }
 
-export interface UserRole {
+export interface Role {
   id: string;
   name: string;
-  description: string;
-  permissions: Permission[];
-  isSystem: boolean;
-  createdAt: string;
-  updatedAt: string;
+  description?: string;
+  tenantType?: string;
+  permissions?: Permission[];
+  isSystem?: boolean;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Permission {
   id: string;
-  name: string;
-  description: string;
-  module: string;
-  action: string;
-  resource?: string;
-  createdAt: string;
-  updatedAt: string;
+  resource: string; // Ressource protégée (ex: 'financial', 'users', 'reports')
+  actions: string[]; // Actions autorisées (ex: ['read', 'write', 'validate'])
+  description?: string;
+  conditions?: PermissionCondition[] | null;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  createdBy?: string;
+  updatedBy?: string;
+}
+
+export interface PermissionCondition {
+  field: string;
+  operator: 'eq' | 'in' | 'gt' | 'lt' | 'gte' | 'lte' | 'contains';
+  value: any;
 }
 
 // Types pour les tenants
+export enum TenantType {
+  MINISTERE = 'ministere',
+  CROU = 'crou',
+  SERVICE = 'service'
+}
+
+export enum ServiceType {
+  FINANCIAL = 'financial',
+  STOCKS = 'stocks',
+  TRANSPORT = 'transport',
+  LOGEMENT = 'logement',
+  RESTAURATION = 'restauration'
+}
+
 export interface Tenant {
   id: string;
   name: string;
-  type: 'ministere' | 'crou';
-  region?: string;
-  city?: string;
-  address?: string;
-  phone?: string;
-  email?: string;
-  directorName?: string;
+  code: string;
+  type: TenantType;
+  region?: string | null;
+  config?: Record<string, any> | null;
   isActive: boolean;
-  config: TenantConfig;
+  // Hiérarchie
+  parentId?: string | null;
+  parent?: Tenant | null;
+  children?: Tenant[];
+  path?: string;
+  level?: number;
+  serviceType?: ServiceType | null;
+  // Relations
+  users?: User[];
+  // Audit
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateTenantRequest {
   name: string;
-  type: 'ministere' | 'crou';
+  code: string;
+  type: TenantType;
   region?: string;
-  city?: string;
-  address?: string;
-  phone?: string;
-  email?: string;
-  directorName?: string;
-  config: Partial<TenantConfig>;
+  config?: Record<string, any>;
+  parentId?: string | null;
+  serviceType?: ServiceType;
 }
 
 export interface UpdateTenantRequest {
   name?: string;
+  code?: string;
   region?: string;
-  city?: string;
-  address?: string;
-  phone?: string;
-  email?: string;
-  directorName?: string;
+  config?: Record<string, any>;
   isActive?: boolean;
-  config?: Partial<TenantConfig>;
-}
-
-export interface TenantConfig {
-  timezone: string;
-  currency: string;
-  dateFormat: string;
-  language: string;
-  features: {
-    financial: boolean;
-    stocks: boolean;
-    housing: boolean;
-    transport: boolean;
-    reports: boolean;
-  };
-  limits: {
-    maxUsers: number;
-    maxStorage: number; // in MB
-    maxReports: number;
-  };
-  notifications: {
-    email: boolean;
-    sms: boolean;
-    push: boolean;
-  };
+  parentId?: string | null;
+  serviceType?: ServiceType;
 }
 
 // Types pour l'audit
