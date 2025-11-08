@@ -343,7 +343,7 @@ export const AdminPage: React.FC = () => {
       label: 'Utilisateur',
       render: (user: any) => (
         <div>
-          <p className="font-medium">{user.firstName} {user.lastName}</p>
+          <p className="font-medium">{user.name || `${user.firstName || ''} ${user.lastName || ''}`.trim()}</p>
           <p className="text-sm text-gray-500">{user.email}</p>
         </div>
       )
@@ -369,8 +369,8 @@ export const AdminPage: React.FC = () => {
       key: 'status',
       label: 'Statut',
       render: (user: any) => (
-        <Badge variant={user.isActive ? 'success' : 'danger'}>
-          {user.isActive ? 'Actif' : 'Inactif'}
+        <Badge variant={user.status === 'active' || user.isActive ? 'success' : 'danger'}>
+          {user.status === 'active' || user.isActive ? 'Actif' : 'Inactif'}
         </Badge>
       )
     },
@@ -1050,7 +1050,7 @@ export const AdminPage: React.FC = () => {
                 options={[
                   { value: 'ministere', label: 'Ministère' },
                   { value: 'crou', label: 'CROU' },
-                  { value: 'cite', label: 'Cité Universitaire' }
+                  { value: 'service', label: 'Service' }
                 ]}
                 value={formData.type || ''}
                 onChange={(e) => setFormData({...formData, type: e.target.value})}
@@ -1063,59 +1063,65 @@ export const AdminPage: React.FC = () => {
                 onChange={(e) => setFormData({...formData, parentId: e.target.value})}
               />
               <Input
-                label="Adresse"
-                placeholder="Adresse du tenant"
-                value={formData.address || ''}
-                onChange={(e) => setFormData({...formData, address: e.target.value})}
+                label="Région"
+                placeholder="Ex: Niamey, Dosso, Maradi"
+                value={formData.region || ''}
+                onChange={(e) => setFormData({...formData, region: e.target.value})}
               />
-              <Input
-                label="Téléphone"
-                placeholder="Ex: +227 20 12 34 56"
-                value={formData.phone || ''}
-                onChange={(e) => setFormData({...formData, phone: e.target.value})}
-              />
+              {formData.type === 'service' && (
+                <Select
+                  label="Type de Service"
+                  options={[
+                    { value: 'financial', label: 'Financier' },
+                    { value: 'stocks', label: 'Stocks' },
+                    { value: 'transport', label: 'Transport' },
+                    { value: 'logement', label: 'Logement' },
+                    { value: 'restauration', label: 'Restauration' }
+                  ]}
+                  value={formData.serviceType || ''}
+                  onChange={(e) => setFormData({...formData, serviceType: e.target.value})}
+                />
+              )}
             </>
           )}
 
           {modalType === 'permission' && (
             <>
               <Input
-                label="Nom de la permission"
-                placeholder="Ex: users:create"
-                value={formData.name || ''}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                label="Ressource"
+                placeholder="Ex: users, financial, reports"
+                value={formData.resource || ''}
+                onChange={(e) => setFormData({...formData, resource: e.target.value})}
                 required
               />
+              <div className="border rounded p-4">
+                <label className="block text-sm font-medium mb-2">Actions autorisées *</label>
+                <div className="space-y-2">
+                  {['read', 'write', 'validate', 'delete', 'export'].map(action => (
+                    <label key={action} className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        className="rounded"
+                        checked={(formData.actions || []).includes(action)}
+                        onChange={(e) => {
+                          const currentActions = formData.actions || [];
+                          if (e.target.checked) {
+                            setFormData({...formData, actions: [...currentActions, action]});
+                          } else {
+                            setFormData({...formData, actions: currentActions.filter((a: string) => a !== action)});
+                          }
+                        }}
+                      />
+                      <span className="text-sm capitalize">{action}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
               <Input
                 label="Description"
                 placeholder="Description de la permission"
                 value={formData.description || ''}
                 onChange={(e) => setFormData({...formData, description: e.target.value})}
-              />
-              <Input
-                label="Ressource"
-                placeholder="Ex: users"
-                value={formData.resource || ''}
-                onChange={(e) => setFormData({...formData, resource: e.target.value})}
-                required
-              />
-              <Select
-                label="Action"
-                options={[
-                  { value: 'create', label: 'Créer' },
-                  { value: 'read', label: 'Lire' },
-                  { value: 'update', label: 'Modifier' },
-                  { value: 'delete', label: 'Supprimer' }
-                ]}
-                value={formData.action || ''}
-                onChange={(e) => setFormData({...formData, action: e.target.value})}
-                required
-              />
-              <Input
-                label="Module"
-                placeholder="Ex: admin"
-                value={formData.module || ''}
-                onChange={(e) => setFormData({...formData, module: e.target.value})}
               />
             </>
           )}
@@ -1250,7 +1256,7 @@ export const AdminPage: React.FC = () => {
                 options={[
                   { value: 'ministere', label: 'Ministère' },
                   { value: 'crou', label: 'CROU' },
-                  { value: 'cite', label: 'Cité Universitaire' }
+                  { value: 'service', label: 'Service' }
                 ]}
                 value={formData.type || ''}
                 onChange={(e) => setFormData({...formData, type: e.target.value})}
@@ -1263,17 +1269,25 @@ export const AdminPage: React.FC = () => {
                 onChange={(e) => setFormData({...formData, parentId: e.target.value})}
               />
               <Input
-                label="Adresse"
-                placeholder="Adresse du tenant"
-                value={formData.address || ''}
-                onChange={(e) => setFormData({...formData, address: e.target.value})}
+                label="Région"
+                placeholder="Ex: Niamey, Dosso, Maradi"
+                value={formData.region || ''}
+                onChange={(e) => setFormData({...formData, region: e.target.value})}
               />
-              <Input
-                label="Téléphone"
-                placeholder="Ex: +227 20 12 34 56"
-                value={formData.phone || ''}
-                onChange={(e) => setFormData({...formData, phone: e.target.value})}
-              />
+              {formData.type === 'service' && (
+                <Select
+                  label="Type de Service"
+                  options={[
+                    { value: 'financial', label: 'Financier' },
+                    { value: 'stocks', label: 'Stocks' },
+                    { value: 'transport', label: 'Transport' },
+                    { value: 'logement', label: 'Logement' },
+                    { value: 'restauration', label: 'Restauration' }
+                  ]}
+                  value={formData.serviceType || ''}
+                  onChange={(e) => setFormData({...formData, serviceType: e.target.value})}
+                />
+              )}
               <Select
                 label="Statut"
                 options={[
@@ -1290,42 +1304,40 @@ export const AdminPage: React.FC = () => {
           {modalType === 'permission' && selectedItem && (
             <>
               <Input
-                label="Nom de la permission"
-                placeholder="Ex: users:create"
-                value={formData.name || ''}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                label="Ressource"
+                placeholder="Ex: users, financial, reports"
+                value={formData.resource || ''}
+                onChange={(e) => setFormData({...formData, resource: e.target.value})}
                 required
               />
+              <div className="border rounded p-4">
+                <label className="block text-sm font-medium mb-2">Actions autorisées *</label>
+                <div className="space-y-2">
+                  {['read', 'write', 'validate', 'delete', 'export'].map(action => (
+                    <label key={action} className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        className="rounded"
+                        checked={(formData.actions || []).includes(action)}
+                        onChange={(e) => {
+                          const currentActions = formData.actions || [];
+                          if (e.target.checked) {
+                            setFormData({...formData, actions: [...currentActions, action]});
+                          } else {
+                            setFormData({...formData, actions: currentActions.filter((a: string) => a !== action)});
+                          }
+                        }}
+                      />
+                      <span className="text-sm capitalize">{action}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
               <Input
                 label="Description"
                 placeholder="Description de la permission"
                 value={formData.description || ''}
                 onChange={(e) => setFormData({...formData, description: e.target.value})}
-              />
-              <Input
-                label="Ressource"
-                placeholder="Ex: users"
-                value={formData.resource || ''}
-                onChange={(e) => setFormData({...formData, resource: e.target.value})}
-                required
-              />
-              <Select
-                label="Action"
-                options={[
-                  { value: 'create', label: 'Créer' },
-                  { value: 'read', label: 'Lire' },
-                  { value: 'update', label: 'Modifier' },
-                  { value: 'delete', label: 'Supprimer' }
-                ]}
-                value={formData.action || ''}
-                onChange={(e) => setFormData({...formData, action: e.target.value})}
-                required
-              />
-              <Input
-                label="Module"
-                placeholder="Ex: admin"
-                value={formData.module || ''}
-                onChange={(e) => setFormData({...formData, module: e.target.value})}
               />
             </>
           )}
