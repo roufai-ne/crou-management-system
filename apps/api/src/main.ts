@@ -66,6 +66,7 @@ import { workflowRoutes } from '@/modules/workflows/workflow.routes';
 import { transportRoutes } from '@/modules/transport/transport.routes';
 import { allocationsRoutes } from '@/modules/allocations/allocations.routes';
 import adminRoutes from '@/modules/admin/index';
+import tenantsPublicRoutes from '@/modules/admin/tenants.public.routes';
 
 // Configuration environnement
 config();
@@ -241,6 +242,7 @@ app.use('/api/workflows', workflowRoutes);
 app.use('/api/transport', moduleLimiters.transport, transportRoutes);
 app.use('/api/allocations', allocationsRoutes);
 app.use('/api/admin', moduleLimiters.admin, adminRoutes);
+app.use('/api/tenants', tenantsPublicRoutes);
 
 // Route par défaut
 app.get('/api', (req, res) => {

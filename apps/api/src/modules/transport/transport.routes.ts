@@ -554,6 +554,7 @@ router.post('/scheduled-trips/:id/cancel',
  * Permissions: transport:read
  */
 router.get('/metrics',
+  authenticateJWT,
   checkPermissions(['transport:read']),
   TransportMetricsController.getMetrics
 );

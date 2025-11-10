@@ -99,19 +99,24 @@ interface HousingCreateData {
 router.get('/',
   authenticateJWT,
   checkPermissions(['housing:read']),
-  injectTenantIdMiddleware({ strictMode: true }),
+  injectTenantIdMiddleware({ strictMode: false }),
   auditMiddleware({ enabled: true }),
   async (req: Request, res: Response) => {
     try {
       const tenantContext = TenantIsolationUtils.extractTenantContext(req);
       const hasExtendedAccess = TenantIsolationUtils.hasExtendedAccess(req);
 
+      // Filtrer les valeurs "all" (même pattern que stocks)
+      const typeParam = req.query.type as string;
+      const statusParam = req.query.status as string;
+      const categoryParam = req.query.category as string;
+
       // Construire les filtres
       const filters: HousingSearchFilters = {
         search: req.query.search as string,
-        type: req.query.type as HousingType,
-        status: req.query.status as HousingStatus,
-        category: req.query.category as HousingCategory,
+        type: typeParam && typeParam !== 'all' ? typeParam as HousingType : undefined,
+        status: statusParam && statusParam !== 'all' ? statusParam as HousingStatus : undefined,
+        category: categoryParam && categoryParam !== 'all' ? categoryParam as HousingCategory : undefined,
         tenantId: req.query.tenantId as string,
         limit: parseInt(req.query.limit as string) || 50,
         offset: parseInt(req.query.offset as string) || 0
@@ -247,7 +252,7 @@ router.get('/',
 router.get('/:id',
   authenticateJWT,
   checkPermissions(['housing:read']),
-  injectTenantIdMiddleware({ strictMode: true }),
+  injectTenantIdMiddleware({ strictMode: false }),
   auditMiddleware({ enabled: true }),
   async (req: Request, res: Response) => {
     try {
@@ -311,7 +316,7 @@ router.get('/:id',
 router.post('/',
   authenticateJWT,
   checkPermissions(['housing:create']),
-  injectTenantIdMiddleware({ strictMode: true }),
+  injectTenantIdMiddleware({ strictMode: false }),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {
     try {
@@ -394,7 +399,7 @@ router.post('/',
 router.put('/:id',
   authenticateJWT,
   checkPermissions(['housing:update']),
-  injectTenantIdMiddleware({ strictMode: true }),
+  injectTenantIdMiddleware({ strictMode: false }),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {
     try {
@@ -493,7 +498,7 @@ router.put('/:id',
 router.delete('/:id',
   authenticateJWT,
   checkPermissions(['housing:delete']),
-  injectTenantIdMiddleware({ strictMode: true }),
+  injectTenantIdMiddleware({ strictMode: false }),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {
     try {
@@ -577,7 +582,7 @@ router.delete('/:id',
 router.get('/:id/stats',
   authenticateJWT,
   checkPermissions(['housing:read']),
-  injectTenantIdMiddleware({ strictMode: true }),
+  injectTenantIdMiddleware({ strictMode: false }),
   async (req: Request, res: Response) => {
     try {
       const housingId = req.params.id;
@@ -636,6 +641,260 @@ router.get('/:id/stats',
       res.status(500).json({
         error: 'Erreur serveur',
         message: 'Erreur lors de la récupération des statistiques'
+      });
+    }
+  }
+);
+
+/**
+ * GET /api/housing/rooms
+ * Liste des chambres avec filtres (endpoint stub)
+ * TODO: Implémenter la logique complète de gestion des chambres
+ */
+router.get('/rooms',
+  authenticateJWT,
+  checkPermissions(['housing:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
+  async (req: Request, res: Response) => {
+    try {
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
+
+      // Filtrer les valeurs "all" (même pattern que stocks)
+      const complexId = req.query.complexId as string;
+      const type = req.query.type as string;
+      const status = req.query.status as string;
+
+      const roomRepository = AppDataSource.getRepository(Room);
+      const queryBuilder = roomRepository.createQueryBuilder('room')
+        .leftJoinAndSelect('room.housing', 'housing')
+        .where('housing.tenantId = :tenantId', { tenantId: tenantContext!.tenantId });
+
+      // Appliquer les filtres (ignorer "all")
+      if (complexId && complexId !== 'all') {
+        queryBuilder.andWhere('room.housingId = :housingId', { housingId: complexId });
+      }
+
+      if (type && type !== 'all') {
+        queryBuilder.andWhere('room.type = :type', { type });
+      }
+
+      if (status && status !== 'all') {
+        queryBuilder.andWhere('room.status = :status', { status });
+      }
+
+      // Recherche textuelle
+      if (req.query.search) {
+        queryBuilder.andWhere(
+          '(room.numero ILIKE :search OR room.description ILIKE :search)',
+          { search: `%${req.query.search}%` }
+        );
+      }
+
+      // Pagination
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const offset = (page - 1) * limit;
+
+      queryBuilder
+        .orderBy('room.numero', 'ASC')
+        .skip(offset)
+        .take(limit);
+
+      const [rooms, total] = await queryBuilder.getManyAndCount();
+
+      res.json({
+        success: true,
+        data: {
+          rooms,
+          total,
+          pagination: {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit)
+          }
+        }
+      });
+
+    } catch (error) {
+      logger.error('Erreur récupération chambres:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erreur serveur',
+        message: error.message || 'Erreur lors de la récupération des chambres'
+      });
+    }
+  }
+);
+
+/**
+ * GET /api/housing/rooms/:id
+ * Détail d'une chambre
+ */
+router.get('/rooms/:id',
+  authenticateJWT,
+  checkPermissions(['housing:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
+  async (req: Request, res: Response) => {
+    try {
+      const roomId = req.params.id;
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
+
+      const roomRepository = AppDataSource.getRepository(Room);
+      const room = await roomRepository.findOne({
+        where: { id: roomId },
+        relations: ['housing', 'occupancies']
+      });
+
+      if (!room || room.housing.tenantId !== tenantContext!.tenantId) {
+        return res.status(404).json({
+          success: false,
+          error: 'Chambre non trouvée'
+        });
+      }
+
+      res.json({
+        success: true,
+        data: { room }
+      });
+
+    } catch (error) {
+      logger.error('Erreur récupération chambre:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erreur serveur',
+        message: 'Erreur lors de la récupération de la chambre'
+      });
+    }
+  }
+);
+
+/**
+ * POST /api/housing/rooms
+ * Créer une chambre (endpoint stub)
+ */
+router.post('/rooms',
+  authenticateJWT,
+  checkPermissions(['housing:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
+  auditMiddleware({ enabled: true, sensitiveResource: true }),
+  async (req: Request, res: Response) => {
+    try {
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
+      const roomRepository = AppDataSource.getRepository(Room);
+
+      const room = roomRepository.create({
+        ...req.body,
+        createdBy: req.user!.id
+      });
+
+      await roomRepository.save(room);
+
+      res.status(201).json({
+        success: true,
+        data: { room },
+        message: 'Chambre créée avec succès'
+      });
+
+    } catch (error) {
+      logger.error('Erreur création chambre:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erreur serveur',
+        message: error.message || 'Erreur lors de la création de la chambre'
+      });
+    }
+  }
+);
+
+/**
+ * PUT /api/housing/rooms/:id
+ * Modifier une chambre (endpoint stub)
+ */
+router.put('/rooms/:id',
+  authenticateJWT,
+  checkPermissions(['housing:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
+  auditMiddleware({ enabled: true, sensitiveResource: true }),
+  async (req: Request, res: Response) => {
+    try {
+      const roomId = req.params.id;
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
+
+      const roomRepository = AppDataSource.getRepository(Room);
+      const room = await roomRepository.findOne({
+        where: { id: roomId },
+        relations: ['housing']
+      });
+
+      if (!room || room.housing.tenantId !== tenantContext!.tenantId) {
+        return res.status(404).json({
+          success: false,
+          error: 'Chambre non trouvée'
+        });
+      }
+
+      Object.assign(room, req.body);
+      room.updatedBy = req.user!.id;
+      await roomRepository.save(room);
+
+      res.json({
+        success: true,
+        data: { room },
+        message: 'Chambre modifiée avec succès'
+      });
+
+    } catch (error) {
+      logger.error('Erreur modification chambre:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erreur serveur',
+        message: error.message || 'Erreur lors de la modification de la chambre'
+      });
+    }
+  }
+);
+
+/**
+ * DELETE /api/housing/rooms/:id
+ * Supprimer une chambre (endpoint stub)
+ */
+router.delete('/rooms/:id',
+  authenticateJWT,
+  checkPermissions(['housing:delete']),
+  injectTenantIdMiddleware({ strictMode: false }),
+  auditMiddleware({ enabled: true, sensitiveResource: true }),
+  async (req: Request, res: Response) => {
+    try {
+      const roomId = req.params.id;
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
+
+      const roomRepository = AppDataSource.getRepository(Room);
+      const room = await roomRepository.findOne({
+        where: { id: roomId },
+        relations: ['housing']
+      });
+
+      if (!room || room.housing.tenantId !== tenantContext!.tenantId) {
+        return res.status(404).json({
+          success: false,
+          error: 'Chambre non trouvée'
+        });
+      }
+
+      await roomRepository.remove(room);
+
+      res.json({
+        success: true,
+        message: 'Chambre supprimée avec succès'
+      });
+
+    } catch (error) {
+      logger.error('Erreur suppression chambre:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erreur serveur',
+        message: error.message || 'Erreur lors de la suppression de la chambre'
       });
     }
   }

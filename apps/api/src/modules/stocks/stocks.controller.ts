@@ -42,11 +42,16 @@ export class StocksController {
         return res.status(401).json({ success: false, error: 'Tenant ID manquant' });
       }
 
+      // Filtrer les valeurs "all" qui ne sont pas des valeurs enum valides
+      const category = req.query.category as string;
+      const type = req.query.type as string;
+      const status = req.query.status as string;
+
       const filters: StockFilters = {
         search: req.query.search as string,
-        category: req.query.category as any,
-        type: req.query.type as any,
-        status: req.query.status as any,
+        category: category && category !== 'all' ? category as any : undefined,
+        type: type && type !== 'all' ? type as any : undefined,
+        status: status && status !== 'all' ? status as any : undefined,
         lowStock: req.query.lowStock === 'true',
         outOfStock: req.query.outOfStock === 'true'
       };
@@ -139,9 +144,12 @@ export class StocksController {
         return res.status(401).json({ success: false, error: 'Tenant ID manquant' });
       }
 
+      // Filtrer la valeur "all" pour le type
+      const movementType = req.query.type as string;
+
       const filters = {
         stockId: req.query.stockId as string,
-        type: req.query.type as any,
+        type: movementType && movementType !== 'all' ? movementType as any : undefined,
         startDate: req.query.startDate ? new Date(req.query.startDate as string) : undefined,
         endDate: req.query.endDate ? new Date(req.query.endDate as string) : undefined,
         limit: req.query.limit ? Number(req.query.limit) : undefined
@@ -149,9 +157,14 @@ export class StocksController {
 
       const result = await StocksService.getMovements(tenantId, filters);
       res.json({ success: true, data: result });
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Erreur getMovements:', error);
-      res.status(500).json({ success: false, error: 'Erreur lors de la recuperation des mouvements' });
+      res.status(500).json({
+        success: false,
+        error: 'Erreur serveur',
+        message: error.message || 'Erreur lors de la recuperation des mouvements',
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
     }
   }
 

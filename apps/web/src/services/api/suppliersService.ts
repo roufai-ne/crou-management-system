@@ -165,7 +165,12 @@ export const suppliersService = {
     if (filters?.isCertifie !== undefined) params.append('isCertifie', String(filters.isCertifie));
 
     const response = await apiClient.get(`/stocks/suppliers?${params.toString()}`);
-    return response.data.data;
+    // Fixed: Handle both response.data and response.data.data structures
+    const data = response.data.data || response.data;
+    return {
+      suppliers: data.suppliers || [],
+      total: data.total || 0
+    };
   },
 
   /**
@@ -173,7 +178,9 @@ export const suppliersService = {
    */
   async getSupplier(id: string): Promise<Supplier> {
     const response = await apiClient.get(`/stocks/suppliers/${id}`);
-    return response.data.data.supplier;
+    // Fixed: Handle both response.data and response.data.data structures
+    const data = response.data.data || response.data;
+    return data.supplier || data;
   },
 
   /**
@@ -181,7 +188,9 @@ export const suppliersService = {
    */
   async createSupplier(data: CreateSupplierRequest): Promise<Supplier> {
     const response = await apiClient.post('/stocks/suppliers', data);
-    return response.data.data.supplier;
+    // Fixed: Handle both response.data and response.data.data structures
+    const responseData = response.data.data || response.data;
+    return responseData.supplier || responseData;
   },
 
   /**
@@ -189,7 +198,9 @@ export const suppliersService = {
    */
   async updateSupplier(id: string, data: UpdateSupplierRequest): Promise<Supplier> {
     const response = await apiClient.put(`/stocks/suppliers/${id}`, data);
-    return response.data.data.supplier;
+    // Fixed: Handle both response.data and response.data.data structures
+    const responseData = response.data.data || response.data;
+    return responseData.supplier || responseData;
   },
 
   /**
@@ -204,6 +215,7 @@ export const suppliersService = {
    */
   async getSuppliersStats(): Promise<SuppliersStats> {
     const response = await apiClient.get('/stocks/suppliers/stats/overview');
-    return response.data.data;
+    // Fixed: Handle both response.data and response.data.data structures
+    return response.data.data || response.data;
   }
 };
