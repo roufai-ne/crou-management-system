@@ -379,4 +379,45 @@ router.get('/crou/:crouId',
   }
 );
 
+/**
+ * GET /api/allocations/statistics
+ * Statistiques des allocations
+ */
+router.get('/statistics',
+  async (req: Request, res: Response) => {
+    try {
+      // Paramètres de filtrage
+      const status = req.query.status as string;
+      const type = req.query.type as string;
+
+      // Retourner des statistiques de base pour l'instant
+      // TODO: Implémenter les vraies statistiques depuis la base de données
+      const stats = {
+        total: 0,
+        pending: 0,
+        approved: 0,
+        rejected: 0,
+        byType: {
+          budget: 0,
+          resource: 0,
+          staff: 0
+        }
+      };
+
+      res.json({
+        success: true,
+        data: stats
+      });
+
+    } catch (error: any) {
+      logger.error('Erreur récupération statistiques allocations:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erreur serveur',
+        message: error.message || 'Erreur lors de la récupération des statistiques'
+      });
+    }
+  }
+);
+
 export default router;

@@ -189,6 +189,10 @@ app.use('/api/transport', transportRoutes);
 app.use('/api/allocations', allocationsRoutes);
 app.use('/api/admin', adminRoutes);
 
+// Route publique pour la hiérarchie des tenants (utilisée par le dashboard)
+import tenantsController from '@/modules/admin/tenants.controller';
+app.use('/api/tenants', tenantsController);
+
 // Route par défaut
 app.get('/api', (req, res) => {
   res.json({

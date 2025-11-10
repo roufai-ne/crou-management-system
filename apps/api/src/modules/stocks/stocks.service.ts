@@ -15,6 +15,7 @@ import { Stock, StockStatus, StockType, StockCategory } from '../../../../../pac
 import { StockMovement, MovementType } from '../../../../../packages/database/src/entities/StockMovement.entity';
 import { StockAlert, AlertType, AlertStatus } from '../../../../../packages/database/src/entities/StockAlert.entity';
 import { Between, LessThan, MoreThan, Like } from 'typeorm';
+import { logger } from '@/shared/utils/logger';
 
 export interface StockFilters {
   search?: string;

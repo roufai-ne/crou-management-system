@@ -23,9 +23,9 @@ import type { Request, Response } from 'express';
 import { Router } from 'express';
 import { authenticateJWT } from '@/shared/middlewares/auth.middleware';
 import { checkPermissions } from '@/shared/middlewares/permissions.middleware';
-import { 
+import {
   injectTenantIdMiddleware,
-  ministerialAccessMiddleware 
+  ministerialAccessMiddleware
 } from '@/shared/middlewares/tenant-isolation.middleware';
 import { auditMiddleware } from '@/shared/middlewares/audit.middleware';
 import { TenantIsolationUtils } from '@/shared/utils/tenant-isolation.utils';
@@ -36,7 +36,7 @@ import { Tenant } from '../../../../../packages/database/src/entities/Tenant.ent
 import { AuditService } from '@/shared/services/audit.service';
 import { AuditAction } from '../../../../../packages/database/src/entities/AuditLog.entity';
 import { logger } from '@/shared/utils/logger';
-import bcrypt from 'bcryptjs';
+import { RoleHierarchyUtils } from '../../../../../packages/shared/src/constants/roleHierarchy';
 
 const router: Router = Router();
 const auditService = new AuditService();
@@ -365,8 +365,15 @@ router.post('/',
         });
       }
 
-      // Si pas d'accès étendu, forcer le tenant de l'utilisateur
+      // Validation du tenant: si pas d'accès étendu, forcer le tenant de l'utilisateur
       if (!hasExtendedAccess && tenantContext) {
+        // L'utilisateur ne peut créer que dans son propre tenant
+        if (userData.tenantId && userData.tenantId !== tenantContext.tenantId) {
+          return res.status(403).json({
+            error: 'Tenant non autorisé',
+            message: 'Vous ne pouvez créer des utilisateurs que dans votre propre tenant'
+          });
+        }
         userData.tenantId = tenantContext.tenantId;
       }
 
@@ -401,37 +408,13 @@ router.post('/',
       const creatorRole = userFromRequest?.role?.name || '';
       const targetRoleName = role.name;
 
-      // Hiérarchie des rôles (du plus élevé au plus bas)
-      const roleHierarchy: Record<string, number> = {
-        'Super Admin': 100,
-        'Admin Ministère': 80,
-        'Directeur CROU': 60,
-        'Comptable': 40,
-        'Gestionnaire Stocks': 30,
-        'Gestionnaire Logement': 30,
-        'Gestionnaire Transport': 30,
-        'Utilisateur': 10
-      };
-
-      const creatorLevel = roleHierarchy[creatorRole] || 0;
-      const targetLevel = roleHierarchy[targetRoleName] || 0;
-
-      // Un utilisateur ne peut pas créer un rôle supérieur ou égal au sien
-      if (targetLevel >= creatorLevel && creatorRole !== 'Super Admin') {
+      try {
+        RoleHierarchyUtils.validateRoleCreation(creatorRole, targetRoleName);
+      } catch (error) {
         return res.status(403).json({
           error: 'Permission refusée',
-          message: `Vous ne pouvez pas créer un utilisateur avec le rôle "${targetRoleName}". Votre niveau de permission est insuffisant.`
+          message: (error as Error).message
         });
-      }
-
-      // Les gestionnaires ne peuvent créer que des utilisateurs de niveau inférieur
-      if (['Gestionnaire Stocks', 'Gestionnaire Logement', 'Gestionnaire Transport'].includes(creatorRole)) {
-        if (targetLevel >= 30) {
-          return res.status(403).json({
-            error: 'Permission refusée',
-            message: 'Les gestionnaires ne peuvent créer que des utilisateurs avec le rôle "Utilisateur"'
-          });
-        }
       }
 
       // Vérifier que le tenant existe
@@ -521,15 +504,16 @@ router.put('/:id',
       const hasExtendedAccess = TenantIsolationUtils.hasExtendedAccess(req);
 
       const userRepository = AppDataSource.getRepository(User);
-      
-      // Récupérer l'utilisateur existant
+
+      // Récupérer l'utilisateur existant avec son rôle (eager loading)
       const queryBuilder = userRepository.createQueryBuilder('user')
+        .leftJoinAndSelect('user.role', 'role')
         .where('user.id = :userId', { userId });
 
       // Si pas d'accès étendu, vérifier le tenant
       if (!hasExtendedAccess && tenantContext) {
-        queryBuilder.andWhere('user.tenantId = :tenantId', { 
-          tenantId: tenantContext.tenantId 
+        queryBuilder.andWhere('user.tenantId = :tenantId', {
+          tenantId: tenantContext.tenantId
         });
       }
 
@@ -586,43 +570,20 @@ router.put('/:id',
         const modifierRole = userFromRequest?.role?.name || '';
         const targetRoleName = role.name;
 
-        // Hiérarchie des rôles
-        const roleHierarchy: Record<string, number> = {
-          'Super Admin': 100,
-          'Admin Ministère': 80,
-          'Directeur CROU': 60,
-          'Comptable': 40,
-          'Gestionnaire Stocks': 30,
-          'Gestionnaire Logement': 30,
-          'Gestionnaire Transport': 30,
-          'Utilisateur': 10
-        };
+        // Utiliser le rôle déjà chargé avec eager loading
+        const existingUserRoleName = existingUser.role?.name || '';
 
-        const modifierLevel = roleHierarchy[modifierRole] || 0;
-        const targetLevel = roleHierarchy[targetRoleName] || 0;
-
-        // Un utilisateur ne peut pas attribuer un rôle supérieur ou égal au sien
-        if (targetLevel >= modifierLevel && modifierRole !== 'Super Admin') {
+        try {
+          RoleHierarchyUtils.validateRoleUpdate(
+            modifierRole,
+            existingUserRoleName,
+            targetRoleName
+          );
+        } catch (error) {
           return res.status(403).json({
             error: 'Permission refusée',
-            message: `Vous ne pouvez pas attribuer le rôle "${targetRoleName}". Votre niveau de permission est insuffisant.`
+            message: (error as Error).message
           });
-        }
-
-        // Vérifier aussi le rôle actuel de l'utilisateur cible
-        const existingUserRole = await roleRepository.findOne({
-          where: { id: existingUser.roleId }
-        });
-
-        if (existingUserRole) {
-          const existingLevel = roleHierarchy[existingUserRole.name] || 0;
-          // Ne peut pas modifier un utilisateur de niveau supérieur ou égal
-          if (existingLevel >= modifierLevel && modifierRole !== 'Super Admin') {
-            return res.status(403).json({
-              error: 'Permission refusée',
-              message: `Vous ne pouvez pas modifier un utilisateur avec le rôle "${existingUserRole.name}".`
-            });
-          }
         }
       }
 
@@ -713,13 +674,16 @@ router.delete('/:id',
       }
 
       const userRepository = AppDataSource.getRepository(User);
+
+      // Récupérer l'utilisateur avec son rôle (eager loading)
       const queryBuilder = userRepository.createQueryBuilder('user')
+        .leftJoinAndSelect('user.role', 'role')
         .where('user.id = :userId', { userId });
 
       // Si pas d'accès étendu, vérifier le tenant
       if (!hasExtendedAccess && tenantContext) {
-        queryBuilder.andWhere('user.tenantId = :tenantId', { 
-          tenantId: tenantContext.tenantId 
+        queryBuilder.andWhere('user.tenantId = :tenantId', {
+          tenantId: tenantContext.tenantId
         });
       }
 
@@ -736,32 +700,16 @@ router.delete('/:id',
       const userFromRequest = (req as any).user;
       const deleterRole = userFromRequest?.role?.name || '';
 
-      // Récupérer le rôle de l'utilisateur à supprimer
-      const roleRepository = AppDataSource.getRepository(Role);
-      const targetUserRole = await roleRepository.findOne({
-        where: { id: user.roleId }
-      });
+      // Utiliser le rôle déjà chargé avec eager loading
+      const targetUserRoleName = user.role?.name || '';
 
-      if (targetUserRole) {
-        const roleHierarchy: Record<string, number> = {
-          'Super Admin': 100,
-          'Admin Ministère': 80,
-          'Directeur CROU': 60,
-          'Comptable': 40,
-          'Gestionnaire Stocks': 30,
-          'Gestionnaire Logement': 30,
-          'Gestionnaire Transport': 30,
-          'Utilisateur': 10
-        };
-
-        const deleterLevel = roleHierarchy[deleterRole] || 0;
-        const targetLevel = roleHierarchy[targetUserRole.name] || 0;
-
-        // Ne peut pas supprimer un utilisateur de niveau supérieur ou égal
-        if (targetLevel >= deleterLevel && deleterRole !== 'Super Admin') {
+      if (targetUserRoleName) {
+        try {
+          RoleHierarchyUtils.validateRoleDeletion(deleterRole, targetUserRoleName);
+        } catch (error) {
           return res.status(403).json({
             error: 'Permission refusée',
-            message: `Vous ne pouvez pas supprimer un utilisateur avec le rôle "${targetUserRole.name}".`
+            message: (error as Error).message
           });
         }
       }

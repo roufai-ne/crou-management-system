@@ -38,6 +38,7 @@ import {
 import { useAdminUsers, useAdminRoles, useAdminPermissions, useAdminTenants, useAdminAudit, useAdminStatistics } from '@/hooks/useAdmin';
 import { ExportButton } from '@/components/reports/ExportButton';
 import { useAuth } from '@/stores/auth';
+import { RoleHierarchyUtils } from '@crou/shared/src/index';
 
 export const AdminPage: React.FC = () => {
   const { user } = useAuth();
@@ -74,36 +75,15 @@ export const AdminPage: React.FC = () => {
   const [formData, setFormData] = useState<any>({});
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
 
-  // Hiérarchie des rôles (constante partagée)
-  const roleHierarchy: Record<string, number> = {
-    'Super Admin': 100,
-    'Admin Ministère': 80,
-    'Directeur CROU': 60,
-    'Comptable': 40,
-    'Gestionnaire Stocks': 30,
-    'Gestionnaire Logement': 30,
-    'Gestionnaire Transport': 30,
-    'Utilisateur': 10
-  };
-
   // Filtrage hiérarchique des rôles disponibles
   const availableRoles = useMemo(() => {
     if (!user || !roles) return [];
 
     const userRole = user.role as any;
     const userRoleName = userRole?.name || '';
-    const currentUserLevel = roleHierarchy[userRoleName] || 0;
 
-    // Super Admin peut tout voir
-    if (userRoleName === 'Super Admin') {
-      return roles;
-    }
-
-    // Filtrer pour ne montrer que les rôles de niveau inférieur
-    return roles.filter((role: any) => {
-      const roleLevel = roleHierarchy[role.name] || 0;
-      return roleLevel < currentUserLevel;
-    });
+    // Utiliser la méthode utilitaire partagée
+    return RoleHierarchyUtils.getManageableRoles(userRoleName, roles);
   }, [user, roles]);
 
   // Filtrage hiérarchique des utilisateurs affichés
@@ -112,18 +92,25 @@ export const AdminPage: React.FC = () => {
 
     const userRole = user.role as any;
     const userRoleName = userRole?.name || '';
-    const currentUserLevel = roleHierarchy[userRoleName] || 0;
+    const userTenant = (user as any).tenant;
+    const userTenantId = userTenant?.id || (user as any).tenantId;
 
     // Super Admin et Admin Ministère peuvent voir tous les utilisateurs
-    if (['Super Admin', 'Admin Ministère'].includes(userRoleName)) {
+    if (RoleHierarchyUtils.hasExtendedAccess(userRoleName)) {
       return users;
     }
 
-    // Les autres ne peuvent voir que les utilisateurs de niveau inférieur
+    // Filtrer par tenant ET par hiérarchie des rôles
     return users.filter((targetUser: any) => {
+      // Vérification du tenant (critique pour la sécurité)
+      const targetTenantId = targetUser.tenant?.id || targetUser.tenantId;
+      if (targetTenantId !== userTenantId) {
+        return false;
+      }
+
+      // Vérification de la hiérarchie des rôles
       const targetRoleName = targetUser.role?.name || '';
-      const targetLevel = roleHierarchy[targetRoleName] || 0;
-      return targetLevel < currentUserLevel;
+      return RoleHierarchyUtils.canModifyUser(userRoleName, targetRoleName);
     });
   }, [user, users]);
 
@@ -511,11 +498,9 @@ export const AdminPage: React.FC = () => {
         // Vérifier si l'utilisateur connecté peut modifier/supprimer cet utilisateur
         const currentUserRole = (user?.role as any)?.name || '';
         const targetRoleName = targetUser.role?.name || '';
-        const currentUserLevel = roleHierarchy[currentUserRole] || 0;
-        const targetLevel = roleHierarchy[targetRoleName] || 0;
 
-        // Peut modifier/supprimer seulement si le niveau cible est inférieur
-        const canModify = currentUserRole === 'Super Admin' || targetLevel < currentUserLevel;
+        // Utiliser la méthode utilitaire partagée
+        const canModify = RoleHierarchyUtils.canModifyUser(currentUserRole, targetRoleName);
 
         return (
           <div className="flex items-center gap-2">
