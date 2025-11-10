@@ -12,6 +12,7 @@
 import { Request, Response } from 'express';
 import { body, param } from 'express-validator';
 import { StocksService, StockFilters, CreateStockDTO, UpdateStockDTO, CreateMovementDTO } from './stocks.service';
+import { logger } from '@/shared/utils/logger';
 
 // Validateurs pour les stocks
 export const stockValidators = {
@@ -52,9 +53,14 @@ export class StocksController {
 
       const result = await StocksService.getStocks(tenantId, filters);
       res.json({ success: true, data: result });
-    } catch (error) {
-      console.error('Erreur getStocks:', error);
-      res.status(500).json({ success: false, error: 'Erreur lors de la recuperation des stocks' });
+    } catch (error: any) {
+      logger.error('Erreur getStocks:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erreur serveur',
+        message: error.message || 'Erreur lors de la récupération des stocks',
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
     }
   }
 
@@ -70,7 +76,7 @@ export class StocksController {
       const stock = await StocksService.createStock(tenantId, userId, data);
       res.json({ success: true, data: { stock } });
     } catch (error: any) {
-      console.error('Erreur createStock:', error);
+      logger.error('Erreur createStock:', error);
       res.status(500).json({ success: false, error: error.message || 'Erreur lors de la creation du stock' });
     }
   }
@@ -86,7 +92,7 @@ export class StocksController {
       const result = await StocksService.getStockById(id, tenantId);
       res.json({ success: true, data: result });
     } catch (error: any) {
-      console.error('Erreur getStock:', error);
+      logger.error('Erreur getStock:', error);
       res.status(500).json({ success: false, error: error.message || 'Erreur lors de la recuperation du stock' });
     }
   }
@@ -104,7 +110,7 @@ export class StocksController {
       const stock = await StocksService.updateStock(id, tenantId, userId, data);
       res.json({ success: true, data: { stock } });
     } catch (error: any) {
-      console.error('Erreur updateStock:', error);
+      logger.error('Erreur updateStock:', error);
       res.status(500).json({ success: false, error: error.message || 'Erreur lors de la modification du stock' });
     }
   }
@@ -120,7 +126,7 @@ export class StocksController {
       const result = await StocksService.deleteStock(id, tenantId);
       res.json(result);
     } catch (error: any) {
-      console.error('Erreur deleteStock:', error);
+      logger.error('Erreur deleteStock:', error);
       res.status(500).json({ success: false, error: error.message || 'Erreur lors de la suppression du stock' });
     }
   }
@@ -144,7 +150,7 @@ export class StocksController {
       const result = await StocksService.getMovements(tenantId, filters);
       res.json({ success: true, data: result });
     } catch (error) {
-      console.error('Erreur getMovements:', error);
+      logger.error('Erreur getMovements:', error);
       res.status(500).json({ success: false, error: 'Erreur lors de la recuperation des mouvements' });
     }
   }
@@ -161,7 +167,7 @@ export class StocksController {
       const result = await StocksService.createMovement(tenantId, userId, data);
       res.json({ success: true, data: result });
     } catch (error: any) {
-      console.error('Erreur createMovement:', error);
+      logger.error('Erreur createMovement:', error);
       res.status(500).json({ success: false, error: error.message || 'Erreur lors de la creation du mouvement' });
     }
   }
@@ -194,7 +200,7 @@ export class StocksController {
       const result = await StocksService.getAlerts(tenantId, filters);
       res.json({ success: true, data: result });
     } catch (error) {
-      console.error('Erreur getAlerts:', error);
+      logger.error('Erreur getAlerts:', error);
       res.status(500).json({ success: false, error: 'Erreur lors de la recuperation des alertes' });
     }
   }
@@ -216,7 +222,7 @@ export class StocksController {
       const result = await StocksService.resolveAlert(id, tenantId, userId, note);
       res.json(result);
     } catch (error: any) {
-      console.error('Erreur resolveAlert:', error);
+      logger.error('Erreur resolveAlert:', error);
       res.status(500).json({ success: false, error: error.message || 'Erreur lors de la resolution de alerte' });
     }
   }
@@ -263,7 +269,7 @@ export class StocksController {
       const kpis = await StocksService.getStocksKPIs(tenantId);
       res.json({ success: true, data: kpis });
     } catch (error) {
-      console.error('Erreur getStocksKPIs:', error);
+      logger.error('Erreur getStocksKPIs:', error);
       res.status(500).json({ success: false, error: 'Erreur lors de la recuperation des KPIs' });
     }
   }
@@ -282,7 +288,7 @@ export class StocksController {
       const result = await StocksService.getAlerts(tenantId);
       res.json({ success: true, data: result });
     } catch (error) {
-      console.error('Erreur getStocksAlerts:', error);
+      logger.error('Erreur getStocksAlerts:', error);
       res.status(500).json({ success: false, error: 'Erreur lors de la recuperation des alertes' });
     }
   }

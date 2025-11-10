@@ -15,6 +15,7 @@ import { Stock, StockStatus, StockType, StockCategory } from '../../../../../pac
 import { StockMovement, MovementType } from '../../../../../packages/database/src/entities/StockMovement.entity';
 import { StockAlert, AlertType, AlertStatus } from '../../../../../packages/database/src/entities/StockAlert.entity';
 import { Between, LessThan, MoreThan, Like } from 'typeorm';
+import { logger } from '@/shared/utils/logger';
 
 export interface StockFilters {
   search?: string;
@@ -115,7 +116,7 @@ export class StocksService {
         totalValue: stocks.reduce((sum, s) => sum + (s.prixUnitaire * s.quantiteActuelle), 0)
       };
     } catch (error) {
-      console.error('Erreur getStocks:', error);
+      logger.error('Erreur getStocks:', error);
       throw error;
     }
   }
@@ -152,7 +153,7 @@ export class StocksService {
         recentMovements
       };
     } catch (error) {
-      console.error('Erreur getStockById:', error);
+      logger.error('Erreur getStockById:', error);
       throw error;
     }
   }
@@ -187,7 +188,7 @@ export class StocksService {
 
       return stock;
     } catch (error) {
-      console.error('Erreur createStock:', error);
+      logger.error('Erreur createStock:', error);
       throw error;
     }
   }
@@ -221,7 +222,7 @@ export class StocksService {
 
       return stock;
     } catch (error) {
-      console.error('Erreur updateStock:', error);
+      logger.error('Erreur updateStock:', error);
       throw error;
     }
   }
@@ -247,7 +248,7 @@ export class StocksService {
 
       return { success: true, message: 'Stock archivé avec succès' };
     } catch (error) {
-      console.error('Erreur deleteStock:', error);
+      logger.error('Erreur deleteStock:', error);
       throw error;
     }
   }
@@ -298,7 +299,7 @@ export class StocksService {
 
       return { movement, stock };
     } catch (error) {
-      console.error('Erreur createMovement:', error);
+      logger.error('Erreur createMovement:', error);
       throw error;
     }
   }
@@ -339,7 +340,7 @@ export class StocksService {
         total: movements.length
       };
     } catch (error) {
-      console.error('Erreur getMovements:', error);
+      logger.error('Erreur getMovements:', error);
       throw error;
     }
   }
@@ -379,7 +380,7 @@ export class StocksService {
         warning: alerts.filter(a => a.type === AlertType.SEUIL_MINIMUM).length
       };
     } catch (error) {
-      console.error('Erreur getAlerts:', error);
+      logger.error('Erreur getAlerts:', error);
       throw error;
     }
   }
@@ -404,7 +405,7 @@ export class StocksService {
 
       return { success: true, message: 'Alerte résolue avec succès' };
     } catch (error) {
-      console.error('Erreur resolveAlert:', error);
+      logger.error('Erreur resolveAlert:', error);
       throw error;
     }
   }
@@ -452,7 +453,7 @@ export class StocksService {
         averageValue: stocks.length > 0 ? totalValue / stocks.length : 0
       };
     } catch (error) {
-      console.error('Erreur getStocksKPIs:', error);
+      logger.error('Erreur getStocksKPIs:', error);
       throw error;
     }
   }
@@ -504,7 +505,7 @@ export class StocksService {
         await alertRepo.save(existingAlert);
       }
     } catch (error) {
-      console.error('Erreur checkAndCreateAlert:', error);
+      logger.error('Erreur checkAndCreateAlert:', error);
       // Ne pas faire échouer l'opération principale si la création d'alerte échoue
     }
   }
