@@ -451,6 +451,44 @@ class AdminService {
     }
   }
 
+  /**
+   * Crée une nouvelle permission
+   */
+  async createPermission(data: { resource: string; actions: string[]; description?: string }): Promise<Permission> {
+    try {
+      const response = await apiClient.post(`${this.baseUrl}/permissions`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la création de la permission:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Met à jour une permission
+   */
+  async updatePermission(id: string, data: { resource?: string; actions?: string[]; description?: string; isActive?: boolean }): Promise<Permission> {
+    try {
+      const response = await apiClient.put(`${this.baseUrl}/permissions/${id}`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de la permission:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Supprime une permission
+   */
+  async deletePermission(id: string): Promise<void> {
+    try {
+      await apiClient.delete(`${this.baseUrl}/permissions/${id}`);
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la permission:', error);
+      throw error;
+    }
+  }
+
   // === GESTION DES TENANTS ===
 
   /**

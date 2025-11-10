@@ -40,7 +40,7 @@ import { useFinancialMutations } from '@/hooks/useApi';
 import { useAuth } from '@/stores/auth';
 import toast from 'react-hot-toast';
 
-// Schéma de validation
+// Schéma de validation (types doivent matcher le backend)
 const budgetSchema = z.object({
   exercice: z.number().min(2020).max(2030),
   type: z.enum(['national', 'crou', 'service']),
@@ -49,18 +49,18 @@ const budgetSchema = z.object({
   montantInitial: z.number().min(0, 'Montant invalide'),
   categories: z.array(z.object({
     libelle: z.string().min(1, 'Libellé catégorie requis'),
-    type: z.enum(['personnel', 'fonctionnement', 'investissement', 'subvention', 'recette']),
+    type: z.enum(['Personnel', 'Fonctionnement', 'Investissement', 'Subvention', 'Recette']), // Backend BudgetCategoryType enum
     montantAlloue: z.number().min(0, 'Montant invalide')
   })).optional()
 });
 
 type BudgetFormData = z.infer<typeof budgetSchema>;
 
-// Interface pour les catégories
+// Interface pour les catégories (backend uses capitalized values)
 interface BudgetCategory {
   id?: string;
   libelle: string;
-  type: 'personnel' | 'fonctionnement' | 'investissement' | 'subvention' | 'recette';
+  type: 'Personnel' | 'Fonctionnement' | 'Investissement' | 'Subvention' | 'Recette';
   montantAlloue: number;
 }
 
@@ -151,7 +151,7 @@ export function BudgetForm({
   const addCategory = () => {
     const newCategory: BudgetCategory = {
       libelle: '',
-      type: 'fonctionnement',
+      type: 'Fonctionnement', // Backend uses capitalized values
       montantAlloue: 0
     };
     setCategories([...categories, newCategory]);
@@ -174,13 +174,13 @@ export function BudgetForm({
   const montantInitial = watch('montantInitial');
   const difference = montantInitial - totalCategories;
 
-  // Configuration des types de catégories
+  // Configuration des types de catégories (backend uses capitalized values)
   const categoryTypes = [
-    { value: 'personnel', label: 'Personnel' },
-    { value: 'fonctionnement', label: 'Fonctionnement' },
-    { value: 'investissement', label: 'Investissement' },
-    { value: 'subvention', label: 'Subvention' },
-    { value: 'recette', label: 'Recette' }
+    { value: 'Personnel', label: 'Personnel' },
+    { value: 'Fonctionnement', label: 'Fonctionnement' },
+    { value: 'Investissement', label: 'Investissement' },
+    { value: 'Subvention', label: 'Subvention' },
+    { value: 'Recette', label: 'Recette' }
   ];
 
   return (

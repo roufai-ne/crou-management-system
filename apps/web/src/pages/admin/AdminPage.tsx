@@ -241,25 +241,34 @@ export const AdminPage: React.FC = () => {
       )
     },
     {
+      key: 'type',
+      label: 'Type',
+      render: (role: any) => (
+        <Badge variant="secondary" className="capitalize">
+          {role.tenantType || 'Global'}
+        </Badge>
+      )
+    },
+    {
       key: 'permissions',
       label: 'Permissions',
       render: (role: any) => (
-        <Badge variant="secondary">{role.permissions?.length || 0} permissions</Badge>
+        <Badge variant="info">{Array.isArray(role.permissions) ? role.permissions.length : 0} permissions</Badge>
       )
     },
     {
       key: 'users',
       label: 'Utilisateurs',
       render: (role: any) => (
-        <span className="text-sm text-gray-600">{role.userCount || role.users?.length || 0} utilisateurs</span>
+        <span className="text-sm text-gray-600">{role.userCount || role.users?.length || role.userCount || 0} utilisateurs</span>
       )
     },
     {
       key: 'status',
       label: 'Statut',
       render: (role: any) => (
-        <Badge variant={role.isActive ? 'success' : 'danger'}>
-          {role.isActive ? 'Actif' : 'Inactif'}
+        <Badge variant={role.isActive !== false ? 'success' : 'danger'}>
+          {role.isActive !== false ? 'Actif' : 'Inactif'}
         </Badge>
       )
     },
@@ -289,7 +298,7 @@ export const AdminPage: React.FC = () => {
       render: (tenant: any) => (
         <div>
           <p className="font-medium">{tenant.name}</p>
-          <p className="text-sm text-gray-500">{tenant.code}</p>
+          <p className="text-sm text-gray-500">Code: {tenant.code}</p>
         </div>
       )
     },
@@ -297,14 +306,31 @@ export const AdminPage: React.FC = () => {
       key: 'type',
       label: 'Type',
       render: (tenant: any) => (
-        <Badge variant="secondary">{tenant.type}</Badge>
+        <div>
+          <Badge variant="secondary" className="capitalize">{tenant.type}</Badge>
+          {tenant.serviceType && (
+            <p className="text-xs text-gray-500 mt-1 capitalize">{tenant.serviceType}</p>
+          )}
+        </div>
       )
     },
     {
-      key: 'parent',
-      label: 'Parent',
+      key: 'hierarchy',
+      label: 'Hiérarchie',
       render: (tenant: any) => (
-        <span className="text-sm text-gray-600">{tenant.parent?.name || 'Aucun'}</span>
+        <div>
+          <p className="text-sm text-gray-600">{tenant.parent?.name || 'Niveau 0 (Racine)'}</p>
+          {tenant.level !== undefined && (
+            <p className="text-xs text-gray-400">Niveau {tenant.level}</p>
+          )}
+        </div>
+      )
+    },
+    {
+      key: 'region',
+      label: 'Région',
+      render: (tenant: any) => (
+        <span className="text-sm text-gray-600">{tenant.region || '-'}</span>
       )
     },
     {
@@ -339,6 +365,8 @@ export const AdminPage: React.FC = () => {
     {
       key: 'resource',
       label: 'Ressource',
+      key: 'resource',
+      label: 'Ressource',
       render: (permission: any) => (
         <div>
           <p className="font-medium">{permission.resource}</p>
@@ -347,6 +375,8 @@ export const AdminPage: React.FC = () => {
       )
     },
     {
+      key: 'actions',
+      label: 'Actions',
       key: 'actions',
       label: 'Actions',
       render: (permission: any) => (
@@ -358,6 +388,8 @@ export const AdminPage: React.FC = () => {
       )
     },
     {
+      key: 'status',
+      label: 'Statut',
       key: 'status',
       label: 'Statut',
       render: (permission: any) => (

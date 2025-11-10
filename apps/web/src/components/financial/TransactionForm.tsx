@@ -28,16 +28,22 @@ const transactionTypes = [
   { value: 'virement', label: 'Virement' }
 ];
 
-// Catégories de transaction
+// Catégories de transaction (backend TransactionCategory enum)
 const transactionCategories = [
-  { value: 'alimentation', label: 'Alimentation' },
-  { value: 'logement', label: 'Logement' },
-  { value: 'transport', label: 'Transport' },
-  { value: 'administratif', label: 'Administratif' },
-  { value: 'equipement', label: 'Équipement' },
-  { value: 'maintenance', label: 'Maintenance' },
-  { value: 'personnel', label: 'Personnel' },
-  { value: 'autre', label: 'Autre' }
+  // Dépenses
+  { value: 'salaires', label: 'Salaires et charges' },
+  { value: 'fournitures', label: 'Fournitures de bureau' },
+  { value: 'maintenance', label: 'Maintenance et réparations' },
+  { value: 'transport', label: 'Frais de transport' },
+  { value: 'communication', label: 'Téléphone, Internet' },
+  { value: 'formation', label: 'Formation du personnel' },
+  { value: 'equipement', label: 'Achat d\'équipements' },
+  { value: 'travaux', label: 'Travaux et aménagements' },
+  // Recettes
+  { value: 'loyers', label: 'Loyers étudiants' },
+  { value: 'tickets', label: 'Vente de tickets restaurant' },
+  { value: 'subventions', label: 'Subventions gouvernementales' },
+  { value: 'autres', label: 'Autres recettes' }
 ];
 
 export interface TransactionFormData {
@@ -49,8 +55,9 @@ export interface TransactionFormData {
   montant: number;
   date: string;
   beneficiaire?: string;
-  fournisseur?: string;
-  pieceJustificative?: string;
+  numeroPiece?: string;
+  reference?: string;
+  modePaiement?: string;
 }
 
 export interface TransactionFormProps {
@@ -74,14 +81,15 @@ export function TransactionForm({
   const [formData, setFormData] = useState<TransactionFormData>({
     budgetId: '',
     type: 'depense',
-    category: 'alimentation',
+    category: 'fournitures', // Default to a valid backend category
     libelle: '',
     description: '',
     montant: 0,
     date: new Date().toISOString().split('T')[0],
     beneficiaire: '',
-    fournisseur: '',
-    pieceJustificative: '',
+    numeroPiece: '',
+    reference: '',
+    modePaiement: '',
     ...initialData
   });
 
@@ -304,7 +312,7 @@ export function TransactionForm({
         )}
       </div>
 
-      {/* Bénéficiaire et Fournisseur */}
+      {/* Bénéficiaire et Mode de paiement */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -322,32 +330,52 @@ export function TransactionForm({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Fournisseur
+            Mode de paiement
           </label>
-          <Input
-            type="text"
-            name="fournisseur"
-            value={formData.fournisseur}
+          <Select
+            name="modePaiement"
+            value={formData.modePaiement || ''}
             onChange={handleChange}
-            placeholder="Nom du fournisseur"
             disabled={loading}
-          />
+          >
+            <option value="">Sélectionner</option>
+            <option value="virement">Virement</option>
+            <option value="cheque">Chèque</option>
+            <option value="especes">Espèces</option>
+            <option value="autre">Autre</option>
+          </Select>
         </div>
       </div>
 
-      {/* Pièce justificative */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Pièce justificative (Référence)
-        </label>
-        <Input
-          type="text"
-          name="pieceJustificative"
-          value={formData.pieceJustificative}
-          onChange={handleChange}
-          placeholder="Numéro de facture, bon de commande, etc."
-          disabled={loading}
-        />
+      {/* Références comptables */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Numéro de pièce comptable
+          </label>
+          <Input
+            type="text"
+            name="numeroPiece"
+            value={formData.numeroPiece}
+            onChange={handleChange}
+            placeholder="Ex: PJ-2024-001"
+            disabled={loading}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Référence externe
+          </label>
+          <Input
+            type="text"
+            name="reference"
+            value={formData.reference}
+            onChange={handleChange}
+            placeholder="Facture, bon de commande, etc."
+            disabled={loading}
+          />
+        </div>
       </div>
 
       {/* Avertissement budget */}

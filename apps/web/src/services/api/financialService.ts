@@ -29,52 +29,73 @@ import { User } from '@/stores/auth';
 
 // --- BUDGETS ---
 
+// Types des budgets selon backend
+export enum BudgetType {
+  NATIONAL = 'national',      // Budget national Ministère
+  CROU = 'crou',             // Budget CROU régional
+  SERVICE = 'service'         // Budget par service
+}
+
+export enum BudgetStatus {
+  DRAFT = 'draft',           // Brouillon
+  SUBMITTED = 'submitted',   // Soumis pour validation
+  APPROVED = 'approved',     // Approuvé
+  REJECTED = 'rejected',     // Rejeté
+  ACTIVE = 'active',         // En cours d'exécution
+  CLOSED = 'closed'          // Clôturé
+}
+
 export interface Budget {
   id: string;
 
   // Identification
-  crouId?: string; // null pour budget national Ministère
-  tenantId: string;
+  tenantId: string; // CROU ou Ministère
   exercice: number; // Année budgétaire
 
   // Type et libellé
-  type: 'national' | 'crou' | 'service';
+  type: BudgetType; // national, crou, service
   libelle: string;
-  title: string; // Alias pour compatibilité
-  description?: string;
-  category: string;
+  description?: string | null;
 
   // Montants
-  amount: number; // Montant initial (compatibilité simple)
   montantInitial: number;
   montantRealise: number;
   montantEngage: number;
   montantDisponible: number;
-  spent: number; // Alias pour compatibilité
-  remaining: number; // Alias pour compatibilité
-  tauxExecution: number;
+  tauxExecution: number; // Pourcentage 0-100
 
   // Statut
-  statut: 'draft' | 'submitted' | 'pending' | 'approved' | 'rejected' | 'active' | 'closed';
-  status: 'draft' | 'pending' | 'approved' | 'rejected' | 'active' | 'closed'; // Alias
-
-  // Métadonnées
-  fiscalYear: string;
-  createdBy: string;
-  createdAt: Date | string;
-  updatedAt: Date | string;
-  approvedBy?: string;
-  approvedAt?: string | Date;
+  status: BudgetStatus; // draft, submitted, approved, rejected, active, closed
 
   // Workflow
   validationLevel: number; // 0=CROU, 1=Ministère
-  nextValidator?: string;
-  validationHistory: ValidationStep[];
-  validations: BudgetValidation[]; // Alias pour compatibilité
+  nextValidator?: string | null;
 
-  // Catégorisation
-  categories: BudgetCategory[];
-  trimestres: BudgetTrimester[];
+  // Métadonnées
+  createdBy: string;
+  approvedBy?: string | null;
+  approvedAt?: Date | string | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  updatedBy?: string | null;
+
+  // Relations
+  tenant?: any;
+  categories?: BudgetCategory[];
+  trimestres?: BudgetTrimester[];
+  transactions?: any[];
+  validationSteps?: ValidationStep[];
+
+  // Aliases pour compatibilité avec ancien code
+  title?: string; // OLD: used title instead of libelle
+  category?: string; // OLD: had single category string (now categories array)
+  amount?: number; // OLD: used amount instead of montantInitial
+  spent?: number; // OLD: used spent instead of montantRealise
+  remaining?: number; // OLD: used remaining instead of montantDisponible
+  fiscalYear?: string; // OLD: used fiscalYear string instead of exercice number
+  statut?: BudgetStatus; // OLD: used statut
+  validations?: BudgetValidation[]; // For backward compatibility
+  validationHistory?: ValidationStep[]; // Alias
 }
 
 export interface BudgetCategory {
@@ -137,27 +158,31 @@ export interface ValidationStep {
 }
 
 export interface CreateBudgetRequest {
-  title: string;
-  libelle?: string; // Alias
+  // Champs principaux (backend)
+  exercice: number; // Année budgétaire (required)
+  type: BudgetType; // national, crou, service (required)
+  libelle: string; // Libellé du budget (required)
   description?: string;
-  category: string;
-  amount: number;
-  montantInitial?: number; // Alias
-  fiscalYear: string;
-  exercice?: number; // Alias
-  type?: 'national' | 'crou' | 'service';
-  crouId?: string;
-  categories?: BudgetCategory[];
-  trimestres?: BudgetTrimester[];
+  montantInitial: number; // Montant initial alloué (required)
+
+  // Catégories et trimestres optionnels
+  categories?: Array<{
+    nom: string;
+    code: string;
+    montantInitial: number;
+    pourcentage: number;
+  }>;
+  trimestres?: Array<{
+    trimestre: 1 | 2 | 3 | 4;
+    montantPrevu: number;
+  }>;
 }
 
 export interface UpdateBudgetRequest {
-  title?: string;
   libelle?: string;
   description?: string;
-  category?: string;
-  amount?: number;
   montantInitial?: number;
+  status?: BudgetStatus;
 }
 
 // --- SUBVENTIONS ---
@@ -195,46 +220,98 @@ export interface Subvention {
 
 // --- TRANSACTIONS ---
 
+// Types de transactions selon backend
+export enum TransactionType {
+  DEPENSE = 'depense',           // Sortie d'argent
+  RECETTE = 'recette',           // Entrée d'argent
+  ENGAGEMENT = 'engagement',     // Réservation de budget
+  AJUSTEMENT = 'ajustement',     // Correction budgétaire
+  VIREMENT = 'virement'          // Virement interne
+}
+
+export enum TransactionStatus {
+  DRAFT = 'draft',               // Brouillon
+  SUBMITTED = 'submitted',       // Soumis pour validation
+  APPROVED = 'approved',         // Approuvé
+  REJECTED = 'rejected',         // Rejeté
+  EXECUTED = 'executed',         // Exécuté
+  CANCELLED = 'cancelled'        // Annulé
+}
+
+export enum TransactionCategory {
+  // Dépenses
+  SALAIRES = 'salaires',
+  FOURNITURES = 'fournitures',
+  MAINTENANCE = 'maintenance',
+  TRANSPORT = 'transport',
+  COMMUNICATION = 'communication',
+  FORMATION = 'formation',
+  EQUIPEMENT = 'equipement',
+  TRAVAUX = 'travaux',
+  // Recettes
+  LOYERS = 'loyers',
+  TICKETS = 'tickets',
+  SUBVENTIONS = 'subventions',
+  AUTRES = 'autres'
+}
+
 export interface Transaction {
   id: string;
 
   // Identification
-  crouId?: string;
   tenantId: string;
-  budgetId?: string;
-  categoryId?: string;
+  budgetId: string;
+  budgetCategoryId?: string | null;
 
-  // Détails
-  description: string;
-  libelle?: string; // Alias pour compatibilité
-  amount: number;
-  montant?: number; // Alias pour compatibilité
-  type: 'credit' | 'debit' | 'engagement' | 'realisation' | 'annulation' | 'virement';
-  category: string;
-  subcategory?: string;
+  // Informations de base (BACKEND USES libelle as PRIMARY)
+  libelle: string; // PRIMARY - Libellé de la transaction
+  description?: string | null; // SECONDARY - Description détaillée
 
-  // Références
-  reference?: string;
-  fournisseur?: string;
-  numeroPiece?: string;
-  numeroCommande?: string;
-  pieceJustificative?: string;
+  // Type et catégorie
+  type: TransactionType; // depense, recette, engagement, ajustement, virement
+  category: TransactionCategory; // salaires, fournitures, maintenance, etc.
+  status: TransactionStatus; // draft, submitted, approved, rejected, executed, cancelled
+
+  // Montants (BACKEND USES montant as PRIMARY)
+  montant: number; // PRIMARY - Montant en FCFA
+  devise: string; // XOF par défaut
+  montantDevise?: number | null; // Montant dans la devise d'origine
+  tauxChange?: number | null; // Taux de change
+
+  // Informations de paiement
+  numeroPiece?: string | null; // Numéro de pièce comptable
+  reference?: string | null; // Référence externe
+  beneficiaire?: string | null; // Bénéficiaire du paiement
+  modePaiement?: string | null; // Virement, chèque, espèces
 
   // Dates
-  date?: string | Date;
+  date: Date | string; // Date de l'opération
+  dateEcheance?: Date | string | null; // Date d'échéance pour engagements
+  dateExecution?: Date | string | null; // Date d'exécution effective
+
+  // Workflow de validation
+  validationLevel: number; // Niveau de validation requis
+  nextValidator?: string | null; // Prochain validateur
+
+  // Métadonnées
+  createdBy: string;
+  approvedBy?: string | null;
+  approvedAt?: Date | string | null;
   createdAt: Date | string;
   updatedAt: Date | string;
+  updatedBy?: string | null;
 
-  // Statut et validation
-  status: 'draft' | 'pending' | 'approved' | 'rejected' | 'completed' | 'paid';
-  statut?: 'draft' | 'pending' | 'approved' | 'rejected' | 'paid'; // Alias
-  createdBy: string;
-  validatedBy?: string;
-  validatedAt?: string | Date;
+  // Relations
+  tenant?: any;
+  budget?: any;
+  budgetCategory?: any;
+  creator?: any;
+  validationSteps?: ValidationStep[];
 
-  // Validations
-  validations: TransactionValidation[];
-  validationHistory?: ValidationStep[]; // Pour compatibilité
+  // Aliases pour compatibilité avec ancien code
+  description_legacy?: string; // OLD: description was primary
+  amount?: number; // OLD: amount was primary
+  fournisseur?: string; // OLD: used fournisseur instead of beneficiaire
 }
 
 export interface TransactionValidation {
@@ -253,34 +330,50 @@ export interface FinancialTransaction extends Transaction {
 }
 
 export interface CreateTransactionRequest {
-  description: string;
-  libelle?: string;
-  amount: number;
-  montant?: number;
-  type: 'credit' | 'debit' | 'engagement' | 'realisation' | 'annulation' | 'virement';
-  category: string;
-  subcategory?: string;
-  reference?: string;
-  budgetId?: string;
-  categoryId?: string;
-  date?: string;
-  fournisseur?: string;
+  // Champs principaux (backend)
+  libelle: string; // PRIMARY - required
+  description?: string; // SECONDARY - optional
+  montant: number; // PRIMARY - required
+  type: TransactionType; // depense, recette, engagement, ajustement, virement
+  category: TransactionCategory; // salaires, fournitures, etc.
+
+  // IDs
+  budgetId: string;
+  budgetCategoryId?: string;
+
+  // Devise et montants
+  devise?: string; // XOF par défaut
+  montantDevise?: number;
+  tauxChange?: number;
+
+  // Informations de paiement
   numeroPiece?: string;
-  numeroCommande?: string;
-  pieceJustificative?: string;
+  reference?: string;
+  beneficiaire?: string;
+  modePaiement?: string;
+
+  // Dates
+  date: string | Date;
+  dateEcheance?: string | Date;
 }
 
 export interface UpdateTransactionRequest {
+  libelle?: string;
   description?: string;
-  amount?: number;
-  category?: string;
-  subcategory?: string;
-  reference?: string;
+  montant?: number;
+  type?: TransactionType;
+  category?: TransactionCategory;
   budgetId?: string;
-  date?: string;
-  fournisseur?: string;
+  budgetCategoryId?: string;
+  devise?: string;
+  montantDevise?: number;
+  tauxChange?: number;
   numeroPiece?: string;
-  pieceJustificative?: string;
+  reference?: string;
+  beneficiaire?: string;
+  modePaiement?: string;
+  date?: string | Date;
+  dateEcheance?: string | Date;
 }
 
 // --- RAPPORTS ---
