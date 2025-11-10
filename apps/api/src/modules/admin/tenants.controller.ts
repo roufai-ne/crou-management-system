@@ -28,6 +28,7 @@ import { auditMiddleware } from '@/shared/middlewares/audit.middleware';
 import { AppDataSource } from '../../../../../packages/database/src/config/datasource';
 import { Tenant, TenantType } from '../../../../../packages/database/src/entities/Tenant.entity';
 import { User } from '../../../../../packages/database/src/entities/User.entity';
+import { MoreThan } from 'typeorm';
 import { AuditService } from '@/shared/services/audit.service';
 import { AuditAction } from '../../../../../packages/database/src/entities/AuditLog.entity';
 import { logger } from '@/shared/utils/logger';
@@ -208,7 +209,7 @@ router.get('/:id',
       const recentActivity = await userRepository.count({
         where: {
           tenantId,
-          lastLoginAt: { $gte: thirtyDaysAgo } as any
+          lastLoginAt: MoreThan(thirtyDaysAgo)
         }
       });
 
@@ -612,7 +613,7 @@ router.get('/stats/global',
 
       const recentActivity = await userRepository.count({
         where: {
-          lastLoginAt: { $gte: sevenDaysAgo } as any
+          lastLoginAt: MoreThan(sevenDaysAgo)
         }
       });
 
