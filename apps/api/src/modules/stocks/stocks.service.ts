@@ -68,10 +68,20 @@ export class StocksService {
    */
   static async getStocks(tenantId: string, filters?: StockFilters) {
     try {
+      logger.info('[StocksService.getStocks] Début - tenantId:', tenantId);
+      logger.info('[StocksService.getStocks] AppDataSource initialized:', AppDataSource.isInitialized);
+
+      if (!AppDataSource.isInitialized) {
+        throw new Error('AppDataSource non initialisé');
+      }
+
       const stockRepo = AppDataSource.getRepository(Stock);
+      logger.info('[StocksService.getStocks] Repository obtenu:', !!stockRepo);
 
       const queryBuilder = stockRepo.createQueryBuilder('stock')
         .where('stock.tenantId = :tenantId', { tenantId });
+
+      logger.info('[StocksService.getStocks] QueryBuilder créé');
 
       // Recherche textuelle
       if (filters?.search) {
@@ -104,19 +114,26 @@ export class StocksService {
         queryBuilder.andWhere('stock.quantiteActuelle = 0');
       }
 
+      logger.info('[StocksService.getStocks] Exécution de la requête...');
       const stocks = await queryBuilder
         .orderBy('stock.libelle', 'ASC')
         .getMany();
 
-      return {
+      logger.info('[StocksService.getStocks] Requête réussie - stocks trouvés:', stocks.length);
+
+      const result = {
         stocks,
         total: stocks.length,
         lowStockCount: stocks.filter(s => s.quantiteActuelle < s.seuilMinimum).length,
         outOfStockCount: stocks.filter(s => s.quantiteActuelle === 0).length,
         totalValue: stocks.reduce((sum, s) => sum + (s.prixUnitaire * s.quantiteActuelle), 0)
       };
+
+      logger.info('[StocksService.getStocks] Résultat calculé:', result);
+      return result;
     } catch (error) {
-      logger.error('Erreur getStocks:', error);
+      logger.error('[StocksService.getStocks] ERREUR:', error);
+      logger.error('[StocksService.getStocks] Stack:', error instanceof Error ? error.stack : 'N/A');
       throw error;
     }
   }
