@@ -126,7 +126,12 @@ export class StocksService {
         total: stocks.length,
         lowStockCount: stocks.filter(s => s.quantiteActuelle < s.seuilMinimum).length,
         outOfStockCount: stocks.filter(s => s.quantiteActuelle === 0).length,
-        totalValue: stocks.reduce((sum, s) => sum + (s.prixUnitaire * s.quantiteActuelle), 0)
+        totalValue: stocks.reduce((sum, s) => {
+          // Protection contre prixUnitaire null (P0 #1)
+          const prix = s.prixUnitaire || 0;
+          const quantite = s.quantiteActuelle || 0;
+          return sum + (Number(prix) * Number(quantite));
+        }, 0)
       };
 
       logger.info('[StocksService.getStocks] Résultat calculé:', result);
@@ -438,7 +443,12 @@ export class StocksService {
 
       const stocks = await stockRepo.find({ where: { tenantId } });
 
-      const totalValue = stocks.reduce((sum, s) => sum + (s.prixUnitaire * s.quantiteActuelle), 0);
+      const totalValue = stocks.reduce((sum, s) => {
+        // Protection contre prixUnitaire null (P0 #1)
+        const prix = s.prixUnitaire || 0;
+        const quantite = s.quantiteActuelle || 0;
+        return sum + (Number(prix) * Number(quantite));
+      }, 0);
       const lowStockCount = stocks.filter(s => s.quantiteActuelle < s.seuilMinimum).length;
       const outOfStockCount = stocks.filter(s => s.quantiteActuelle === 0).length;
 
