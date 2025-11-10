@@ -48,27 +48,27 @@ import { HousingDashboard } from './HousingDashboard';
 import { TransportDashboard } from './TransportDashboard';
 
 export const ModernCROUDashboard: React.FC = () => {
-  const { user } = useAuth();
+  const { user, hasPermission } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Hooks pour les métriques
+  // Hooks pour les métriques - only load if user has permission
   const financialMetrics = useFinancialMetrics();
   const stocksMetrics = useStocksMetrics();
   const housingMetrics = useHousingMetrics();
   const transportMetrics = useTransportMetrics();
-  const { alerts, criticalAlerts, totalAlerts } = useAlerts();
+  const { criticalAlerts, totalAlerts } = useAlerts();
 
-  // Fonction de refresh
+  // Fonction de refresh - only refresh modules user has access to
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      await Promise.all([
-        financialMetrics.loadMetrics(),
-        stocksMetrics.loadMetrics(),
-        housingMetrics.loadMetrics(),
-        transportMetrics.loadMetrics()
-      ]);
+      const promises = [];
+      if (hasPermission('financial:read')) promises.push(financialMetrics.loadMetrics());
+      if (hasPermission('stocks:read')) promises.push(stocksMetrics.loadMetrics());
+      if (hasPermission('housing:read')) promises.push(housingMetrics.loadMetrics());
+      if (hasPermission('transport:read')) promises.push(transportMetrics.loadMetrics());
+      await Promise.all(promises);
     } finally {
       setIsRefreshing(false);
     }
@@ -234,13 +234,16 @@ export const ModernCROUDashboard: React.FC = () => {
     }
   ];
 
-  const tabs = [
-    { id: 'overview', label: 'Vue d\'ensemble', icon: ChartBarIcon },
-    { id: 'financial', label: 'Finances', icon: BanknotesIcon },
-    { id: 'stocks', label: 'Stocks', icon: CubeIcon },
-    { id: 'housing', label: 'Logement', icon: HomeModernIcon },
-    { id: 'transport', label: 'Transport', icon: TruckIcon }
+  // Filter tabs based on permissions
+  const allTabs = [
+    { id: 'overview', label: 'Vue d\'ensemble', icon: ChartBarIcon, permission: null },
+    { id: 'financial', label: 'Finances', icon: BanknotesIcon, permission: 'financial:read' },
+    { id: 'stocks', label: 'Stocks', icon: CubeIcon, permission: 'stocks:read' },
+    { id: 'housing', label: 'Logement', icon: HomeModernIcon, permission: 'housing:read' },
+    { id: 'transport', label: 'Transport', icon: TruckIcon, permission: 'transport:read' }
   ];
+
+  const tabs = allTabs.filter(tab => !tab.permission || hasPermission(tab.permission));
 
   return (
     <div className="space-y-8">
@@ -320,24 +323,32 @@ export const ModernCROUDashboard: React.FC = () => {
       {/* Contenu conditionnel */}
       {activeTab === 'overview' && (
         <div className="space-y-8">
-          {/* KPIs principaux */}
-          <Section title="Indicateurs Clés de Performance">
-            <KPIGrid kpis={financialKPIs} columns={4} />
-          </Section>
+          {/* KPIs principaux - Only show if user has financial permissions */}
+          {hasPermission('financial:read') && (
+            <Section title="Indicateurs Clés de Performance">
+              <KPIGrid kpis={financialKPIs} columns={4} />
+            </Section>
+          )}
 
-          {/* KPIs par module */}
+          {/* KPIs par module - Only show modules user has access to */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Section title="Stocks & Approvisionnement">
-              <KPIGrid kpis={stocksKPIs} columns={2} />
-            </Section>
-            <Section title="Logement Universitaire">
-              <KPIGrid kpis={housingKPIs} columns={2} />
-            </Section>
+            {hasPermission('stocks:read') && (
+              <Section title="Stocks & Approvisionnement">
+                <KPIGrid kpis={stocksKPIs} columns={2} />
+              </Section>
+            )}
+            {hasPermission('housing:read') && (
+              <Section title="Logement Universitaire">
+                <KPIGrid kpis={housingKPIs} columns={2} />
+              </Section>
+            )}
           </div>
 
-          <Section title="Transport & Mobilité">
-            <KPIGrid kpis={transportKPIs} columns={4} />
-          </Section>
+          {hasPermission('transport:read') && (
+            <Section title="Transport & Mobilité">
+              <KPIGrid kpis={transportKPIs} columns={4} />
+            </Section>
+          )}
         </div>
       )}
 

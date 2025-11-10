@@ -189,7 +189,7 @@ class StocksService {
       if (params?.search) queryParams.append('search', params.search);
       if (params?.tenantId) queryParams.append('tenantId', params.tenantId);
 
-      const response = await apiClient.get(`${this.baseUrl}/items?${queryParams.toString()}`);
+      const response = await apiClient.get(`${this.baseUrl}/stocks?${queryParams.toString()}`);
       return response.data;
     } catch (error) {
       console.error('Erreur lors de la récupération des articles de stock:', error);
@@ -202,7 +202,7 @@ class StocksService {
    */
   async getStockItem(id: string): Promise<StockItem> {
     try {
-      const response = await apiClient.get(`${this.baseUrl}/items/${id}`);
+      const response = await apiClient.get(`${this.baseUrl}/stocks/${id}`);
       return response.data;
     } catch (error) {
       console.error('Erreur lors de la récupération de l\'article de stock:', error);
@@ -215,7 +215,7 @@ class StocksService {
    */
   async createStockItem(data: CreateStockItemRequest): Promise<StockItem> {
     try {
-      const response = await apiClient.post(`${this.baseUrl}/items`, data);
+      const response = await apiClient.post(`${this.baseUrl}/stocks`, data);
       return response.data;
     } catch (error) {
       console.error('Erreur lors de la création de l\'article de stock:', error);
@@ -228,7 +228,7 @@ class StocksService {
    */
   async updateStockItem(id: string, data: UpdateStockItemRequest): Promise<StockItem> {
     try {
-      const response = await apiClient.put(`${this.baseUrl}/items/${id}`, data);
+      const response = await apiClient.put(`${this.baseUrl}/stocks/${id}`, data);
       return response.data;
     } catch (error) {
       console.error('Erreur lors de la mise à jour de l\'article de stock:', error);
@@ -241,7 +241,7 @@ class StocksService {
    */
   async deleteStockItem(id: string): Promise<void> {
     try {
-      await apiClient.delete(`${this.baseUrl}/items/${id}`);
+      await apiClient.delete(`${this.baseUrl}/stocks/${id}`);
     } catch (error) {
       console.error('Erreur lors de la suppression de l\'article de stock:', error);
       throw error;
