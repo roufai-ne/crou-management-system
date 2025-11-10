@@ -113,6 +113,59 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+// Rate limiting spécifique par module (P0 #13)
+const moduleLimiters = {
+  financial: rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: NODE_ENV === 'development' ? 500 : 50, // 50 requêtes par 15min en prod
+    message: {
+      error: 'Trop de requêtes financières, réessayez plus tard.'
+    },
+    standardHeaders: true,
+    legacyHeaders: false
+  }),
+
+  stocks: rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: NODE_ENV === 'development' ? 1000 : 100, // 100 requêtes par 15min en prod
+    message: {
+      error: 'Trop de requêtes stocks, réessayez plus tard.'
+    },
+    standardHeaders: true,
+    legacyHeaders: false
+  }),
+
+  admin: rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: NODE_ENV === 'development' ? 300 : 30, // 30 requêtes par 15min en prod (actions sensibles)
+    message: {
+      error: 'Trop de requêtes administratives, réessayez plus tard.'
+    },
+    standardHeaders: true,
+    legacyHeaders: false
+  }),
+
+  transport: rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: NODE_ENV === 'development' ? 500 : 60, // 60 requêtes par 15min en prod
+    message: {
+      error: 'Trop de requêtes transport, réessayez plus tard.'
+    },
+    standardHeaders: true,
+    legacyHeaders: false
+  }),
+
+  housing: rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: NODE_ENV === 'development' ? 500 : 60, // 60 requêtes par 15min en prod
+    message: {
+      error: 'Trop de requêtes logement, réessayez plus tard.'
+    },
+    standardHeaders: true,
+    legacyHeaders: false
+  })
+};
+
 // Rate limiting spécifique authentification
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -176,18 +229,18 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-// Routes API
+// Routes API avec rate limiting par module
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/financial', financialRoutes);
-app.use('/api/stocks', stocksRoutes);
-app.use('/api/housing', housingRoutes);
+app.use('/api/financial', moduleLimiters.financial, financialRoutes);
+app.use('/api/stocks', moduleLimiters.stocks, stocksRoutes);
+app.use('/api/housing', moduleLimiters.housing, housingRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/workflows', workflowRoutes);
-app.use('/api/transport', transportRoutes);
+app.use('/api/transport', moduleLimiters.transport, transportRoutes);
 app.use('/api/allocations', allocationsRoutes);
-app.use('/api/admin', adminRoutes);
+app.use('/api/admin', moduleLimiters.admin, adminRoutes);
 
 // Route par défaut
 app.get('/api', (req, res) => {
