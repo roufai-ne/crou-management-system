@@ -13,6 +13,7 @@
 import { AppDataSource } from '../../../../../packages/database/src/config/datasource';
 import { Supplier, SupplierType, SupplierStatus } from '../../../../../packages/database/src/entities/Supplier.entity';
 import { Like } from 'typeorm';
+import { logger } from '@/shared/utils/logger';
 
 export interface SupplierFilters {
   search?: string;
@@ -150,7 +151,7 @@ export class SuppliersService {
         total: suppliers.length
       };
     } catch (error) {
-      console.error('Erreur getSuppliers:', error);
+      logger.error('Erreur getSuppliers:', error);
       throw error;
     }
   }
@@ -173,7 +174,7 @@ export class SuppliersService {
 
       return supplier;
     } catch (error) {
-      console.error('Erreur getSupplierById:', error);
+      logger.error('Erreur getSupplierById:', error);
       throw error;
     }
   }
@@ -207,7 +208,7 @@ export class SuppliersService {
 
       return savedSupplier;
     } catch (error) {
-      console.error('Erreur createSupplier:', error);
+      logger.error('Erreur createSupplier:', error);
       throw error;
     }
   }
@@ -245,7 +246,7 @@ export class SuppliersService {
 
       return updatedSupplier;
     } catch (error) {
-      console.error('Erreur updateSupplier:', error);
+      logger.error('Erreur updateSupplier:', error);
       throw error;
     }
   }
@@ -275,7 +276,7 @@ export class SuppliersService {
 
       return { success: true, message: 'Fournisseur supprimé avec succès' };
     } catch (error) {
-      console.error('Erreur deleteSupplier:', error);
+      logger.error('Erreur deleteSupplier:', error);
       throw error;
     }
   }
@@ -332,7 +333,7 @@ export class SuppliersService {
         averageRating: Math.round(averageRating * 100) / 100
       };
     } catch (error) {
-      console.error('Erreur getSuppliersStats:', error);
+      logger.error('Erreur getSuppliersStats:', error);
       throw error;
     }
   }
@@ -369,7 +370,7 @@ export class SuppliersService {
 
       return supplier;
     } catch (error) {
-      console.error('Erreur updateSupplierOrderStats:', error);
+      logger.error('Erreur updateSupplierOrderStats:', error);
       throw error;
     }
   }
