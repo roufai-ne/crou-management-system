@@ -35,6 +35,7 @@ import {
   CubeIcon,
   HomeModernIcon,
   TruckIcon,
+  BuildingStorefrontIcon,
   DocumentTextIcon,
   CogIcon,
   Bars3Icon,
@@ -51,6 +52,7 @@ const BanknotesSolid = BanknotesIcon;
 const CubeSolid = CubeIcon;
 const HomeModernSolid = HomeModernIcon;
 const TruckSolid = TruckIcon;
+const BuildingStorefrontSolid = BuildingStorefrontIcon;
 const DocumentTextSolid = DocumentTextIcon;
 const CogSolid = CogIcon;
 
@@ -104,6 +106,13 @@ const navigation: NavigationItem[] = [
     icon: TruckIcon,
     iconSolid: TruckSolid,
     permission: 'transport:read'
+  },
+  {
+    name: 'Restauration',
+    href: '/restauration',
+    icon: BuildingStorefrontIcon,
+    iconSolid: BuildingStorefrontSolid,
+    permission: 'restauration:read'
   },
   {
     name: 'Rapports',

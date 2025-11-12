@@ -189,6 +189,7 @@ class StocksService {
       if (params?.search) queryParams.append('search', params.search);
       if (params?.tenantId) queryParams.append('tenantId', params.tenantId);
 
+      // Fixed: Backend route is /stocks/stocks not /stocks/items
       const response = await apiClient.get(`${this.baseUrl}/stocks?${queryParams.toString()}`);
       return response.data;
     } catch (error) {
@@ -202,6 +203,7 @@ class StocksService {
    */
   async getStockItem(id: string): Promise<StockItem> {
     try {
+      // Fixed: Backend route is /stocks/stocks/:id not /stocks/items/:id
       const response = await apiClient.get(`${this.baseUrl}/stocks/${id}`);
       return response.data;
     } catch (error) {
@@ -215,6 +217,7 @@ class StocksService {
    */
   async createStockItem(data: CreateStockItemRequest): Promise<StockItem> {
     try {
+      // Fixed: Backend route is /stocks/stocks not /stocks/items
       const response = await apiClient.post(`${this.baseUrl}/stocks`, data);
       return response.data;
     } catch (error) {
@@ -228,6 +231,7 @@ class StocksService {
    */
   async updateStockItem(id: string, data: UpdateStockItemRequest): Promise<StockItem> {
     try {
+      // Fixed: Backend route is /stocks/stocks/:id not /stocks/items/:id
       const response = await apiClient.put(`${this.baseUrl}/stocks/${id}`, data);
       return response.data;
     } catch (error) {
@@ -241,6 +245,7 @@ class StocksService {
    */
   async deleteStockItem(id: string): Promise<void> {
     try {
+      // Fixed: Backend route is /stocks/stocks/:id not /stocks/items/:id
       await apiClient.delete(`${this.baseUrl}/stocks/${id}`);
     } catch (error) {
       console.error('Erreur lors de la suppression de l\'article de stock:', error);

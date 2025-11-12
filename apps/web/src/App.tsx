@@ -20,6 +20,7 @@
  * - /stocks: Gestion stocks
  * - /housing: Logement
  * - /transport: Transport
+ * - /restauration: Restauration universitaire
  * - /reports: Rapports
  * - /admin: Administration
  * 
@@ -49,6 +50,7 @@ import { HousingPage } from '@/pages/housing/HousingPage';
 import { TransportPage } from '@/pages/transport/TransportPage';
 import { ReportsPage } from '@/pages/reports/ReportsPage';
 import { AdminPage } from '@/pages/admin/AdminPage';
+import { RestaurationPage } from '@/pages/restauration/RestaurationPage';
 import { StyleTest } from '@/pages/test/StyleTest';
 import { LoginTest } from '@/pages/test/LoginTest';
 import { CSSTest } from '@/pages/test/CSSTest';
@@ -158,6 +160,7 @@ function App() {
                         <Route path="/stocks/*" element={<StocksPage />} />
                         <Route path="/housing/*" element={<HousingPage />} />
                         <Route path="/transport/*" element={<TransportPage />} />
+                        <Route path="/restauration/*" element={<RestaurationPage />} />
                         <Route path="/reports/*" element={<ReportsPage />} />
                         
                         {/* Administration (accès limité) */}

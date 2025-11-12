@@ -157,6 +157,7 @@ export const BanknotesIcon = (props: any) => <IconFallback type="banknotes" {...
 export const CubeIcon = (props: any) => <IconFallback type="cube" {...props} />;
 export const HomeModernIcon = (props: any) => <IconFallback type="home-modern" {...props} />;
 export const TruckIcon = (props: any) => <IconFallback type="truck" {...props} />;
+export const BuildingStorefrontIcon = (props: any) => <IconFallback type="building-storefront" {...props} />;
 export const DocumentTextIcon = (props: any) => <IconFallback type="document-text" {...props} />;
 export const CogIcon = (props: any) => <IconFallback type="cog" {...props} />;
 export const Bars3Icon = (props: any) => <IconFallback type="bars-3" {...props} />;

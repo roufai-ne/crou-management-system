@@ -68,10 +68,20 @@ export class StocksService {
    */
   static async getStocks(tenantId: string, filters?: StockFilters) {
     try {
+      logger.info('[StocksService.getStocks] Début - tenantId:', tenantId);
+      logger.info('[StocksService.getStocks] AppDataSource initialized:', AppDataSource.isInitialized);
+
+      if (!AppDataSource.isInitialized) {
+        throw new Error('AppDataSource non initialisé');
+      }
+
       const stockRepo = AppDataSource.getRepository(Stock);
+      logger.info('[StocksService.getStocks] Repository obtenu:', !!stockRepo);
 
       const queryBuilder = stockRepo.createQueryBuilder('stock')
         .where('stock.tenantId = :tenantId', { tenantId });
+
+      logger.info('[StocksService.getStocks] QueryBuilder créé');
 
       // Recherche textuelle
       if (filters?.search) {
@@ -104,19 +114,31 @@ export class StocksService {
         queryBuilder.andWhere('stock.quantiteActuelle = 0');
       }
 
+      logger.info('[StocksService.getStocks] Exécution de la requête...');
       const stocks = await queryBuilder
         .orderBy('stock.libelle', 'ASC')
         .getMany();
 
-      return {
+      logger.info('[StocksService.getStocks] Requête réussie - stocks trouvés:', stocks.length);
+
+      const result = {
         stocks,
         total: stocks.length,
         lowStockCount: stocks.filter(s => s.quantiteActuelle < s.seuilMinimum).length,
         outOfStockCount: stocks.filter(s => s.quantiteActuelle === 0).length,
-        totalValue: stocks.reduce((sum, s) => sum + (s.prixUnitaire * s.quantiteActuelle), 0)
+        totalValue: stocks.reduce((sum, s) => {
+          // Protection contre prixUnitaire null (P0 #1)
+          const prix = s.prixUnitaire || 0;
+          const quantite = s.quantiteActuelle || 0;
+          return sum + (Number(prix) * Number(quantite));
+        }, 0)
       };
+
+      logger.info('[StocksService.getStocks] Résultat calculé:', result);
+      return result;
     } catch (error) {
-      console.error('Erreur getStocks:', error);
+      logger.error('[StocksService.getStocks] ERREUR:', error);
+      logger.error('[StocksService.getStocks] Stack:', error instanceof Error ? error.stack : 'N/A');
       throw error;
     }
   }
@@ -153,7 +175,7 @@ export class StocksService {
         recentMovements
       };
     } catch (error) {
-      console.error('Erreur getStockById:', error);
+      logger.error('Erreur getStockById:', error);
       throw error;
     }
   }
@@ -188,7 +210,7 @@ export class StocksService {
 
       return stock;
     } catch (error) {
-      console.error('Erreur createStock:', error);
+      logger.error('Erreur createStock:', error);
       throw error;
     }
   }
@@ -222,7 +244,7 @@ export class StocksService {
 
       return stock;
     } catch (error) {
-      console.error('Erreur updateStock:', error);
+      logger.error('Erreur updateStock:', error);
       throw error;
     }
   }
@@ -248,7 +270,7 @@ export class StocksService {
 
       return { success: true, message: 'Stock archivé avec succès' };
     } catch (error) {
-      console.error('Erreur deleteStock:', error);
+      logger.error('Erreur deleteStock:', error);
       throw error;
     }
   }
@@ -299,7 +321,7 @@ export class StocksService {
 
       return { movement, stock };
     } catch (error) {
-      console.error('Erreur createMovement:', error);
+      logger.error('Erreur createMovement:', error);
       throw error;
     }
   }
@@ -340,7 +362,7 @@ export class StocksService {
         total: movements.length
       };
     } catch (error) {
-      console.error('Erreur getMovements:', error);
+      logger.error('Erreur getMovements:', error);
       throw error;
     }
   }
@@ -380,7 +402,7 @@ export class StocksService {
         warning: alerts.filter(a => a.type === AlertType.SEUIL_MINIMUM).length
       };
     } catch (error) {
-      console.error('Erreur getAlerts:', error);
+      logger.error('Erreur getAlerts:', error);
       throw error;
     }
   }
@@ -405,7 +427,7 @@ export class StocksService {
 
       return { success: true, message: 'Alerte résolue avec succès' };
     } catch (error) {
-      console.error('Erreur resolveAlert:', error);
+      logger.error('Erreur resolveAlert:', error);
       throw error;
     }
   }
@@ -421,7 +443,12 @@ export class StocksService {
 
       const stocks = await stockRepo.find({ where: { tenantId } });
 
-      const totalValue = stocks.reduce((sum, s) => sum + (s.prixUnitaire * s.quantiteActuelle), 0);
+      const totalValue = stocks.reduce((sum, s) => {
+        // Protection contre prixUnitaire null (P0 #1)
+        const prix = s.prixUnitaire || 0;
+        const quantite = s.quantiteActuelle || 0;
+        return sum + (Number(prix) * Number(quantite));
+      }, 0);
       const lowStockCount = stocks.filter(s => s.quantiteActuelle < s.seuilMinimum).length;
       const outOfStockCount = stocks.filter(s => s.quantiteActuelle === 0).length;
 
@@ -453,7 +480,7 @@ export class StocksService {
         averageValue: stocks.length > 0 ? totalValue / stocks.length : 0
       };
     } catch (error) {
-      console.error('Erreur getStocksKPIs:', error);
+      logger.error('Erreur getStocksKPIs:', error);
       throw error;
     }
   }
@@ -505,7 +532,7 @@ export class StocksService {
         await alertRepo.save(existingAlert);
       }
     } catch (error) {
-      console.error('Erreur checkAndCreateAlert:', error);
+      logger.error('Erreur checkAndCreateAlert:', error);
       // Ne pas faire échouer l'opération principale si la création d'alerte échoue
     }
   }

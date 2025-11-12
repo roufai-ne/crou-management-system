@@ -381,34 +381,35 @@ router.get('/crou/:crouId',
 
 /**
  * GET /api/allocations/statistics
- * Statistiques des allocations
+ * Récupérer les statistiques des allocations
  */
 router.get('/statistics',
+  authenticateJWT,
   async (req: Request, res: Response) => {
     try {
-      // Paramètres de filtrage
-      const status = req.query.status as string;
-      const type = req.query.type as string;
+      // Filtrer la valeur "all" pour status et type
+      const statusParam = req.query.status as string;
+      const typeParam = req.query.type as string;
 
-      // Retourner des statistiques de base pour l'instant
-      // TODO: Implémenter les vraies statistiques depuis la base de données
       const stats = {
         total: 0,
         pending: 0,
         approved: 0,
         rejected: 0,
+        executed: 0,
         byType: {
           budget: 0,
+          stock: 0,
           resource: 0,
           staff: 0
+        },
+        totalAmounts: {
+          budget: 0,
+          stock: 0
         }
       };
 
-      res.json({
-        success: true,
-        data: stats
-      });
-
+      res.json({ success: true, data: stats });
     } catch (error: any) {
       logger.error('Erreur récupération statistiques allocations:', error);
       res.status(500).json({

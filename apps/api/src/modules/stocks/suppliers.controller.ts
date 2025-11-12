@@ -19,6 +19,7 @@ import {
   SupplierFilters
 } from './suppliers.service';
 import { SupplierType, SupplierStatus } from '../../../../../packages/database/src/entities/Supplier.entity';
+import { logger } from '@/shared/utils/logger';
 
 export const supplierValidators = {
   create: [
@@ -55,7 +56,7 @@ export class SuppliersController {
 
       res.json({ success: true, data: result });
     } catch (error: any) {
-      console.error('Erreur getSuppliers:', error);
+      logger.error('Erreur getSuppliers:', error);
       res.status(500).json({ success: false, error: error.message });
     }
   }
@@ -77,7 +78,7 @@ export class SuppliersController {
 
       res.json({ success: true, data: { supplier } });
     } catch (error: any) {
-      console.error('Erreur getSupplier:', error);
+      logger.error('Erreur getSupplier:', error);
       res.status(404).json({ success: false, error: error.message });
     }
   }
@@ -105,7 +106,7 @@ export class SuppliersController {
 
       res.status(201).json({ success: true, data: { supplier } });
     } catch (error: any) {
-      console.error('Erreur createSupplier:', error);
+      logger.error('Erreur createSupplier:', error);
       res.status(400).json({ success: false, error: error.message });
     }
   }
@@ -134,7 +135,7 @@ export class SuppliersController {
 
       res.json({ success: true, data: { supplier } });
     } catch (error: any) {
-      console.error('Erreur updateSupplier:', error);
+      logger.error('Erreur updateSupplier:', error);
       res.status(400).json({ success: false, error: error.message });
     }
   }
@@ -156,7 +157,7 @@ export class SuppliersController {
 
       res.json({ success: true, data: result });
     } catch (error: any) {
-      console.error('Erreur deleteSupplier:', error);
+      logger.error('Erreur deleteSupplier:', error);
       res.status(400).json({ success: false, error: error.message });
     }
   }
@@ -177,7 +178,7 @@ export class SuppliersController {
 
       res.json({ success: true, data: stats });
     } catch (error: any) {
-      console.error('Erreur getSuppliersStats:', error);
+      logger.error('Erreur getSuppliersStats:', error);
       res.status(500).json({ success: false, error: error.message });
     }
   }
