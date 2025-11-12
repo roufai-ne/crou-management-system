@@ -77,21 +77,6 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const { user, isAuthenticated, isLoading, hasPermission, hasAnyPermission } = useAuth();
   const location = useLocation();
 
-  // En développement (Vite), on garde la vérification d'authentification mais on désactive les permissions
-  if (import.meta.env.DEV) {
-    // Vérifier seulement l'authentification, pas les permissions
-    if (!isAuthenticated || !user) {
-      return (
-        <Navigate 
-          to={redirectTo} 
-          state={{ from: location.pathname }} 
-          replace 
-        />
-      );
-    }
-    return <>{children}</>;
-  }
-
   // Affichage du loading pendant la vérification
   if (isLoading) {
     return <LoadingScreen message="Vérification des autorisations..." />;

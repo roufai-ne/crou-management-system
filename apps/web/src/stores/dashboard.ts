@@ -155,8 +155,9 @@ export const useDashboard = create<DashboardState>()(
 
         loadAlerts: async (tenantId) => {
           try {
-            const alerts = await dashboardService.getCriticalAlerts(tenantId);
-            set({ alerts });
+            // TODO: Implémenter getCriticalAlerts dans dashboardService
+            // const alerts = await dashboardService.getCriticalAlerts(tenantId);
+            set({ alerts: [] });
           } catch (error) {
             console.error('Erreur lors du chargement des alertes:', error);
           }

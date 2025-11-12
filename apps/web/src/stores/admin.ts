@@ -21,18 +21,18 @@
 
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import { 
-  User, 
-  CreateUserRequest, 
+import {
+  User,
+  CreateUserRequest,
   UpdateUserRequest,
-  UserRole,
+  Role,
   Permission,
   Tenant,
   CreateTenantRequest,
   UpdateTenantRequest,
   AuditLog,
   AdminStatistics,
-  adminService 
+  adminService
 } from '@/services/api/adminService';
 
 // Interface pour l'état administratif
@@ -43,7 +43,7 @@ interface AdminState {
   usersError: string | null;
   
   // Rôles
-  roles: UserRole[];
+  roles: Role[];
   rolesLoading: boolean;
   rolesError: string | null;
   
@@ -119,8 +119,8 @@ interface AdminActions {
   
   // Rôles
   loadRoles: () => Promise<void>;
-  createRole: (data: { name: string; description: string; permissions: string[] }) => Promise<UserRole>;
-  updateRole: (id: string, data: { name?: string; description?: string; permissions?: string[] }) => Promise<UserRole>;
+  createRole: (data: { name: string; description: string; permissions: string[] }) => Promise<Role>;
+  updateRole: (id: string, data: { name?: string; description?: string; permissions?: string[] }) => Promise<Role>;
   deleteRole: (id: string) => Promise<void>;
   
   // Permissions
@@ -155,7 +155,7 @@ interface AdminActions {
   
   // Utilitaires
   getUserById: (id: string) => User | undefined;
-  getRoleById: (id: string) => UserRole | undefined;
+  getRoleById: (id: string) => Role | undefined;
   getTenantById: (id: string) => Tenant | undefined;
   getUsersByRole: (roleId: string) => User[];
   getUsersByTenant: (tenantId: string) => User[];

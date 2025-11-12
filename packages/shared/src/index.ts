@@ -177,5 +177,15 @@ export const isValidCurrency = (amount: string): boolean => {
   return !isNaN(numericAmount) && numericAmount >= 0;
 };
 
+// Hiérarchie des rôles
+export {
+  ROLE_HIERARCHY,
+  MANAGER_ROLES,
+  EXTENDED_ACCESS_ROLES,
+  RoleHierarchyUtils,
+  type RoleName,
+  type RoleLevel
+} from './constants/roleHierarchy';
+
 // Version du package
 export const VERSION = '1.0.0';

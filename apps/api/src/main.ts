@@ -257,6 +257,10 @@ app.use('/api/restauration', moduleLimiters.restauration, restaurationRoutes);
 app.use('/api/admin', moduleLimiters.admin, adminRoutes);
 app.use('/api/tenants', tenantsPublicRoutes);
 
+// Route publique pour la hiérarchie des tenants (utilisée par le dashboard)
+import tenantsController from '@/modules/admin/tenants.controller';
+app.use('/api/tenants', tenantsController);
+
 // Route par défaut
 app.get('/api', (req, res) => {
   res.json({

@@ -26,6 +26,7 @@ import { injectTenantIdMiddleware } from '@/shared/middlewares/tenant-isolation.
 // Import des contrôleurs
 import usersController from './users.controller';
 import rolesController from './roles.controller';
+import permissionsController from './permissions.controller';
 import tenantsController from './tenants.controller';
 import statsController from './stats.controller';
 import securityController from './security.controller';
@@ -73,8 +74,8 @@ router.use('/security', securityController);
 router.use('/audit', auditController);
 router.use('/audit-logs', auditController); // Alias pour compatibilité frontend
 
-// Permissions (sous-route de roles)
-router.use('/permissions', rolesController); // Alias pour compatibilité frontend
+// Permissions
+router.use('/permissions', permissionsController);
 
 /**
  * Route de santé pour l'interface d'administration

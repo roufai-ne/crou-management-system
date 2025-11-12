@@ -9,8 +9,9 @@
  * DATE: Janvier 2025
  */
 
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { body, param, validationResult } from 'express-validator';
+import { TypedRequest } from '../../shared/types/express.types';
 import {
   SuppliersService,
   CreateSupplierDTO,
@@ -36,9 +37,9 @@ export class SuppliersController {
    * GET /api/stocks/suppliers
    * Liste des fournisseurs avec filtres
    */
-  static async getSuppliers(req: Request, res: Response) {
+  static async getSuppliers(req: TypedRequest, res: Response) {
     try {
-      const tenantId = (req as any).user?.tenantId;
+      const tenantId = req.user?.tenantId;
       if (!tenantId) {
         return res.status(401).json({ success: false, error: 'Tenant non identifié' });
       }
@@ -64,9 +65,9 @@ export class SuppliersController {
    * GET /api/stocks/suppliers/:id
    * Détails d'un fournisseur
    */
-  static async getSupplier(req: Request, res: Response) {
+  static async getSupplier(req: TypedRequest, res: Response) {
     try {
-      const tenantId = (req as any).user?.tenantId;
+      const tenantId = req.user?.tenantId;
       const { id } = req.params;
 
       if (!tenantId) {
@@ -86,10 +87,10 @@ export class SuppliersController {
    * POST /api/stocks/suppliers
    * Créer un nouveau fournisseur
    */
-  static async createSupplier(req: Request, res: Response) {
+  static async createSupplier(req: TypedRequest, res: Response) {
     try {
-      const tenantId = (req as any).user?.tenantId;
-      const userId = (req as any).user?.userId;
+      const tenantId = req.user?.tenantId;
+      const userId = req.user?.userId;
 
       if (!tenantId || !userId) {
         return res.status(401).json({ success: false, error: 'Authentification manquante' });
@@ -114,10 +115,10 @@ export class SuppliersController {
    * PUT /api/stocks/suppliers/:id
    * Mettre à jour un fournisseur
    */
-  static async updateSupplier(req: Request, res: Response) {
+  static async updateSupplier(req: TypedRequest, res: Response) {
     try {
-      const tenantId = (req as any).user?.tenantId;
-      const userId = (req as any).user?.userId;
+      const tenantId = req.user?.tenantId;
+      const userId = req.user?.userId;
       const { id } = req.params;
 
       if (!tenantId || !userId) {
@@ -143,9 +144,9 @@ export class SuppliersController {
    * DELETE /api/stocks/suppliers/:id
    * Supprimer un fournisseur
    */
-  static async deleteSupplier(req: Request, res: Response) {
+  static async deleteSupplier(req: TypedRequest, res: Response) {
     try {
-      const tenantId = (req as any).user?.tenantId;
+      const tenantId = req.user?.tenantId;
       const { id } = req.params;
 
       if (!tenantId) {
@@ -165,9 +166,9 @@ export class SuppliersController {
    * GET /api/stocks/suppliers/stats/overview
    * Statistiques des fournisseurs
    */
-  static async getSuppliersStats(req: Request, res: Response) {
+  static async getSuppliersStats(req: TypedRequest, res: Response) {
     try {
-      const tenantId = (req as any).user?.tenantId;
+      const tenantId = req.user?.tenantId;
 
       if (!tenantId) {
         return res.status(401).json({ success: false, error: 'Tenant non identifié' });

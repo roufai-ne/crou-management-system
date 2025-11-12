@@ -23,9 +23,9 @@ import type { Request, Response } from 'express';
 import { Router } from 'express';
 import { authenticateJWT } from '@/shared/middlewares/auth.middleware';
 import { checkPermissions } from '@/shared/middlewares/permissions.middleware';
-import { 
+import {
   injectTenantIdMiddleware,
-  ministerialAccessMiddleware 
+  ministerialAccessMiddleware
 } from '@/shared/middlewares/tenant-isolation.middleware';
 import { auditMiddleware } from '@/shared/middlewares/audit.middleware';
 import { TenantIsolationUtils } from '@/shared/utils/tenant-isolation.utils';
@@ -36,7 +36,7 @@ import { Tenant } from '../../../../../packages/database/src/entities/Tenant.ent
 import { AuditService } from '@/shared/services/audit.service';
 import { AuditAction } from '../../../../../packages/database/src/entities/AuditLog.entity';
 import { logger } from '@/shared/utils/logger';
-import bcrypt from 'bcryptjs';
+import { RoleHierarchyUtils } from '../../../../../packages/shared/src/constants/roleHierarchy';
 
 const router: Router = Router();
 const auditService = new AuditService();
@@ -110,10 +110,31 @@ router.get('/',
         filters.dateTo = new Date(req.query.dateTo as string);
       }
 
-      // Si pas d'accès étendu (ou si pas du ministère), limiter au tenant de l'utilisateur
+      // Filtrage hiérarchique basé sur le rôle et le tenant
       const isMinisterialUser = tenantContext?.tenantType === 'ministere';
-      if (!hasExtendedAccess && !isMinisterialUser && tenantContext) {
-        filters.tenantId = tenantContext.tenantId;
+      const userFromRequest = (req as any).user;
+      const userRole = userFromRequest?.role?.name || '';
+
+      // Super Admin: peut voir tous les utilisateurs
+      // Admin Ministère: peut voir tous les utilisateurs de tous les CROUs
+      // Directeur CROU: peut voir uniquement les utilisateurs de son CROU
+      // Gestionnaires: peuvent voir uniquement les utilisateurs de leur CROU (limité)
+
+      if (userRole === 'Super Admin') {
+        // Pas de restriction, peut voir tous les utilisateurs
+      } else if (userRole === 'Admin Ministère') {
+        // Peut voir tous les utilisateurs mais pas créer/modifier Super Admins
+        // Pas de filtre tenantId, voit tout
+      } else if (userRole === 'Directeur CROU') {
+        // Peut voir uniquement les utilisateurs de son CROU
+        if (tenantContext) {
+          filters.tenantId = tenantContext.tenantId;
+        }
+      } else {
+        // Gestionnaires et autres: peuvent voir uniquement leur CROU
+        if (tenantContext) {
+          filters.tenantId = tenantContext.tenantId;
+        }
       }
 
       // Construire la requête
@@ -344,8 +365,15 @@ router.post('/',
         });
       }
 
-      // Si pas d'accès étendu, forcer le tenant de l'utilisateur
+      // Validation du tenant: si pas d'accès étendu, forcer le tenant de l'utilisateur
       if (!hasExtendedAccess && tenantContext) {
+        // L'utilisateur ne peut créer que dans son propre tenant
+        if (userData.tenantId && userData.tenantId !== tenantContext.tenantId) {
+          return res.status(403).json({
+            error: 'Tenant non autorisé',
+            message: 'Vous ne pouvez créer des utilisateurs que dans votre propre tenant'
+          });
+        }
         userData.tenantId = tenantContext.tenantId;
       }
 
@@ -372,6 +400,20 @@ router.post('/',
         return res.status(400).json({
           error: 'Rôle invalide',
           message: 'Le rôle spécifié n\'existe pas'
+        });
+      }
+
+      // Validation hiérarchique: vérifier que l'utilisateur peut créer ce type de rôle
+      const userFromRequest = (req as any).user;
+      const creatorRole = userFromRequest?.role?.name || '';
+      const targetRoleName = role.name;
+
+      try {
+        RoleHierarchyUtils.validateRoleCreation(creatorRole, targetRoleName);
+      } catch (error) {
+        return res.status(403).json({
+          error: 'Permission refusée',
+          message: (error as Error).message
         });
       }
 
@@ -462,15 +504,16 @@ router.put('/:id',
       const hasExtendedAccess = TenantIsolationUtils.hasExtendedAccess(req);
 
       const userRepository = AppDataSource.getRepository(User);
-      
-      // Récupérer l'utilisateur existant
+
+      // Récupérer l'utilisateur existant avec son rôle (eager loading)
       const queryBuilder = userRepository.createQueryBuilder('user')
+        .leftJoinAndSelect('user.role', 'role')
         .where('user.id = :userId', { userId });
 
       // Si pas d'accès étendu, vérifier le tenant
       if (!hasExtendedAccess && tenantContext) {
-        queryBuilder.andWhere('user.tenantId = :tenantId', { 
-          tenantId: tenantContext.tenantId 
+        queryBuilder.andWhere('user.tenantId = :tenantId', {
+          tenantId: tenantContext.tenantId
         });
       }
 
@@ -519,6 +562,27 @@ router.put('/:id',
           return res.status(400).json({
             error: 'Rôle invalide',
             message: 'Le rôle spécifié n\'existe pas'
+          });
+        }
+
+        // Validation hiérarchique pour la modification de rôle
+        const userFromRequest = (req as any).user;
+        const modifierRole = userFromRequest?.role?.name || '';
+        const targetRoleName = role.name;
+
+        // Utiliser le rôle déjà chargé avec eager loading
+        const existingUserRoleName = existingUser.role?.name || '';
+
+        try {
+          RoleHierarchyUtils.validateRoleUpdate(
+            modifierRole,
+            existingUserRoleName,
+            targetRoleName
+          );
+        } catch (error) {
+          return res.status(403).json({
+            error: 'Permission refusée',
+            message: (error as Error).message
           });
         }
       }
@@ -610,13 +674,16 @@ router.delete('/:id',
       }
 
       const userRepository = AppDataSource.getRepository(User);
+
+      // Récupérer l'utilisateur avec son rôle (eager loading)
       const queryBuilder = userRepository.createQueryBuilder('user')
+        .leftJoinAndSelect('user.role', 'role')
         .where('user.id = :userId', { userId });
 
       // Si pas d'accès étendu, vérifier le tenant
       if (!hasExtendedAccess && tenantContext) {
-        queryBuilder.andWhere('user.tenantId = :tenantId', { 
-          tenantId: tenantContext.tenantId 
+        queryBuilder.andWhere('user.tenantId = :tenantId', {
+          tenantId: tenantContext.tenantId
         });
       }
 
@@ -627,6 +694,24 @@ router.delete('/:id',
           error: 'Utilisateur non trouvé',
           message: 'L\'utilisateur demandé n\'existe pas ou vous n\'avez pas les permissions'
         });
+      }
+
+      // Validation hiérarchique pour la suppression
+      const userFromRequest = (req as any).user;
+      const deleterRole = userFromRequest?.role?.name || '';
+
+      // Utiliser le rôle déjà chargé avec eager loading
+      const targetUserRoleName = user.role?.name || '';
+
+      if (targetUserRoleName) {
+        try {
+          RoleHierarchyUtils.validateRoleDeletion(deleterRole, targetUserRoleName);
+        } catch (error) {
+          return res.status(403).json({
+            error: 'Permission refusée',
+            message: (error as Error).message
+          });
+        }
       }
 
       // Sauvegarder les données pour l'audit

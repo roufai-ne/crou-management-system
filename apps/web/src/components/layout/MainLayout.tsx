@@ -149,11 +149,10 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     return <div>Chargement du layout...</div>;
   }
 
-  // Filtrer la navigation selon les permissions (désactivé en dev Vite)
-  const isDev = import.meta.env.DEV;
-  const allowedNavigation = isDev
-    ? navigation
-    : navigation.filter(item => hasPermission(item.permission as any) || hasPermission('all'));
+  // Filtrer la navigation selon les permissions
+  const allowedNavigation = navigation.filter(item =>
+    hasPermission(item.permission as any) || hasPermission('all')
+  );
 
   // Vérifier si une route est active
   const isActiveRoute = (href: string) => {

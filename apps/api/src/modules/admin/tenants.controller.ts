@@ -657,4 +657,50 @@ router.get('/stats/global',
   }
 );
 
+/**
+ * GET /api/tenants/hierarchy
+ * Récupère la hiérarchie des tenants (publique, pas besoin d'être ministériel)
+ */
+router.get('/hierarchy',
+  async (req: Request, res: Response) => {
+    try {
+      const tenantRepository = AppDataSource.getRepository(Tenant);
+
+      // Récupérer tous les tenants actifs avec leurs relations parent
+      const tenants = await tenantRepository.find({
+        where: { isActive: true },
+        relations: ['parent'],
+        order: {
+          type: 'ASC',
+          name: 'ASC'
+        }
+      });
+
+      // Construire la hiérarchie
+      const hierarchy = tenants.map(tenant => ({
+        id: tenant.id,
+        name: tenant.name,
+        code: tenant.code,
+        type: tenant.type,
+        parentId: tenant.parentId,
+        level: tenant.level || 0,
+        region: tenant.region,
+        isActive: tenant.isActive
+      }));
+
+      res.json({
+        success: true,
+        data: hierarchy
+      });
+
+    } catch (error) {
+      logger.error('Erreur récupération hiérarchie tenants:', error);
+      res.status(500).json({
+        error: 'Erreur serveur',
+        message: 'Erreur lors de la récupération de la hiérarchie des tenants'
+      });
+    }
+  }
+);
+
 export default router;
