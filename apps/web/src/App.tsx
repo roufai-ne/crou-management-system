@@ -107,7 +107,7 @@ function App() {
           tenantType: 'crou',
           level: 'crou',
           crouId: 'niamey',
-          permissions: ['all','read','write','admin','dashboard:read','financial:read','stocks:read','housing:read','transport:read','reports:read','admin:read'],
+          permissions: ['all','read','write','admin','dashboard:read','financial:read','stocks:read','housing:read','transport:read','restauration:read','reports:read','admin:read'],
           lastLoginAt: new Date()
         });
         setTokens('dev-token', 'dev-refresh-token');
