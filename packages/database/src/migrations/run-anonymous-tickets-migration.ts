@@ -49,11 +49,18 @@ async function runMigration() {
     console.log('🔍 Vérifications post-migration:');
     console.log('');
 
+    // Vérifier si la colonne etudiant_id existe avant de l'utiliser dans les vérifications
+    const hasEtudiantId = await client.query(`
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_name = 'tickets_repas' AND column_name = 'etudiant_id'
+    `);
+
     const checks = [
-      {
+      ...(hasEtudiantId.rows.length > 0 ? [{
         query: 'SELECT COUNT(*) as count FROM tickets_repas WHERE etudiant_id IS NULL',
         label: 'Tickets avec etudiant_id NULL'
-      },
+      }] : []),
       {
         query: 'SELECT COUNT(*) as count FROM tickets_repas WHERE qr_code IS NOT NULL',
         label: 'Tickets avec QR code'
@@ -98,4 +105,6 @@ async function runMigration() {
   }
 }
 
-runMigration();
+// MIGRATION AUTOMATIQUE DÉSACTIVÉE - Les tables existent déjà avec les bonnes colonnes
+// Décommenter cette ligne si vous devez réexécuter la migration manuellement
+// runMigration();

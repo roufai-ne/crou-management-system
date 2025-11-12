@@ -36,7 +36,13 @@ import { IsEnum, IsNumber, IsString, IsOptional, IsBoolean, IsDateString } from 
 import { Tenant } from './Tenant.entity';
 import { Restaurant } from './Restaurant.entity';
 import { Repas } from './Repas.entity';
-import { TypeRepas } from './Menu.entity';
+
+// Types de repas (redéfini localement pour éviter les problèmes d'import circulaire)
+export enum TypeRepas {
+  PETIT_DEJEUNER = 'petit_dejeuner',
+  DEJEUNER = 'dejeuner',
+  DINER = 'diner'
+}
 
 // Catégories de tickets (simplifié)
 export enum CategorieTicket {

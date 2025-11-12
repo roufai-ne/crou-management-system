@@ -161,4 +161,6 @@ async function runMigrations() {
   }
 }
 
-runMigrations();
+// MIGRATION AUTOMATIQUE DÉSACTIVÉE - Les tables existent déjà avec les bonnes colonnes
+// Décommenter cette ligne si vous devez réexécuter les migrations manuellement
+// runMigrations();

@@ -31,103 +31,143 @@ export class RestaurantModule1762850835000 implements MigrationInterface {
 
         // Enum pour types de restaurants
         await queryRunner.query(`
-            CREATE TYPE "public"."restaurant_type_enum" AS ENUM(
-                'universitaire',
-                'cafeteria',
-                'cantine'
-            )
+            DO $$ BEGIN
+                CREATE TYPE "public"."restaurant_type_enum" AS ENUM(
+                    'universitaire',
+                    'cafeteria',
+                    'cantine'
+                );
+            EXCEPTION
+                WHEN duplicate_object THEN null;
+            END $$;
         `);
 
         // Enum pour statuts de restaurants
         await queryRunner.query(`
-            CREATE TYPE "public"."restaurant_status_enum" AS ENUM(
-                'actif',
-                'ferme_temporaire',
-                'maintenance',
-                'inactif'
-            )
+            DO $$ BEGIN
+                CREATE TYPE "public"."restaurant_status_enum" AS ENUM(
+                    'actif',
+                    'ferme_temporaire',
+                    'maintenance',
+                    'inactif'
+                );
+            EXCEPTION
+                WHEN duplicate_object THEN null;
+            END $$;
         `);
 
         // Enum pour types de repas
         await queryRunner.query(`
-            CREATE TYPE "public"."type_repas_enum" AS ENUM(
-                'petit_dejeuner',
-                'dejeuner',
-                'diner'
-            )
+            DO $$ BEGIN
+                CREATE TYPE "public"."type_repas_enum" AS ENUM(
+                    'petit_dejeuner',
+                    'dejeuner',
+                    'diner'
+                );
+            EXCEPTION
+                WHEN duplicate_object THEN null;
+            END $$;
         `);
 
         // Enum pour statuts de menus
         await queryRunner.query(`
-            CREATE TYPE "public"."menu_status_enum" AS ENUM(
-                'brouillon',
-                'publie',
-                'valide',
-                'archive'
-            )
+            DO $$ BEGIN
+                CREATE TYPE "public"."menu_status_enum" AS ENUM(
+                    'brouillon',
+                    'publie',
+                    'valide',
+                    'archive'
+                );
+            EXCEPTION
+                WHEN duplicate_object THEN null;
+            END $$;
         `);
 
         // Enum pour types de tickets
         await queryRunner.query(`
-            CREATE TYPE "public"."type_ticket_enum" AS ENUM(
-                'unitaire',
-                'forfait_hebdo',
-                'forfait_mensuel',
-                'gratuit'
-            )
+            DO $$ BEGIN
+                CREATE TYPE "public"."type_ticket_enum" AS ENUM(
+                    'unitaire',
+                    'forfait_hebdo',
+                    'forfait_mensuel',
+                    'gratuit'
+                );
+            EXCEPTION
+                WHEN duplicate_object THEN null;
+            END $$;
         `);
 
         // Enum pour statuts de tickets
         await queryRunner.query(`
-            CREATE TYPE "public"."ticket_status_enum" AS ENUM(
-                'actif',
-                'utilise',
-                'expire',
-                'annule',
-                'suspendu'
-            )
+            DO $$ BEGIN
+                CREATE TYPE "public"."ticket_status_enum" AS ENUM(
+                    'actif',
+                    'utilise',
+                    'expire',
+                    'annule',
+                    'suspendu'
+                );
+            EXCEPTION
+                WHEN duplicate_object THEN null;
+            END $$;
         `);
 
         // Enum pour catégories de tickets
         await queryRunner.query(`
-            CREATE TYPE "public"."categorie_ticket_enum" AS ENUM(
-                'etudiant_regulier',
-                'etudiant_boursier',
-                'personnel',
-                'invite'
-            )
+            DO $$ BEGIN
+                CREATE TYPE "public"."categorie_ticket_enum" AS ENUM(
+                    'etudiant_regulier',
+                    'etudiant_boursier',
+                    'personnel',
+                    'invite'
+                );
+            EXCEPTION
+                WHEN duplicate_object THEN null;
+            END $$;
         `);
 
         // Enum pour statuts de repas
         await queryRunner.query(`
-            CREATE TYPE "public"."repas_status_enum" AS ENUM(
-                'planifie',
-                'en_cours',
-                'termine',
-                'annule'
-            )
+            DO $$ BEGIN
+                CREATE TYPE "public"."repas_status_enum" AS ENUM(
+                    'planifie',
+                    'en_cours',
+                    'termine',
+                    'annule'
+                );
+            EXCEPTION
+                WHEN duplicate_object THEN null;
+            END $$;
         `);
 
         // Enum pour statuts d'allocation denrées
         await queryRunner.query(`
-            CREATE TYPE "public"."allocation_status_enum" AS ENUM(
-                'allouee',
-                'utilisee_partiellement',
-                'utilisee_totalement',
-                'expiree',
-                'retournee'
-            )
+            DO $$ BEGIN
+                CREATE TYPE "public"."allocation_status_enum" AS ENUM(
+                    'allouee',
+                    'utilisee_partiellement',
+                    'utilisee_totalement',
+                    'expiree',
+                    'retournee'
+                );
+            EXCEPTION
+                WHEN duplicate_object THEN null;
+            END $$;
         `);
 
         // Enum pour types de mouvements denrées
         await queryRunner.query(`
-            CREATE TYPE "public"."type_mouvement_denree_enum" AS ENUM(
-                'allocation',
-                'utilisation',
-                'retour',
-                'ajustement',
-                'perte'
-            )
+            DO $$ BEGIN
+                CREATE TYPE "public"."type_mouvement_denree_enum" AS ENUM(
+                    'allocation',
+                    'utilisation',
+                    'retour',
+                    'ajustement',
+                    'perte'
+                );
+            EXCEPTION
+                WHEN duplicate_object THEN null;
+            END $$;
         `);
 
         // ========================================
@@ -135,7 +175,7 @@ export class RestaurantModule1762850835000 implements MigrationInterface {
         // ========================================
 
         await queryRunner.query(`
-            CREATE TABLE "restaurants" (
+            CREATE TABLE IF NOT EXISTS "restaurants" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
                 "tenant_id" uuid NOT NULL,
                 "code" character varying(50) NOT NULL,
@@ -173,16 +213,17 @@ export class RestaurantModule1762850835000 implements MigrationInterface {
         `);
 
         // Index pour restaurants
-        await queryRunner.query(`CREATE INDEX "IDX_restaurants_tenant_type" ON "restaurants" ("tenant_id", "type")`);
-        await queryRunner.query(`CREATE INDEX "IDX_restaurants_tenant_status" ON "restaurants" ("tenant_id", "status")`);
-        await queryRunner.query(`CREATE INDEX "IDX_restaurants_code" ON "restaurants" ("code")`);
+        await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_restaurants_tenant_type" ON "restaurants" ("tenant_id", "type")`);
+        await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_restaurants_tenant_status" ON "restaurants" ("tenant_id", "status")`);
+        await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_restaurants_code" ON "restaurants" ("code")`);
+
 
         // ========================================
         // 3. TABLE: menus
         // ========================================
 
         await queryRunner.query(`
-            CREATE TABLE "menus" (
+            CREATE TABLE IF NOT EXISTS "menus" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
                 "tenant_id" uuid NOT NULL,
                 "restaurant_id" uuid NOT NULL,
@@ -218,19 +259,20 @@ export class RestaurantModule1762850835000 implements MigrationInterface {
         `);
 
         // Index pour menus
-        await queryRunner.query(`CREATE INDEX "IDX_menus_tenant_date" ON "menus" ("tenant_id", "dateService")`);
-        await queryRunner.query(`CREATE INDEX "IDX_menus_restaurant_date_type" ON "menus" ("restaurant_id", "dateService", "typeRepas")`);
-        await queryRunner.query(`CREATE INDEX "IDX_menus_status" ON "menus" ("status")`);
+        await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_menus_tenant_date" ON "menus" ("tenant_id", "dateService")`);
+        await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_menus_restaurant_date_type" ON "menus" ("restaurant_id", "dateService", "typeRepas")`);
+        await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_menus_status" ON "menus" ("status")`);
 
         // ========================================
         // 4. TABLE: tickets_repas
         // ========================================
 
+        // NOTE: Table tickets_repas créée avec structure ANONYME (pas de etudiant_id)
+        // La migration AnonymousTickets ajoutera les colonnes spécifiques manquantes
         await queryRunner.query(`
-            CREATE TABLE "tickets_repas" (
+            CREATE TABLE IF NOT EXISTS "tickets_repas" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
                 "tenant_id" uuid NOT NULL,
-                "etudiant_id" uuid NOT NULL,
                 "numero_ticket" character varying(50) NOT NULL,
                 "type" "public"."type_ticket_enum" NOT NULL,
                 "categorie" "public"."categorie_ticket_enum" NOT NULL,
@@ -263,25 +305,23 @@ export class RestaurantModule1762850835000 implements MigrationInterface {
                 CONSTRAINT "UQ_tickets_numero" UNIQUE ("numero_ticket"),
                 CONSTRAINT "FK_tickets_tenant" FOREIGN KEY ("tenant_id")
                     REFERENCES "tenants"("id") ON DELETE CASCADE ON UPDATE CASCADE,
-                CONSTRAINT "FK_tickets_etudiant" FOREIGN KEY ("etudiant_id")
-                    REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE,
                 CONSTRAINT "FK_tickets_restaurant" FOREIGN KEY ("restaurant_id")
                     REFERENCES "restaurants"("id") ON DELETE SET NULL ON UPDATE CASCADE
             )
         `);
 
         // Index pour tickets_repas
-        await queryRunner.query(`CREATE INDEX "IDX_tickets_tenant_etudiant" ON "tickets_repas" ("tenant_id", "etudiant_id")`);
-        await queryRunner.query(`CREATE INDEX "IDX_tickets_numero" ON "tickets_repas" ("numero_ticket")`);
-        await queryRunner.query(`CREATE INDEX "IDX_tickets_status_expiration" ON "tickets_repas" ("status", "date_expiration")`);
-        await queryRunner.query(`CREATE INDEX "IDX_tickets_restaurant_date" ON "tickets_repas" ("restaurant_id", "date_utilisation")`);
+        // Note: Index sur etudiant_id supprimé - système anonyme
+        await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_tickets_numero" ON "tickets_repas" ("numero_ticket")`);
+        await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_tickets_status_expiration" ON "tickets_repas" ("status", "date_expiration")`);
+        await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_tickets_restaurant_date" ON "tickets_repas" ("restaurant_id", "date_utilisation")`);
 
         // ========================================
         // 5. TABLE: repas
         // ========================================
 
         await queryRunner.query(`
-            CREATE TABLE "repas" (
+            CREATE TABLE IF NOT EXISTS "repas" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
                 "tenant_id" uuid NOT NULL,
                 "restaurant_id" uuid NOT NULL,
@@ -332,17 +372,17 @@ export class RestaurantModule1762850835000 implements MigrationInterface {
         `);
 
         // Index pour repas
-        await queryRunner.query(`CREATE INDEX "IDX_repas_tenant_date" ON "repas" ("tenant_id", "date_service")`);
-        await queryRunner.query(`CREATE INDEX "IDX_repas_restaurant_date_type" ON "repas" ("restaurant_id", "date_service", "typeRepas")`);
-        await queryRunner.query(`CREATE INDEX "IDX_repas_menu" ON "repas" ("menu_id")`);
-        await queryRunner.query(`CREATE INDEX "IDX_repas_status" ON "repas" ("status")`);
+        await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_repas_tenant_date" ON "repas" ("tenant_id", "date_service")`);
+        await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_repas_restaurant_date_type" ON "repas" ("restaurant_id", "date_service", "typeRepas")`);
+        await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_repas_menu" ON "repas" ("menu_id")`);
+        await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_repas_status" ON "repas" ("status")`);
 
         // ========================================
         // 6. TABLE: stock_denrees
         // ========================================
 
         await queryRunner.query(`
-            CREATE TABLE "stock_denrees" (
+            CREATE TABLE IF NOT EXISTS "stock_denrees" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
                 "tenant_id" uuid NOT NULL,
                 "restaurant_id" uuid NOT NULL,
@@ -395,10 +435,10 @@ export class RestaurantModule1762850835000 implements MigrationInterface {
         `);
 
         // Index pour stock_denrees
-        await queryRunner.query(`CREATE INDEX "IDX_stock_denrees_tenant_restaurant" ON "stock_denrees" ("tenant_id", "restaurant_id")`);
-        await queryRunner.query(`CREATE INDEX "IDX_stock_denrees_stock_restaurant" ON "stock_denrees" ("stock_id", "restaurant_id")`);
-        await queryRunner.query(`CREATE INDEX "IDX_stock_denrees_status" ON "stock_denrees" ("status")`);
-        await queryRunner.query(`CREATE INDEX "IDX_stock_denrees_date_allocation" ON "stock_denrees" ("date_allocation")`);
+        await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_stock_denrees_tenant_restaurant" ON "stock_denrees" ("tenant_id", "restaurant_id")`);
+        await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_stock_denrees_stock_restaurant" ON "stock_denrees" ("stock_id", "restaurant_id")`);
+        await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_stock_denrees_status" ON "stock_denrees" ("status")`);
+        await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_stock_denrees_date_allocation" ON "stock_denrees" ("date_allocation")`);
 
         // ========================================
         // 7. FOREIGN KEY ADDITIONNELLE

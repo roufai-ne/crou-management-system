@@ -24,31 +24,36 @@ export class AnonymousTickets1762851000000 implements MigrationInterface {
   name = 'AnonymousTickets1762851000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // 1. Supprimer les contraintes foreign key existantes sur etudiant_id
-    await queryRunner.query(`
-      ALTER TABLE tickets_repas
-      DROP CONSTRAINT IF EXISTS "FK_tickets_repas_etudiant_id"
+    // Vérifier si la colonne etudiant_id existe
+    const hasEtudiantId = await queryRunner.query(`
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_name = 'tickets_repas' AND column_name = 'etudiant_id'
     `);
 
-    // 2. Rendre etudiant_id nullable
-    await queryRunner.query(`
-      ALTER TABLE tickets_repas
-      ALTER COLUMN etudiant_id DROP NOT NULL
-    `);
+    // Si la colonne etudiant_id existe, la SUPPRIMER complètement (système 100% anonyme)
+    if (hasEtudiantId.length > 0) {
+      // 1. Supprimer les contraintes foreign key existantes sur etudiant_id
+      await queryRunner.query(`
+        ALTER TABLE tickets_repas
+        DROP CONSTRAINT IF EXISTS "FK_tickets_repas_etudiant_id"
+      `);
 
-    // 3. Recréer la contrainte FK avec ON DELETE SET NULL
-    await queryRunner.query(`
-      ALTER TABLE tickets_repas
-      ADD CONSTRAINT "FK_tickets_repas_etudiant_id"
-      FOREIGN KEY (etudiant_id)
-      REFERENCES users(id)
-      ON DELETE SET NULL
-    `);
+      // 2. SUPPRIMER la colonne etudiant_id
+      await queryRunner.query(`
+        ALTER TABLE tickets_repas
+        DROP COLUMN etudiant_id
+      `);
 
-    // 4. Ajouter la colonne type_repas (OBLIGATOIRE)
+      console.log('✓ Colonne etudiant_id supprimée - Tickets 100% anonymes');
+    } else {
+      console.log('✓ Colonne etudiant_id absente - Déjà anonyme');
+    }
+
+    // 4. Ajouter la colonne type_repas (OBLIGATOIRE) si elle n'existe pas
     await queryRunner.query(`
       ALTER TABLE tickets_repas
-      ADD COLUMN type_repas VARCHAR(50)
+      ADD COLUMN IF NOT EXISTS type_repas VARCHAR(50)
     `);
 
     // Initialiser type_repas pour les tickets existants avec une valeur par défaut
@@ -64,17 +69,25 @@ export class AnonymousTickets1762851000000 implements MigrationInterface {
       ALTER COLUMN type_repas SET NOT NULL
     `);
 
-    // 5. Ajouter la colonne annee
+    // 5. Ajouter la colonne annee si elle n'existe pas
     await queryRunner.query(`
       ALTER TABLE tickets_repas
-      ADD COLUMN annee INTEGER DEFAULT 2025
+      ADD COLUMN IF NOT EXISTS annee INTEGER DEFAULT 2025
     `);
 
-    // 6. Renommer montant en tarif
-    await queryRunner.query(`
-      ALTER TABLE tickets_repas
-      RENAME COLUMN montant TO tarif
+    // 6. Renommer montant en tarif (si la colonne montant existe)
+    const hasMontant = await queryRunner.query(`
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_name = 'tickets_repas' AND column_name = 'montant'
     `);
+
+    if (hasMontant.length > 0) {
+      await queryRunner.query(`
+        ALTER TABLE tickets_repas
+        RENAME COLUMN montant TO tarif
+      `);
+    }
 
     // 7. Supprimer montant_subvention
     await queryRunner.query(`
@@ -106,10 +119,10 @@ export class AnonymousTickets1762851000000 implements MigrationInterface {
       END
     `);
 
-    // 11. Ajouter message_indication
+    // 11. Ajouter message_indication si elle n'existe pas
     await queryRunner.query(`
       ALTER TABLE tickets_repas
-      ADD COLUMN message_indication VARCHAR(500)
+      ADD COLUMN IF NOT EXISTS message_indication VARCHAR(500)
     `);
 
     // 12. Modifier qr_code: rendre obligatoire et unique

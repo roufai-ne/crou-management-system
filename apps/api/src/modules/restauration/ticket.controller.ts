@@ -38,7 +38,6 @@ export class TicketController {
 
       // Extraire les filtres de la query string
       const {
-        etudiantId,
         status,
         type,
         categorie,

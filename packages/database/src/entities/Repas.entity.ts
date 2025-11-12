@@ -37,8 +37,7 @@ import { IsEnum, IsNumber, IsString, IsOptional, IsBoolean, IsDateString } from 
 import { Tenant } from './Tenant.entity';
 import { Restaurant } from './Restaurant.entity';
 import { Menu } from './Menu.entity';
-import { TicketRepas } from './TicketRepas.entity';
-import { TypeRepas } from './Menu.entity';
+import { TicketRepas, TypeRepas } from './TicketRepas.entity';
 
 // Statuts de distribution
 export enum RepasStatus {

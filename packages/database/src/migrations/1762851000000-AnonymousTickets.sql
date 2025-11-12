@@ -23,24 +23,33 @@ INSERT INTO _migrations_history (timestamp, name)
 VALUES (1762851000000, 'AnonymousTickets1762851000000')
 ON CONFLICT DO NOTHING;
 
--- 1. Supprimer les contraintes foreign key existantes sur etudiant_id
-ALTER TABLE tickets_repas
-DROP CONSTRAINT IF EXISTS "FK_tickets_repas_etudiant_id";
+-- 1. SUPPRIMER COMPLÈTEMENT la colonne etudiant_id si elle existe
+-- Système 100% ANONYME - aucune relation avec les étudiants
+DO $$
+BEGIN
+    -- Vérifier si la colonne etudiant_id existe
+    IF EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_name = 'tickets_repas' AND column_name = 'etudiant_id'
+    ) THEN
+        -- Supprimer les contraintes foreign key existantes sur etudiant_id
+        ALTER TABLE tickets_repas
+        DROP CONSTRAINT IF EXISTS "FK_tickets_repas_etudiant_id";
 
--- 2. Rendre etudiant_id nullable
-ALTER TABLE tickets_repas
-ALTER COLUMN etudiant_id DROP NOT NULL;
+        -- SUPPRIMER la colonne etudiant_id
+        ALTER TABLE tickets_repas
+        DROP COLUMN etudiant_id;
 
--- 3. Recréer la contrainte FK avec ON DELETE SET NULL
-ALTER TABLE tickets_repas
-ADD CONSTRAINT "FK_tickets_repas_etudiant_id"
-FOREIGN KEY (etudiant_id)
-REFERENCES users(id)
-ON DELETE SET NULL;
+        RAISE NOTICE '✓ Colonne etudiant_id supprimée - Tickets 100%% anonymes';
+    ELSE
+        RAISE NOTICE '✓ Colonne etudiant_id absente - Déjà anonyme';
+    END IF;
+END $$;
 
--- 4. Ajouter la colonne type_repas (OBLIGATOIRE)
+-- 4. Ajouter la colonne type_repas (OBLIGATOIRE) si elle n'existe pas
 ALTER TABLE tickets_repas
-ADD COLUMN type_repas VARCHAR(50);
+ADD COLUMN IF NOT EXISTS type_repas VARCHAR(50);
 
 -- Initialiser type_repas pour les tickets existants avec une valeur par défaut
 UPDATE tickets_repas
@@ -51,9 +60,9 @@ WHERE type_repas IS NULL;
 ALTER TABLE tickets_repas
 ALTER COLUMN type_repas SET NOT NULL;
 
--- 5. Ajouter la colonne annee
+-- 5. Ajouter la colonne annee si elle n'existe pas
 ALTER TABLE tickets_repas
-ADD COLUMN annee INTEGER DEFAULT 2025;
+ADD COLUMN IF NOT EXISTS annee INTEGER DEFAULT 2025;
 
 -- 6. Renommer montant en tarif
 ALTER TABLE tickets_repas

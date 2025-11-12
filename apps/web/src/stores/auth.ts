@@ -201,6 +201,10 @@ export const useAuth = create<AuthState>()(
 
       hasPermission: (permission: string) => {
         const { user } = get();
+        // Le superadmin a toutes les permissions
+        if (user?.role === 'superadmin') {
+          return true;
+        }
         return user?.permissions.includes(permission) || false;
       },
 

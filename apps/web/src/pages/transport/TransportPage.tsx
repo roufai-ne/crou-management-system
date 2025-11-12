@@ -21,9 +21,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Container, Card, Badge, Button, Table, Modal, Input, Select, DateInput, Tabs } from '@/components/ui';
-import { 
-  PlusIcon, 
-  MagnifyingGlassIcon, 
+import {
+  PlusIcon,
+  MagnifyingGlassIcon,
   FunnelIcon,
   DocumentArrowDownIcon,
   PencilIcon,
@@ -34,23 +34,25 @@ import {
   MapIcon,
   WrenchScrewdriverIcon,
   ClockIcon,
-  ChartBarIcon
+  ChartBarIcon,
+  TicketIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/stores/auth';
-import { 
-  useTransportVehicles, 
-  useTransportDrivers, 
-  useTransportRoutes, 
-  useTransportTrips, 
+import {
+  useTransportVehicles,
+  useTransportDrivers,
+  useTransportRoutes,
+  useTransportTrips,
   useTransportMaintenance,
-  useTransportStatistics 
+  useTransportStatistics
 } from '@/hooks/useTransport';
 import { Vehicle, Driver, Route, ScheduledTrip, MaintenanceRecord } from '@/services/api/transportService';
 import { ExportButton } from '@/components/reports/ExportButton';
+import { TicketsTransportTab } from '@/components/transport/TicketsTransportTab';
 
 export const TransportPage: React.FC = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('vehicles');
+  const [activeTab, setActiveTab] = useState('tickets');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -618,9 +620,15 @@ export const TransportPage: React.FC = () => {
   ];
 
   const tabs = [
-    { 
-      id: 'vehicles', 
-      label: 'Véhicules', 
+    {
+      id: 'tickets',
+      label: 'Tickets Transport',
+      icon: <TicketIcon className="h-4 w-4" />,
+      content: <TicketsTransportTab />
+    },
+    {
+      id: 'vehicles',
+      label: 'Véhicules',
       icon: <TruckIcon className="h-4 w-4" />,
       content: (
         <div className="space-y-6">
