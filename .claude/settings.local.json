@@ -8,7 +8,10 @@
       "Bash(do test -f \"$f\")",
       "Bash(echo:*)",
       "Bash(done)",
-      "Bash(move:*)"
+      "Bash(move:*)",
+      "Bash(export PGPASSWORD=crou_password)",
+      "Bash(\"C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe\" -h localhost -U crou_user -d crou_database -c \"\\d tickets_transport\")",
+      "Bash(\"C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe\" -h localhost -U crou_user -d crou_database -c \"SELECT enum_range(NULL::categorie_ticket_transport_enum) as categories, enum_range(NULL::ticket_transport_status_enum) as statuses;\")"
     ],
     "deny": [],
     "ask": []

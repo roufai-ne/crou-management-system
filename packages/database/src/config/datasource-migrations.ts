@@ -1,18 +1,13 @@
 /**
- * FICHIER: packages/database/src/config/datasource.ts
- * CONFIG: DataSource pour TypeORM CLI et migrations
+ * FICHIER: packages/database/src/config/datasource-migrations.ts
+ * CONFIG: DataSource pour migrations uniquement
  *
  * DESCRIPTION:
- * Configuration séparée pour la CLI TypeORM
- * Utilisée pour générer et exécuter les migrations
- *
- * USAGE:
- * - pnpm migration:generate src/migrations/InitialSchema
- * - pnpm migration:run
- * - pnpm migration:revert
+ * Configuration simplifiée pour exécuter les migrations
+ * Utilise des glob patterns pour éviter les imports circulaires
  *
  * AUTEUR: Équipe CROU
- * DATE: Octobre 2025
+ * DATE: Janvier 2025
  */
 
 import { DataSource } from 'typeorm';
@@ -26,8 +21,8 @@ config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// DataSource pour la CLI TypeORM
-export const AppDataSource = new DataSource({
+// DataSource pour les migrations
+const AppDataSource = new DataSource({
   type: 'postgres',
 
   // Configuration connexion
@@ -40,7 +35,7 @@ export const AppDataSource = new DataSource({
   // SSL
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
 
-  // Entités - Utiliser glob pattern pour éviter import circulaires
+  // Entités - Glob pattern pour éviter imports circulaires
   entities: [
     path.join(__dirname, '../entities/*.entity.{ts,js}')
   ],
@@ -50,16 +45,14 @@ export const AppDataSource = new DataSource({
     path.join(__dirname, '../migrations/*.{ts,js}')
   ],
 
-  // Subscribers
-  subscribers: [
-    path.join(__dirname, '../subscribers/*.{ts,js}')
-  ],
-
   // Configuration
-  synchronize: false, // TOUJOURS false pour les migrations
-  logging: ['query', 'error', 'warn'],
+  synchronize: false,
+  logging: ['query', 'error', 'warn', 'migration'],
   logger: 'advanced-console',
-  migrationsTableName: '_migrations_history'
+  migrationsTableName: '_migrations_history',
+
+  // Important: désactiver le cache des métadonnées
+  cache: false
 });
 
 export default AppDataSource;

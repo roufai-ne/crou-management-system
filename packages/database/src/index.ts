@@ -55,6 +55,19 @@ export { WorkflowStep } from './entities/WorkflowStep.entity';
 export { WorkflowInstance } from './entities/WorkflowInstance.entity';
 export { WorkflowAction } from './entities/WorkflowAction.entity';
 
+// Entités module Restauration
+export { Restaurant, RestaurantType, RestaurantStatus } from './entities/Restaurant.entity';
+export { Menu, TypeRepas, MenuStatus } from './entities/Menu.entity';
+export type { PlatMenu, IngredientMenu } from './entities/Menu.entity';
+export { TicketRepas, TicketStatus, CategorieTicket } from './entities/TicketRepas.entity';
+export { Repas, RepasStatus } from './entities/Repas.entity';
+export { StockDenree, AllocationStatus, TypeMouvementDenree } from './entities/StockDenree.entity';
+
+// Entités module Transport
+export { TransportRoute, RouteType, RouteStatus } from './entities/TransportRoute.entity';
+export type { RouteStop } from './entities/TransportRoute.entity';
+export { TicketTransport, TicketTransportStatus, CategorieTicketTransport } from './entities/TicketTransport.entity';
+
 // Seeders
 export { seedTenants } from './seeders/tenant.seeder';
 export { seedUsersRBAC as seedUsers } from './seeders/user-rbac.seeder';

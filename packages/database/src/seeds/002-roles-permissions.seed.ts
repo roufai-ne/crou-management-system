@@ -14,7 +14,8 @@
  * 5. Gestionnaire Stocks - Gestion des stocks
  * 6. Gestionnaire Logement - Gestion des logements
  * 7. Gestionnaire Transport - Gestion des véhicules
- * 8. Utilisateur - Lecture seule
+ * 8. Gestionnaire Restauration - Gestion de la restauration
+ * 9. Utilisateur - Lecture seule
  *
  * AUTEUR: Équipe CROU
  * DATE: Octobre 2025
@@ -236,6 +237,55 @@ export const seedRolesAndPermissions = async (dataSource: DataSource): Promise<v
     description: 'Gérer la maintenance des véhicules'
   });
 
+  // --- Module Restauration ---
+  const restaurationRead = await permissionRepository.save({
+    resource: 'restauration',
+    actions: ['read'],
+    description: 'Consulter les restaurants et menus'
+  });
+
+  const restaurationWrite = await permissionRepository.save({
+    resource: 'restauration',
+    actions: ['create', 'update'],
+    description: 'Créer/Modifier les restaurants, menus et tickets'
+  });
+
+  const restaurationDelete = await permissionRepository.save({
+    resource: 'restauration',
+    actions: ['delete'],
+    description: 'Supprimer les restaurants et menus'
+  });
+
+  const restaurationValidate = await permissionRepository.save({
+    resource: 'restauration',
+    actions: ['validate'],
+    description: 'Valider les menus'
+  });
+
+  const restaurationMenus = await permissionRepository.save({
+    resource: 'restauration',
+    actions: ['create', 'update', 'read'],
+    description: 'Gérer les menus et planifications'
+  });
+
+  const restaurationTickets = await permissionRepository.save({
+    resource: 'restauration',
+    actions: ['create', 'update', 'read'],
+    description: 'Gérer les tickets repas'
+  });
+
+  const restaurationDenrees = await permissionRepository.save({
+    resource: 'restauration',
+    actions: ['create', 'update', 'read'],
+    description: 'Gérer les allocations de denrées'
+  });
+
+  const restaurationAdmin = await permissionRepository.save({
+    resource: 'restauration',
+    actions: ['admin'],
+    description: 'Administration complète restauration (statistiques, tâches périodiques)'
+  });
+
   // --- Module Reports ---
   const reportsRead = await permissionRepository.save({
     resource: 'reports',
@@ -287,7 +337,7 @@ export const seedRolesAndPermissions = async (dataSource: DataSource): Promise<v
     description: 'Créer des notifications'
   });
 
-  console.log('✅ 40 permissions créées');
+  console.log('✅ 48 permissions créées (8 permissions restauration ajoutées)');
   console.log('🌱 Création des rôles...');
 
   // ========================================
@@ -311,6 +361,7 @@ export const seedRolesAndPermissions = async (dataSource: DataSource): Promise<v
       stocksRead, stocksWrite, stocksDelete, stocksMovements, stocksSuppliers,
       housingRead, housingWrite, housingDelete, housingOccupancy, housingMaintenance,
       transportRead, transportWrite, transportDelete, transportUsage, transportMaintenance,
+      restaurationRead, restaurationWrite, restaurationDelete, restaurationValidate, restaurationMenus, restaurationTickets, restaurationDenrees, restaurationAdmin,
       reportsRead, reportsGenerate, reportsExport,
       workflowsRead, workflowsWrite, workflowsApprove,
       notificationsRead, notificationsWrite
@@ -331,6 +382,7 @@ export const seedRolesAndPermissions = async (dataSource: DataSource): Promise<v
       stocksRead,
       housingRead,
       transportRead,
+      restaurationRead,
       reportsRead, reportsGenerate, reportsExport,
       workflowsRead, workflowsApprove,
       notificationsRead, notificationsWrite
@@ -351,6 +403,7 @@ export const seedRolesAndPermissions = async (dataSource: DataSource): Promise<v
       stocksRead, stocksWrite, stocksMovements, stocksSuppliers,
       housingRead, housingWrite, housingOccupancy, housingMaintenance,
       transportRead, transportWrite, transportUsage, transportMaintenance,
+      restaurationRead, restaurationWrite, restaurationValidate, restaurationMenus, restaurationTickets, restaurationDenrees, restaurationAdmin,
       reportsRead, reportsGenerate, reportsExport,
       workflowsRead, workflowsWrite, workflowsApprove,
       notificationsRead, notificationsWrite
@@ -417,7 +470,23 @@ export const seedRolesAndPermissions = async (dataSource: DataSource): Promise<v
     ]
   });
 
-  // --- 8. UTILISATEUR (LECTURE SEULE) ---
+  // --- 8. GESTIONNAIRE RESTAURATION ---
+  const gestionnaireRestauration = roleRepository.create({
+    name: 'Gestionnaire Restauration',
+    description: 'Gestionnaire de la restauration - Gestion des restaurants, menus et tickets repas',
+    tenantType: RoleTenantType.CROU,
+    isActive: true,
+    permissions: [
+      dashboardRead,
+      restaurationRead, restaurationWrite, restaurationMenus, restaurationTickets, restaurationDenrees,
+      stocksRead, // Lecture stocks pour vérifier disponibilité denrées
+      reportsRead, reportsGenerate,
+      workflowsRead,
+      notificationsRead
+    ]
+  });
+
+  // --- 9. UTILISATEUR (LECTURE SEULE) ---
   const utilisateur = roleRepository.create({
     name: 'Utilisateur',
     description: 'Utilisateur standard - Accès en lecture seule',
@@ -429,6 +498,7 @@ export const seedRolesAndPermissions = async (dataSource: DataSource): Promise<v
       stocksRead,
       housingRead,
       transportRead,
+      restaurationRead,
       reportsRead,
       workflowsRead,
       notificationsRead
@@ -444,10 +514,11 @@ export const seedRolesAndPermissions = async (dataSource: DataSource): Promise<v
     gestionnaireStocks,
     gestionnaireLogement,
     gestionnaireTransport,
+    gestionnaireRestauration,
     utilisateur
   ]);
 
-  console.log('✅ 8 rôles créés avec succès');
+  console.log('✅ 9 rôles créés avec succès');
   console.log('   - Super Admin (100%) - Toutes permissions');
   console.log('   - Admin Ministère (90%) - Monitoring multi-CROU');
   console.log('   - Directeur CROU (80%) - Gestion complète CROU');
@@ -455,15 +526,17 @@ export const seedRolesAndPermissions = async (dataSource: DataSource): Promise<v
   console.log('   - Gestionnaire Stocks (50%) - Gestion stocks');
   console.log('   - Gestionnaire Logement (50%) - Gestion logements');
   console.log('   - Gestionnaire Transport (50%) - Gestion transport');
+  console.log('   - Gestionnaire Restauration (50%) - Gestion restauration');
   console.log('   - Utilisateur (10%) - Lecture seule');
   console.log('');
   console.log('📊 Matrice des permissions:');
-  console.log('   - Super Admin: 40/40 permissions');
-  console.log('   - Admin Ministère: 19/40 permissions');
-  console.log('   - Directeur CROU: 30/40 permissions');
-  console.log('   - Comptable: 7/40 permissions');
-  console.log('   - Gestionnaire Stocks: 7/40 permissions');
-  console.log('   - Gestionnaire Logement: 7/40 permissions');
-  console.log('   - Gestionnaire Transport: 7/40 permissions');
-  console.log('   - Utilisateur: 8/40 permissions');
+  console.log('   - Super Admin: 48/48 permissions (100%)');
+  console.log('   - Admin Ministère: 20/48 permissions (42%)');
+  console.log('   - Directeur CROU: 37/48 permissions (77%)');
+  console.log('   - Comptable: 7/48 permissions (15%)');
+  console.log('   - Gestionnaire Stocks: 7/48 permissions (15%)');
+  console.log('   - Gestionnaire Logement: 7/48 permissions (15%)');
+  console.log('   - Gestionnaire Transport: 7/48 permissions (15%)');
+  console.log('   - Gestionnaire Restauration: 8/48 permissions (17%)');
+  console.log('   - Utilisateur: 9/48 permissions (19%)');
 };

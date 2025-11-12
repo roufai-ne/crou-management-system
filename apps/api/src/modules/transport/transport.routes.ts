@@ -77,6 +77,7 @@ import { DriversController, driverValidators } from './drivers.controller';
 import { RoutesController, routeValidators } from './routes.controller';
 import { ScheduledTripsController, scheduledTripValidators } from './scheduled-trips.controller';
 import { TransportMetricsController } from './transport-metrics.controller';
+import { TicketTransportController } from './ticket-transport.controller';
 import { authenticateJWT } from '@/shared/middlewares/auth.middleware';
 import { checkPermissions } from '@/shared/middlewares/permissions.middleware';
 import rateLimit from 'express-rate-limit';
@@ -542,6 +543,80 @@ router.post('/scheduled-trips/:id/cancel',
   checkPermissions(['transport:write']),
   scheduledTripValidators.cancel,
   ScheduledTripsController.cancelTrip
+);
+
+// ================================================================================================
+// ROUTES TICKETS DE TRANSPORT (ANONYMES)
+// ================================================================================================
+
+/**
+ * GET /api/transport/tickets
+ * Liste des tickets de transport avec filtres et pagination
+ * Permissions: transport:read
+ */
+router.get('/tickets',
+  checkPermissions(['transport:read']),
+  TicketTransportController.getTickets
+);
+
+/**
+ * GET /api/transport/tickets/numero/:numeroTicket
+ * Récupérer un ticket par son numéro ou QR code
+ * Permissions: transport:read
+ */
+router.get('/tickets/numero/:numeroTicket',
+  checkPermissions(['transport:read']),
+  TicketTransportController.getTicketByNumero
+);
+
+/**
+ * POST /api/transport/tickets
+ * Créer un nouveau ticket de transport
+ * Permissions: transport:write
+ */
+router.post('/tickets',
+  checkPermissions(['transport:write']),
+  TicketTransportController.createTicket
+);
+
+/**
+ * POST /api/transport/tickets/batch
+ * Créer plusieurs tickets identiques (émission en lot)
+ * Permissions: transport:write
+ */
+router.post('/tickets/batch',
+  checkPermissions(['transport:write']),
+  TicketTransportController.createTicketsBatch
+);
+
+/**
+ * POST /api/transport/tickets/:id/utiliser
+ * Utiliser un ticket (scan QR ou saisie numéro)
+ * Permissions: transport:write
+ */
+router.post('/tickets/:id/utiliser',
+  checkPermissions(['transport:write']),
+  TicketTransportController.utiliserTicket
+);
+
+/**
+ * PUT /api/transport/tickets/:id/annuler
+ * Annuler un ticket
+ * Permissions: transport:write
+ */
+router.put('/tickets/:id/annuler',
+  checkPermissions(['transport:write']),
+  TicketTransportController.annulerTicket
+);
+
+/**
+ * POST /api/transport/tickets/expired/update
+ * Mettre à jour les tickets expirés (tâche de maintenance)
+ * Permissions: transport:admin
+ */
+router.post('/tickets/expired/update',
+  checkPermissions(['transport:admin']),
+  TicketTransportController.updateExpiredTickets
 );
 
 // ================================================================================================

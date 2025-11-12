@@ -126,6 +126,9 @@ export type {
   DrawerModalProps
 } from './Modal';
 
+export { ConfirmModal, useConfirmDialog } from './ConfirmModal';
+export type { ConfirmModalVariant } from './ConfirmModal';
+
 // Composants de navigation
 export { Breadcrumb } from './Breadcrumb';
 export type { BreadcrumbProps, BreadcrumbItem } from './Breadcrumb';

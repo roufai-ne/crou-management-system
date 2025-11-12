@@ -24,6 +24,7 @@
  * - /api/stocks - Gestion stocks
  * - /api/housing - Logement
  * - /api/transport - Transport et véhicules
+ * - /api/restauration - Restauration universitaire
  * - /api/reports - Rapports
  * - /api/notifications - Notifications
  * - /api/workflows - Workflows
@@ -65,6 +66,7 @@ import { notificationsRoutes } from '@/modules/notifications/notifications.route
 import { workflowRoutes } from '@/modules/workflows/workflow.routes';
 import { transportRoutes } from '@/modules/transport/transport.routes';
 import { allocationsRoutes } from '@/modules/allocations/allocations.routes';
+import { restaurationRoutes } from '@/modules/restauration/restaurant.routes';
 import adminRoutes from '@/modules/admin/index';
 import tenantsPublicRoutes from '@/modules/admin/tenants.public.routes';
 
@@ -164,6 +166,16 @@ const moduleLimiters = {
     },
     standardHeaders: true,
     legacyHeaders: false
+  }),
+
+  restauration: rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: NODE_ENV === 'development' ? 500 : 100, // 100 requêtes par 15min en prod
+    message: {
+      error: 'Trop de requêtes restauration, réessayez plus tard.'
+    },
+    standardHeaders: true,
+    legacyHeaders: false
   })
 };
 
@@ -241,6 +253,7 @@ app.use('/api/notifications', notificationsRoutes);
 app.use('/api/workflows', workflowRoutes);
 app.use('/api/transport', moduleLimiters.transport, transportRoutes);
 app.use('/api/allocations', allocationsRoutes);
+app.use('/api/restauration', moduleLimiters.restauration, restaurationRoutes);
 app.use('/api/admin', moduleLimiters.admin, adminRoutes);
 app.use('/api/tenants', tenantsPublicRoutes);
 
