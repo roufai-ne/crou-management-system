@@ -26,17 +26,30 @@ export const corsConfig: CorsOptions = {
       'https://admin.crou.niamey.gov.ne'
     ];
 
-    // Permettre les requêtes sans origin (ex: Postman, curl)
-    // mais seulement en développement
-    if (!origin && process.env.NODE_ENV === 'development') {
-      return callback(null, true);
+    // Lire les origines depuis les variables d'environnement
+    const envOrigins = process.env.ALLOWED_ORIGINS?.split(',').map(o => o.trim()) || [];
+    const allAllowedOrigins = [...allowedOrigins, ...envOrigins];
+
+    // Permettre les requêtes sans origin (ex: Postman, curl, scripts serveur)
+    // SEULEMENT en développement et avec whitelist stricte
+    if (!origin) {
+      if (process.env.NODE_ENV === 'development') {
+        return callback(null, true);
+      } else {
+        // En production, refuser les requêtes sans origin (sécurité CSRF)
+        return callback(new Error('Origin header requis'));
+      }
     }
 
     // Vérifier si l'origine est dans la liste autorisée
-    if (origin && allowedOrigins.includes(origin)) {
+    if (allAllowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Non autorisé par CORS'));
+      const isDev = process.env.NODE_ENV === 'development';
+      const errorMsg = isDev
+        ? `CORS: Origine '${origin}' non autorisée. Origines autorisées: ${allAllowedOrigins.join(', ')}`
+        : 'Non autorisé par CORS';
+      callback(new Error(errorMsg));
     }
   },
   

@@ -25,7 +25,8 @@
  * DATE: Décembre 2024
  */
 
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
+import { TypedRequest } from '../types/express.types';
 import { MultiTenantService, TenantContext, TenantAccessRule } from '@/shared/services/multi-tenant.service';
 import { AuditService } from '@/shared/services/audit.service';
 import { AuditAction } from '../../../../../packages/database/src/entities/AuditLog.entity';
@@ -70,7 +71,7 @@ export interface TenantIsolationOptions {
  * Middleware principal d'injection automatique du tenant_id
  */
 export const injectTenantIdMiddleware = (options: TenantIsolationOptions = {}) => {
-    return async (req: Request, res: Response, next: NextFunction) => {
+    return async (req: TypedRequest, res: Response, next: NextFunction) => {
         try {
             // Vérifier l'authentification
             if (!req.user) {
@@ -96,7 +97,7 @@ export const injectTenantIdMiddleware = (options: TenantIsolationOptions = {}) =
             }
 
             // Ajouter le contexte tenant à la requête
-            (req as any).tenantContext = tenantContext;
+            req.tenantContext = tenantContext;
 
             // Injection automatique du tenant_id si activée
             if (options.injectTenantId !== false) {
@@ -139,9 +140,9 @@ export const injectTenantIdMiddleware = (options: TenantIsolationOptions = {}) =
  * Middleware de validation des accès cross-tenant
  */
 export const validateCrossTenantMiddleware = (options: TenantIsolationOptions = {}) => {
-    return async (req: Request, res: Response, next: NextFunction) => {
+    return async (req: TypedRequest, res: Response, next: NextFunction) => {
         try {
-            const tenantContext = (req as any).tenantContext as TenantContext;
+            const tenantContext = req.tenantContext!;
 
             if (!tenantContext) {
                 return res.status(403).json({
@@ -210,9 +211,9 @@ export const validateCrossTenantMiddleware = (options: TenantIsolationOptions = 
  * Middleware pour les utilisateurs ministériels (accès étendu)
  */
 export const ministerialAccessMiddleware = () => {
-    return async (req: Request, res: Response, next: NextFunction) => {
+    return async (req: TypedRequest, res: Response, next: NextFunction) => {
         try {
-            const tenantContext = (req as any).tenantContext as TenantContext;
+            const tenantContext = req.tenantContext!;
 
             if (!tenantContext) {
                 return res.status(403).json({
@@ -231,7 +232,7 @@ export const ministerialAccessMiddleware = () => {
 
             // Les utilisateurs ministériels ont accès à tous les tenants
             // Marquer la requête comme ayant un accès étendu
-            (req as any).hasExtendedAccess = true;
+            req.hasExtendedAccess = true;
 
             logger.debug('Accès ministériel accordé:', {
                 userId: tenantContext.userId,
@@ -258,14 +259,14 @@ export const autoTenantFilterMiddleware = (options: {
     strictMode?: boolean;
     allowBypass?: boolean;
 } = {}) => {
-    return async (req: Request, res: Response, next: NextFunction) => {
+    return async (req: TypedRequest, res: Response, next: NextFunction) => {
         try {
             if (options.enabled === false) {
                 return next();
             }
 
-            const tenantContext = (req as any).tenantContext as TenantContext;
-            const hasExtendedAccess = (req as any).hasExtendedAccess;
+            const tenantContext = req.tenantContext!;
+            const hasExtendedAccess = req.hasExtendedAccess;
 
             if (!tenantContext) {
                 return next(); // Laisser passer si pas de contexte tenant
@@ -327,7 +328,7 @@ export const fullTenantIsolationMiddleware = (options: TenantIsolationOptions = 
 /**
  * Injecter le tenant_id dans la requête
  */
-async function injectTenantIdInRequest(req: Request, tenantContext: TenantContext): Promise<void> {
+async function injectTenantIdInRequest(req: TypedRequest, tenantContext: TenantContext): Promise<void> {
     try {
         // Ajouter aux headers pour les middlewares suivants
         req.headers['x-tenant-id'] = tenantContext.tenantId;
@@ -352,7 +353,7 @@ async function injectTenantIdInRequest(req: Request, tenantContext: TenantContex
  * Valider l'accès tenant avec support hiérarchique
  */
 async function validateTenantAccess(
-    req: Request,
+    req: TypedRequest,
     tenantContext: TenantContext,
     options: TenantIsolationOptions
 ): Promise<{
@@ -440,7 +441,7 @@ async function validateTenantAccess(
 /**
  * Extraire le tenant ID cible de la requête
  */
-function extractTargetTenantId(req: Request): string | undefined {
+function extractTargetTenantId(req: TypedRequest): string | undefined {
     // Import de la validation
     const { validateTenantId } = require('@/shared/utils/validation');
 
@@ -460,7 +461,7 @@ function extractTargetTenantId(req: Request): string | undefined {
  * Auditer les accès cross-tenant
  */
 async function auditCrossTenantAccess(
-    req: Request,
+    req: TypedRequest,
     tenantContext: TenantContext,
     targetTenantId: string
 ): Promise<void> {
@@ -489,12 +490,12 @@ async function auditCrossTenantAccess(
  * Intercepter la réponse pour filtrer les données par tenant
  */
 function interceptResponseForTenantFiltering(
-    req: Request,
+    req: TypedRequest,
     res: Response,
     tenantContext: TenantContext
 ): void {
     const originalSend = res.send;
-    const hasExtendedAccess = (req as any).hasExtendedAccess;
+    const hasExtendedAccess = req.hasExtendedAccess;
 
     res.send = function (body: any) {
         try {
@@ -556,8 +557,8 @@ function filterResponseByTenant(data: any, tenantId: string): any {
  * Middleware de développement pour logger les accès tenant
  */
 export const tenantAccessLoggerMiddleware = () => {
-    return (req: Request, res: Response, next: NextFunction) => {
-        const tenantContext = (req as any).tenantContext as TenantContext;
+    return (req: TypedRequest, res: Response, next: NextFunction) => {
+        const tenantContext = req.tenantContext!;
 
         if (tenantContext) {
             logger.debug('Accès tenant:', {
@@ -567,7 +568,7 @@ export const tenantAccessLoggerMiddleware = () => {
                 method: req.method,
                 path: req.path,
                 targetTenant: extractTargetTenantId(req),
-                hasExtendedAccess: (req as any).hasExtendedAccess
+                hasExtendedAccess: req.hasExtendedAccess
             });
         }
 

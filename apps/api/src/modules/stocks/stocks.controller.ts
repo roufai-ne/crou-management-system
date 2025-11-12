@@ -9,8 +9,9 @@
  * DATE: Décembre 2024
  */
 
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { body, param } from 'express-validator';
+import { TypedRequest } from '../../shared/types/express.types';
 import { StocksService, StockFilters, CreateStockDTO, UpdateStockDTO, CreateMovementDTO } from './stocks.service';
 
 // Validateurs pour les stocks
@@ -34,9 +35,9 @@ export const stockValidators = {
 };
 
 export class StocksController {
-  static async getStocks(req: Request, res: Response) {
+  static async getStocks(req: TypedRequest, res: Response) {
     try {
-      const tenantId = (req as any).user?.tenantId;
+      const tenantId = req.user?.tenantId;
       if (!tenantId) {
         return res.status(401).json({ success: false, error: 'Tenant ID manquant' });
       }
@@ -58,10 +59,10 @@ export class StocksController {
     }
   }
 
-  static async createStock(req: Request, res: Response) {
+  static async createStock(req: TypedRequest, res: Response) {
     try {
-      const tenantId = (req as any).user?.tenantId;
-      const userId = (req as any).user?.userId;
+      const tenantId = req.user?.tenantId;
+      const userId = req.user?.userId;
       if (!tenantId || !userId) {
         return res.status(401).json({ success: false, error: 'Authentification manquante' });
       }
@@ -75,10 +76,10 @@ export class StocksController {
     }
   }
 
-  static async getStock(req: Request, res: Response) {
+  static async getStock(req: TypedRequest, res: Response) {
     try {
       const { id } = req.params;
-      const tenantId = (req as any).user?.tenantId;
+      const tenantId = req.user?.tenantId;
       if (!tenantId) {
         return res.status(401).json({ success: false, error: 'Tenant ID manquant' });
       }
@@ -91,11 +92,11 @@ export class StocksController {
     }
   }
 
-  static async updateStock(req: Request, res: Response) {
+  static async updateStock(req: TypedRequest, res: Response) {
     try {
       const { id } = req.params;
-      const tenantId = (req as any).user?.tenantId;
-      const userId = (req as any).user?.userId;
+      const tenantId = req.user?.tenantId;
+      const userId = req.user?.userId;
       if (!tenantId || !userId) {
         return res.status(401).json({ success: false, error: 'Authentification manquante' });
       }
@@ -109,10 +110,10 @@ export class StocksController {
     }
   }
 
-  static async deleteStock(req: Request, res: Response) {
+  static async deleteStock(req: TypedRequest, res: Response) {
     try {
       const { id } = req.params;
-      const tenantId = (req as any).user?.tenantId;
+      const tenantId = req.user?.tenantId;
       if (!tenantId) {
         return res.status(401).json({ success: false, error: 'Tenant ID manquant' });
       }
@@ -126,9 +127,9 @@ export class StocksController {
   }
 
   // Méthodes supplémentaires pour les routes
-  static async getMovements(req: Request, res: Response) {
+  static async getMovements(req: TypedRequest, res: Response) {
     try {
-      const tenantId = (req as any).user?.tenantId;
+      const tenantId = req.user?.tenantId;
       if (!tenantId) {
         return res.status(401).json({ success: false, error: 'Tenant ID manquant' });
       }
@@ -149,10 +150,10 @@ export class StocksController {
     }
   }
 
-  static async createMovement(req: Request, res: Response) {
+  static async createMovement(req: TypedRequest, res: Response) {
     try {
-      const tenantId = (req as any).user?.tenantId;
-      const userId = (req as any).user?.userId;
+      const tenantId = req.user?.tenantId;
+      const userId = req.user?.userId;
       if (!tenantId || !userId) {
         return res.status(401).json({ success: false, error: 'Authentification manquante' });
       }
@@ -166,21 +167,21 @@ export class StocksController {
     }
   }
 
-  static async getMovement(req: Request, res: Response) {
+  static async getMovement(req: TypedRequest, res: Response) {
     res.json({ success: true, data: { movement: {} } });
   }
 
-  static async updateMovement(req: Request, res: Response) {
+  static async updateMovement(req: TypedRequest, res: Response) {
     res.json({ success: true, message: 'Mouvement modifié' });
   }
 
-  static async confirmMovement(req: Request, res: Response) {
+  static async confirmMovement(req: TypedRequest, res: Response) {
     res.json({ success: true, message: 'Mouvement confirmé' });
   }
 
-  static async getAlerts(req: Request, res: Response) {
+  static async getAlerts(req: TypedRequest, res: Response) {
     try {
-      const tenantId = (req as any).user?.tenantId;
+      const tenantId = req.user?.tenantId;
       if (!tenantId) {
         return res.status(401).json({ success: false, error: 'Tenant ID manquant' });
       }
@@ -199,15 +200,15 @@ export class StocksController {
     }
   }
 
-  static async getAlert(req: Request, res: Response) {
+  static async getAlert(req: TypedRequest, res: Response) {
     res.json({ success: true, data: { alert: {} } });
   }
 
-  static async resolveAlert(req: Request, res: Response) {
+  static async resolveAlert(req: TypedRequest, res: Response) {
     try {
       const { id } = req.params;
-      const tenantId = (req as any).user?.tenantId;
-      const userId = (req as any).user?.userId;
+      const tenantId = req.user?.tenantId;
+      const userId = req.user?.userId;
       if (!tenantId || !userId) {
         return res.status(401).json({ success: false, error: 'Authentification manquante' });
       }
@@ -221,41 +222,41 @@ export class StocksController {
     }
   }
 
-  static async escalateAlert(req: Request, res: Response) {
+  static async escalateAlert(req: TypedRequest, res: Response) {
     res.json({ success: true, message: 'Alerte escaladée' });
   }
 
-  static async getInventory(req: Request, res: Response) {
+  static async getInventory(req: TypedRequest, res: Response) {
     res.json({ success: true, data: { inventory: {} } });
   }
 
-  static async startInventory(req: Request, res: Response) {
+  static async startInventory(req: TypedRequest, res: Response) {
     res.json({ success: true, message: 'Inventaire démarré' });
   }
 
-  static async completeInventory(req: Request, res: Response) {
+  static async completeInventory(req: TypedRequest, res: Response) {
     res.json({ success: true, message: 'Inventaire finalisé' });
   }
 
-  static async getStockLevelsReport(req: Request, res: Response) {
+  static async getStockLevelsReport(req: TypedRequest, res: Response) {
     res.json({ success: true, data: { report: {} } });
   }
 
-  static async getMovementsReport(req: Request, res: Response) {
+  static async getMovementsReport(req: TypedRequest, res: Response) {
     res.json({ success: true, data: { report: {} } });
   }
 
-  static async getAlertsReport(req: Request, res: Response) {
+  static async getAlertsReport(req: TypedRequest, res: Response) {
     res.json({ success: true, data: { report: {} } });
   }
 
-  static async exportReport(req: Request, res: Response) {
+  static async exportReport(req: TypedRequest, res: Response) {
     res.json({ success: true, message: 'Rapport exporté' });
   }
 
-  static async getStocksKPIs(req: Request, res: Response) {
+  static async getStocksKPIs(req: TypedRequest, res: Response) {
     try {
-      const tenantId = (req as any).user?.tenantId;
+      const tenantId = req.user?.tenantId;
       if (!tenantId) {
         return res.status(401).json({ success: false, error: 'Tenant ID manquant' });
       }
@@ -268,13 +269,13 @@ export class StocksController {
     }
   }
 
-  static async getStocksEvolution(req: Request, res: Response) {
+  static async getStocksEvolution(req: TypedRequest, res: Response) {
     res.json({ success: true, data: { evolution: [] } });
   }
 
-  static async getStocksAlerts(req: Request, res: Response) {
+  static async getStocksAlerts(req: TypedRequest, res: Response) {
     try {
-      const tenantId = (req as any).user?.tenantId;
+      const tenantId = req.user?.tenantId;
       if (!tenantId) {
         return res.status(401).json({ success: false, error: 'Tenant ID manquant' });
       }

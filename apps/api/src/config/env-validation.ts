@@ -79,14 +79,10 @@ export function validateEnvironment(): EnvironmentConfig {
   const errors: string[] = [];
   const warnings: string[] = [];
 
-  // Valider les variables critiques
+  // Valider les variables critiques - TOUJOURS requis (même en dev)
   for (const varName of CRITICAL_ENV_VARS) {
     if (!process.env[varName]) {
-      if (isProduction) {
-        errors.push(`❌ CRITIQUE: Variable ${varName} manquante (requise en production)`);
-      } else {
-        warnings.push(`⚠️  Variable ${varName} manquante (dev mode)`);
-      }
+      errors.push(`❌ CRITIQUE: Variable ${varName} manquante (requise en ${isProduction ? 'production' : 'développement'})`);
     }
   }
 
@@ -97,13 +93,13 @@ export function validateEnvironment(): EnvironmentConfig {
     }
   }
 
-  // Valider la longueur des secrets
+  // Valider la longueur des secrets - CRITIQUE, pas juste un warning
   if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 32) {
-    warnings.push('⚠️  JWT_SECRET devrait avoir au moins 32 caractères pour plus de sécurité');
+    errors.push('❌ CRITIQUE: JWT_SECRET doit avoir au moins 32 caractères pour la sécurité');
   }
 
   if (process.env.JWT_REFRESH_SECRET && process.env.JWT_REFRESH_SECRET.length < 32) {
-    warnings.push('⚠️  JWT_REFRESH_SECRET devrait avoir au moins 32 caractères');
+    errors.push('❌ CRITIQUE: JWT_REFRESH_SECRET doit avoir au moins 32 caractères');
   }
 
   // Valider DATABASE_URL
@@ -127,18 +123,19 @@ export function validateEnvironment(): EnvironmentConfig {
   }
 
   // Construire l'objet de configuration validé
+  // Les valeurs critiques ne doivent JAMAIS avoir de fallback vide
   const config: EnvironmentConfig = {
     nodeEnv: process.env.NODE_ENV || 'development',
     port: parseInt(process.env.PORT || '3001'),
     apiVersion: process.env.API_VERSION || '1.0.0',
 
-    // Database
-    databaseUrl: process.env.DATABASE_URL || '',
+    // Database - Pas de fallback vide (throw en erreur plus haut si manquant)
+    databaseUrl: process.env.DATABASE_URL!,
 
-    // JWT
-    jwtSecret: process.env.JWT_SECRET || '',
+    // JWT - Pas de fallback vide (throw en erreur plus haut si manquant)
+    jwtSecret: process.env.JWT_SECRET!,
     jwtExpiresIn: process.env.JWT_EXPIRES_IN || '15m',
-    jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET || '',
+    jwtRefreshSecret: process.env.JWT_REFRESH_SECRET!,
     jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
 
     // Redis
