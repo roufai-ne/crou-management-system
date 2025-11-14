@@ -134,8 +134,8 @@ export const HousingDashboard: React.FC = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Dashboard Logements</h2>
-            <p className="text-gray-600">Vue d'ensemble de la gestion des logements universitaires</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard Logements</h2>
+            <p className="text-gray-600 dark:text-gray-400">Vue d'ensemble de la gestion des logements universitaires</p>
           </div>
           <div className="flex items-center gap-4">
             {overduePayments > 0 && (
@@ -182,14 +182,14 @@ export const HousingDashboard: React.FC = () => {
                         </span>
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">{complex.name}</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="font-medium text-gray-900 dark:text-white">{complex.name}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           {complex.revenue.toLocaleString()} XOF/mois
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-gray-900 dark:text-white">
                         {complex.occupancyRate.toFixed(1)}%
                       </p>
                       <div className="w-20 bg-gray-200 rounded-full h-2 mt-1">
@@ -205,7 +205,7 @@ export const HousingDashboard: React.FC = () => {
             ) : (
               <div className="text-center py-8">
                 <HomeModernIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">Aucune donnée disponible</p>
+                <p className="text-gray-500 dark:text-gray-400">Aucune donnée disponible</p>
               </div>
             )}
           </Card.Content>
@@ -231,13 +231,13 @@ export const HousingDashboard: React.FC = () => {
                   return (
                     <div key={type} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div>
-                        <p className="font-medium text-gray-900">{typeLabels[type as keyof typeof typeLabels]}</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="font-medium text-gray-900 dark:text-white">{typeLabels[type as keyof typeof typeLabels]}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           {data.occupied}/{data.count} chambres
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-medium text-gray-900">
+                        <p className="font-medium text-gray-900 dark:text-white">
                           {occupancyRate.toFixed(1)}%
                         </p>
                         <div className="w-20 bg-gray-200 rounded-full h-2 mt-1">
@@ -254,7 +254,7 @@ export const HousingDashboard: React.FC = () => {
             ) : (
               <div className="text-center py-8">
                 <ChartBarIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">Aucune donnée disponible</p>
+                <p className="text-gray-500 dark:text-gray-400">Aucune donnée disponible</p>
               </div>
             )}
           </Card.Content>
@@ -279,7 +279,7 @@ export const HousingDashboard: React.FC = () => {
                     <p className="font-medium text-gray-800">
                       {overduePayments} paiement{overduePayments > 1 ? 's' : ''} en retard
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       Action requise pour le recouvrement
                     </p>
                   </div>
@@ -296,7 +296,7 @@ export const HousingDashboard: React.FC = () => {
                     <p className="font-medium text-gray-800">
                       {pendingMaintenance} demande{pendingMaintenance > 1 ? 's' : ''} de maintenance en attente
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       Planification des interventions requise
                     </p>
                   </div>

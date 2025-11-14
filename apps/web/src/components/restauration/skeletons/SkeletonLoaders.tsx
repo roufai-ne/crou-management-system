@@ -44,7 +44,7 @@ export const TableSkeleton: React.FC<TableSkeletonProps> = ({
   showHeader = true,
 }) => {
   return (
-    <div className="w-full overflow-hidden rounded-lg border border-gray-200">
+    <div className="w-full overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
       {/* Header */}
       {showHeader && (
         <div className="bg-gray-50 border-b border-gray-200 px-6 py-4">
@@ -224,7 +224,7 @@ export const ListSkeleton: React.FC<ListSkeletonProps> = ({
       {Array.from({ length: items }).map((_, index) => (
         <div
           key={`list-item-${index}`}
-          className="flex items-center gap-4 p-4 bg-white rounded-lg border border-gray-200"
+          className="flex items-center gap-4 p-4 bg-white rounded-lg border border-gray-200 dark:border-gray-700"
         >
           {/* Avatar/Icon */}
           {showAvatar && (

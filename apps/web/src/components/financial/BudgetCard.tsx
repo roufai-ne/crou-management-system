@@ -147,13 +147,13 @@ export function BudgetCard({
         {/* Métriques financières */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
-            <p className="text-sm text-gray-600">Montant initial</p>
-            <p className="text-lg font-semibold text-gray-900">
+            <p className="text-sm text-gray-600 dark:text-gray-400">Montant initial</p>
+            <p className="text-lg font-semibold text-gray-900 dark:text-white">
               {formatCurrency(budget.montantInitial)}
             </p>
           </div>
           <div className="space-y-1">
-            <p className="text-sm text-gray-600">Disponible</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Disponible</p>
             <p className="text-lg font-semibold text-green-600">
               {formatCurrency(budget.montantDisponible)}
             </p>
@@ -163,7 +163,7 @@ export function BudgetCard({
         {/* Barre de progression du taux d'exécution */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Taux d'exécution
             </span>
             <div className="flex items-center gap-1">
@@ -191,19 +191,19 @@ export function BudgetCard({
         {/* Détails des montants */}
         <div className="grid grid-cols-3 gap-2 text-xs">
           <div className="text-center p-2 bg-gray-50 rounded">
-            <p className="text-gray-600">Réalisé</p>
+            <p className="text-gray-600 dark:text-gray-400">Réalisé</p>
             <p className="font-semibold text-green-600">
               {formatCurrency(budget.montantRealise)}
             </p>
           </div>
           <div className="text-center p-2 bg-gray-50 rounded">
-            <p className="text-gray-600">Engagé</p>
+            <p className="text-gray-600 dark:text-gray-400">Engagé</p>
             <p className="font-semibold text-orange-600">
               {formatCurrency(budget.montantEngage)}
             </p>
           </div>
           <div className="text-center p-2 bg-gray-50 rounded">
-            <p className="text-gray-600">Exercice</p>
+            <p className="text-gray-600 dark:text-gray-400">Exercice</p>
             <p className="font-semibold text-blue-600">
               {budget.exercice}
             </p>

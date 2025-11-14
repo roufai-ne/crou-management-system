@@ -306,7 +306,7 @@ export function TransactionForm({
           <p className="mt-1 text-sm text-red-600">{errors.montant}</p>
         )}
         {selectedBudget && ['depense', 'engagement'].includes(formData.type) && (
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Disponible: {selectedBudget.montantDisponible.toLocaleString()} FCFA
           </p>
         )}

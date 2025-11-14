@@ -230,7 +230,7 @@ export function OfflineIndicator() {
                   <CheckCircle className="w-4 h-4 text-green-600" />
                   <span className="text-sm">Dernière sync</span>
                 </div>
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
                   {getTimeSinceLastSyncText()}
                 </span>
               </div>

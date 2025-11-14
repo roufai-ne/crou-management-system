@@ -295,12 +295,13 @@ async function startServer() {
       logger.info(`🔍 User metadata: ${AppDataSource.hasMetadata('User')}`);
     }
     
-    // Démarrer le serveur
-    const server = app.listen(PORT, () => {
+    // Démarrer le serveur sur toutes les interfaces réseau
+    const server = app.listen(PORT, '0.0.0.0', () => {
       logger.info(`🚀 Serveur CROU démarré`);
       logger.info(`📡 Port: ${PORT}`);
       logger.info(`🌍 Environnement: ${NODE_ENV}`);
-      logger.info(`🔗 URL: http://localhost:${PORT}`);
+      logger.info(`🔗 URL Local: http://localhost:${PORT}`);
+      logger.info(`🌐 URL Réseau: http://0.0.0.0:${PORT} (accessible depuis le réseau)`);
       logger.info(`📊 API: http://localhost:${PORT}/api`);
       logger.info(`📚 Documentation: http://localhost:${PORT}/api-docs`);
       logger.info(`🏥 Health: http://localhost:${PORT}/health`);

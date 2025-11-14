@@ -171,8 +171,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 <span className="text-white font-bold text-sm">C</span>
               </div>
               <div className="ml-3">
-                <h1 className="text-lg font-semibold text-gray-900">CROU</h1>
-                <p className="text-xs text-gray-500">
+                <h1 className="text-lg font-semibold text-gray-900 dark:text-white">CROU</h1>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   {user?.level === 'ministere' ? 'Ministère' : user?.crouId || 'Local'}
                 </p>
               </div>
@@ -225,10 +225,10 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           </nav>
 
           {/* Informations utilisateur */}
-          <div className="flex-shrink-0 px-4 py-3 border-t border-gray-200">
+          <div className="flex-shrink-0 px-4 py-3 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center text-sm">
               <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                <UserCircleIcon className="w-5 h-5 text-gray-600" />
+                <UserCircleIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
               </div>
               <div className="ml-3 flex-1 min-w-0">
                 <p className="font-medium text-gray-900 truncate">{user ? `${user.firstName} ${user.lastName}` : 'Invité'}</p>
@@ -264,8 +264,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     <span className="text-white font-bold text-sm">C</span>
                   </div>
                   <div className="ml-3">
-                    <h1 className="text-lg font-semibold text-gray-900">CROU</h1>
-                    <p className="text-xs text-gray-500">
+                    <h1 className="text-lg font-semibold text-gray-900 dark:text-white">CROU</h1>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       {user?.level === 'ministere' ? 'Ministère' : user?.crouId || 'Local'}
                     </p>
                   </div>
@@ -307,13 +307,13 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               </nav>
             </div>
             
-            <div className="flex-shrink-0 px-4 py-3 border-t border-gray-200">
+            <div className="flex-shrink-0 px-4 py-3 border-t border-gray-200 dark:border-gray-700">
               <div className="flex items-center text-sm">
                 <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                  <UserCircleIcon className="w-5 h-5 text-gray-600" />
+                  <UserCircleIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </div>
                 <div className="ml-3">
-                    <p className="font-medium text-gray-900">{user ? `${user.firstName} ${user.lastName}` : 'Invité'}</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{user ? `${user.firstName} ${user.lastName}` : 'Invité'}</p>
                     <p className="text-gray-500 capitalize">{user?.role?.replace('_', ' ') || 'guest'}</p>
                 </div>
               </div>
@@ -342,7 +342,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               <ThemeToggle variant="icon" size="sm" />
               
               {/* Notifications */}
-              <button className="p-2 text-gray-400 hover:text-gray-500">
+              <button className="p-2 text-gray-400 hover:text-gray-500 dark:text-gray-400">
                 <BellIcon className="h-5 w-5" />
               </button>
 
@@ -353,14 +353,22 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                 >
                   <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                    <UserCircleIcon className="w-5 h-5 text-gray-600" />
+                    <UserCircleIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                   </div>
-                  <span className="hidden sm:block font-medium text-gray-700">{user?.name}</span>
+                  <span className="hidden sm:block font-medium text-gray-700 dark:text-gray-300">{user?.name}</span>
                   <ChevronDownIcon className="w-4 h-4 text-gray-400" />
                 </button>
 
                 {profileDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5">
+                    <Link
+                      to="/profile"
+                      onClick={() => setProfileDropdownOpen(false)}
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                    >
+                      <UserCircleIcon className="w-4 h-4 mr-3" />
+                      Mon profil
+                    </Link>
                     <button
                       onClick={async () => {
                         await logout();
@@ -381,8 +389,10 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       </div>
 
       {/* Zone de contenu */}
-      <main className="ml-64 p-6">
-        {children}
+      <main className="lg:pl-64 flex-1 bg-gray-50 dark:bg-gray-900 min-h-screen">
+        <div className="p-4 sm:p-6 lg:p-8">
+          {children}
+        </div>
       </main>
     </div>
   );

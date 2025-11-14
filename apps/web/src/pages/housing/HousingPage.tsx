@@ -174,7 +174,7 @@ export const HousingPage: React.FC = () => {
       render: (complex: HousingComplex) => (
         <div>
           <p className="font-medium">{complex.name}</p>
-          <p className="text-sm text-gray-500">{complex.address}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{complex.address}</p>
         </div>
       )
     },
@@ -184,7 +184,7 @@ export const HousingPage: React.FC = () => {
       render: (complex: HousingComplex) => (
         <div className="text-right">
           <p className="font-medium">{complex.totalRooms} chambres</p>
-          <p className="text-sm text-gray-500">{complex.availableRooms} disponibles</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{complex.availableRooms} disponibles</p>
         </div>
       )
     },
@@ -194,7 +194,7 @@ export const HousingPage: React.FC = () => {
       render: (complex: HousingComplex) => (
         <div className="text-right">
           <p className="font-medium">{complex.occupiedRooms} / {complex.totalRooms}</p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             {((complex.occupiedRooms / complex.totalRooms) * 100).toFixed(1)}%
           </p>
         </div>
@@ -251,7 +251,7 @@ export const HousingPage: React.FC = () => {
       render: (room: Room) => (
         <div>
           <p className="font-medium">{room.number}</p>
-          <p className="text-sm text-gray-500">{room.complex?.name}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{room.complex?.name}</p>
         </div>
       )
     },
@@ -268,7 +268,7 @@ export const HousingPage: React.FC = () => {
       render: (room: Room) => (
         <div className="text-right">
           <p className="font-medium">{room.capacity} places</p>
-          <p className="text-sm text-gray-500">{room.monthlyRent} XOF/mois</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{room.monthlyRent} XOF/mois</p>
         </div>
       )
     },
@@ -333,7 +333,7 @@ export const HousingPage: React.FC = () => {
       render: (resident: Resident) => (
         <div>
           <p className="font-medium">{resident.firstName} {resident.lastName}</p>
-          <p className="text-sm text-gray-500">{resident.studentId}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{resident.studentId}</p>
         </div>
       )
     },
@@ -343,7 +343,7 @@ export const HousingPage: React.FC = () => {
       render: (resident: Resident) => (
         <div>
           <p className="font-medium">{resident.room?.number}</p>
-          <p className="text-sm text-gray-500">{resident.room?.complex?.name}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{resident.room?.complex?.name}</p>
         </div>
       )
     },
@@ -353,7 +353,7 @@ export const HousingPage: React.FC = () => {
       render: (resident: Resident) => (
         <div className="text-right">
           <p className="font-medium">{resident.monthlyRent} XOF</p>
-          <p className="text-sm text-gray-500">/mois</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">/mois</p>
         </div>
       )
     },
@@ -418,7 +418,7 @@ export const HousingPage: React.FC = () => {
       render: (request: MaintenanceRequest) => (
         <div>
           <p className="font-medium">{request.description}</p>
-          <p className="text-sm text-gray-500">{request.room?.number}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{request.room?.number}</p>
         </div>
       )
     },
@@ -468,7 +468,7 @@ export const HousingPage: React.FC = () => {
           <p className="font-medium">
             {new Date(request.createdAt).toLocaleDateString()}
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             {new Date(request.createdAt).toLocaleTimeString()}
           </p>
         </div>
@@ -516,7 +516,7 @@ export const HousingPage: React.FC = () => {
       render: (payment: Payment) => (
         <div>
           <p className="font-medium">{payment.resident?.firstName} {payment.resident?.lastName}</p>
-          <p className="text-sm text-gray-500">{payment.resident?.studentId}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{payment.resident?.studentId}</p>
         </div>
       )
     },
@@ -526,7 +526,7 @@ export const HousingPage: React.FC = () => {
       render: (payment: Payment) => (
         <div className="text-right">
           <p className="font-medium">{payment.amount.toLocaleString()} XOF</p>
-          <p className="text-sm text-gray-500">{payment.type}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{payment.type}</p>
         </div>
       )
     },
@@ -538,7 +538,7 @@ export const HousingPage: React.FC = () => {
           <p className="font-medium">
             {new Date(payment.createdAt).toLocaleDateString()}
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             {new Date(payment.createdAt).toLocaleTimeString()}
           </p>
         </div>
@@ -806,7 +806,7 @@ export const HousingPage: React.FC = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Gestion des Logements</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gestion des Logements</h1>
             <p className="text-lg text-gray-600 mt-2">
               Cités universitaires et gestion des résidents
             </p>
@@ -838,8 +838,8 @@ export const HousingPage: React.FC = () => {
           <Card.Content>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Cités</p>
-                <p className="text-2xl font-bold text-gray-900">{totalComplexes}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Cités</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalComplexes}</p>
               </div>
               <HomeModernIcon className="h-8 w-8 text-primary-600" />
             </div>
@@ -849,9 +849,9 @@ export const HousingPage: React.FC = () => {
           <Card.Content>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Chambres</p>
-                <p className="text-2xl font-bold text-gray-900">{totalRooms}</p>
-                <p className="text-sm text-gray-500">{occupiedRooms} occupées</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Chambres</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalRooms}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{occupiedRooms} occupées</p>
               </div>
               <ChartBarIcon className="h-8 w-8 text-primary-600" />
             </div>
@@ -861,9 +861,9 @@ export const HousingPage: React.FC = () => {
           <Card.Content>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Résidents</p>
-                <p className="text-2xl font-bold text-gray-900">{totalResidents}</p>
-                <p className="text-sm text-gray-500">{occupancyRate.toFixed(1)}% occupation</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Résidents</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalResidents}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{occupancyRate.toFixed(1)}% occupation</p>
               </div>
               <UserGroupIcon className="h-8 w-8 text-primary-600" />
             </div>
@@ -873,9 +873,9 @@ export const HousingPage: React.FC = () => {
           <Card.Content>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Revenus Mensuels</p>
-                <p className="text-2xl font-bold text-gray-900">{monthlyRevenue.toLocaleString()} XOF</p>
-                <p className="text-sm text-gray-500">Loyers collectés</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Revenus Mensuels</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{monthlyRevenue.toLocaleString()} XOF</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Loyers collectés</p>
               </div>
               <CurrencyDollarIcon className="h-8 w-8 text-primary-600" />
             </div>

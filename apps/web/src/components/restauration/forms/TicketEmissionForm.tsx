@@ -276,14 +276,14 @@ export const TicketEmissionForm: React.FC<TicketEmissionFormProps> = ({
               )}
             />
             {etudiantId && (
-              <div className="mt-2 p-3 bg-gray-50 rounded border border-gray-200">
+              <div className="mt-2 p-3 bg-gray-50 rounded border border-gray-200 dark:border-gray-700">
                 {(() => {
                   const etudiant = etudiants.find(e => e.id === etudiantId);
                   return etudiant ? (
                     <div className="text-sm">
                       <p><strong>{etudiant.nom} {etudiant.prenom}</strong></p>
-                      <p className="text-gray-600">Matricule: {etudiant.matricule}</p>
-                      <p className="text-gray-600">Email: {etudiant.email}</p>
+                      <p className="text-gray-600 dark:text-gray-400">Matricule: {etudiant.matricule}</p>
+                      <p className="text-gray-600 dark:text-gray-400">Email: {etudiant.email}</p>
                     </div>
                   ) : null;
                 })()}
@@ -321,7 +321,7 @@ export const TicketEmissionForm: React.FC<TicketEmissionFormProps> = ({
 
             {/* Selected etudiants */}
             {selectedEtudiants.length > 0 && (
-              <div className="mt-2 p-3 bg-gray-50 rounded border border-gray-200">
+              <div className="mt-2 p-3 bg-gray-50 rounded border border-gray-200 dark:border-gray-700">
                 <p className="text-sm font-medium mb-2">
                   Étudiants sélectionnés ({selectedEtudiants.length})
                 </p>
@@ -423,7 +423,7 @@ export const TicketEmissionForm: React.FC<TicketEmissionFormProps> = ({
         </div>
 
         {durationDays > 0 && (
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             Période de validité: <strong>{durationDays} jour{durationDays > 1 ? 's' : ''}</strong>
           </p>
         )}
@@ -452,11 +452,11 @@ export const TicketEmissionForm: React.FC<TicketEmissionFormProps> = ({
           <p className="text-sm text-gray-600 mb-1">Résumé de l'émission</p>
           <div className="grid grid-cols-2 gap-2 text-sm">
             <div>
-              <p className="text-gray-600">Total tickets:</p>
+              <p className="text-gray-600 dark:text-gray-400">Total tickets:</p>
               <p className="text-2xl font-bold text-green-700">{totalTickets}</p>
             </div>
             <div>
-              <p className="text-gray-600">Bénéficiaires:</p>
+              <p className="text-gray-600 dark:text-gray-400">Bénéficiaires:</p>
               <p className="text-xl font-bold text-green-700">
                 {typeEmission === 'individuel' ? 1 : selectedEtudiants.length}
               </p>

@@ -243,8 +243,8 @@ export const AllocationTable: React.FC<AllocationTableProps> = ({
     return (
       <div className="text-center py-12">
         <BuildingOfficeIcon className="mx-auto h-12 w-12 text-gray-400" />
-        <h3 className="mt-2 text-sm font-medium text-gray-900">Aucune allocation</h3>
-        <p className="mt-1 text-sm text-gray-500">
+        <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">Aucune allocation</h3>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Commencez par créer une allocation budgétaire ou de stock
         </p>
       </div>
@@ -255,7 +255,7 @@ export const AllocationTable: React.FC<AllocationTableProps> = ({
     <div className={`allocation-table space-y-4 ${className}`}>
       {/* Filtres */}
       {showFilters && (
-        <div className="flex flex-wrap items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <div className="flex flex-wrap items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 dark:border-gray-700">
           <FunnelIcon className="w-5 h-5 text-gray-400" />
 
           <select
@@ -292,7 +292,7 @@ export const AllocationTable: React.FC<AllocationTableProps> = ({
             <option value="cancelled">Annulée</option>
           </select>
 
-          <span className="ml-auto text-sm text-gray-500">
+          <span className="ml-auto text-sm text-gray-500 dark:text-gray-400">
             {filteredAndSortedAllocations.length} allocation(s)
           </span>
         </div>
@@ -301,13 +301,13 @@ export const AllocationTable: React.FC<AllocationTableProps> = ({
       {/* Tableau */}
       <div className="overflow-x-auto border border-gray-200 rounded-lg">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 dark:bg-gray-900">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Type
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:bg-gray-800"
                 onClick={() => handleSort('level')}
               >
                 <div className="flex items-center space-x-1">
@@ -319,7 +319,7 @@ export const AllocationTable: React.FC<AllocationTableProps> = ({
                 Source ’ Cible
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:bg-gray-800"
                 onClick={() => handleSort('montant')}
               >
                 <div className="flex items-center space-x-1">
@@ -328,7 +328,7 @@ export const AllocationTable: React.FC<AllocationTableProps> = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:bg-gray-800"
                 onClick={() => handleSort('status')}
               >
                 <div className="flex items-center space-x-1">
@@ -337,7 +337,7 @@ export const AllocationTable: React.FC<AllocationTableProps> = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:bg-gray-800"
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -354,7 +354,7 @@ export const AllocationTable: React.FC<AllocationTableProps> = ({
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredAndSortedAllocations.map((allocation) => (
-              <tr key={allocation.id} className="hover:bg-gray-50">
+              <tr key={allocation.id} className="hover:bg-gray-50 dark:bg-gray-900">
                 <td className="px-6 py-4 whitespace-nowrap">
                   {isBudgetAllocation(allocation) ? (
                     <div className="flex items-center text-sm">
@@ -385,21 +385,21 @@ export const AllocationTable: React.FC<AllocationTableProps> = ({
                 <td className="px-6 py-4 whitespace-nowrap">
                   {isBudgetAllocation(allocation) ? (
                     <div className="text-sm">
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium text-gray-900 dark:text-white">
                         {AllocationUtils.formatCurrency(allocation.montant)}
                       </div>
                       {allocation.montantUtilise !== undefined && (
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
                           Utilisé: {AllocationUtils.formatCurrency(allocation.montantUtilise)}
                         </div>
                       )}
                     </div>
                   ) : isStockAllocation(allocation) ? (
                     <div className="text-sm">
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium text-gray-900 dark:text-white">
                         {allocation.quantity} {allocation.unit}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
                         {allocation.itemName}
                       </div>
                     </div>
@@ -408,7 +408,7 @@ export const AllocationTable: React.FC<AllocationTableProps> = ({
                 <td className="px-6 py-4 whitespace-nowrap">
                   <StatusBadge status={allocation.status} />
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   {format(new Date(allocation.createdAt), 'dd MMM yyyy', { locale: fr })}
                 </td>
                 {showActions && (
@@ -417,7 +417,7 @@ export const AllocationTable: React.FC<AllocationTableProps> = ({
                       {onViewDetails && (
                         <button
                           onClick={() => onViewDetails(allocation)}
-                          className="text-gray-600 hover:text-gray-900"
+                          className="text-gray-600 hover:text-gray-900 dark:text-white"
                           title="Voir détails"
                         >
                           <EyeIcon className="w-5 h-5" />
@@ -460,7 +460,7 @@ export const AllocationTable: React.FC<AllocationTableProps> = ({
       </div>
 
       {filteredAndSortedAllocations.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
           <p>Aucune allocation ne correspond aux filtres sélectionnés</p>
         </div>
       )}

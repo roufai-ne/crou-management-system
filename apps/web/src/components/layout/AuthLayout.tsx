@@ -142,37 +142,37 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
       </div>
 
       {/* Section droite - Formulaires d'authentification */}
-      <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900">
         <div className="mx-auto w-full max-w-md">
           {/* Logo mobile */}
           <div className="lg:hidden text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-600 rounded-2xl mb-4">
               <AcademicCapIcon className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">CROU Niger</h1>
-            <p className="text-gray-600 text-sm mt-1">Système de Gestion</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">CROU Niger</h1>
+            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">Système de Gestion</p>
           </div>
 
           {/* Zone de contenu des formulaires */}
-          <div className="bg-white py-8 px-6 shadow-xl rounded-2xl border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 py-8 px-6 shadow-xl rounded-2xl border border-gray-100 dark:border-gray-700">
             {children}
           </div>
 
           {/* Informations de support */}
           <div className="mt-8 text-center">
-            <p className="text-sm text-gray-600">
-              Besoin d'aide ? 
-              <button className="font-medium text-primary-600 hover:text-primary-500 ml-1">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Besoin d'aide ?
+              <button className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 ml-1">
                 Contactez le support
               </button>
             </p>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
               Version 1.0.0 - MESRIT Niger
             </p>
           </div>
 
           {/* Mentions légales */}
-          <div className="mt-6 text-center text-xs text-gray-500">
+          <div className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
             <p>
               © 2024 Ministère de l'Enseignement Supérieur et de la Recherche
             </p>
@@ -187,21 +187,21 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
 };
 
 // Composant d'erreur d'authentification
-export const AuthError: React.FC<{ message: string; onRetry?: () => void }> = ({ 
-  message, 
-  onRetry 
+export const AuthError: React.FC<{ message: string; onRetry?: () => void }> = ({
+  message,
+  onRetry
 }) => {
   return (
-    <div className="rounded-md bg-red-50 p-4 mb-4">
+    <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4 mb-4 border border-red-200 dark:border-red-800">
       <div className="flex">
         <div className="flex-shrink-0">
-          <ShieldCheckIcon className="h-5 w-5 text-red-400" />
+          <ShieldCheckIcon className="h-5 w-5 text-red-400 dark:text-red-500" />
         </div>
         <div className="ml-3">
-          <h3 className="text-sm font-medium text-red-800">
+          <h3 className="text-sm font-medium text-red-800 dark:text-red-300">
             Erreur d'authentification
           </h3>
-          <div className="mt-2 text-sm text-red-700">
+          <div className="mt-2 text-sm text-red-700 dark:text-red-400">
             <p>{message}</p>
           </div>
           {onRetry && (
@@ -209,7 +209,7 @@ export const AuthError: React.FC<{ message: string; onRetry?: () => void }> = ({
               <div className="-mx-2 -my-1.5 flex">
                 <button
                   type="button"
-                  className="bg-red-50 px-2 py-1.5 rounded-md text-sm font-medium text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-50 focus:ring-red-600"
+                  className="bg-red-50 dark:bg-red-900/30 px-2 py-1.5 rounded-md text-sm font-medium text-red-800 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-50 focus:ring-red-600"
                   onClick={onRetry}
                 >
                   Réessayer
@@ -227,8 +227,8 @@ export const AuthError: React.FC<{ message: string; onRetry?: () => void }> = ({
 export const AuthLoading: React.FC = () => {
   return (
     <div className="flex justify-center items-center py-8">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-      <span className="ml-3 text-sm text-gray-600">Connexion en cours...</span>
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 dark:border-primary-400"></div>
+      <span className="ml-3 text-sm text-gray-600 dark:text-gray-400">Connexion en cours...</span>
     </div>
   );
 };

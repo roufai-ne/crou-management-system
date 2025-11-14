@@ -91,7 +91,7 @@ export default function NotificationsPage() {
       case 'critical':
         return <AlertCircle className="w-4 h-4 text-red-800" />;
       default:
-        return <Bell className="w-4 h-4 text-gray-600" />;
+        return <Bell className="w-4 h-4 text-gray-600 dark:text-gray-400" />;
     }
   };
 
@@ -180,7 +180,7 @@ export default function NotificationsPage() {
       {/* En-tête */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Centre de Notifications</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Centre de Notifications</h1>
           <p className="text-gray-600 mt-1">
             Gérez vos notifications et alertes en temps réel
           </p>
@@ -336,7 +336,7 @@ export default function NotificationsPage() {
                 ) : filteredNotifications.length === 0 ? (
                   <div className="text-center py-8">
                     <Bell className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">Aucune notification trouvée</p>
+                    <p className="text-gray-500 dark:text-gray-400">Aucune notification trouvée</p>
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -354,7 +354,7 @@ export default function NotificationsPage() {
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-2">
-                              <h4 className="text-sm font-medium text-gray-900">
+                              <h4 className="text-sm font-medium text-gray-900 dark:text-white">
                                 {notification.title}
                               </h4>
                               <Badge variant={getTypeColor(notification.type) as any}>
@@ -363,7 +363,7 @@ export default function NotificationsPage() {
                               <Badge variant={getPriorityColor(notification.priority) as any}>
                                 {notification.priority}
                               </Badge>
-                              <div className="flex items-center gap-1 text-gray-500">
+                              <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
                                 {getCategoryIcon(notification.category)}
                                 <span className="text-xs">
                                   {categories.find(c => c.id === notification.category)?.name}
@@ -376,7 +376,7 @@ export default function NotificationsPage() {
                             </p>
                             
                             <div className="flex items-center justify-between">
-                              <span className="text-xs text-gray-500">
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
                                 {formatDate(notification.createdAt)}
                               </span>
                               
@@ -431,7 +431,7 @@ export default function NotificationsPage() {
                       
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2">
-                          <h4 className="text-sm font-medium text-gray-900">
+                          <h4 className="text-sm font-medium text-gray-900 dark:text-white">
                             {notification.title}
                           </h4>
                           <Badge variant={getTypeColor(notification.type) as any}>
@@ -444,7 +444,7 @@ export default function NotificationsPage() {
                         </p>
                         
                         <div className="flex items-center justify-between">
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
                             {formatDate(notification.createdAt)}
                           </span>
                           
@@ -495,7 +495,7 @@ export default function NotificationsPage() {
                       
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2">
-                          <h4 className="text-sm font-medium text-gray-900">
+                          <h4 className="text-sm font-medium text-gray-900 dark:text-white">
                             {notification.title}
                           </h4>
                           <Badge variant="red">
@@ -508,7 +508,7 @@ export default function NotificationsPage() {
                         </p>
                         
                         <div className="flex items-center justify-between">
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
                             {formatDate(notification.createdAt)}
                           </span>
                           

@@ -14,13 +14,34 @@ import { CorsOptions } from 'cors';
 
 export const corsConfig: CorsOptions = {
   origin: (origin, callback) => {
-    // Liste des origines autorisées (dev et prod)
+    // Permettre les requêtes sans origin (Postman, curl, etc.) en développement
+    if (!origin && process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+
+    // En mode développement, autoriser toutes les origines du réseau local
+    if (process.env.NODE_ENV === 'development' && origin) {
+      // Autoriser toutes les IPs du réseau local (192.168.x.x, 10.x.x.x, 172.16-31.x.x)
+      const isLocalNetwork =
+        origin.includes('localhost') ||
+        origin.includes('127.0.0.1') ||
+        origin.match(/http:\/\/192\.168\.\d{1,3}\.\d{1,3}:\d+/) ||
+        origin.match(/http:\/\/10\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+/) ||
+        origin.match(/http:\/\/172\.(1[6-9]|2[0-9]|3[0-1])\.\d{1,3}\.\d{1,3}:\d+/);
+
+      if (isLocalNetwork) {
+        return callback(null, true);
+      }
+    }
+
+    // Liste des origines autorisées (prod)
     const allowedOrigins = [
       // Développement local
       'http://localhost:3000',
       'http://localhost:5173',
       'http://127.0.0.1:3000',
       'http://127.0.0.1:5173',
+
       // Production
       'https://crou.niamey.gov.ne',
       'https://admin.crou.niamey.gov.ne'
@@ -30,26 +51,19 @@ export const corsConfig: CorsOptions = {
     const envOrigins = process.env.ALLOWED_ORIGINS?.split(',').map(o => o.trim()) || [];
     const allAllowedOrigins = [...allowedOrigins, ...envOrigins];
 
-    // Permettre les requêtes sans origin (ex: Postman, curl, scripts serveur)
-    // SEULEMENT en développement et avec whitelist stricte
+    // Permettre les requêtes sans origin en production ?
     if (!origin) {
-      if (process.env.NODE_ENV === 'development') {
-        return callback(null, true);
-      } else {
-        // En production, refuser les requêtes sans origin (sécurité CSRF)
-        return callback(new Error('Origin header requis'));
-      }
+      // En production, refuser les requêtes sans origin (sécurité CSRF)
+      return callback(new Error('Origin header requis'));
     }
 
     // Vérifier si l'origine est dans la liste autorisée
     if (allAllowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      const isDev = process.env.NODE_ENV === 'development';
-      const errorMsg = isDev
-        ? `CORS: Origine '${origin}' non autorisée. Origines autorisées: ${allAllowedOrigins.join(', ')}`
-        : 'Non autorisé par CORS';
-      callback(new Error(errorMsg));
+      // Log pour debugging
+      console.warn(`[CORS] Origin refusée: ${origin}`);
+      callback(new Error('Non autorisé par CORS'));
     }
   },
   

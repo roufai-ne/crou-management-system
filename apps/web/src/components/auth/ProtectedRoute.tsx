@@ -165,10 +165,10 @@ const AccessDeniedScreen: React.FC<AccessDeniedScreenProps> = ({
       <div className="max-w-md w-full space-y-8 text-center">
         <div>
           <LockClosedIcon className="mx-auto h-16 w-16 text-red-500" />
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">
+          <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">
             Accès Refusé
           </h2>
-          <p className="mt-4 text-lg text-gray-600">
+          <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
             {getReason()}
           </p>
         </div>
@@ -177,9 +177,9 @@ const AccessDeniedScreen: React.FC<AccessDeniedScreenProps> = ({
         <div className="bg-white p-6 rounded-lg shadow-md">
           <div className="flex items-center justify-center mb-4">
             <UserIcon className="h-6 w-6 text-gray-400 mr-2" />
-            <span className="text-sm font-medium text-gray-900">{user.name}</span>
+            <span className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</span>
           </div>
-          <div className="space-y-2 text-sm text-gray-600">
+          <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
             <p><span className="font-medium">Rôle:</span> {user.role.replace('_', ' ')}</p>
             <p><span className="font-medium">Niveau:</span> {user.level === 'ministere' ? 'Ministère' : 'CROU'}</p>
             {user.crouId && (
@@ -207,7 +207,7 @@ const AccessDeniedScreen: React.FC<AccessDeniedScreenProps> = ({
         </div>
 
         {/* Contact support */}
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-gray-500 dark:text-gray-400">
           <p>
             Si vous pensez qu'il s'agit d'une erreur, 
             <button className="font-medium text-primary-600 hover:text-primary-500 ml-1">

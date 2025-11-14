@@ -94,8 +94,8 @@ export const HierarchicalTenantTree: React.FC<HierarchicalTenantTreeProps> = ({
     return (
       <div className="text-center py-12">
         <BuildingOfficeIcon className="mx-auto h-12 w-12 text-gray-400" />
-        <h3 className="mt-2 text-sm font-medium text-gray-900">Aucune hiérarchie</h3>
-        <p className="mt-1 text-sm text-gray-500">Aucune donnée hiérarchique disponible</p>
+        <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">Aucune hiérarchie</h3>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Aucune donnée hiérarchique disponible</p>
       </div>
     );
   }
@@ -107,7 +107,7 @@ export const HierarchicalTenantTree: React.FC<HierarchicalTenantTreeProps> = ({
     <div className={`hierarchical-tenant-tree ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
           Hiérarchie des organismes
         </h3>
       </div>
@@ -129,7 +129,7 @@ export const HierarchicalTenantTree: React.FC<HierarchicalTenantTreeProps> = ({
       )}
 
       {/* Tree */}
-      <div className="bg-white rounded-lg border border-gray-200">
+      <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
         {/* Ministry Level */}
         {filteredHierarchy.ministry && (
           <div className="border-b border-gray-200 last:border-b-0">
@@ -151,16 +151,16 @@ export const HierarchicalTenantTree: React.FC<HierarchicalTenantTreeProps> = ({
                 className="mr-2 p-1 hover:bg-gray-200 rounded"
               >
                 {isExpanded('ministry') ? (
-                  <ChevronDownIcon className="h-4 w-4 text-gray-600" />
+                  <ChevronDownIcon className="h-4 w-4 text-gray-600 dark:text-gray-400" />
                 ) : (
-                  <ChevronRightIcon className="h-4 w-4 text-gray-600" />
+                  <ChevronRightIcon className="h-4 w-4 text-gray-600 dark:text-gray-400" />
                 )}
               </button>
 
               <BuildingOfficeIcon className="h-5 w-5 text-purple-600 mr-3" />
 
               <div className="flex-1">
-                <span className="font-medium text-gray-900">
+                <span className="font-medium text-gray-900 dark:text-white">
                   {filteredHierarchy.ministry.name}
                 </span>
                 <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-purple-100 text-purple-800 rounded">
@@ -168,16 +168,16 @@ export const HierarchicalTenantTree: React.FC<HierarchicalTenantTreeProps> = ({
                 </span>
               </div>
 
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-gray-500 dark:text-gray-400">
                 {filteredHierarchy.regions.length} région(s)
               </span>
             </div>
 
             {/* Regions Level */}
             {isExpanded('ministry') && filteredHierarchy.regions.length > 0 && (
-              <div className="pl-6 bg-gray-50">
+              <div className="pl-6 bg-gray-50 dark:bg-gray-900">
                 {filteredHierarchy.regions.map((region) => (
-                  <div key={region.id} className="border-t border-gray-200">
+                  <div key={region.id} className="border-t border-gray-200 dark:border-gray-700">
                     <div
                       onClick={() => {
                         toggleNode(`region-${region.id}`);
@@ -196,16 +196,16 @@ export const HierarchicalTenantTree: React.FC<HierarchicalTenantTreeProps> = ({
                         className="mr-2 p-1 hover:bg-gray-200 rounded"
                       >
                         {isExpanded(`region-${region.id}`) ? (
-                          <ChevronDownIcon className="h-4 w-4 text-gray-600" />
+                          <ChevronDownIcon className="h-4 w-4 text-gray-600 dark:text-gray-400" />
                         ) : (
-                          <ChevronRightIcon className="h-4 w-4 text-gray-600" />
+                          <ChevronRightIcon className="h-4 w-4 text-gray-600 dark:text-gray-400" />
                         )}
                       </button>
 
                       <BuildingOfficeIcon className="h-5 w-5 text-blue-600 mr-3" />
 
                       <div className="flex-1">
-                        <span className="font-medium text-gray-900">
+                        <span className="font-medium text-gray-900 dark:text-white">
                           {region.name}
                         </span>
                         <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded">
@@ -213,14 +213,14 @@ export const HierarchicalTenantTree: React.FC<HierarchicalTenantTreeProps> = ({
                         </span>
                       </div>
 
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
                         {region.crous.length} CROU(s)
                       </span>
                     </div>
 
                     {/* CROUs Level */}
                     {isExpanded(`region-${region.id}`) && region.crous.length > 0 && (
-                      <div className="pl-6 bg-gray-100">
+                      <div className="pl-6 bg-gray-100 dark:bg-gray-800">
                         {region.crous.map((crou) => (
                           <div
                             key={crou.id}
@@ -235,7 +235,7 @@ export const HierarchicalTenantTree: React.FC<HierarchicalTenantTreeProps> = ({
                             <BuildingOfficeIcon className="h-5 w-5 text-green-600 mr-3" />
 
                             <div className="flex-1">
-                              <span className="font-medium text-gray-900">
+                              <span className="font-medium text-gray-900 dark:text-white">
                                 {crou.name}
                               </span>
                               <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800 rounded">
@@ -257,8 +257,8 @@ export const HierarchicalTenantTree: React.FC<HierarchicalTenantTreeProps> = ({
         {searchQuery && filteredHierarchy.regions.length === 0 && (
           <div className="text-center py-8 px-4">
             <MagnifyingGlassIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">Aucun résultat</h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">Aucun résultat</h3>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Aucun organisme ne correspond à "{searchQuery}"
             </p>
           </div>

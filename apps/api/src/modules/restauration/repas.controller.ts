@@ -73,7 +73,7 @@ export class RepasController {
    * GET /api/restauration/repas/:id
    * Récupérer un repas par ID
    */
-  static async getRepas(req: Request, res: Response) {
+  static async getRepasById(req: Request, res: Response) {
     try {
       const tenantId = (req as any).user?.tenantId;
       if (!tenantId) {

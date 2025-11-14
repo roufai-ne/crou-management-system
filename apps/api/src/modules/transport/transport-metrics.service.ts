@@ -19,7 +19,7 @@
  */
 
 import { AppDataSource } from '../../../../../packages/database/src/config/datasource';
-import { Vehicle } from '../../../../../packages/database/src/entities/Vehicle.entity';
+import { Vehicle, VehicleStatus } from '../../../../../packages/database/src/entities/Vehicle.entity';
 import { Driver } from '../../../../../packages/database/src/entities/Driver.entity';
 import { TransportRoute } from '../../../../../packages/database/src/entities/TransportRoute.entity';
 import { ScheduledTrip, TripStatus } from '../../../../../packages/database/src/entities/ScheduledTrip.entity';
@@ -92,7 +92,7 @@ export class TransportMetricsService {
       completedTrips
     ] = await Promise.all([
       this.vehicleRepository.count({ where: { tenantId } }),
-      this.vehicleRepository.count({ where: { tenantId, status: 'active' as any } }),
+      this.vehicleRepository.count({ where: { tenantId, status: VehicleStatus.ACTIF } }),
       this.driverRepository.count({ where: { tenantId } }),
       this.driverRepository.count({ where: { tenantId, isActive: true, isAvailable: true } }),
       this.routeRepository.count({ where: { tenantId } }),

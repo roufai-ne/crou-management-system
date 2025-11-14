@@ -313,7 +313,7 @@ export function BudgetForm({
           {/* Catégories budgétaires */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium text-gray-900">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">
                 Catégories budgétaires
               </h3>
               <Button
@@ -379,7 +379,7 @@ export function BudgetForm({
                   </span>
                 </div>
                 <div className="flex justify-between items-center mt-2">
-                  <span className="text-sm text-gray-600">Différence:</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Différence:</span>
                   <Badge variant={difference === 0 ? 'green' : 'orange'}>
                     {difference.toLocaleString()} FCFA
                   </Badge>

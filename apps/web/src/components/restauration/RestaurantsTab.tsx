@@ -18,7 +18,7 @@
  */
 
 import React, { useState } from 'react';
-import { Card, Badge, Button, Table, Modal } from '@/components/ui';
+import { Card, Badge, Button, Table, Modal, Input, Select } from '@/components/ui';
 import {
   PlusIcon,
   MagnifyingGlassIcon,
@@ -144,7 +144,7 @@ export const RestaurantsTab: React.FC = () => {
       render: (restaurant: Restaurant) => (
         <div>
           <p className="font-medium">{restaurant.code}</p>
-          <p className="text-sm text-gray-500">{restaurant.nom}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{restaurant.nom}</p>
         </div>
       )
     },
@@ -164,7 +164,7 @@ export const RestaurantsTab: React.FC = () => {
       render: (restaurant: Restaurant) => (
         <div className="text-right">
           <p className="font-medium">{restaurant.capaciteMax} places</p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Moy: {restaurant.frequentationMoyenne || 0}%
           </p>
         </div>
@@ -181,7 +181,7 @@ export const RestaurantsTab: React.FC = () => {
       render: (restaurant: Restaurant) => (
         <div className="text-sm">
           <p>{restaurant.telephone || '-'}</p>
-          <p className="text-gray-500">{restaurant.email || '-'}</p>
+          <p className="text-gray-500 dark:text-gray-400">{restaurant.email || '-'}</p>
         </div>
       )
     },
@@ -331,27 +331,27 @@ export const RestaurantsTab: React.FC = () => {
               <h3 className="text-lg font-semibold mb-4">Informations Générales</h3>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-gray-600">Code:</p>
+                  <p className="text-gray-600 dark:text-gray-400">Code:</p>
                   <p className="font-medium">{selectedRestaurant.code}</p>
                 </div>
                 <div>
-                  <p className="text-gray-600">Nom:</p>
+                  <p className="text-gray-600 dark:text-gray-400">Nom:</p>
                   <p className="font-medium">{selectedRestaurant.nom}</p>
                 </div>
                 <div>
-                  <p className="text-gray-600">Type:</p>
+                  <p className="text-gray-600 dark:text-gray-400">Type:</p>
                   {getTypeBadge(selectedRestaurant.type)}
                 </div>
                 <div>
-                  <p className="text-gray-600">Statut:</p>
+                  <p className="text-gray-600 dark:text-gray-400">Statut:</p>
                   {getStatusBadge(selectedRestaurant.status)}
                 </div>
                 <div>
-                  <p className="text-gray-600">Capacité:</p>
+                  <p className="text-gray-600 dark:text-gray-400">Capacité:</p>
                   <p className="font-medium">{selectedRestaurant.capaciteMax} places</p>
                 </div>
                 <div>
-                  <p className="text-gray-600">Fréquentation moyenne:</p>
+                  <p className="text-gray-600 dark:text-gray-400">Fréquentation moyenne:</p>
                   <p className="font-medium">{selectedRestaurant.frequentationMoyenne || 0}%</p>
                 </div>
               </div>
@@ -368,7 +368,7 @@ export const RestaurantsTab: React.FC = () => {
                   {selectedRestaurant.horaires.petitDejeuner && (
                     <div className="bg-gray-50 p-3 rounded">
                       <p className="font-medium mb-1">Petit Déjeuner</p>
-                      <p className="text-gray-600">
+                      <p className="text-gray-600 dark:text-gray-400">
                         {selectedRestaurant.horaires.petitDejeuner.debut} - {selectedRestaurant.horaires.petitDejeuner.fin}
                       </p>
                     </div>
@@ -376,7 +376,7 @@ export const RestaurantsTab: React.FC = () => {
                   {selectedRestaurant.horaires.dejeuner && (
                     <div className="bg-gray-50 p-3 rounded">
                       <p className="font-medium mb-1">Déjeuner</p>
-                      <p className="text-gray-600">
+                      <p className="text-gray-600 dark:text-gray-400">
                         {selectedRestaurant.horaires.dejeuner.debut} - {selectedRestaurant.horaires.dejeuner.fin}
                       </p>
                     </div>
@@ -384,7 +384,7 @@ export const RestaurantsTab: React.FC = () => {
                   {selectedRestaurant.horaires.diner && (
                     <div className="bg-gray-50 p-3 rounded">
                       <p className="font-medium mb-1">Dîner</p>
-                      <p className="text-gray-600">
+                      <p className="text-gray-600 dark:text-gray-400">
                         {selectedRestaurant.horaires.diner.debut} - {selectedRestaurant.horaires.diner.fin}
                       </p>
                     </div>

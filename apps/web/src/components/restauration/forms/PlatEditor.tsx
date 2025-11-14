@@ -217,18 +217,18 @@ export const PlatEditor: React.FC<PlatEditorProps> = ({
           {/* Ingredients list */}
           {ingredients.length > 0 ? (
             <div className="mt-4 space-y-2">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 Ingrédients ajoutés ({ingredients.length})
               </p>
               <div className="space-y-2 max-h-60 overflow-y-auto">
                 {ingredients.map((ing) => (
                   <div
                     key={ing.id}
-                    className="flex items-center justify-between bg-white p-3 rounded border border-gray-200"
+                    className="flex items-center justify-between bg-white p-3 rounded border border-gray-200 dark:border-gray-700"
                   >
                     <div className="flex-1">
                       <p className="text-sm font-medium">{ing.denreeNom}</p>
-                      <p className="text-xs text-gray-600">
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
                         {ing.quantite} {ing.unite}
                       </p>
                     </div>

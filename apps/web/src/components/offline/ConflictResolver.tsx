@@ -150,7 +150,7 @@ export function ConflictResolver() {
       case 'manual':
         return <User className="w-4 h-4 text-orange-600" />;
       default:
-        return <AlertTriangle className="w-4 h-4 text-gray-600" />;
+        return <AlertTriangle className="w-4 h-4 text-gray-600 dark:text-gray-400" />;
     }
   };
 
@@ -219,7 +219,7 @@ export function ConflictResolver() {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold">Résolution des Conflits</h3>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             {conflicts.length} conflit{conflicts.length > 1 ? 's' : ''} à résoudre
           </p>
         </div>
@@ -238,7 +238,7 @@ export function ConflictResolver() {
         <Card>
           <CardContent className="text-center py-8">
             <CheckCircle className="w-12 h-12 text-green-600 mx-auto mb-4" />
-            <p className="text-gray-600">Aucun conflit à résoudre</p>
+            <p className="text-gray-600 dark:text-gray-400">Aucun conflit à résoudre</p>
           </CardContent>
         </Card>
       ) : (
@@ -298,15 +298,15 @@ export function ConflictResolver() {
                   {/* Métadonnées */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div>
-                      <span className="text-gray-600">Résolu le:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Résolu le:</span>
                       <p className="font-medium">{formatDate(conflict.resolvedAt)}</p>
                     </div>
                     <div>
-                      <span className="text-gray-600">Résolu par:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Résolu par:</span>
                       <p className="font-medium">{conflict.resolvedBy}</p>
                     </div>
                     <div>
-                      <span className="text-gray-600">Statut:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Statut:</span>
                       <p className="font-medium">
                         {conflict.resolution === 'manual' ? 'En attente' : 'Résolu'}
                       </p>

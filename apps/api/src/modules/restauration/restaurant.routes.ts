@@ -358,7 +358,7 @@ router.get('/repas',
  */
 router.get('/repas/:id',
   checkPermissions(['restauration:read']),
-  RepasController.getRepas
+  RepasController.getRepasById
 );
 
 /**

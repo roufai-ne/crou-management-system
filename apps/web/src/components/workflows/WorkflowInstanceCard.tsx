@@ -171,9 +171,9 @@ export function WorkflowInstanceCard({
       <CardContent className="space-y-4">
         {/* Informations du workflow */}
         <div className="space-y-2">
-          <p className="text-sm font-medium text-gray-700">Workflow</p>
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Workflow</p>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">{instance.workflow.name}</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">{instance.workflow.name}</span>
             <Badge variant="gray">
               {instance.workflow.module}
             </Badge>
@@ -183,12 +183,12 @@ export function WorkflowInstanceCard({
         {/* Étape actuelle */}
         {instance.currentStep && (
           <div className="space-y-2">
-            <p className="text-sm font-medium text-gray-700">Étape actuelle</p>
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Étape actuelle</p>
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold text-xs">
                 {instance.currentStep.order}
               </div>
-              <span className="text-sm text-gray-700">{instance.currentStep.name}</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">{instance.currentStep.name}</span>
               {instance.currentStep.role && (
                 <Badge variant="gray">
                   {instance.currentStep.role}
@@ -201,14 +201,14 @@ export function WorkflowInstanceCard({
         {/* Métriques temporelles */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
-            <p className="text-sm text-gray-600">Durée</p>
-            <p className="text-sm font-semibold text-gray-900">
+            <p className="text-sm text-gray-600 dark:text-gray-400">Durée</p>
+            <p className="text-sm font-semibold text-gray-900 dark:text-white">
               {durationText}
             </p>
           </div>
           <div className="space-y-1">
-            <p className="text-sm text-gray-600">Créée le</p>
-            <p className="text-sm font-semibold text-gray-900">
+            <p className="text-sm text-gray-600 dark:text-gray-400">Créée le</p>
+            <p className="text-sm font-semibold text-gray-900 dark:text-white">
               {formatDate(instance.createdAt, { format: 'short' })}
             </p>
           </div>
@@ -229,14 +229,14 @@ export function WorkflowInstanceCard({
         {/* Dernière action */}
         {lastAction && (
           <div className="space-y-2">
-            <p className="text-sm font-medium text-gray-700">Dernière action</p>
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Dernière action</p>
             <div className="flex items-center gap-2 text-xs">
               <Users className="w-4 h-4 text-gray-400" />
-              <span className="text-gray-600">{lastAction.userName}</span>
-              <span className="text-gray-500">•</span>
-              <span className="text-gray-600">{lastAction.title}</span>
-              <span className="text-gray-500">•</span>
-              <span className="text-gray-500">
+              <span className="text-gray-600 dark:text-gray-400">{lastAction.userName}</span>
+              <span className="text-gray-500 dark:text-gray-400">•</span>
+              <span className="text-gray-600 dark:text-gray-400">{lastAction.title}</span>
+              <span className="text-gray-500 dark:text-gray-400">•</span>
+              <span className="text-gray-500 dark:text-gray-400">
                 {formatDate(lastAction.createdAt, { format: 'short' })}
               </span>
             </div>

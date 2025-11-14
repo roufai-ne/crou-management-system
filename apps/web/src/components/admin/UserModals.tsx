@@ -294,36 +294,36 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ isOpen, user
       <div className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-sm font-medium text-gray-700">Prénom</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Prénom</label>
             <p className="mt-1">{user.firstName}</p>
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-700">Nom</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Nom</label>
             <p className="mt-1">{user.lastName}</p>
           </div>
         </div>
 
         <div>
-          <label className="text-sm font-medium text-gray-700">Email</label>
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
           <p className="mt-1">{user.email}</p>
         </div>
 
         {user.phone && (
           <div>
-            <label className="text-sm font-medium text-gray-700">Téléphone</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Téléphone</label>
             <p className="mt-1">{user.phone}</p>
           </div>
         )}
 
         <div>
-          <label className="text-sm font-medium text-gray-700">Rôle</label>
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Rôle</label>
           <p className="mt-1">
             <Badge variant="info">{user.role.name}</Badge>
           </p>
         </div>
 
         <div>
-          <label className="text-sm font-medium text-gray-700">Statut</label>
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Statut</label>
           <p className="mt-1">
             <Badge variant={user.isActive ? 'success' : 'danger'}>
               {user.isActive ? 'Actif' : 'Inactif'}
@@ -333,25 +333,25 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ isOpen, user
 
         {user.tenant && (
           <div>
-            <label className="text-sm font-medium text-gray-700">Organisation</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Organisation</label>
             <p className="mt-1">{user.tenant.name}</p>
           </div>
         )}
 
         {user.lastLoginAt && (
           <div>
-            <label className="text-sm font-medium text-gray-700">Dernière connexion</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Dernière connexion</label>
             <p className="mt-1">{new Date(user.lastLoginAt).toLocaleString('fr-FR')}</p>
           </div>
         )}
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-sm font-medium text-gray-700">Créé le</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Créé le</label>
             <p className="mt-1 text-sm">{new Date(user.createdAt).toLocaleString('fr-FR')}</p>
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-700">Modifié le</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Modifié le</label>
             <p className="mt-1 text-sm">{new Date(user.updatedAt).toLocaleString('fr-FR')}</p>
           </div>
         </div>

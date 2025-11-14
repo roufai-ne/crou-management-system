@@ -459,7 +459,7 @@ export function ReportGenerator() {
       case 'processing':
         return <Clock className="w-4 h-4 text-blue-600" />;
       default:
-        return <Clock className="w-4 h-4 text-gray-600" />;
+        return <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />;
     }
   };
 
@@ -480,7 +480,7 @@ export function ReportGenerator() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Générateur de Rapports</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Générateur de Rapports</h1>
           <p className="text-gray-600 mt-1">
             Générez des rapports Excel et PDF personnalisés
           </p>
@@ -512,7 +512,7 @@ export function ReportGenerator() {
             <CardContent className="space-y-6">
               {/* Sélection du type de rapport */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Type de Rapport
                 </label>
                 <Select
@@ -525,7 +525,7 @@ export function ReportGenerator() {
                   placeholder="Sélectionnez un type de rapport"
                 />
                 {selectedTemplate && (
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     {templates.find(t => t.id === selectedTemplate)?.description}
                   </p>
                 )}
@@ -533,7 +533,7 @@ export function ReportGenerator() {
 
               {/* Sélection du format */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Format de Sortie
                 </label>
                 <div className="grid grid-cols-2 gap-4">
@@ -552,7 +552,7 @@ export function ReportGenerator() {
                           <FileText className="w-5 h-5" />
                           <div>
                             <h3 className="font-medium">{format.name}</h3>
-                            <p className="text-sm text-gray-600">{format.description}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">{format.description}</p>
                           </div>
                         </div>
                       </CardContent>
@@ -563,7 +563,7 @@ export function ReportGenerator() {
 
               {/* Période */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Période
                 </label>
                 <Select
@@ -584,7 +584,7 @@ export function ReportGenerator() {
               {selectedPeriod === 'custom' && (
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Date de Début
                     </label>
                     <Input
@@ -594,7 +594,7 @@ export function ReportGenerator() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Date de Fin
                     </label>
                     <Input
@@ -632,7 +632,7 @@ export function ReportGenerator() {
               {history.length === 0 ? (
                 <div className="text-center py-8">
                   <Clock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">Aucun rapport généré</p>
+                  <p className="text-gray-500 dark:text-gray-400">Aucun rapport généré</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -645,7 +645,7 @@ export function ReportGenerator() {
                         {getStatusIcon(report.status)}
                         <div>
                           <h3 className="font-medium">{report.name}</h3>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
                             {report.type} • {report.format} • {report.createdAt.toLocaleDateString()}
                           </p>
                         </div>
@@ -655,7 +655,7 @@ export function ReportGenerator() {
                           {report.status}
                         </Badge>
                         {report.size && (
-                          <span className="text-sm text-gray-500">
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
                             {(report.size / 1024).toFixed(1)} KB
                           </span>
                         )}

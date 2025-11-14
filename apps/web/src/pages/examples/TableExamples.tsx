@@ -301,7 +301,7 @@ const TableExamples: React.FC = () => {
       render: (value, record) => (
         <div>
           <div className="font-medium">{value}</div>
-          <div className="text-sm text-gray-500">{record.subcategory}</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">{record.subcategory}</div>
         </div>
       )
     },

@@ -130,7 +130,7 @@ export const BudgetsPage: React.FC = () => {
       render: (budget: Budget) => (
         <div>
           <p className="font-medium">{budget.title}</p>
-          <p className="text-sm text-gray-500">{budget.category}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{budget.category}</p>
         </div>
       )
     },
@@ -140,7 +140,7 @@ export const BudgetsPage: React.FC = () => {
       render: (budget: Budget) => (
         <div className="text-right">
           <p className="font-medium">{budget.amount.toLocaleString()} XOF</p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Dépensé: {budget.spent.toLocaleString()} XOF
           </p>
         </div>
@@ -259,7 +259,7 @@ export const BudgetsPage: React.FC = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Gestion des Budgets</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gestion des Budgets</h1>
             <p className="text-lg text-gray-600 mt-2">
               Création, suivi et validation des budgets CROU
             </p>
@@ -438,34 +438,34 @@ export const BudgetsPage: React.FC = () => {
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-500">Catégorie</label>
+                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Catégorie</label>
                 <p className="text-lg">{selectedBudget.category}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-500">Exercice</label>
+                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Exercice</label>
                 <p className="text-lg">{selectedBudget.fiscalYear}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-500">Montant total</label>
+                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Montant total</label>
                 <p className="text-lg font-bold">{selectedBudget.amount.toLocaleString()} XOF</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-500">Montant dépensé</label>
+                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Montant dépensé</label>
                 <p className="text-lg text-red-600">{selectedBudget.spent.toLocaleString()} XOF</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-500">Montant restant</label>
+                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Montant restant</label>
                 <p className="text-lg text-green-600">{selectedBudget.remaining.toLocaleString()} XOF</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-500">Statut</label>
+                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Statut</label>
                 <Badge variant="primary">{selectedBudget.status}</Badge>
               </div>
             </div>
             
             {selectedBudget.description && (
               <div>
-                <label className="text-sm font-medium text-gray-500">Description</label>
+                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Description</label>
                 <p className="text-lg">{selectedBudget.description}</p>
               </div>
             )}

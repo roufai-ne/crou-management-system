@@ -289,17 +289,17 @@ export const AllocationForm: React.FC<AllocationFormProps> = ({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={`allocation-form space-y-6 ${className}`}>
       {/* En-tête */}
-      <div className="flex items-center space-x-3 pb-4 border-b border-gray-200">
+      <div className="flex items-center space-x-3 pb-4 border-b border-gray-200 dark:border-gray-700">
         {type === 'budget' ? (
           <BanknotesIcon className="w-8 h-8 text-primary-600" />
         ) : (
           <CubeIcon className="w-8 h-8 text-primary-600" />
         )}
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             {type === 'budget' ? 'Nouvelle allocation budgétaire' : 'Nouvelle allocation de stock'}
           </h3>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Distribution de ressources dans la hiérarchie organisationnelle
           </p>
         </div>
@@ -598,7 +598,7 @@ export const AllocationForm: React.FC<AllocationFormProps> = ({
 
       {/* Section commune */}
       <div className="space-y-4">
-        <h4 className="text-sm font-medium text-gray-900">Informations complémentaires</h4>
+        <h4 className="text-sm font-medium text-gray-900 dark:text-white">Informations complémentaires</h4>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -655,7 +655,7 @@ export const AllocationForm: React.FC<AllocationFormProps> = ({
       </div>
 
       {/* Actions */}
-      <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+      <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
         {onCancel && (
           <Button type="button" variant="secondary" onClick={onCancel} disabled={isSubmitting}>
             Annuler

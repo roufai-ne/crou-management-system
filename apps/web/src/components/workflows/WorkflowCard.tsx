@@ -168,13 +168,13 @@ export function WorkflowCard({
         {/* Métriques */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
-            <p className="text-sm text-gray-600">Étapes</p>
-            <p className="text-lg font-semibold text-gray-900">
+            <p className="text-sm text-gray-600 dark:text-gray-400">Étapes</p>
+            <p className="text-lg font-semibold text-gray-900 dark:text-white">
               {totalSteps}
             </p>
           </div>
           <div className="space-y-1">
-            <p className="text-sm text-gray-600">Instances</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Instances</p>
             <p className="text-lg font-semibold text-blue-600">
               {totalInstances}
             </p>
@@ -184,7 +184,7 @@ export function WorkflowCard({
         {/* Barre de progression du taux de completion */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Taux de completion
             </span>
             <span className="text-sm font-semibold text-green-600">
@@ -201,19 +201,19 @@ export function WorkflowCard({
         {/* Détails des instances */}
         <div className="grid grid-cols-3 gap-2 text-xs">
           <div className="text-center p-2 bg-gray-50 rounded">
-            <p className="text-gray-600">En cours</p>
+            <p className="text-gray-600 dark:text-gray-400">En cours</p>
             <p className="font-semibold text-blue-600">
               {inProgressInstances}
             </p>
           </div>
           <div className="text-center p-2 bg-gray-50 rounded">
-            <p className="text-gray-600">Terminées</p>
+            <p className="text-gray-600 dark:text-gray-400">Terminées</p>
             <p className="font-semibold text-green-600">
               {completedInstances}
             </p>
           </div>
           <div className="text-center p-2 bg-gray-50 rounded">
-            <p className="text-gray-600">Rejetées</p>
+            <p className="text-gray-600 dark:text-gray-400">Rejetées</p>
             <p className="font-semibold text-red-600">
               {rejectedInstances}
             </p>
@@ -222,14 +222,14 @@ export function WorkflowCard({
 
         {/* Étapes du workflow */}
         <div className="space-y-2">
-          <p className="text-sm font-medium text-gray-700">Étapes du workflow</p>
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Étapes du workflow</p>
           <div className="space-y-1">
             {orderedSteps.slice(0, 3).map((step, index) => (
               <div key={step.id} className="flex items-center gap-2 text-xs">
                 <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold">
                   {step.order}
                 </div>
-                <span className="flex-1 text-gray-700">{step.name}</span>
+                <span className="flex-1 text-gray-700 dark:text-gray-300">{step.name}</span>
                 <Badge variant={step.priority === 'high' ? 'red' : step.priority === 'medium' ? 'orange' : 'green'}>
                   {step.priority}
                 </Badge>

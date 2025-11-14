@@ -256,7 +256,7 @@ export const CommandPalette: React.FC<{
 
           {/* Liste de commandes */}
           <Command.List className="max-h-96 overflow-y-auto p-2">
-            <Command.Empty className="py-8 text-center text-sm text-gray-500">
+            <Command.Empty className="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
               Aucun résultat trouvé
             </Command.Empty>
 

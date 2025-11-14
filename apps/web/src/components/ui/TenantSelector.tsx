@@ -152,7 +152,7 @@ const TenantNode: React.FC<TenantNodeProps> = ({
 
         <div className="flex-1">
           <div className="text-sm font-medium">{tenant.name}</div>
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-gray-500 dark:text-gray-400">
             {tenant.type === 'ministere' && 'Ministère (Niveau 0)'}
             {tenant.type === 'crou' && `CROU (Niveau 1)`}
             {tenant.type === 'service' && `Service ${tenant.serviceType || ''} (Niveau 2)`}
@@ -277,7 +277,7 @@ export const TenantSelector: React.FC<TenantSelectorProps> = ({
                 )}
               </span>
             ) : (
-              <span className="text-gray-500">{placeholder}</span>
+              <span className="text-gray-500 dark:text-gray-400">{placeholder}</span>
             )}
           </span>
           <ChevronDownIcon className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? 'transform rotate-180' : ''}`} />
@@ -288,7 +288,7 @@ export const TenantSelector: React.FC<TenantSelectorProps> = ({
             <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
             <div className="absolute z-20 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-96 overflow-auto">
               {filteredTenants.length === 0 ? (
-                <div className="px-4 py-3 text-sm text-gray-500">Aucun tenant disponible</div>
+                <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">Aucun tenant disponible</div>
               ) : (
                 filteredTenants.map((tenant) => {
                   const isSelected = selectedTenant?.id === tenant.id;
@@ -305,7 +305,7 @@ export const TenantSelector: React.FC<TenantSelectorProps> = ({
                       <div>
                         <div>{tenant.name}</div>
                         {showPath && (
-                          <div className="text-xs text-gray-500">{tenant.path}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">{tenant.path}</div>
                         )}
                       </div>
                     </button>
@@ -323,7 +323,7 @@ export const TenantSelector: React.FC<TenantSelectorProps> = ({
   return (
     <div className={`tenant-selector-tree border border-gray-300 rounded-md p-3 bg-white ${className}`}>
       {filteredTenants.length === 0 ? (
-        <div className="text-sm text-gray-500">Aucun tenant disponible</div>
+        <div className="text-sm text-gray-500 dark:text-gray-400">Aucun tenant disponible</div>
       ) : (
         rootTenants.map((rootTenant) => {
           const children = tenants.filter((t) => t.parentId === rootTenant.id);

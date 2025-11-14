@@ -29,12 +29,13 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { 
-  EyeIcon, 
+import toast from 'react-hot-toast';
+import {
+  EyeIcon,
   EyeSlashIcon,
   KeyIcon,
   EnvelopeIcon,
-  ExclamationCircleIcon 
+  ExclamationCircleIcon
 } from '@/components/ui/IconFallback';
 
 import { useAuth } from '@/stores/auth';
@@ -98,7 +99,7 @@ export const LoginPage: React.FC = () => {
   // Affichage de l'erreur de composant
   if (componentError) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-600 mb-4">Erreur de chargement</h1>
           <p className="text-gray-600 mb-4">{componentError}</p>
@@ -114,8 +115,15 @@ export const LoginPage: React.FC = () => {
   }
 
   // Redirection si déjà connecté
-  const from = (location.state as any)?.from || '/dashboard';
+  // Vérifier d'abord sessionStorage pour les redirections après expiration de session
+  const redirectAfterLogin = sessionStorage.getItem('redirectAfterLogin');
+  const from = redirectAfterLogin || (location.state as any)?.from || '/dashboard';
+
   if (isAuthenticated) {
+    // Nettoyer le sessionStorage après utilisation
+    if (redirectAfterLogin) {
+      sessionStorage.removeItem('redirectAfterLogin');
+    }
     return <Navigate to={from} replace />;
   }
 
@@ -124,21 +132,36 @@ export const LoginPage: React.FC = () => {
     try {
       setLoginError(null);
       await login(data.email, data.password);
+      // Succès
+      toast.success('Connexion réussie !', {
+        duration: 3000,
+        position: 'top-center',
+      });
       // Redirection gérée automatiquement par le store auth
     } catch (error: any) {
       // Gestion des erreurs spécifiques
       const errorMessage = error.response?.data?.message || error.message;
-      
+
       if (errorMessage.includes('email')) {
-        setError('email', { message: 'Email non reconnu' });
+        const msg = 'Email non reconnu';
+        setError('email', { message: msg });
+        toast.error(msg, { duration: 4000, position: 'top-center' });
       } else if (errorMessage.includes('password') || errorMessage.includes('mot de passe')) {
-        setError('password', { message: 'Mot de passe incorrect' });
+        const msg = 'Mot de passe incorrect';
+        setError('password', { message: msg });
+        toast.error(msg, { duration: 4000, position: 'top-center' });
       } else if (errorMessage.includes('inactive') || errorMessage.includes('désactivé')) {
-        setLoginError('Votre compte a été désactivé. Contactez votre administrateur.');
+        const msg = 'Votre compte a été désactivé. Contactez votre administrateur.';
+        setLoginError(msg);
+        toast.error(msg, { duration: 5000, position: 'top-center' });
       } else if (errorMessage.includes('locked') || errorMessage.includes('bloqué')) {
-        setLoginError('Compte temporairement bloqué suite à de multiples tentatives.');
+        const msg = 'Compte temporairement bloqué suite à de multiples tentatives.';
+        setLoginError(msg);
+        toast.error(msg, { duration: 5000, position: 'top-center' });
       } else {
-        setLoginError('Erreur de connexion. Vérifiez vos identifiants.');
+        const msg = 'Erreur de connexion. Vérifiez vos identifiants.';
+        setLoginError(msg);
+        toast.error(msg, { duration: 4000, position: 'top-center' });
       }
     }
   };
@@ -147,38 +170,13 @@ export const LoginPage: React.FC = () => {
     <div className="space-y-6">
       {/* En-tête */}
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
           Connexion
         </h2>
-        <p className="mt-2 text-sm text-gray-600">
+        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
           Accédez au système de gestion CROU
         </p>
       </div>
-
-      {/* Bouton de connexion rapide en développement */}
-      {import.meta.env.DEV && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="text-center">
-            <h3 className="text-sm font-medium text-blue-900 mb-2">
-              🛠️ Mode Développement
-            </h3>
-            <p className="text-xs text-blue-700 mb-3">
-              Connexion rapide pour les tests
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                if ((window as any).devLogin) {
-                  (window as any).devLogin();
-                }
-              }}
-              className="w-full bg-blue-600 text-white text-sm font-medium py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-            >
-              Se connecter rapidement (Dev)
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Erreur globale */}
       {loginError && (
@@ -249,9 +247,9 @@ export const LoginPage: React.FC = () => {
               disabled={isSubmitting}
             >
               {showPassword ? (
-                <EyeSlashIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                <EyeSlashIcon className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:text-gray-400" />
               ) : (
-                <EyeIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                <EyeIcon className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:text-gray-400" />
               )}
             </button>
           </div>
@@ -270,16 +268,16 @@ export const LoginPage: React.FC = () => {
               id="remember-me"
               name="remember-me"
               type="checkbox"
-              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded"
             />
-            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
               Se souvenir de moi
             </label>
           </div>
-          
+
           <button
             type="button"
-            className="text-sm font-medium text-primary-600 hover:text-primary-500"
+            className="text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300"
             onClick={() => {
               // TODO: Implémenter reset password
               alert('Fonctionnalité de réinitialisation à implémenter');
@@ -315,22 +313,8 @@ export const LoginPage: React.FC = () => {
         </button>
       </form>
 
-      {/* Informations utilisateurs de test (dev uniquement) */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-          <h4 className="text-sm font-medium text-yellow-800 mb-2">
-            Comptes de test disponibles :
-          </h4>
-          <div className="text-xs text-yellow-700 space-y-1">
-            <p><strong>Ministère :</strong> ministre@gov.ne / password123</p>
-            <p><strong>Directeur CROU :</strong> directeur@crou-niamey.ne / password123</p>
-            <p><strong>Chef Financier :</strong> financier@crou-niamey.ne / password123</p>
-          </div>
-        </div>
-      )}
-
       {/* Footer */}
-      <div className="text-center text-xs text-gray-500">
+      <div className="text-center text-xs text-gray-500 dark:text-gray-400">
         <p>
           En vous connectant, vous acceptez les conditions d'utilisation
           et la politique de confidentialité du système CROU.

@@ -126,6 +126,20 @@ export class DenreeService {
   }
 
   /**
+   * Alias pour getAllocations (compatibilité contrôleur)
+   */
+  static async getDenrees(tenantId: string, filters?: DenreeFilters) {
+    return this.getAllocations(tenantId, filters);
+  }
+
+  /**
+   * Récupérer les denrées d'un restaurant spécifique
+   */
+  static async getDenreesRestaurant(restaurantId: string, tenantId: string) {
+    return this.getAllocations(tenantId, { restaurantId });
+  }
+
+  /**
    * Allouer une denrée à un restaurant
    * INTÉGRATION CRITIQUE AVEC MODULE STOCKS
    */

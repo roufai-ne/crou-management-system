@@ -24,16 +24,28 @@ export const checkPermissions = (requiredPermissions: string[]) => {
         });
       }
 
+      // Le Super Admin a toutes les permissions
+      const userRole = (req.user as any).role;
+      if (userRole === 'Super Admin' || userRole === 'superadmin') {
+        logger.debug('Super Admin - Accès autorisé automatiquement:', {
+          userId: req.user.id,
+          role: userRole,
+          url: req.url
+        });
+        return next();
+      }
+
       const userPermissions = req.user.permissions || [];
-      
+
       // Vérifier si l'utilisateur a au moins une des permissions requises
-      const hasPermission = requiredPermissions.some(permission => 
+      const hasPermission = requiredPermissions.some(permission =>
         userPermissions.includes(permission) || userPermissions.includes('admin:all')
       );
 
       if (!hasPermission) {
         logger.warn('Accès refusé - permissions insuffisantes:', {
           userId: req.user.id,
+          userRole,
           userPermissions,
           requiredPermissions,
           url: req.url,
@@ -55,7 +67,7 @@ export const checkPermissions = (requiredPermissions: string[]) => {
       next();
     } catch (error) {
       logger.error('Erreur vérification permissions:', error);
-      
+
       return res.status(500).json({
         error: 'Erreur serveur',
         message: 'Erreur lors de la vérification des permissions'

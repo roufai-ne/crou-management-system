@@ -343,7 +343,7 @@ export const KPICard: React.FC<KPICardProps> = ({
             {title}
           </h3>
           {description && (
-            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {description}
             </p>
           )}

@@ -232,7 +232,7 @@ export const useAdmin = create<AdminState & AdminActions>()(
         // Actions pour les utilisateurs
         loadUsers: async (filters = {}) => {
           set({ usersLoading: true, usersError: null });
-          
+
           try {
             const currentFilters = { ...get().filters.users, ...filters };
             const response = await adminService.getUsers({
@@ -240,19 +240,28 @@ export const useAdmin = create<AdminState & AdminActions>()(
               page: get().pagination.users.page,
               limit: get().pagination.users.limit
             });
-            
+
+            console.log('🏪 STORE - Response from adminService:', response);
+            console.log('🏪 STORE - response.total:', response.total);
+
+            const newPagination = {
+              ...get().pagination,
+              users: {
+                ...get().pagination.users,
+                total: response.total
+              }
+            };
+
+            console.log('🏪 STORE - New pagination object:', newPagination);
+
             set({
               users: response.users,
-              pagination: {
-                ...get().pagination,
-                users: {
-                  ...get().pagination.users,
-                  total: response.total
-                }
-              },
+              pagination: newPagination,
               usersLoading: false,
               lastFetch: Date.now()
             });
+
+            console.log('🏪 STORE - After set, pagination:', get().pagination);
           } catch (error: any) {
             set({
               usersLoading: false,

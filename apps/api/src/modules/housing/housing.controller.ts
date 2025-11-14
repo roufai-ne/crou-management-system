@@ -246,6 +246,119 @@ router.get('/',
 );
 
 /**
+ * GET /api/housing/metrics
+ * Métriques du module logement
+ */
+router.get('/metrics',
+  authenticateJWT,
+  checkPermissions(['housing:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
+  auditMiddleware({ enabled: true }),
+  async (req: Request, res: Response) => {
+    try {
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
+      const hasExtendedAccess = TenantIsolationUtils.hasExtendedAccess(req);
+
+      // Retourner des métriques par défaut pour le moment
+      const metrics = {
+        totalComplexes: 0,
+        totalRooms: 0,
+        availableRooms: 0,
+        occupiedRooms: 0,
+        maintenanceRooms: 0,
+        occupancyRate: 0,
+        totalResidents: 0,
+        monthlyRevenue: 0,
+        pendingMaintenance: 0,
+        overduePayments: 0,
+        topComplexes: [],
+        recentCheckIns: [],
+        recentCheckOuts: []
+      };
+
+      res.json({
+        success: true,
+        data: metrics
+      });
+    } catch (error) {
+      logger.error('Erreur récupération métriques logement:', error);
+      res.status(500).json({
+        error: 'Erreur serveur',
+        message: 'Erreur lors de la récupération des métriques'
+      });
+    }
+  }
+);
+
+/**
+ * GET /api/housing/maintenance
+ * Liste des demandes de maintenance
+ */
+router.get('/maintenance',
+  authenticateJWT,
+  checkPermissions(['housing:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
+  auditMiddleware({ enabled: true }),
+  async (req: Request, res: Response) => {
+    try {
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
+      const hasExtendedAccess = TenantIsolationUtils.hasExtendedAccess(req);
+
+      // Retourner une liste vide pour le moment
+      res.json({
+        success: true,
+        data: {
+          requests: [],
+          total: 0,
+          page: parseInt(req.query.page as string) || 1,
+          limit: parseInt(req.query.limit as string) || 10
+        }
+      });
+    } catch (error) {
+      logger.error('Erreur récupération maintenance logement:', error);
+      res.status(500).json({
+        error: 'Erreur serveur',
+        message: 'Erreur lors de la récupération des demandes de maintenance'
+      });
+    }
+  }
+);
+
+/**
+ * GET /api/housing/payments
+ * Liste des paiements
+ */
+router.get('/payments',
+  authenticateJWT,
+  checkPermissions(['housing:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
+  auditMiddleware({ enabled: true }),
+  async (req: Request, res: Response) => {
+    try {
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
+      const hasExtendedAccess = TenantIsolationUtils.hasExtendedAccess(req);
+
+      // Retourner une liste vide pour le moment
+      res.json({
+        success: true,
+        data: {
+          payments: [],
+          total: 0,
+          page: parseInt(req.query.page as string) || 1,
+          limit: parseInt(req.query.limit as string) || 10
+        }
+      });
+    } catch (error) {
+      logger.error('Erreur récupération paiements logement:', error);
+      res.status(500).json({
+        error: 'Erreur serveur',
+        message: 'Erreur lors de la récupération des paiements'
+      });
+    }
+  }
+);
+
+/**
  * GET /api/housing/:id
  * Détail d'un logement
  */

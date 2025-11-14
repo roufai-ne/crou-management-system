@@ -108,7 +108,7 @@ export const StocksPage: React.FC = () => {
       render: (item: StockItem) => (
         <div>
           <p className="font-medium">{item.code}</p>
-          <p className="text-sm text-gray-500">{item.libelle}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{item.libelle}</p>
         </div>
       )
     },
@@ -125,7 +125,7 @@ export const StocksPage: React.FC = () => {
       render: (item: StockItem) => (
         <div className="text-right">
           <p className="font-medium">{item.quantiteActuelle} {item.unit}</p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Disponible: {item.quantiteDisponible}
           </p>
         </div>
@@ -137,7 +137,7 @@ export const StocksPage: React.FC = () => {
       render: (item: StockItem) => (
         <div className="text-right">
           <p className="font-medium">{item.valeurStock.toLocaleString()} XOF</p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             {item.prixUnitaire.toLocaleString()} XOF/u
           </p>
         </div>
@@ -205,7 +205,7 @@ export const StocksPage: React.FC = () => {
           <p className="font-medium">
             {new Date(movement.createdAt).toLocaleDateString()}
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             {new Date(movement.createdAt).toLocaleTimeString()}
           </p>
         </div>
@@ -226,7 +226,7 @@ export const StocksPage: React.FC = () => {
       render: (movement: StockMovement) => (
         <div>
           <p className="font-medium">{movement.stockItem?.libelle || 'N/A'}</p>
-          <p className="text-sm text-gray-500">{movement.stockItem?.code || 'N/A'}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{movement.stockItem?.code || 'N/A'}</p>
         </div>
       )
     },
@@ -236,7 +236,7 @@ export const StocksPage: React.FC = () => {
       render: (movement: StockMovement) => (
         <div className="text-right">
           <p className="font-medium">{movement.quantite} {movement.stockItem?.unit || ''}</p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             {movement.prixUnitaire ? movement.prixUnitaire.toLocaleString() : '0'} XOF/u
           </p>
         </div>
@@ -457,7 +457,7 @@ export const StocksPage: React.FC = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Gestion des Stocks</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gestion des Stocks</h1>
             <p className="text-lg text-gray-600 mt-2">
               Inventaire et gestion des approvisionnements CROU
             </p>

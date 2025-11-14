@@ -288,7 +288,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
           </div>
 
           {durationDays > 0 && (
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Durée de validité: <strong>{durationDays} jour{durationDays > 1 ? 's' : ''}</strong>
             </p>
           )}
@@ -297,7 +297,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
         {/* Plats section */}
         <div className="border-t pt-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium text-gray-900">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
               Composition du menu <span className="text-red-500">*</span>
             </h3>
             <Button
@@ -311,22 +311,22 @@ export const MenuForm: React.FC<MenuFormProps> = ({
 
           {/* Plats statistics */}
           {plats.length > 0 && (
-            <div className="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200 dark:border-gray-700">
               <div className="grid grid-cols-4 gap-4 text-center">
                 <div>
-                  <p className="text-xs text-gray-600">Entrées</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Entrées</p>
                   <p className="text-lg font-bold text-gray-800">{platsByType.entrees}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-600">Plats principaux</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Plats principaux</p>
                   <p className="text-lg font-bold text-green-700">{platsByType.principaux}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-600">Desserts</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Desserts</p>
                   <p className="text-lg font-bold text-gray-800">{platsByType.desserts}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-600">Boissons</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Boissons</p>
                   <p className="text-lg font-bold text-gray-800">{platsByType.boissons}</p>
                 </div>
               </div>
@@ -353,11 +353,11 @@ export const MenuForm: React.FC<MenuFormProps> = ({
                       {platsOfType.map((plat) => (
                         <div
                           key={plat.id}
-                          className="bg-white p-4 rounded-lg border border-gray-200 hover:border-gray-300"
+                          className="bg-white p-4 rounded-lg border border-gray-200 hover:border-gray-300 dark:border-gray-600"
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
-                              <h5 className="font-medium text-gray-900">{plat.nom}</h5>
+                              <h5 className="font-medium text-gray-900 dark:text-white">{plat.nom}</h5>
                               <p className="text-xs text-gray-500 mt-1">
                                 {plat.ingredients.length} ingrédient{plat.ingredients.length > 1 ? 's' : ''}
                               </p>
@@ -365,7 +365,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
                                 {plat.ingredients.map((ing) => (
                                   <span
                                     key={ing.id}
-                                    className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700"
+                                    className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700 dark:text-gray-300"
                                   >
                                     {ing.denreeNom} ({ing.quantite} {ing.unite})
                                   </span>

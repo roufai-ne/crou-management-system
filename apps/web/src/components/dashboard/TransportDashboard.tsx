@@ -137,8 +137,8 @@ export const TransportDashboard: React.FC = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Dashboard Transport</h2>
-            <p className="text-gray-600">Vue d'ensemble de la gestion du transport étudiant</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard Transport</h2>
+            <p className="text-gray-600 dark:text-gray-400">Vue d'ensemble de la gestion du transport étudiant</p>
           </div>
           <div className="flex items-center gap-4">
             {maintenanceAlerts.length > 0 && (
@@ -185,17 +185,17 @@ export const TransportDashboard: React.FC = () => {
                         </span>
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">{route.name}</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="font-medium text-gray-900 dark:text-white">{route.name}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           {route.distance} km - {route.passengerCount} passagers
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-gray-900 dark:text-white">
                         {route.tripCount} trajets
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         {route.passengerCount} passagers
                       </p>
                     </div>
@@ -205,7 +205,7 @@ export const TransportDashboard: React.FC = () => {
             ) : (
               <div className="text-center py-8">
                 <MapIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">Aucune donnée disponible</p>
+                <p className="text-gray-500 dark:text-gray-400">Aucune donnée disponible</p>
               </div>
             )}
           </Card.Content>
@@ -231,13 +231,13 @@ export const TransportDashboard: React.FC = () => {
                   return (
                     <div key={type} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div>
-                        <p className="font-medium text-gray-900">{typeLabels[type as keyof typeof typeLabels]}</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="font-medium text-gray-900 dark:text-white">{typeLabels[type as keyof typeof typeLabels]}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           {data.active}/{data.count} actifs
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-medium text-gray-900">
+                        <p className="font-medium text-gray-900 dark:text-white">
                           {activeRate.toFixed(1)}%
                         </p>
                         <div className="w-20 bg-gray-200 rounded-full h-2 mt-1">
@@ -254,7 +254,7 @@ export const TransportDashboard: React.FC = () => {
             ) : (
               <div className="text-center py-8">
                 <TruckIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">Aucune donnée disponible</p>
+                <p className="text-gray-500 dark:text-gray-400">Aucune donnée disponible</p>
               </div>
             )}
           </Card.Content>
@@ -279,7 +279,7 @@ export const TransportDashboard: React.FC = () => {
                     <p className="font-medium text-gray-800">
                       {vehicle.plateNumber} - {vehicle.make} {vehicle.model}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       Maintenance prévue: {vehicle.nextMaintenanceDate ? 
                         new Date(vehicle.nextMaintenanceDate).toLocaleDateString() : 'N/A'}
                     </p>
@@ -305,19 +305,19 @@ export const TransportDashboard: React.FC = () => {
               <div className="text-3xl font-bold text-primary-600 mb-2">
                 {totalMileage.toLocaleString()}
               </div>
-              <p className="text-sm text-gray-600">Kilomètres parcourus</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Kilomètres parcourus</p>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-success-600 mb-2">
                 {averageEfficiency.toFixed(1)}
               </div>
-              <p className="text-sm text-gray-600">Efficacité moyenne (km/L)</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Efficacité moyenne (km/L)</p>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-warning-600 mb-2">
                 {maintenanceCost.toLocaleString()}
               </div>
-              <p className="text-sm text-gray-600">Coût maintenance (XOF)</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Coût maintenance (XOF)</p>
             </div>
           </div>
         </Card.Content>

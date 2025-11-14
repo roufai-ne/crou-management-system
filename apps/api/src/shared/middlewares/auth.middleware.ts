@@ -23,6 +23,7 @@ declare global {
         id: string;
         email: string;
         roleId: string;
+        role: string; // Nom du rôle (ex: "Super Admin")
         tenantId: string;
         permissions: string[];
       };
@@ -52,6 +53,7 @@ export const authenticateJWT = (req: Request, res: Response, next: NextFunction)
       id: decoded.userId,
       email: decoded.email,
       roleId: decoded.roleId,
+      role: decoded.role, // Nom du rôle pour vérifications middleware
       tenantId: decoded.tenantId,
       permissions: decoded.permissions || []
     };
@@ -60,6 +62,7 @@ export const authenticateJWT = (req: Request, res: Response, next: NextFunction)
       userId: req.user.id,
       email: req.user.email,
       roleId: req.user.roleId,
+      role: req.user.role,
       tenantId: req.user.tenantId
     });
 

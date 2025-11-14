@@ -61,6 +61,7 @@ export interface TokenPayload {
   email: string;
   tenantId: string;
   roleId: string;
+  role: string; // Nom du rôle (ex: "Super Admin")
   permissions: string[];
   iat: number;
   exp: number;
@@ -512,6 +513,7 @@ export class AuthService {
       email: user.email,
       tenantId: user.tenantId,
       roleId: user.roleId,
+      role: user.role?.name || '', // Ajouter le nom du rôle pour vérifications middleware
       permissions
     };
 

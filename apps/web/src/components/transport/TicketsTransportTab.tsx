@@ -274,7 +274,7 @@ export const TicketsTransportTab: React.FC = () => {
       render: (ticket: TicketTransport) => (
         <div>
           <p className="font-mono font-medium text-sm">{ticket.numeroTicket}</p>
-          <p className="text-xs text-gray-500">{getCategorieLabel(ticket.categorie)}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{getCategorieLabel(ticket.categorie)}</p>
         </div>
       )
     },
@@ -284,7 +284,7 @@ export const TicketsTransportTab: React.FC = () => {
       render: (ticket: TicketTransport) => (
         <div>
           <p className="font-medium">{ticket.circuitNom || ticket.circuitId}</p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             {new Date(ticket.dateVoyage).toLocaleDateString()}
           </p>
         </div>
@@ -296,7 +296,7 @@ export const TicketsTransportTab: React.FC = () => {
       render: (ticket: TicketTransport) => (
         <div>
           <p className="font-medium">{new Date(ticket.dateEmission).toLocaleDateString()}</p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Expire: {new Date(ticket.dateExpiration).toLocaleDateString()}
           </p>
         </div>
@@ -310,7 +310,7 @@ export const TicketsTransportTab: React.FC = () => {
           {ticket.dateUtilisation ? (
             <>
               <p className="font-medium">{new Date(ticket.dateUtilisation).toLocaleDateString()}</p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 {new Date(ticket.dateUtilisation).toLocaleTimeString('fr-FR', {
                   hour: '2-digit',
                   minute: '2-digit'
@@ -389,7 +389,7 @@ export const TicketsTransportTab: React.FC = () => {
           <Card.Content className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Tickets Actifs</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Tickets Actifs</p>
                 <p className="text-2xl font-bold text-green-600">
                   {tickets?.filter((t) => t.status === TicketTransportStatus.ACTIF).length || 0}
                 </p>
@@ -403,7 +403,7 @@ export const TicketsTransportTab: React.FC = () => {
           <Card.Content className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Utilisés Aujourd'hui</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Utilisés Aujourd'hui</p>
                 <p className="text-2xl font-bold text-blue-600">
                   {tickets?.filter(
                     (t) =>
@@ -422,7 +422,7 @@ export const TicketsTransportTab: React.FC = () => {
           <Card.Content className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Expirés</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Expirés</p>
                 <p className="text-2xl font-bold text-yellow-600">
                   {tickets?.filter((t) => t.status === TicketTransportStatus.EXPIRE).length || 0}
                 </p>
@@ -436,14 +436,14 @@ export const TicketsTransportTab: React.FC = () => {
           <Card.Content className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Recettes Totales</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Recettes Totales</p>
                 <p className="text-2xl font-bold text-purple-600">
                   {tickets
                     ?.filter((t) => t.status === TicketTransportStatus.UTILISE)
                     .reduce((sum, t) => sum + t.tarif, 0)
                     .toLocaleString() || 0}
                 </p>
-                <p className="text-xs text-gray-500">XOF</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">XOF</p>
               </div>
               <DocumentArrowDownIcon className="h-8 w-8 text-purple-600" />
             </div>
@@ -527,7 +527,7 @@ export const TicketsTransportTab: React.FC = () => {
         </Card.Header>
         <Card.Content>
           {loading ? (
-            <div className="text-center py-8 text-gray-500">Chargement...</div>
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">Chargement...</div>
           ) : (
             <Table data={tickets || []} columns={columns} emptyMessage="Aucun ticket trouvé" />
           )}
@@ -768,27 +768,27 @@ export const TicketsTransportTab: React.FC = () => {
           {selectedTicket && (
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700">Ticket:</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Ticket:</span>
                 <span className="font-mono text-sm">{selectedTicket.numeroTicket}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700">Circuit:</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Circuit:</span>
                 <span className="text-sm">{selectedTicket.circuitNom}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700">Date voyage:</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Date voyage:</span>
                 <span className="text-sm">
                   {new Date(selectedTicket.dateVoyage).toLocaleDateString()}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700">Tarif:</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Tarif:</span>
                 <span className="text-sm font-medium">
                   {selectedTicket.tarif === 0 ? 'Gratuit' : `${selectedTicket.tarif} XOF`}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700">Statut:</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Statut:</span>
                 {getStatutBadge(selectedTicket.status)}
               </div>
             </div>

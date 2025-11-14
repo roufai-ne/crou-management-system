@@ -359,6 +359,7 @@ export const useTickets = () => {
     ticketsLoading,
     ticketsError,
     loadTickets,
+    loadTicketByNumero,
     createTicket,
     createTicketsBatch,
     utiliserTicket,
@@ -419,15 +420,74 @@ export const useTickets = () => {
     setTicketFilters({});
   }, [setTicketFilters]);
 
+  // Fonctions supplémentaires pour le système anonyme
+  const handleRechercherParNumero = useCallback(
+    async (numeroTicket: string): Promise<TicketRepas | null> => {
+      try {
+        await loadTicketByNumero(numeroTicket);
+        // Le ticket sera dans le store après le chargement
+        const ticket = tickets?.find(t => t.numeroTicket === numeroTicket);
+        return ticket || null;
+      } catch (error) {
+        console.error('Erreur recherche par numéro:', error);
+        return null;
+      }
+    },
+    [loadTicketByNumero, tickets]
+  );
+
+  const handleRechercherParQRCode = useCallback(
+    async (qrCode: string): Promise<TicketRepas | null> => {
+      try {
+        // Rechercher dans les tickets chargés ou faire une requête API
+        const ticket = tickets?.find(t => t.qrCode === qrCode);
+        return ticket || null;
+      } catch (error) {
+        console.error('Erreur recherche par QR:', error);
+        return null;
+      }
+    },
+    [tickets]
+  );
+
+  const handleTelechargerTicketPDF = useCallback(
+    async (ticketId: string) => {
+      try {
+        // TODO: Implémenter le téléchargement PDF
+        console.log('Téléchargement PDF ticket:', ticketId);
+      } catch (error) {
+        console.error('Erreur téléchargement PDF:', error);
+      }
+    },
+    []
+  );
+
+  const handleExporterTickets = useCallback(
+    async (format: 'csv' | 'excel' | 'pdf' = 'csv') => {
+      try {
+        // TODO: Implémenter l'export
+        console.log('Export tickets format:', format);
+      } catch (error) {
+        console.error('Erreur export:', error);
+      }
+    },
+    []
+  );
+
   return {
     tickets,
     loading: ticketsLoading,
     error: ticketsError,
     filters,
-    createTicket: handleCreateTicket,
-    createTicketsBatch: handleCreateTicketsBatch,
+    setFilters: updateFilters,
+    emettreTicket: handleCreateTicket,
+    emettreTicketsBatch: handleCreateTicketsBatch,
     utiliserTicket: handleUtiliserTicket,
     annulerTicket: handleAnnulerTicket,
+    rechercherParNumero: handleRechercherParNumero,
+    rechercherParQRCode: handleRechercherParQRCode,
+    telechargerTicketPDF: handleTelechargerTicketPDF,
+    exporterTickets: handleExporterTickets,
     updateFilters,
     resetFilters,
     refresh: () => loadTickets(filters),
@@ -817,25 +877,34 @@ export const useDenreesRestaurant = (restaurantId?: string) => {
 // ========================================
 
 export const useRestaurationStatistics = () => {
-  const { user } = useAuth();
-  const {
-    statistiques,
-    statistiquesLoading,
-    statistiquesError,
-    loadStatistiquesGlobales,
-  } = useRestaurationStore();
+  const [statistics, setStatistics] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user?.tenantId) {
-      loadStatistiquesGlobales();
+  const loadStatistics = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // TODO: Implémenter l'appel API pour les statistiques globales
+      // Pour l'instant, retourner des données mockées
+      setStatistics({
+        totalRestaurants: 0,
+        servicesEnCours: 0,
+        ticketsVendus: 0,
+        denreesStock: 0,
+      });
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors du chargement des statistiques');
+    } finally {
+      setLoading(false);
     }
-  }, [user?.tenantId, loadStatistiquesGlobales]);
+  }, []);
 
   return {
-    statistics: statistiques,
-    loading: statistiquesLoading,
-    error: statistiquesError,
-    loadStatistics: loadStatistiquesGlobales,
+    statistics,
+    loading,
+    error,
+    loadStatistics,
   };
 };
 
@@ -844,20 +913,25 @@ export const useRestaurationStatistics = () => {
 // ========================================
 
 export const useServiceEnCours = () => {
-  const { user } = useAuth();
-  const { repas, repasLoading, loadRepas } = useRestaurationStore();
+  const [servicesEnCours, setServicesEnCours] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (user?.tenantId) {
-      // Charger les repas avec filtre EN_COURS
-      loadRepas({ statut: 'EN_COURS' });
+  const loadServicesEnCours = useCallback(async () => {
+    setLoading(true);
+    try {
+      // TODO: Implémenter l'appel API pour les services en cours
+      setServicesEnCours([]);
+    } catch (err) {
+      console.error('Erreur chargement services en cours:', err);
+    } finally {
+      setLoading(false);
     }
-  }, [user?.tenantId, loadRepas]);
+  }, []);
 
   return {
-    servicesEnCours: repas?.filter((r: any) => r.statut === 'EN_COURS') || [],
-    loading: repasLoading,
-    loadServicesEnCours: () => loadRepas({ statut: 'EN_COURS' }),
+    servicesEnCours,
+    loading,
+    loadServicesEnCours,
   };
 };
 
@@ -866,39 +940,30 @@ export const useServiceEnCours = () => {
 // ========================================
 
 export const useDenreeAlerts = () => {
-  const { user } = useAuth();
-  const { denrees, denreesLoading, loadDenrees } = useRestaurationStore();
+  const [alertesCritiques, setAlertesCritiques] = useState<any[]>([]);
+  const [alertesAvertissement, setAlertesAvertissement] = useState<any[]>([]);
+  const [denreesPerimerSoon, setDenreesPerimerSoon] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (user?.tenantId) {
-      loadDenrees({});
+  const loadAlerts = useCallback(async () => {
+    setLoading(true);
+    try {
+      // TODO: Implémenter l'appel API pour les alertes denrées
+      setAlertesCritiques([]);
+      setAlertesAvertissement([]);
+      setDenreesPerimerSoon([]);
+    } catch (err) {
+      console.error('Erreur chargement alertes denrées:', err);
+    } finally {
+      setLoading(false);
     }
-  }, [user?.tenantId, loadDenrees]);
-
-  // Calculer les alertes
-  const alertesCritiques = denrees?.filter((d: any) => {
-    const pourcentageRestant = (d.quantiteRestante / d.quantiteAllouee) * 100;
-    return pourcentageRestant < 10 && d.statut === 'DISPONIBLE';
-  }) || [];
-
-  const alertesAvertissement = denrees?.filter((d: any) => {
-    const pourcentageRestant = (d.quantiteRestante / d.quantiteAllouee) * 100;
-    return pourcentageRestant >= 10 && pourcentageRestant < 25 && d.statut === 'DISPONIBLE';
-  }) || [];
-
-  const denreesPerimerSoon = denrees?.filter((d: any) => {
-    if (!d.datePeremption) return false;
-    const joursRestants = Math.ceil(
-      (new Date(d.datePeremption).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-    );
-    return joursRestants <= 7 && joursRestants > 0 && d.statut === 'DISPONIBLE';
-  }) || [];
+  }, []);
 
   return {
     alertesCritiques,
     alertesAvertissement,
     denreesPerimerSoon,
-    loading: denreesLoading,
-    loadAlerts: () => loadDenrees({}),
+    loading,
+    loadAlerts,
   };
 };

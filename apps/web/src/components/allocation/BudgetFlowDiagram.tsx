@@ -109,11 +109,11 @@ const ProgressBar: React.FC<{
   return (
     <div className="w-full">
       <div className="flex justify-between items-center mb-1">
-        <span className="text-xs text-gray-600">
+        <span className="text-xs text-gray-600 dark:text-gray-400">
           {AllocationUtils.formatCurrency(value)} / {AllocationUtils.formatCurrency(max)}
         </span>
         {showPercentage && (
-          <span className="text-xs font-medium text-gray-900">{percentage}%</span>
+          <span className="text-xs font-medium text-gray-900 dark:text-white">{percentage}%</span>
         )}
       </div>
       <div className="w-full bg-gray-200 rounded-full h-2">
@@ -138,13 +138,13 @@ const FlowCard: React.FC<{
     <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
       <div className="flex items-center space-x-2 mb-3">
         {icon}
-        <h3 className="font-semibold text-gray-900">{title}</h3>
+        <h3 className="font-semibold text-gray-900 dark:text-white">{title}</h3>
       </div>
 
       <div className="space-y-3">
         <div>
           <div className="text-xs text-gray-500 mb-1">Total</div>
-          <div className="text-lg font-bold text-gray-900">
+          <div className="text-lg font-bold text-gray-900 dark:text-white">
             {AllocationUtils.formatCurrency(montantTotal)}
           </div>
         </div>
@@ -198,8 +198,8 @@ export const BudgetFlowDiagram: React.FC<BudgetFlowDiagramProps> = ({
     return (
       <div className="text-center py-12">
         <ChartBarIcon className="mx-auto h-12 w-12 text-gray-400" />
-        <h3 className="mt-2 text-sm font-medium text-gray-900">Aucune donnée</h3>
-        <p className="mt-1 text-sm text-gray-500">
+        <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">Aucune donnée</h3>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Sélectionnez un budget pour voir le flux budgétaire
         </p>
       </div>
@@ -228,7 +228,7 @@ export const BudgetFlowDiagram: React.FC<BudgetFlowDiagramProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white rounded-lg p-4">
             <div className="text-xs text-gray-500 mb-1">Total alloué</div>
-            <div className="text-xl font-bold text-gray-900">
+            <div className="text-xl font-bold text-gray-900 dark:text-white">
               {AllocationUtils.formatCurrency(data.totalAlloue)}
             </div>
             <div className="text-xs text-gray-600 mt-1">
@@ -295,14 +295,14 @@ export const BudgetFlowDiagram: React.FC<BudgetFlowDiagramProps> = ({
                 onClick={() => onSelectRegion?.(region.tenantId)}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium text-gray-900">{region.tenantName}</h4>
-                  <span className="text-xs text-gray-500">{region.crouCount} CROUs</span>
+                  <h4 className="font-medium text-gray-900 dark:text-white">{region.tenantName}</h4>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{region.crouCount} CROUs</span>
                 </div>
 
                 <div className="space-y-2">
                   <div>
-                    <div className="text-xs text-gray-500">Alloué</div>
-                    <div className="text-sm font-semibold text-gray-900">
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Alloué</div>
+                    <div className="text-sm font-semibold text-gray-900 dark:text-white">
                       {AllocationUtils.formatCurrency(region.montantAlloue)}
                     </div>
                   </div>
@@ -315,8 +315,8 @@ export const BudgetFlowDiagram: React.FC<BudgetFlowDiagramProps> = ({
                   />
 
                   <div className="flex justify-between text-xs">
-                    <span className="text-gray-600">Utilisé</span>
-                    <span className="font-medium text-gray-900">
+                    <span className="text-gray-600 dark:text-gray-400">Utilisé</span>
+                    <span className="font-medium text-gray-900 dark:text-white">
                       {AllocationUtils.formatCurrency(region.montantUtilise)}
                     </span>
                   </div>
@@ -351,25 +351,25 @@ export const BudgetFlowDiagram: React.FC<BudgetFlowDiagramProps> = ({
                 onClick={() => onSelectCROU?.(crou.tenantId)}
               >
                 <div className="mb-2">
-                  <h4 className="font-medium text-sm text-gray-900">{crou.tenantName}</h4>
-                  <p className="text-xs text-gray-500">{crou.regionName}</p>
+                  <h4 className="font-medium text-sm text-gray-900 dark:text-white">{crou.tenantName}</h4>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{crou.regionName}</p>
                 </div>
 
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs">
-                    <span className="text-gray-600">Alloué</span>
+                    <span className="text-gray-600 dark:text-gray-400">Alloué</span>
                     <span className="font-medium">
                       {AllocationUtils.formatCurrency(crou.montantAlloue)}
                     </span>
                   </div>
                   <div className="flex justify-between text-xs">
-                    <span className="text-gray-600">Utilisé</span>
+                    <span className="text-gray-600 dark:text-gray-400">Utilisé</span>
                     <span className="font-medium text-blue-600">
                       {AllocationUtils.formatCurrency(crou.montantUtilise)}
                     </span>
                   </div>
                   <div className="flex justify-between text-xs">
-                    <span className="text-gray-600">Disponible</span>
+                    <span className="text-gray-600 dark:text-gray-400">Disponible</span>
                     <span className="font-medium text-green-600">
                       {AllocationUtils.formatCurrency(crou.montantDisponible)}
                     </span>

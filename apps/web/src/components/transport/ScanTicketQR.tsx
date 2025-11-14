@@ -233,13 +233,13 @@ export const ScanTicketQR: React.FC<ScanTicketQRProps> = ({
           <Button
             variant="outline"
             onClick={stopCamera}
-            className="absolute top-2 right-2 bg-white"
+            className="absolute top-2 right-2 bg-white dark:bg-gray-800"
           >
             Arrêter
           </Button>
         </div>
       ) : (
-        <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+        <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
           <QrCodeIcon className="h-24 w-24 mx-auto text-gray-400 mb-4" />
           <p className="text-gray-600 mb-4">Scannez le QR Code ou saisissez le numéro</p>
           {cameraAvailable && (
@@ -288,7 +288,7 @@ export const ScanTicketQR: React.FC<ScanTicketQRProps> = ({
           <Card.Content className="p-4 space-y-3">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700">Numéro de ticket</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Numéro de ticket</p>
                 <p className="font-mono text-lg font-bold">{ticket.numeroTicket}</p>
               </div>
               {getStatutBadge(ticket.status)}
@@ -296,11 +296,11 @@ export const ScanTicketQR: React.FC<ScanTicketQRProps> = ({
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm font-medium text-gray-700">Circuit</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Circuit</p>
                 <p className="text-sm">{ticket.circuitNom || ticket.circuitId}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-700">Catégorie</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Catégorie</p>
                 <p className="text-sm">
                   {ticket.categorie === CategorieTicketTransport.GRATUIT ? 'Gratuit' : 'Payant'}
                 </p>
@@ -309,17 +309,17 @@ export const ScanTicketQR: React.FC<ScanTicketQRProps> = ({
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm font-medium text-gray-700">Date voyage</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Date voyage</p>
                 <p className="text-sm">{new Date(ticket.dateVoyage).toLocaleDateString()}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-700">Date expiration</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Date expiration</p>
                 <p className="text-sm">{new Date(ticket.dateExpiration).toLocaleDateString()}</p>
               </div>
             </div>
 
             <div>
-              <p className="text-sm font-medium text-gray-700">Tarif</p>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Tarif</p>
               <p className="text-lg font-bold">
                 {ticket.tarif === 0 ? 'Gratuit' : `${ticket.tarif.toLocaleString()} XOF`}
               </p>
@@ -327,7 +327,7 @@ export const ScanTicketQR: React.FC<ScanTicketQRProps> = ({
 
             {ticket.dateUtilisation && (
               <div className="bg-gray-50 border border-gray-200 rounded p-3">
-                <p className="text-sm font-medium text-gray-700">Déjà utilisé le:</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Déjà utilisé le:</p>
                 <p className="text-sm">
                   {new Date(ticket.dateUtilisation).toLocaleDateString()} à{' '}
                   {new Date(ticket.dateUtilisation).toLocaleTimeString('fr-FR', {

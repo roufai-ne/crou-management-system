@@ -320,8 +320,8 @@ export const MinistryDashboard: React.FC = () => {
                   accessorKey: 'name',
                   cell: ({ value, row }) => (
                     <div>
-                      <div className="font-medium">{value}</div>
-                      <div className="text-sm text-gray-500">
+                      <div className="font-medium text-gray-900 dark:text-gray-100">{value}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
                         {NIGER_CROUS.find(c => c.id === row.original.crouId)?.region}
                       </div>
                     </div>
@@ -331,7 +331,7 @@ export const MinistryDashboard: React.FC = () => {
                   header: 'Budget',
                   accessorKey: 'budget',
                   cell: ({ value }) => (
-                    <span className="text-sm">
+                    <span className="text-sm text-gray-900 dark:text-gray-100">
                       {new Intl.NumberFormat('fr-FR', {
                         style: 'currency',
                         currency: 'XOF',
@@ -353,7 +353,7 @@ export const MinistryDashboard: React.FC = () => {
                   header: 'Étudiants',
                   accessorKey: 'students',
                   cell: ({ value }) => (
-                    <span className="text-sm">
+                    <span className="text-sm text-gray-900 dark:text-gray-100">
                       {new Intl.NumberFormat('fr-FR').format(value)}
                     </span>
                   )
@@ -381,7 +381,7 @@ export const MinistryDashboard: React.FC = () => {
                   accessorKey: 'efficiency',
                   cell: ({ value }) => (
                     <div className="flex items-center gap-2">
-                      <div className="w-16 bg-gray-200 rounded-full h-2">
+                      <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                         <div
                           className={`h-2 rounded-full ${
                             value >= 85 ? 'bg-green-500' :
@@ -390,7 +390,7 @@ export const MinistryDashboard: React.FC = () => {
                           style={{ width: `${value}%` }}
                         />
                       </div>
-                      <span className="text-sm text-gray-600">{value}%</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">{value}%</span>
                     </div>
                   )
                 },
@@ -428,7 +428,7 @@ export const MinistryDashboard: React.FC = () => {
             <Card.Content>
               <div className="space-y-4">
                 {crouPerformances.slice(0, 3).map((crou, index) => (
-                  <div key={crou.crouId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div key={crou.crouId} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-white ${
                         index === 0 ? 'bg-yellow-500' :
@@ -437,8 +437,8 @@ export const MinistryDashboard: React.FC = () => {
                         {index + 1}
                       </div>
                       <div>
-                        <div className="font-medium">{crou.name}</div>
-                        <div className="text-sm text-gray-500">Efficacité: {crou.efficiency}%</div>
+                        <div className="font-medium text-gray-900 dark:text-gray-100">{crou.name}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">Efficacité: {crou.efficiency}%</div>
                       </div>
                     </div>
                     <Badge variant="success">{crou.satisfaction}% satisfaction</Badge>
@@ -458,12 +458,12 @@ export const MinistryDashboard: React.FC = () => {
                 {crouPerformances
                   .filter(crou => crou.alerts > 2 || crou.executionRate < 75)
                   .map(crou => (
-                    <div key={crou.crouId} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                    <div key={crou.crouId} className="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
                       <div className="flex items-center gap-3">
-                        <ExclamationTriangleIcon className="h-6 w-6 text-orange-500" />
+                        <ExclamationTriangleIcon className="h-6 w-6 text-orange-500 dark:text-orange-400" />
                         <div>
-                          <div className="font-medium">{crou.name}</div>
-                          <div className="text-sm text-gray-500">
+                          <div className="font-medium text-gray-900 dark:text-gray-100">{crou.name}</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
                             {crou.alerts} alertes • {crou.executionRate}% exécution
                           </div>
                         </div>
@@ -505,7 +505,7 @@ export const MinistryDashboard: React.FC = () => {
       {/* Contrôles et filtres */}
       <div className="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <h2 className="text-xl font-semibold text-gray-900">Dashboard Ministère</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Dashboard Ministère</h2>
           <Badge variant="info" className="text-xs">
             Vue consolidée • 8 CROUs
           </Badge>

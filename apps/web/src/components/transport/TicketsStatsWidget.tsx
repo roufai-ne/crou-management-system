@@ -58,7 +58,7 @@ export const TicketsStatsWidget: React.FC<TicketsStatsWidgetProps> = ({
     return (
       <Card className={className}>
         <Card.Content className="p-6">
-          <div className="text-center text-gray-500">Chargement des statistiques...</div>
+          <div className="text-center text-gray-500 dark:text-gray-400">Chargement des statistiques...</div>
         </Card.Content>
       </Card>
     );
@@ -97,16 +97,16 @@ export const TicketsStatsWidget: React.FC<TicketsStatsWidgetProps> = ({
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
               <p className="text-3xl font-bold text-green-600">{statistics.totalActifs}</p>
-              <p className="text-sm text-gray-600">Actifs</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Actifs</p>
             </div>
             <div className="text-center">
               <p className="text-3xl font-bold text-blue-600">{statistics.totalUtilises}</p>
-              <p className="text-sm text-gray-600">Utilisés</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Utilisés</p>
             </div>
           </div>
-          <div className="mt-4 pt-4 border-t border-gray-200">
+          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">Recettes:</span>
+              <span className="text-gray-600 dark:text-gray-400">Recettes:</span>
               <span className="font-bold">{statistics.recettesTotales.toLocaleString()} XOF</span>
             </div>
           </div>
@@ -123,8 +123,8 @@ export const TicketsStatsWidget: React.FC<TicketsStatsWidgetProps> = ({
           <Card.Content className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Émis</p>
-                <p className="text-2xl font-bold text-gray-900">{statistics.totalEmis}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Total Émis</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{statistics.totalEmis}</p>
                 <div className="flex items-center gap-2 mt-1">
                   <Badge variant="info" size="sm">
                     {statistics.totalPayants} payants
@@ -143,7 +143,7 @@ export const TicketsStatsWidget: React.FC<TicketsStatsWidgetProps> = ({
           <Card.Content className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Tickets Actifs</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Tickets Actifs</p>
                 <p className="text-2xl font-bold text-green-600">{statistics.totalActifs}</p>
                 <p className="text-xs text-gray-500 mt-1">{tauxActivite}% du total</p>
               </div>
@@ -156,7 +156,7 @@ export const TicketsStatsWidget: React.FC<TicketsStatsWidgetProps> = ({
           <Card.Content className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Utilisés</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Utilisés</p>
                 <p className="text-2xl font-bold text-blue-600">{statistics.totalUtilises}</p>
                 <p className="text-xs text-gray-500 mt-1">{tauxUtilisation}% du total</p>
               </div>
@@ -169,7 +169,7 @@ export const TicketsStatsWidget: React.FC<TicketsStatsWidgetProps> = ({
           <Card.Content className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Recettes</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Recettes</p>
                 <p className="text-2xl font-bold text-purple-600">
                   {statistics.recettesTotales.toLocaleString()}
                 </p>
@@ -187,7 +187,7 @@ export const TicketsStatsWidget: React.FC<TicketsStatsWidgetProps> = ({
           <Card.Content className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Expirés</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Expirés</p>
                 <p className="text-xl font-bold text-yellow-600">{statistics.totalExpires}</p>
               </div>
               <XCircleIcon className="h-6 w-6 text-yellow-600" />
@@ -199,7 +199,7 @@ export const TicketsStatsWidget: React.FC<TicketsStatsWidgetProps> = ({
           <Card.Content className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Annulés</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Annulés</p>
                 <p className="text-xl font-bold text-red-600">{statistics.totalAnnules}</p>
               </div>
               <XCircleIcon className="h-6 w-6 text-red-600" />
@@ -211,7 +211,7 @@ export const TicketsStatsWidget: React.FC<TicketsStatsWidgetProps> = ({
           <Card.Content className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Taux d'utilisation</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Taux d'utilisation</p>
                 <p className="text-xl font-bold text-indigo-600">{tauxUtilisation}%</p>
               </div>
               <ChartBarIcon className="h-6 w-6 text-indigo-600" />
@@ -241,8 +241,8 @@ export const TicketsStatsWidget: React.FC<TicketsStatsWidgetProps> = ({
                     return (
                       <div key={item.circuitId} className="space-y-1">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="font-medium text-gray-700">{item.circuitNom}</span>
-                          <span className="text-gray-600">
+                          <span className="font-medium text-gray-700 dark:text-gray-300">{item.circuitNom}</span>
+                          <span className="text-gray-600 dark:text-gray-400">
                             {item.count} tickets ({percentage}%)
                           </span>
                         </div>
@@ -279,7 +279,7 @@ export const TicketsStatsWidget: React.FC<TicketsStatsWidgetProps> = ({
                     return (
                       <div key={item.mois} className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="font-medium text-gray-700">{item.mois}</span>
+                          <span className="font-medium text-gray-700 dark:text-gray-300">{item.mois}</span>
                           <div className="flex items-center gap-4 text-sm">
                             <span className="text-blue-600">
                               {item.emis} émis
@@ -314,19 +314,19 @@ export const TicketsStatsWidget: React.FC<TicketsStatsWidgetProps> = ({
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-green-600"></div>
-              <span className="text-gray-700">Actif</span>
+              <span className="text-gray-700 dark:text-gray-300">Actif</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-blue-600"></div>
-              <span className="text-gray-700">Utilisé</span>
+              <span className="text-gray-700 dark:text-gray-300">Utilisé</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-yellow-600"></div>
-              <span className="text-gray-700">Expiré</span>
+              <span className="text-gray-700 dark:text-gray-300">Expiré</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-red-600"></div>
-              <span className="text-gray-700">Annulé</span>
+              <span className="text-gray-700 dark:text-gray-300">Annulé</span>
             </div>
           </div>
         </Card.Content>

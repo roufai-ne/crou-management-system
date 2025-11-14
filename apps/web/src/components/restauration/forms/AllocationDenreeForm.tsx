@@ -226,21 +226,21 @@ export const AllocationDenreeForm: React.FC<AllocationDenreeFormProps> = ({
 
           {/* Stock info display */}
           {selectedStock && (
-            <div className="mt-2 p-3 bg-gray-50 rounded border border-gray-200">
+            <div className="mt-2 p-3 bg-gray-50 rounded border border-gray-200 dark:border-gray-700">
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
-                  <p className="text-gray-600">Stock disponible:</p>
+                  <p className="text-gray-600 dark:text-gray-400">Stock disponible:</p>
                   <p className="font-medium text-green-700">
                     {selectedStock.quantiteDisponible} {selectedStock.unite}
                   </p>
                 </div>
                 <div>
-                  <p className="text-gray-600">Prix unitaire:</p>
+                  <p className="text-gray-600 dark:text-gray-400">Prix unitaire:</p>
                   <p className="font-medium">{selectedStock.prixUnitaire} XOF</p>
                 </div>
                 {selectedStock.datePeremption && (
                   <div className="col-span-2">
-                    <p className="text-gray-600">Date péremption stock:</p>
+                    <p className="text-gray-600 dark:text-gray-400">Date péremption stock:</p>
                     <p className="font-medium">
                       {new Date(selectedStock.datePeremption).toLocaleDateString()}
                     </p>

@@ -112,7 +112,7 @@ export class ApiClient {
         if (error.response?.status === 401 && !originalRequest._retry) {
           // Si pas de refresh token, déconnecter directement
           if (!authService.hasRefreshToken()) {
-            authService.logout();
+            await this.handleSessionExpired();
             return Promise.reject(this.handleError(error));
           }
 
@@ -122,12 +122,12 @@ export class ApiClient {
             // Essayer de rafraîchir le token
             const newToken = await authService.refreshAccessToken();
             originalRequest.headers.Authorization = `Bearer ${newToken}`;
-            
+
             // Retry de la requête originale
             return this.api(originalRequest);
           } catch (refreshError) {
             // Refresh échoué, déconnecter l'utilisateur
-            authService.logout();
+            await this.handleSessionExpired();
             return Promise.reject(this.handleError(error));
           }
         }
@@ -146,6 +146,41 @@ export class ApiClient {
         return Promise.reject(this.handleError(error));
       }
     );
+  }
+
+  /**
+   * Gérer l'expiration de session
+   */
+  private async handleSessionExpired(): Promise<void> {
+    try {
+      // Déconnecter l'utilisateur
+      await authService.logout();
+
+      // Afficher une notification (si toast disponible)
+      if (typeof window !== 'undefined') {
+        // Créer un événement personnalisé pour notifier l'application
+        const event = new CustomEvent('session-expired', {
+          detail: { message: 'Votre session a expiré. Veuillez vous reconnecter.' }
+        });
+        window.dispatchEvent(event);
+
+        // Rediriger vers la page de login après un court délai
+        setTimeout(() => {
+          // Sauvegarder l'URL actuelle pour redirection après login
+          const currentPath = window.location.pathname;
+          if (currentPath !== '/login') {
+            sessionStorage.setItem('redirectAfterLogin', currentPath);
+          }
+          window.location.href = '/login';
+        }, 500);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la gestion de session expirée:', error);
+      // En cas d'erreur, forcer la redirection vers login
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+    }
   }
 
   /**

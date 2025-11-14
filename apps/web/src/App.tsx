@@ -33,6 +33,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 // Providers et contextes
 import { ThemeProvider } from '@/contexts/ThemeContext';
@@ -51,6 +52,7 @@ import { TransportPage } from '@/pages/transport/TransportPage';
 import { ReportsPage } from '@/pages/reports/ReportsPage';
 import { AdminPage } from '@/pages/admin/AdminPage';
 import { RestaurationPage } from '@/pages/restauration/RestaurationPage';
+import { ProfilePage } from '@/pages/profile/ProfilePage';
 import { StyleTest } from '@/pages/test/StyleTest';
 import { LoginTest } from '@/pages/test/LoginTest';
 import { CSSTest } from '@/pages/test/CSSTest';
@@ -124,6 +126,33 @@ function App() {
       console.log('🛠️  Mode développement - Utilisez window.devLogin() pour vous connecter rapidement');
     }
   }, []);
+
+  // Écouter les événements d'expiration de session
+  useEffect(() => {
+    const handleSessionExpired = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const message = customEvent.detail?.message || 'Votre session a expiré. Veuillez vous reconnecter.';
+
+      toast.error(message, {
+        duration: 4000,
+        position: 'top-center',
+        style: {
+          background: '#EF4444',
+          color: '#fff',
+          fontWeight: '500',
+          padding: '16px',
+        },
+        icon: '🔒',
+      });
+    };
+
+    window.addEventListener('session-expired', handleSessionExpired);
+
+    return () => {
+      window.removeEventListener('session-expired', handleSessionExpired);
+    };
+  }, []);
+
   return (
     <ErrorBoundary>
       <ThemeProvider>
@@ -154,7 +183,10 @@ function App() {
                       <Routes>
                         {/* Dashboard - Page d'accueil */}
                         <Route path="/dashboard" element={<DashboardPage />} />
-                        
+
+                        {/* Profil utilisateur */}
+                        <Route path="/profile" element={<ProfilePage />} />
+
                         {/* Modules principaux */}
                         <Route path="/financial/*" element={<FinancialPage />} />
                         <Route path="/stocks/*" element={<StocksPage />} />

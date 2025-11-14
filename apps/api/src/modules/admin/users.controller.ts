@@ -112,8 +112,9 @@ router.get('/',
 
       // Filtrage hiérarchique basé sur le rôle et le tenant
       const isMinisterialUser = tenantContext?.tenantType === 'ministere';
-      const userFromRequest = (req as any).user;
-      const userRole = userFromRequest?.role?.name || '';
+      const userFromRequest = req.user;
+      // Le champ role est maintenant une string directement dans req.user
+      const userRole = userFromRequest?.role || '';
 
       // Super Admin: peut voir tous les utilisateurs
       // Admin Ministère: peut voir tous les utilisateurs de tous les CROUs
@@ -404,8 +405,9 @@ router.post('/',
       }
 
       // Validation hiérarchique: vérifier que l'utilisateur peut créer ce type de rôle
-      const userFromRequest = (req as any).user;
-      const creatorRole = userFromRequest?.role?.name || '';
+      const userFromRequest = req.user;
+      // Le champ role est maintenant une string directement dans req.user
+      const creatorRole = userFromRequest?.role || '';
       const targetRoleName = role.name;
 
       try {
@@ -566,8 +568,9 @@ router.put('/:id',
         }
 
         // Validation hiérarchique pour la modification de rôle
-        const userFromRequest = (req as any).user;
-        const modifierRole = userFromRequest?.role?.name || '';
+        const userFromRequest = req.user;
+        // Le champ role est maintenant une string directement dans req.user
+        const modifierRole = userFromRequest?.role || '';
         const targetRoleName = role.name;
 
         // Utiliser le rôle déjà chargé avec eager loading
@@ -697,8 +700,9 @@ router.delete('/:id',
       }
 
       // Validation hiérarchique pour la suppression
-      const userFromRequest = (req as any).user;
-      const deleterRole = userFromRequest?.role?.name || '';
+      const userFromRequest = req.user;
+      // Le champ role est maintenant une string directement dans req.user
+      const deleterRole = userFromRequest?.role || '';
 
       // Utiliser le rôle déjà chargé avec eager loading
       const targetUserRoleName = user.role?.name || '';

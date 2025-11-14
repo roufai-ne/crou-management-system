@@ -22,7 +22,19 @@ import { persist } from 'zustand/middleware';
 
 // Types d'utilisateur et permissions
 export type Permission = string;
-export type UserRole = 'admin' | 'manager' | 'user';
+export type UserRole =
+  | 'Super Admin'
+  | 'Admin Ministère'
+  | 'Directeur CROU'
+  | 'Gestionnaire Logement'
+  | 'Gestionnaire Stocks'
+  | 'Gestionnaire Transport'
+  | 'Comptable'
+  | 'Utilisateur'
+  // Types legacy pour compatibilité
+  | 'admin'
+  | 'manager'
+  | 'user';
 
 /**
  * Niveau hiérarchique dans l'organisation
@@ -201,8 +213,8 @@ export const useAuth = create<AuthState>()(
 
       hasPermission: (permission: string) => {
         const { user } = get();
-        // Le superadmin a toutes les permissions
-        if (user?.role === 'superadmin') {
+        // Le Super Admin a toutes les permissions
+        if (user?.role === 'Super Admin') {
           return true;
         }
         return user?.permissions.includes(permission) || false;
@@ -210,6 +222,10 @@ export const useAuth = create<AuthState>()(
 
       hasAnyPermission: (permissions: string[]) => {
         const { user } = get();
+        // Le Super Admin a toutes les permissions
+        if (user?.role === 'Super Admin') {
+          return true;
+        }
         return permissions.some(permission => user?.permissions.includes(permission)) || false;
       },
 
@@ -299,8 +315,8 @@ export const useAuth = create<AuthState>()(
         const { user } = get();
         if (!user) return false;
 
-        // Admins peuvent tout gérer
-        if (user.role === 'admin') return true;
+        // Super Admin peut tout gérer
+        if (user.role === 'Super Admin') return true;
 
         // Si c'est le tenant de l'utilisateur
         if (user.tenantId === tenantId) return true;

@@ -152,7 +152,7 @@ export const MenusTab: React.FC = () => {
       render: (menu: Menu) => (
         <div>
           <p className="font-medium">{menu.titre}</p>
-          <p className="text-sm text-gray-500">{menu.restaurant?.nom}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{menu.restaurant?.nom}</p>
         </div>
       )
     },
@@ -162,7 +162,7 @@ export const MenusTab: React.FC = () => {
       render: (menu: Menu) => (
         <div>
           <p className="font-medium">{new Date(menu.dateMenu).toLocaleDateString()}</p>
-          <p className="text-sm text-gray-500">{getTypeRepasLabel(menu.typeRepas)}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{getTypeRepasLabel(menu.typeRepas)}</p>
         </div>
       )
     },
@@ -173,7 +173,7 @@ export const MenusTab: React.FC = () => {
         <div>
           <p className="font-medium">{menu.plats?.length || 0} plat(s)</p>
           {menu.plats && menu.plats.length > 0 && (
-            <p className="text-sm text-gray-500">{menu.plats[0].nom}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{menu.plats[0].nom}</p>
           )}
         </div>
       )
@@ -184,7 +184,7 @@ export const MenusTab: React.FC = () => {
       render: (menu: Menu) => (
         <div className="text-right">
           <p className="font-medium">{(menu.coutMatierePremiere || 0).toLocaleString()} XOF</p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             {(menu.coutUnitaire || 0).toLocaleString()} XOF/pers
           </p>
         </div>
@@ -353,7 +353,7 @@ export const MenusTab: React.FC = () => {
             {selectedMenu.description && (
               <div>
                 <h4 className="font-semibold mb-2">Description</h4>
-                <p className="text-gray-700">{selectedMenu.description}</p>
+                <p className="text-gray-700 dark:text-gray-300">{selectedMenu.description}</p>
               </div>
             )}
 
@@ -384,7 +384,7 @@ export const MenusTab: React.FC = () => {
                             <div className="bg-gray-50 rounded p-3">
                               <table className="w-full text-sm">
                                 <thead>
-                                  <tr className="text-left text-gray-600">
+                                  <tr className="text-left text-gray-600 dark:text-gray-400">
                                     <th>Denrée</th>
                                     <th className="text-right">Quantité/pers</th>
                                     <th className="text-right">Coût unitaire</th>
@@ -392,7 +392,7 @@ export const MenusTab: React.FC = () => {
                                 </thead>
                                 <tbody>
                                   {plat.ingredients.map((ing: any, idx: number) => (
-                                    <tr key={idx} className="border-t border-gray-200">
+                                    <tr key={idx} className="border-t border-gray-200 dark:border-gray-700">
                                       <td className="py-1">{ing.nomDenree}</td>
                                       <td className="text-right">{ing.quantiteUnitaire} {ing.unite}</td>
                                       <td className="text-right">{ing.coutUnitaire.toLocaleString()} XOF</td>
@@ -413,19 +413,19 @@ export const MenusTab: React.FC = () => {
             {/* Informations financières */}
             <div className="grid grid-cols-3 gap-4">
               <div className="bg-blue-50 p-4 rounded">
-                <p className="text-sm text-gray-600">Coût Matière Première</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Coût Matière Première</p>
                 <p className="text-2xl font-bold text-blue-700">
                   {(selectedMenu.coutMatierePremiere || 0).toLocaleString()} XOF
                 </p>
               </div>
               <div className="bg-green-50 p-4 rounded">
-                <p className="text-sm text-gray-600">Coût Unitaire</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Coût Unitaire</p>
                 <p className="text-2xl font-bold text-green-700">
                   {(selectedMenu.coutUnitaire || 0).toLocaleString()} XOF
                 </p>
               </div>
               <div className="bg-purple-50 p-4 rounded">
-                <p className="text-sm text-gray-600">Rationnaires</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Rationnaires</p>
                 <p className="text-2xl font-bold text-purple-700">
                   {selectedMenu.nombreRationnaires || 0}
                 </p>

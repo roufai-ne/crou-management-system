@@ -181,7 +181,7 @@ export const TransportPage: React.FC = () => {
       render: (vehicle: Vehicle) => (
         <div>
           <p className="font-medium">{vehicle.make} {vehicle.model}</p>
-          <p className="text-sm text-gray-500">{vehicle.plateNumber}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{vehicle.plateNumber}</p>
         </div>
       )
     },
@@ -198,7 +198,7 @@ export const TransportPage: React.FC = () => {
       render: (vehicle: Vehicle) => (
         <div className="text-right">
           <p className="font-medium">{vehicle.capacity} places</p>
-          <p className="text-sm text-gray-500">{vehicle.year}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{vehicle.year}</p>
         </div>
       )
     },
@@ -227,7 +227,7 @@ export const TransportPage: React.FC = () => {
       render: (vehicle: Vehicle) => (
         <div className="text-right">
           <p className="font-medium">{vehicle.mileage.toLocaleString()} km</p>
-          <p className="text-sm text-gray-500">Total</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Total</p>
         </div>
       )
     },
@@ -273,7 +273,7 @@ export const TransportPage: React.FC = () => {
       render: (driver: Driver) => (
         <div>
           <p className="font-medium">{driver.firstName} {driver.lastName}</p>
-          <p className="text-sm text-gray-500">{driver.licenseNumber}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{driver.licenseNumber}</p>
         </div>
       )
     },
@@ -283,7 +283,7 @@ export const TransportPage: React.FC = () => {
       render: (driver: Driver) => (
         <div>
           <p className="font-medium">{driver.phone}</p>
-          <p className="text-sm text-gray-500">{driver.email}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{driver.email}</p>
         </div>
       )
     },
@@ -293,7 +293,7 @@ export const TransportPage: React.FC = () => {
       render: (driver: Driver) => (
         <div>
           <p className="font-medium">{driver.licenseType}</p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Expire: {new Date(driver.licenseExpiry).toLocaleDateString()}
           </p>
         </div>
@@ -360,7 +360,7 @@ export const TransportPage: React.FC = () => {
       render: (route: Route) => (
         <div>
           <p className="font-medium">{route.name}</p>
-          <p className="text-sm text-gray-500">{route.description}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{route.description}</p>
         </div>
       )
     },
@@ -370,7 +370,7 @@ export const TransportPage: React.FC = () => {
       render: (route: Route) => (
         <div>
           <p className="font-medium">{route.stops.length} arrêts</p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             {route.stops[0]?.name} → {route.stops[route.stops.length - 1]?.name}
           </p>
         </div>
@@ -382,7 +382,7 @@ export const TransportPage: React.FC = () => {
       render: (route: Route) => (
         <div className="text-right">
           <p className="font-medium">{route.distance} km</p>
-          <p className="text-sm text-gray-500">Durée: {route.estimatedDuration} min</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Durée: {route.estimatedDuration} min</p>
         </div>
       )
     },
@@ -447,7 +447,7 @@ export const TransportPage: React.FC = () => {
       render: (trip: ScheduledTrip) => (
         <div>
           <p className="font-medium">{trip.route?.name}</p>
-          <p className="text-sm text-gray-500">{trip.vehicle?.plateNumber}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{trip.vehicle?.plateNumber}</p>
         </div>
       )
     },
@@ -459,7 +459,7 @@ export const TransportPage: React.FC = () => {
           <p className="font-medium">
             {new Date(trip.scheduledDate).toLocaleTimeString()}
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             {new Date(trip.scheduledDate).toLocaleDateString()}
           </p>
         </div>
@@ -473,7 +473,7 @@ export const TransportPage: React.FC = () => {
           <p className="font-medium">
             {trip.driver?.firstName} {trip.driver?.lastName}
           </p>
-          <p className="text-sm text-gray-500">{trip.driver?.licenseNumber}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{trip.driver?.licenseNumber}</p>
         </div>
       )
     },
@@ -540,7 +540,7 @@ export const TransportPage: React.FC = () => {
       render: (maintenance: MaintenanceRecord) => (
         <div>
           <p className="font-medium">{maintenance.vehicle?.make} {maintenance.vehicle?.model}</p>
-          <p className="text-sm text-gray-500">{maintenance.vehicle?.plateNumber}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{maintenance.vehicle?.plateNumber}</p>
         </div>
       )
     },
@@ -557,7 +557,7 @@ export const TransportPage: React.FC = () => {
       render: (maintenance: MaintenanceRecord) => (
         <div>
           <p className="font-medium">{maintenance.description}</p>
-          <p className="text-sm text-gray-500">{maintenance.performedBy}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{maintenance.performedBy}</p>
         </div>
       )
     },
@@ -567,7 +567,7 @@ export const TransportPage: React.FC = () => {
       render: (maintenance: MaintenanceRecord) => (
         <div className="text-right">
           <p className="font-medium">{maintenance.cost.toLocaleString()} XOF</p>
-          <p className="text-sm text-gray-500">{maintenance.status}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{maintenance.status}</p>
         </div>
       )
     },
@@ -579,7 +579,7 @@ export const TransportPage: React.FC = () => {
           <p className="font-medium">
             {new Date(maintenance.createdAt).toLocaleDateString()}
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             {new Date(maintenance.createdAt).toLocaleTimeString()}
           </p>
         </div>
@@ -834,7 +834,7 @@ export const TransportPage: React.FC = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Gestion du Transport</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gestion du Transport</h1>
             <p className="text-lg text-gray-600 mt-2">
               Parc de véhicules et transport étudiant
             </p>
@@ -866,9 +866,9 @@ export const TransportPage: React.FC = () => {
           <Card.Content>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Véhicules</p>
-                <p className="text-2xl font-bold text-gray-900">{totalVehicles}</p>
-                <p className="text-sm text-gray-500">{activeVehicles} actifs</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Véhicules</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalVehicles}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{activeVehicles} actifs</p>
               </div>
               <TruckIcon className="h-8 w-8 text-primary-600" />
             </div>
@@ -878,9 +878,9 @@ export const TransportPage: React.FC = () => {
           <Card.Content>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Chauffeurs</p>
-                <p className="text-2xl font-bold text-gray-900">{totalDrivers}</p>
-                <p className="text-sm text-gray-500">{activeDrivers} actifs</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Chauffeurs</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalDrivers}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{activeDrivers} actifs</p>
               </div>
               <UserGroupIcon className="h-8 w-8 text-primary-600" />
             </div>
@@ -890,9 +890,9 @@ export const TransportPage: React.FC = () => {
           <Card.Content>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Routes</p>
-                <p className="text-2xl font-bold text-gray-900">{totalRoutes}</p>
-                <p className="text-sm text-gray-500">{totalMileage.toLocaleString()} km total</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Routes</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalRoutes}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{totalMileage.toLocaleString()} km total</p>
               </div>
               <MapIcon className="h-8 w-8 text-primary-600" />
             </div>
@@ -902,9 +902,9 @@ export const TransportPage: React.FC = () => {
           <Card.Content>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Trajets</p>
-                <p className="text-2xl font-bold text-gray-900">{totalTrips}</p>
-                <p className="text-sm text-gray-500">{completedTrips} terminés</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Trajets</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalTrips}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{completedTrips} terminés</p>
               </div>
               <ClockIcon className="h-8 w-8 text-primary-600" />
             </div>

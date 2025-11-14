@@ -148,7 +148,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
 
           {/* Message d'aide */}
           {helperText && !error && !success && (
-            <p className="mt-1 text-sm text-gray-500">{helperText}</p>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{helperText}</p>
           )}
 
           {/* Message d'erreur */}
@@ -197,7 +197,7 @@ export function CheckboxGroup({
   return (
     <div className="space-y-2">
       {label && (
-        <label className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>

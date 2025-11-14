@@ -334,7 +334,7 @@ const BadgeExamples: React.FC = () => {
                       <StudentStatusBadge status={student.status} />
                       {student.notifications > 0 && (
                         <div className="relative">
-                          <BellIcon className="h-5 w-5 text-gray-600" />
+                          <BellIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                           <Badge 
                             count={student.notifications} 
                             variant="danger" 

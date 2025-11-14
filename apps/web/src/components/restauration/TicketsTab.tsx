@@ -134,7 +134,7 @@ export const TicketsTab: React.FC = () => {
       render: (ticket: TicketRepas) => (
         <div>
           <p className="font-mono font-medium">{ticket.numeroTicket}</p>
-          <p className="text-sm text-gray-500">{getTypeLabel(ticket.typeTicket)}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{getTypeLabel(ticket.typeTicket)}</p>
         </div>
       )
     },
@@ -145,7 +145,7 @@ export const TicketsTab: React.FC = () => {
         <div>
           <p className="font-medium">{ticket.nomBeneficiaire}</p>
           {ticket.emailBeneficiaire && (
-            <p className="text-sm text-gray-500">{ticket.emailBeneficiaire}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{ticket.emailBeneficiaire}</p>
           )}
         </div>
       )
@@ -156,7 +156,7 @@ export const TicketsTab: React.FC = () => {
       render: (ticket: TicketRepas) => (
         <div>
           <p className="font-medium">{new Date(ticket.dateEmission).toLocaleDateString()}</p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Expire: {new Date(ticket.dateExpiration).toLocaleDateString()}
           </p>
         </div>
@@ -170,7 +170,7 @@ export const TicketsTab: React.FC = () => {
           {ticket.dateUtilisation ? (
             <>
               <p className="font-medium">{new Date(ticket.dateUtilisation).toLocaleDateString()}</p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 {new Date(ticket.dateUtilisation).toLocaleTimeString()}
               </p>
             </>
@@ -236,7 +236,7 @@ export const TicketsTab: React.FC = () => {
           <Card.Content className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Tickets Actifs</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Tickets Actifs</p>
                 <p className="text-2xl font-bold text-green-600">
                   {tickets?.filter((t: TicketRepas) => t.statut === TicketStatus.ACTIF).length || 0}
                 </p>
@@ -250,7 +250,7 @@ export const TicketsTab: React.FC = () => {
           <Card.Content className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Utilisés Aujourd'hui</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Utilisés Aujourd'hui</p>
                 <p className="text-2xl font-bold text-blue-600">
                   {tickets?.filter((t: TicketRepas) =>
                     t.statut === TicketStatus.UTILISE &&
@@ -268,7 +268,7 @@ export const TicketsTab: React.FC = () => {
           <Card.Content className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Expirés</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Expirés</p>
                 <p className="text-2xl font-bold text-yellow-600">
                   {tickets?.filter((t: TicketRepas) => t.statut === TicketStatus.EXPIRE).length || 0}
                 </p>
@@ -282,7 +282,7 @@ export const TicketsTab: React.FC = () => {
           <Card.Content className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Annulés</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Annulés</p>
                 <p className="text-2xl font-bold text-red-600">
                   {tickets?.filter((t: TicketRepas) => t.statut === TicketStatus.ANNULE).length || 0}
                 </p>

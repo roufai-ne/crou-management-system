@@ -94,13 +94,13 @@ router.get('/',
       // Statistiques d'audit simplifiées (sans filtrage complexe)
       const todayLogins = await auditLogRepository
         .createQueryBuilder('audit')
-        .where('audit.action = :action', { action: 'LOGIN' })
+        .where('audit.action = :action', { action: 'login' })
         .andWhere('audit.createdAt >= :today', { today })
         .getCount();
 
       const thisWeekLogins = await auditLogRepository
         .createQueryBuilder('audit')
-        .where('audit.action = :action', { action: 'LOGIN' })
+        .where('audit.action = :action', { action: 'login' })
         .andWhere('audit.createdAt >= :weekAgo', { weekAgo })
         .getCount();
 

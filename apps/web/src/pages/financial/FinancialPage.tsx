@@ -78,7 +78,7 @@ export const FinancialPage: React.FC = () => {
                   className="h-20 flex-col gap-2"
                 >
                   <span className="text-lg">Nouveau Budget</span>
-                  <span className="text-sm text-gray-500">Créer un budget</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">Créer un budget</span>
                 </Button>
                 <Button
                   variant="outline"
@@ -87,7 +87,7 @@ export const FinancialPage: React.FC = () => {
                   className="h-20 flex-col gap-2"
                 >
                   <span className="text-lg">Nouvelle Transaction</span>
-                  <span className="text-sm text-gray-500">Enregistrer une dépense</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">Enregistrer une dépense</span>
                 </Button>
                 <Button
                   variant="outline"
@@ -96,7 +96,7 @@ export const FinancialPage: React.FC = () => {
                   className="h-20 flex-col gap-2"
                 >
                   <span className="text-lg">Générer Rapport</span>
-                  <span className="text-sm text-gray-500">Exporter les données</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">Exporter les données</span>
                 </Button>
               </div>
             </Card.Content>
@@ -139,11 +139,11 @@ export const FinancialPage: React.FC = () => {
           </Card.Header>
           <Card.Content>
             <div className="text-center py-12">
-              <DocumentArrowDownIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <DocumentArrowDownIcon className="h-16 w-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 Module Rapports en Développement
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-400">
                 La génération de rapports sera disponible dans la prochaine version.
               </p>
             </div>
@@ -158,14 +158,14 @@ export const FinancialPage: React.FC = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <BanknotesIcon className="h-8 w-8 text-primary-600" />
-            <h1 className="text-3xl font-bold text-gray-900">
+            <BanknotesIcon className="h-8 w-8 text-primary-600 dark:text-primary-400" />
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               Gestion Financière
             </h1>
           </div>
           <ExportButton module="financial" />
         </div>
-        <p className="text-lg text-gray-600">
+        <p className="text-lg text-gray-600 dark:text-gray-400">
           Module financier {user?.level === 'ministere' ? 'national' : 'local'} - CROU {user?.crouId || 'Local'}
         </p>
       </div>

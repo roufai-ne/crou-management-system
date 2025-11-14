@@ -249,7 +249,7 @@ export const SuppliersTab: React.FC<SuppliersTabProps> = ({ onError }) => {
           {loading ? (
             <div className="text-center py-8">Chargement...</div>
           ) : suppliers.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
               Aucun fournisseur trouvé
             </div>
           ) : (
@@ -272,7 +272,7 @@ export const SuppliersTab: React.FC<SuppliersTabProps> = ({ onError }) => {
                     <Table.Cell>
                       <div>
                         <div className="font-medium">{supplier.nom}</div>
-                        <div className="text-sm text-gray-500">{supplier.nomCommercial}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">{supplier.nomCommercial}</div>
                       </div>
                     </Table.Cell>
                     <Table.Cell>
@@ -281,7 +281,7 @@ export const SuppliersTab: React.FC<SuppliersTabProps> = ({ onError }) => {
                     <Table.Cell>
                       <div className="text-sm">
                         {supplier.telephone && <div>{supplier.telephone}</div>}
-                        {supplier.email && <div className="text-gray-500">{supplier.email}</div>}
+                        {supplier.email && <div className="text-gray-500 dark:text-gray-400">{supplier.email}</div>}
                       </div>
                     </Table.Cell>
                     <Table.Cell>
@@ -516,34 +516,34 @@ export const SuppliersTab: React.FC<SuppliersTabProps> = ({ onError }) => {
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-700">Code</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Code</label>
                 <p className="mt-1 font-mono">{selectedSupplier.code}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700">Nom</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Nom</label>
                 <p className="mt-1">{selectedSupplier.nom}</p>
               </div>
             </div>
             {selectedSupplier.nomCommercial && (
               <div>
-                <label className="text-sm font-medium text-gray-700">Nom Commercial</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Nom Commercial</label>
                 <p className="mt-1">{selectedSupplier.nomCommercial}</p>
               </div>
             )}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-700">Type</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Type</label>
                 <p className="mt-1">{getTypeLabel(selectedSupplier.type)}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700">Statut</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Statut</label>
                 <p className="mt-1">{getStatusBadge(selectedSupplier.status)}</p>
               </div>
             </div>
             {selectedSupplier.description && (
               <div>
-                <label className="text-sm font-medium text-gray-700">Description</label>
-                <p className="mt-1 text-gray-600">{selectedSupplier.description}</p>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+                <p className="mt-1 text-gray-600 dark:text-gray-400">{selectedSupplier.description}</p>
               </div>
             )}
             <div className="border-t pt-4">

@@ -128,7 +128,7 @@ export const RepasTab: React.FC = () => {
       render: (repas: Repas) => (
         <div>
           <p className="font-medium">{repas.restaurant?.nom}</p>
-          <p className="text-sm text-gray-500">{repas.menu?.titre}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{repas.menu?.titre}</p>
         </div>
       )
     },
@@ -138,7 +138,7 @@ export const RepasTab: React.FC = () => {
       render: (repas: Repas) => (
         <div>
           <p className="font-medium">{new Date(repas.dateService).toLocaleDateString()}</p>
-          <p className="text-sm text-gray-500">{getTypeRepasLabel(repas.typeRepas)}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{getTypeRepasLabel(repas.typeRepas)}</p>
         </div>
       )
     },
@@ -151,7 +151,7 @@ export const RepasTab: React.FC = () => {
             {repas.heureDebut ? new Date(repas.heureDebut).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '-'}
           </p>
           {repas.heureFin && (
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Fin: {new Date(repas.heureFin).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
             </p>
           )}
@@ -165,7 +165,7 @@ export const RepasTab: React.FC = () => {
         <div className="text-right">
           <p className="font-medium">{repas.nombreServis || 0} / {repas.nombreRationnaires}</p>
           {repas.tauxFrequentation !== undefined && (
-            <p className="text-sm text-gray-500">{repas.tauxFrequentation}%</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{repas.tauxFrequentation}%</p>
           )}
         </div>
       )
@@ -246,23 +246,23 @@ export const RepasTab: React.FC = () => {
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <p className="font-semibold">{service.restaurant?.nom}</p>
-                      <p className="text-sm text-gray-600">{service.menu?.titre}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{service.menu?.titre}</p>
                     </div>
                     <Badge variant="success">En cours</Badge>
                   </div>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Type:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Type:</span>
                       <span className="font-medium">{getTypeRepasLabel(service.typeRepas)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Démarré:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Démarré:</span>
                       <span className="font-medium">
                         {service.heureDebut ? new Date(service.heureDebut).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '-'}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Servis:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Servis:</span>
                       <span className="font-medium">{service.nombreServis || 0} / {service.nombreRationnaires}</span>
                     </div>
                   </div>
@@ -342,7 +342,7 @@ export const RepasTab: React.FC = () => {
         size="lg"
       >
         <div className="space-y-4">
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Veuillez renseigner les statistiques du service terminé.
           </p>
 
@@ -399,19 +399,19 @@ export const RepasTab: React.FC = () => {
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-600">Restaurant</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Restaurant</p>
                 <p className="font-medium">{selectedRepas.restaurant?.nom}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Menu</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Menu</p>
                 <p className="font-medium">{selectedRepas.menu?.titre}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Date</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Date</p>
                 <p className="font-medium">{new Date(selectedRepas.dateService).toLocaleDateString()}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Type</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Type</p>
                 <p className="font-medium">{getTypeRepasLabel(selectedRepas.typeRepas)}</p>
               </div>
             </div>
@@ -420,19 +420,19 @@ export const RepasTab: React.FC = () => {
               <>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="bg-blue-50 p-4 rounded">
-                    <p className="text-sm text-gray-600">Servis</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Servis</p>
                     <p className="text-2xl font-bold text-blue-700">
                       {selectedRepas.nombreServis} / {selectedRepas.nombreRationnaires}
                     </p>
                   </div>
                   <div className="bg-green-50 p-4 rounded">
-                    <p className="text-sm text-gray-600">Fréquentation</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Fréquentation</p>
                     <p className="text-2xl font-bold text-green-700">
                       {selectedRepas.tauxFrequentation}%
                     </p>
                   </div>
                   <div className="bg-purple-50 p-4 rounded">
-                    <p className="text-sm text-gray-600">Recettes</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Recettes</p>
                     <p className="text-2xl font-bold text-purple-700">
                       {(selectedRepas.recettesTotales || 0).toLocaleString()} XOF
                     </p>

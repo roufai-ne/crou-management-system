@@ -239,19 +239,42 @@ class AdminService {
       if (params?.role) queryParams.append('role', params.role);
       if (params?.isActive !== undefined) queryParams.append('isActive', params.isActive.toString());
       if (params?.search) queryParams.append('search', params.search);
-      if (params?.page) queryParams.append('page', params.page.toString());
+
+      // Convertir page en offset pour le backend
+      if (params?.page && params?.limit) {
+        const offset = (params.page - 1) * params.limit;
+        queryParams.append('offset', offset.toString());
+      }
       if (params?.limit) queryParams.append('limit', params.limit.toString());
 
       const response = await apiClient.get(`${this.baseUrl}/users?${queryParams.toString()}`);
-      const data = response.data?.data || response.data;
-      return {
-        users: Array.isArray(data.users) ? data.users : [],
-        total: data.total || 0,
-        page: data.page || 1,
-        limit: data.limit || 50
+      console.log('📊 DEBUG - Response from /admin/users:', response);
+
+      // Le backend retourne { success: true, data: { users: [...], pagination: {...} } }
+      const data = response.data || response;
+      console.log('📊 DEBUG - Extracted data:', data);
+      console.log('📊 DEBUG - data.users:', data.users);
+
+      const users = Array.isArray(data.users) ? data.users : [];
+      const pagination = data.pagination || {};
+
+      console.log('📊 DEBUG - Parsed users count:', users.length);
+      console.log('📊 DEBUG - Pagination:', pagination);
+      console.log('📊 DEBUG - pagination.total:', pagination.total);
+
+      const result = {
+        users,
+        total: pagination.total || 0,
+        page: params?.page || 1,
+        limit: params?.limit || 50
       };
+
+      console.log('📊 DEBUG - Returning result:', result);
+
+      return result;
     } catch (error) {
-      console.error('Erreur lors de la récupération des utilisateurs:', error);
+      console.error('❌ DEBUG - Erreur lors de la récupération des utilisateurs:', error);
+      console.error('❌ DEBUG - Error details:', error);
       return { users: [], total: 0, page: 1, limit: 50 };
     }
   }

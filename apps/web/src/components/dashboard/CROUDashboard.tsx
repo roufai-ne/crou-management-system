@@ -278,7 +278,7 @@ export const CROUDashboard: React.FC = () => {
                            operation.status === 'pending' ? 'En attente' : 'Annulé'}
                         </Badge>
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
+                      <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
                         <span className="flex items-center gap-1">
                           <ClockIcon className="h-4 w-4" />
                           {operation.time}
@@ -434,7 +434,7 @@ export const CROUDashboard: React.FC = () => {
                   change={1.5}
                   size="sm"
                 />
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   <p>• Petit-déjeuner: 850 repas</p>
                   <p>• Déjeuner: 1200 repas (prévisionnel)</p>
                   <p>• Dîner: 800 repas (prévisionnel)</p>
@@ -468,7 +468,7 @@ export const CROUDashboard: React.FC = () => {
                   change={-2.3}
                   size="sm"
                 />
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   <p>• Nouvelles attributions: 12</p>
                   <p>• Libérations: 8</p>
                   <p>• En maintenance: 15</p>
@@ -502,7 +502,7 @@ export const CROUDashboard: React.FC = () => {
                   change={1.2}
                   size="sm"
                 />
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   <p>• Campus ↔ Ville: 85 trajets</p>
                   <p>• Circuits internes: 40 trajets</p>
                   <p>• En maintenance: 7 véhicules</p>
@@ -536,7 +536,7 @@ export const CROUDashboard: React.FC = () => {
                   change={14.3}
                   size="sm"
                 />
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   <p>• Denrées alimentaires: 75%</p>
                   <p>• Produits d'entretien: 60%</p>
                   <p>• Équipements: 40%</p>
@@ -565,7 +565,7 @@ export const CROUDashboard: React.FC = () => {
               <div className="grid grid-cols-7 divide-x divide-gray-200 min-h-[200px]">
                 {Array.from({ length: 7 }, (_, i) => (
                   <div key={i} className="p-2 space-y-1">
-                    <div className="text-xs font-medium text-gray-600">
+                    <div className="text-xs font-medium text-gray-600 dark:text-gray-400">
                       {new Date(Date.now() + i * 24 * 60 * 60 * 1000).getDate()}
                     </div>
                     {i === 0 && (
@@ -599,10 +599,10 @@ export const CROUDashboard: React.FC = () => {
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
               CROU {user?.crouId?.toUpperCase() || 'Local'}
             </h2>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-400">
               Tableau de bord opérationnel • {new Date().toLocaleDateString('fr-FR')}
             </p>
           </div>

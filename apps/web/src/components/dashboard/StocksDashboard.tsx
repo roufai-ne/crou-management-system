@@ -87,8 +87,8 @@ export const StocksDashboard: React.FC = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Dashboard Stocks</h2>
-            <p className="text-gray-600">Vue d'ensemble de la gestion des stocks</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard Stocks</h2>
+            <p className="text-gray-600 dark:text-gray-400">Vue d'ensemble de la gestion des stocks</p>
           </div>
           <div className="flex items-center gap-4">
             {criticalAlerts.length > 0 && (
@@ -133,16 +133,16 @@ export const StocksDashboard: React.FC = () => {
                         <p className="font-medium text-gray-900 capitalize">
                           {category.category}
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           {category.count} article{category.count > 1 ? 's' : ''}
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-gray-900 dark:text-white">
                         {category.value.toLocaleString()} XOF
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         {category.percentage.toFixed(1)}%
                       </p>
                     </div>
@@ -152,7 +152,7 @@ export const StocksDashboard: React.FC = () => {
             ) : (
               <div className="text-center py-8">
                 <CubeIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">Aucune donnée disponible</p>
+                <p className="text-gray-500 dark:text-gray-400">Aucune donnée disponible</p>
               </div>
             )}
           </Card.Content>
@@ -173,10 +173,10 @@ export const StocksDashboard: React.FC = () => {
                         movement.type === 'entree' ? 'bg-green-500' : 'bg-red-500'
                       }`}></div>
                       <div>
-                        <p className="font-medium text-gray-900">
+                        <p className="font-medium text-gray-900 dark:text-white">
                           {movement.stockItem?.libelle || 'Article inconnu'}
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           {new Date(movement.createdAt).toLocaleDateString()}
                         </p>
                       </div>
@@ -197,7 +197,7 @@ export const StocksDashboard: React.FC = () => {
             ) : (
               <div className="text-center py-8">
                 <ClockIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">Aucun mouvement récent</p>
+                <p className="text-gray-500 dark:text-gray-400">Aucun mouvement récent</p>
               </div>
             )}
           </Card.Content>
@@ -220,7 +220,7 @@ export const StocksDashboard: React.FC = () => {
                   <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                   <div className="flex-1">
                     <p className="font-medium text-gray-800">{alert.message}</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       {alert.stockItem?.libelle} - Quantité: {alert.quantiteActuelle}
                     </p>
                   </div>

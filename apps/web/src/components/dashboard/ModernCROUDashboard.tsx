@@ -250,10 +250,10 @@ export const ModernCROUDashboard: React.FC = () => {
       {/* Header avec titre et actions */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Dashboard CROU {user?.crouId || 'Local'}
           </h1>
-          <p className="text-lg text-gray-600 mt-2">
+          <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">
             Vue d'ensemble des opérations et performances
           </p>
         </div>
@@ -276,9 +276,9 @@ export const ModernCROUDashboard: React.FC = () => {
 
       {/* Alertes critiques */}
       {criticalAlerts.length > 0 && (
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20">
           <CardHeader>
-            <CardTitle className="text-red-800 flex items-center gap-2">
+            <CardTitle className="text-red-800 dark:text-red-300 flex items-center gap-2">
               <ExclamationTriangleIcon className="h-5 w-5" />
               Alertes Critiques
             </CardTitle>
@@ -286,11 +286,11 @@ export const ModernCROUDashboard: React.FC = () => {
           <CardContent>
             <div className="space-y-2">
               {criticalAlerts.map((alert) => (
-                <div key={alert.id} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-red-200">
+                <div key={alert.id} className="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg border border-red-200 dark:border-red-800">
                   <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                   <div className="flex-1">
-                    <p className="font-medium text-red-900">{alert.title}</p>
-                    <p className="text-sm text-red-700">{alert.message}</p>
+                    <p className="font-medium text-red-900 dark:text-red-300">{alert.title}</p>
+                    <p className="text-sm text-red-700 dark:text-red-400">{alert.message}</p>
                   </div>
                   <Badge variant="danger" className="text-xs">
                     {alert.module}
@@ -303,15 +303,15 @@ export const ModernCROUDashboard: React.FC = () => {
       )}
 
       {/* Navigation par boutons */}
-      <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg mb-8">
+      <div className="flex space-x-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg mb-8">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               activeTab === tab.id
-                ? 'bg-white text-primary-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                ? 'bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'
             }`}
           >
             <tab.icon className="h-4 w-4" />
@@ -366,11 +366,11 @@ export const ModernCROUDashboard: React.FC = () => {
               <CardContent>
                 <div className="space-y-4">
                   {financialMetrics.metrics.monthlyTrend.map((month, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <span className="font-medium">{month.month}</span>
+                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{month.month}</span>
                       <div className="flex items-center gap-4 text-sm">
-                        <span className="text-green-600">+{month.revenue.toLocaleString()} XOF</span>
-                        <span className="text-red-600">-{month.spent.toLocaleString()} XOF</span>
+                        <span className="text-green-600 dark:text-green-400">+{month.revenue.toLocaleString()} XOF</span>
+                        <span className="text-red-600 dark:text-red-400">-{month.spent.toLocaleString()} XOF</span>
                       </div>
                     </div>
                   ))}
@@ -385,16 +385,16 @@ export const ModernCROUDashboard: React.FC = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span>Utilisation</span>
-                    <span className="font-bold">{financialMetrics.metrics.budgetUtilization}%</span>
+                    <span className="text-gray-900 dark:text-gray-100">Utilisation</span>
+                    <span className="font-bold text-gray-900 dark:text-gray-100">{financialMetrics.metrics.budgetUtilization}%</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-primary-600 h-2 rounded-full transition-all duration-300"
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div
+                      className="bg-primary-600 dark:bg-primary-500 h-2 rounded-full transition-all duration-300"
                       style={{ width: `${financialMetrics.metrics.budgetUtilization}%` }}
                     ></div>
                   </div>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
                     {financialMetrics.metrics.totalSpent.toLocaleString()} XOF sur {financialMetrics.metrics.totalBudget.toLocaleString()} XOF
                   </div>
                 </div>

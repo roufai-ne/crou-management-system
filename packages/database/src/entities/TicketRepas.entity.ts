@@ -85,7 +85,7 @@ export class TicketRepas {
   @IsEnum(CategorieTicket)
   categorie: CategorieTicket; // PAYANT ou GRATUIT
 
-  @Column({ type: 'enum', enum: TypeRepas })
+  @Column({ type: 'enum', enum: TypeRepas, name: 'type_repas' })
   @IsEnum(TypeRepas)
   typeRepas: TypeRepas; // PETIT_DEJEUNER, DEJEUNER, ou DINER
 
@@ -159,7 +159,7 @@ export class TicketRepas {
   qrCode: string; // Données encodées pour QR code (unique)
 
   // Message d'indication sur le ticket
-  @Column({ type: 'varchar', length: 500, nullable: true })
+  @Column({ type: 'varchar', length: 500, nullable: true, name: 'message_indication' })
   @IsOptional()
   @IsString()
   messageIndication?: string; // Message affiché sur le ticket (ex: "Bon appétit!")

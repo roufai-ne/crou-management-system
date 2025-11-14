@@ -90,10 +90,10 @@ export function Progress({
       {/* Label */}
       {(showLabel || label) && (
         <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-medium text-gray-700">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
             {label || 'Progression'}
           </span>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-gray-500 dark:text-gray-400">
             {Math.round(percentage)}%
           </span>
         </div>
@@ -109,7 +109,7 @@ export function Progress({
 
       {/* Valeur actuelle */}
       {showLabel && (
-        <div className="mt-1 text-xs text-gray-500">
+        <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
           {value} / {max}
         </div>
       )}
@@ -218,11 +218,11 @@ export function CircularProgress({
       {(showLabel || label) && (
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">
               {Math.round(percentage)}%
             </div>
             {label && (
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
                 {label}
               </div>
             )}

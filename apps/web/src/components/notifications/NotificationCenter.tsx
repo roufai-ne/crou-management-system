@@ -161,7 +161,7 @@ export function NotificationCenter() {
       case 'critical':
         return <AlertCircle className="w-4 h-4 text-red-800" />;
       default:
-        return <Bell className="w-4 h-4 text-gray-600" />;
+        return <Bell className="w-4 h-4 text-gray-600 dark:text-gray-400" />;
     }
   };
 
@@ -311,7 +311,7 @@ export function NotificationCenter() {
                     ) : filteredNotifications.length === 0 ? (
                       <div className="text-center py-8">
                         <Bell className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                        <p className="text-gray-500">Aucune notification</p>
+                        <p className="text-gray-500 dark:text-gray-400">Aucune notification</p>
                       </div>
                     ) : (
                       <div className="space-y-1">
@@ -345,7 +345,7 @@ export function NotificationCenter() {
                                 </p>
                                 
                                 <div className="flex items-center justify-between">
-                                  <span className="text-xs text-gray-500">
+                                  <span className="text-xs text-gray-500 dark:text-gray-400">
                                     {formatDate(notification.createdAt)}
                                   </span>
                                   

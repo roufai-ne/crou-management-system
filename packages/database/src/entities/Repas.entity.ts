@@ -106,17 +106,9 @@ export class Repas {
   @IsNumber()
   nombreServis: number; // Nombre réel de repas servis
 
-  @Column({ type: 'int', default: 0, name: 'nombre_tickets_unitaires' })
+  @Column({ type: 'int', default: 0, name: 'nombre_tickets_utilises' })
   @IsNumber()
-  nombreTicketsUnitaires: number;
-
-  @Column({ type: 'int', default: 0, name: 'nombre_tickets_forfaits' })
-  @IsNumber()
-  nombreTicketsForfaits: number;
-
-  @Column({ type: 'int', default: 0, name: 'nombre_tickets_gratuits' })
-  @IsNumber()
-  nombreTicketsGratuits: number;
+  nombreTicketsUtilises: number; // Nombre de tickets utilisés pour ce repas
 
   // Répartition par catégorie
   @Column({ type: 'jsonb', nullable: true, name: 'repartition_categories' })
@@ -132,18 +124,6 @@ export class Repas {
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0, name: 'recettes_totales' })
   @IsNumber()
   recettesTotales: number; // Recettes en FCFA
-
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0, name: 'recettes_unitaires' })
-  @IsNumber()
-  recettesUnitaires: number;
-
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0, name: 'recettes_forfaits' })
-  @IsNumber()
-  recettesForfaits: number;
-
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0, name: 'montant_subventions' })
-  @IsNumber()
-  montantSubventions: number; // Subventions/gratuités
 
   // Coûts et rentabilité
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0, name: 'cout_matieres_premieres' })

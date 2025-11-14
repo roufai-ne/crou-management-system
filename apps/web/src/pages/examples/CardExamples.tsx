@@ -565,7 +565,7 @@ const CardExamples: React.FC = () => {
                     <div>
                       <p className="mb-2">{notification.message}</p>
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
                           {notification.timestamp.toLocaleString('fr-FR')}
                         </span>
                         {!notification.isRead && (

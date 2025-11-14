@@ -123,7 +123,7 @@ export function TransactionDetailModal({
       <Modal isOpen={isOpen} onClose={onClose} size="lg">
         <ModalHeader onClose={onClose}>
           <div className="flex items-center justify-between w-full">
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
               Détail de la transaction
             </h2>
             <div className="flex items-center gap-2">
@@ -150,7 +150,7 @@ export function TransactionDetailModal({
                         <FileText className="w-4 h-4" />
                         Libellé
                       </label>
-                      <p className="mt-1 text-base text-gray-900">{transaction.libelle}</p>
+                      <p className="mt-1 text-base text-gray-900 dark:text-white">{transaction.libelle}</p>
                     </div>
 
                     <div>
@@ -172,8 +172,8 @@ export function TransactionDetailModal({
 
                   {transaction.description && (
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Description</label>
-                      <p className="mt-1 text-base text-gray-900">{transaction.description}</p>
+                      <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Description</label>
+                      <p className="mt-1 text-base text-gray-900 dark:text-white">{transaction.description}</p>
                     </div>
                   )}
 
@@ -183,7 +183,7 @@ export function TransactionDetailModal({
                         <Calendar className="w-4 h-4" />
                         Date
                       </label>
-                      <p className="mt-1 text-base text-gray-900">
+                      <p className="mt-1 text-base text-gray-900 dark:text-white">
                         {formatDate(transaction.date)}
                       </p>
                     </div>
@@ -228,7 +228,7 @@ export function TransactionDetailModal({
                           <User className="w-4 h-4" />
                           Bénéficiaire
                         </label>
-                        <p className="mt-1 text-base text-gray-900">{transaction.beneficiaire}</p>
+                        <p className="mt-1 text-base text-gray-900 dark:text-white">{transaction.beneficiaire}</p>
                       </div>
                     )}
 
@@ -238,7 +238,7 @@ export function TransactionDetailModal({
                           <Building className="w-4 h-4" />
                           Fournisseur
                         </label>
-                        <p className="mt-1 text-base text-gray-900">{transaction.fournisseur}</p>
+                        <p className="mt-1 text-base text-gray-900 dark:text-white">{transaction.fournisseur}</p>
                       </div>
                     )}
                   </div>
@@ -258,7 +258,7 @@ export function TransactionDetailModal({
                       <FileText className="w-4 h-4" />
                       Pièce justificative
                     </label>
-                    <p className="mt-1 text-base text-gray-900">
+                    <p className="mt-1 text-base text-gray-900 dark:text-white">
                       {transaction.pieceJustificative}
                     </p>
                   </div>
@@ -276,10 +276,10 @@ export function TransactionDetailModal({
                   <div className="flex items-start gap-3 text-sm">
                     <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-500" />
                     <div className="flex-1">
-                      <p className="text-gray-900">
+                      <p className="text-gray-900 dark:text-white">
                         Créé par <span className="font-medium">{transaction.createdBy}</span>
                       </p>
-                      <p className="text-gray-500">{formatDate(transaction.createdAt)}</p>
+                      <p className="text-gray-500 dark:text-gray-400">{formatDate(transaction.createdAt)}</p>
                     </div>
                   </div>
 
@@ -287,8 +287,8 @@ export function TransactionDetailModal({
                     <div className="flex items-start gap-3 text-sm">
                       <div className="w-2 h-2 mt-1.5 rounded-full bg-orange-500" />
                       <div className="flex-1">
-                        <p className="text-gray-900">Dernière modification</p>
-                        <p className="text-gray-500">{formatDate(transaction.updatedAt)}</p>
+                        <p className="text-gray-900 dark:text-white">Dernière modification</p>
+                        <p className="text-gray-500 dark:text-gray-400">{formatDate(transaction.updatedAt)}</p>
                       </div>
                     </div>
                   )}
@@ -297,10 +297,10 @@ export function TransactionDetailModal({
                     <div className="flex items-start gap-3 text-sm">
                       <div className="w-2 h-2 mt-1.5 rounded-full bg-green-500" />
                       <div className="flex-1">
-                        <p className="text-gray-900">
+                        <p className="text-gray-900 dark:text-white">
                           Approuvé par <span className="font-medium">{transaction.approvedBy}</span>
                         </p>
-                        <p className="text-gray-500">{formatDate(transaction.approvedAt)}</p>
+                        <p className="text-gray-500 dark:text-gray-400">{formatDate(transaction.approvedAt)}</p>
                       </div>
                     </div>
                   )}
@@ -409,7 +409,7 @@ export function TransactionDetailModal({
       >
         <ModalBody>
           <div className="space-y-4">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Veuillez indiquer la raison du rejet de cette transaction.
             </p>
             <textarea

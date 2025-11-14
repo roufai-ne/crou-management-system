@@ -134,7 +134,7 @@ export function OfflineBanner({
                 {pendingCount > 0 && (
                   <div className="flex items-center gap-2 text-sm">
                     <Clock className="w-3 h-3 text-orange-600" />
-                    <span className="text-gray-600">
+                    <span className="text-gray-600 dark:text-gray-400">
                       {pendingCount} donnée{pendingCount > 1 ? 's' : ''} en attente de synchronisation
                     </span>
                   </div>
@@ -144,7 +144,7 @@ export function OfflineBanner({
                 {lastSync && (
                   <div className="flex items-center gap-2 text-sm">
                     <CheckCircle className="w-3 h-3 text-green-600" />
-                    <span className="text-gray-600">
+                    <span className="text-gray-600 dark:text-gray-400">
                       Dernière synchronisation: {getTimeSinceLastSyncText()}
                     </span>
                   </div>

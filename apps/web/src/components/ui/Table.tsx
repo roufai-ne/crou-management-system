@@ -135,10 +135,10 @@ export function Table<T extends { id: string | number }>({
 
   // Rendu de l'en-tête
   const renderHeader = () => (
-    <thead className="bg-gray-50">
+    <thead className="bg-gray-50 dark:bg-gray-900">
       <tr>
         {selectable && (
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-12">
             <Checkbox
               checked={isAllSelected}
               onChange={handleSelectAll}
@@ -149,8 +149,8 @@ export function Table<T extends { id: string | number }>({
         {columns.map((column, colIndex) => (
           <th
             key={`${column.key}-${colIndex}`}
-            className={`px-6 py-3 text-${column.align || 'left'} text-xs font-medium text-gray-500 uppercase tracking-wider ${
-              column.sortable !== false && sortable ? 'cursor-pointer hover:bg-gray-100' : ''
+            className={`px-6 py-3 text-${column.align || 'left'} text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider ${
+              column.sortable !== false && sortable ? 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700' : ''
             } ${column.className || ''}`}
             style={{ width: column.width }}
             onClick={() => column.sortable !== false && handleSort(column.key)}
@@ -192,7 +192,7 @@ export function Table<T extends { id: string | number }>({
           </th>
         ))}
         {actions && (
-          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
+          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-12">
             Actions
           </th>
         )}
@@ -202,11 +202,11 @@ export function Table<T extends { id: string | number }>({
 
   // Rendu des lignes
   const renderRows = () => (
-    <tbody className="bg-white divide-y divide-gray-200">
+    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
       {data.map((item, index) => (
         <tr
           key={item.id || `row-${index}`}
-          className={`hover:bg-gray-50 ${
+          className={`hover:bg-gray-50 dark:hover:bg-gray-700 ${
             onRowClick ? 'cursor-pointer' : ''
           } ${rowClassName?.(item, index) || ''}`}
           onClick={() => onRowClick?.(item, index)}
@@ -223,7 +223,7 @@ export function Table<T extends { id: string | number }>({
           {columns.map((column, colIndex) => (
             <td
               key={`${column.key}-${colIndex}`}
-              className={`px-6 py-4 whitespace-nowrap text-${column.align || 'left'} text-sm text-gray-900 ${
+              className={`px-6 py-4 whitespace-nowrap text-${column.align || 'left'} text-sm text-gray-900 dark:text-gray-100 ${
                 column.className || ''
               }`}
             >
@@ -250,7 +250,7 @@ export function Table<T extends { id: string | number }>({
     const endItem = Math.min(page * limit, total);
 
     return (
-      <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+      <div className="bg-white dark:bg-gray-800 px-4 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 sm:px-6">
         <div className="flex-1 flex justify-between sm:hidden">
           <Button
             variant="outline"
@@ -272,7 +272,7 @@ export function Table<T extends { id: string | number }>({
         
         <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm text-gray-700">
+            <p className="text-sm text-gray-700 dark:text-gray-300">
               Affichage de <span className="font-medium">{startItem}</span> à{' '}
               <span className="font-medium">{endItem}</span> sur{' '}
               <span className="font-medium">{total}</span> résultats
@@ -281,7 +281,7 @@ export function Table<T extends { id: string | number }>({
           
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <label className="text-sm text-gray-700">Afficher:</label>
+              <label className="text-sm text-gray-700 dark:text-gray-300">Afficher:</label>
               <select
                 value={limit}
                 onChange={(e) => onLimitChange(Number(e.target.value))}
@@ -341,7 +341,7 @@ export function Table<T extends { id: string | number }>({
       <tr>
         <td 
           colSpan={columns.length + (selectable ? 1 : 0) + (actions ? 1 : 0)}
-          className="px-6 py-12 text-center text-sm text-gray-500"
+          className="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400"
         >
           {emptyMessage}
         </td>
@@ -359,7 +359,7 @@ export function Table<T extends { id: string | number }>({
         >
           <div className="flex items-center justify-center">
             <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
-            <span className="ml-2 text-sm text-gray-500">Chargement...</span>
+            <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">Chargement...</span>
           </div>
         </td>
       </tr>

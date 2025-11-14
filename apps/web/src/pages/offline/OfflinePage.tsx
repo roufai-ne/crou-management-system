@@ -165,7 +165,7 @@ export default function OfflinePage() {
       {/* En-tête */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Capacités PWA Offline</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Capacités PWA Offline</h1>
           <p className="text-gray-600 mt-1">
             Gestion des capacités offline et synchronisation
           </p>
@@ -206,7 +206,7 @@ export default function OfflinePage() {
                 {getStatusIcon()}
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-gray-900">
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">
                   {getStatusText()}
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -266,13 +266,13 @@ export default function OfflinePage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Version</span>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
                     {serviceWorkerVersion || 'Non disponible'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Cache</span>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
                     {cacheStats.size} entrées
                   </span>
                 </div>
@@ -297,19 +297,19 @@ export default function OfflinePage() {
                     <div className="text-2xl font-bold text-blue-600">
                       {cacheStats.size}
                     </div>
-                    <p className="text-sm text-gray-600">Entrées</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Entrées</p>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-green-600">
                       {cacheStats.entries.length}
                     </div>
-                    <p className="text-sm text-gray-600">Clés</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Clés</p>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-orange-600">
                       {performanceMetrics.cacheHitRate}%
                     </div>
-                    <p className="text-sm text-gray-600">Taux de succès</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Taux de succès</p>
                   </div>
                 </div>
 
@@ -389,7 +389,7 @@ export default function OfflinePage() {
                       pendingData.map((data, index) => (
                         <div key={index} className="text-xs text-gray-600 py-1 border-b">
                           <div className="font-medium">{data.type.toUpperCase()}</div>
-                          <div className="text-gray-500">{data.endpoint}</div>
+                          <div className="text-gray-500 dark:text-gray-400">{data.endpoint}</div>
                           <div className="text-gray-400">
                             Tentatives: {data.retryCount}/{data.maxRetries}
                           </div>
@@ -466,11 +466,11 @@ export default function OfflinePage() {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm">TTL par défaut</span>
-                        <span className="text-sm text-gray-600">5 minutes</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">5 minutes</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Taille maximale</span>
-                        <span className="text-sm text-gray-600">1000 entrées</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">1000 entrées</span>
                       </div>
                     </div>
                   </div>
@@ -479,11 +479,11 @@ export default function OfflinePage() {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Intervalle</span>
-                        <span className="text-sm text-gray-600">30 secondes</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">30 secondes</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Tentatives max</span>
-                        <span className="text-sm text-gray-600">3</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">3</span>
                       </div>
                     </div>
                   </div>
@@ -528,7 +528,7 @@ export default function OfflinePage() {
                   >
                     <div className="text-center">
                       <div className="font-medium">Test Notification</div>
-                      <div className="text-xs text-gray-600">Envoyer une notification de test</div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400">Envoyer une notification de test</div>
                     </div>
                   </Button>
 
@@ -540,7 +540,7 @@ export default function OfflinePage() {
                   >
                     <div className="text-center">
                       <div className="font-medium">Test Mode Offline</div>
-                      <div className="text-xs text-gray-600">Simuler le mode hors ligne</div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400">Simuler le mode hors ligne</div>
                     </div>
                   </Button>
 
@@ -552,7 +552,7 @@ export default function OfflinePage() {
                   >
                     <div className="text-center">
                       <div className="font-medium">Test Synchronisation</div>
-                      <div className="text-xs text-gray-600">Tester la synchronisation</div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400">Tester la synchronisation</div>
                     </div>
                   </Button>
 
@@ -564,7 +564,7 @@ export default function OfflinePage() {
                   >
                     <div className="text-center">
                       <div className="font-medium">Recharger PWA</div>
-                      <div className="text-xs text-gray-600">Actualiser l'application</div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400">Actualiser l'application</div>
                     </div>
                   </Button>
                 </div>

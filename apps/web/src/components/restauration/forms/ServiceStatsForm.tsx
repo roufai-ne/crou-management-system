@@ -91,19 +91,19 @@ export const ServiceStatsForm: React.FC<ServiceStatsFormProps> = ({
       <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <p className="text-gray-600">Restaurant:</p>
+            <p className="text-gray-600 dark:text-gray-400">Restaurant:</p>
             <p className="font-medium">{repas.restaurant?.nom}</p>
           </div>
           <div>
-            <p className="text-gray-600">Menu:</p>
+            <p className="text-gray-600 dark:text-gray-400">Menu:</p>
             <p className="font-medium">{repas.menu?.titre}</p>
           </div>
           <div>
-            <p className="text-gray-600">Date:</p>
+            <p className="text-gray-600 dark:text-gray-400">Date:</p>
             <p className="font-medium">{new Date(repas.dateService).toLocaleDateString()}</p>
           </div>
           <div>
-            <p className="text-gray-600">Rationnaires prévus:</p>
+            <p className="text-gray-600 dark:text-gray-400">Rationnaires prévus:</p>
             <p className="font-medium text-blue-700">{repas.nombreRationnaires}</p>
           </div>
         </div>

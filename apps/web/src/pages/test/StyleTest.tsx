@@ -9,7 +9,7 @@ export function StyleTest() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Carte Test 1</h2>
-            <p className="text-gray-600">Si vous voyez cette carte avec des styles, Tailwind fonctionne !</p>
+            <p className="text-gray-600 dark:text-gray-400">Si vous voyez cette carte avec des styles, Tailwind fonctionne !</p>
             <button className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
               Bouton Test
             </button>
@@ -65,7 +65,7 @@ export function StyleTest() {
         </div>
         
         <div className="mt-8 text-center">
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Si vous voyez des couleurs, des espacements et des effets, Tailwind CSS fonctionne correctement !
           </p>
         </div>

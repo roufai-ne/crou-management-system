@@ -16,6 +16,9 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+/* Import des design tokens modernes */
+@import './design-tokens.css';
+
 /* CSS de secours si Tailwind ne se charge pas */
 .min-h-screen { min-height: 100vh !important; }
 .bg-gray-100 { background-color: #f3f4f6 !important; }
@@ -888,3 +891,4 @@ p {
     border-width: 0.5px;
   }
 }
+

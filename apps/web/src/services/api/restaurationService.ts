@@ -239,17 +239,27 @@ export interface TicketRepas {
   updatedAt: Date;
 }
 
+// Interface anonyme - pas de lien avec étudiant
 export interface CreateTicketRequest {
-  etudiantId: string;
-  type: TypeTicket;
-  categorie: CategorieTicket;
-  montant: number;
+  categorie: CategorieTicket; // PAYANT ou GRATUIT
+  typeRepas: TypeRepas; // PETIT_DEJEUNER, DEJEUNER, DINER
+  tarif: number; // Montant en FCFA (0 si gratuit)
   dateExpiration: string; // ISO date
-  nombreRepasInitial?: number; // Pour forfaits
+  annee?: number; // Année (défaut: année courante)
+  methodePaiement?: string; // Si payant: ESPECES, CARTE, MOBILE_MONEY
+  referencePaiement?: string; // Référence transaction si applicable
+  messageIndication?: string; // Message sur le ticket
+  notes?: string;
 }
 
 export interface CreateTicketsBatchRequest {
-  tickets: CreateTicketRequest[];
+  quantite: number; // Nombre de tickets à créer
+  categorie: CategorieTicket;
+  typeRepas: TypeRepas;
+  tarif: number;
+  dateExpiration: string;
+  annee?: number;
+  messageIndication?: string;
 }
 
 export interface UtiliserTicketRequest {

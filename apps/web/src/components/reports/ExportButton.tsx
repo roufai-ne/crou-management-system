@@ -117,7 +117,7 @@ export const ExportButton: React.FC<ExportButtonProps> = ({
         size="md"
       >
         <div className="space-y-4">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             Sélectionnez les paramètres pour générer votre rapport.
           </p>
 

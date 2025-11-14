@@ -34,7 +34,7 @@ import { useAuth } from '@/stores/auth';
 import { DashboardTab } from '@/components/restauration/DashboardTab';
 import { RestaurantsTab } from '@/components/restauration/RestaurantsTab';
 import { MenusTab } from '@/components/restauration/MenusTab';
-import { TicketsTab } from '@/components/restauration/TicketsTab';
+import { TicketsRestaurationTab } from '@/components/restauration/TicketsRestaurationTab';
 import { RepasTab } from '@/components/restauration/RepasTab';
 import { DenreesTab } from '@/components/restauration/DenreesTab';
 
@@ -65,7 +65,7 @@ export const RestaurationPage: React.FC = () => {
       id: 'tickets',
       label: 'Tickets Repas',
       icon: <TicketIcon className="h-4 w-4" />,
-      content: <TicketsTab />
+      content: <TicketsRestaurationTab />
     },
     {
       id: 'repas',
@@ -87,7 +87,7 @@ export const RestaurationPage: React.FC = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Gestion de la Restauration</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gestion de la Restauration</h1>
             <p className="text-lg text-gray-600 mt-2">
               Restauration universitaire et tickets repas CROU
             </p>

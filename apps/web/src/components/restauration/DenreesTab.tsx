@@ -133,7 +133,7 @@ export const DenreesTab: React.FC = () => {
       render: (denree: StockDenree) => (
         <div>
           <p className="font-medium">{denree.nomDenree}</p>
-          <p className="text-sm text-gray-500">{denree.restaurant?.nom}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{denree.restaurant?.nom}</p>
         </div>
       )
     },
@@ -145,7 +145,7 @@ export const DenreesTab: React.FC = () => {
           <p className="font-medium">
             {denree.quantiteRestante} / {denree.quantiteAllouee} {denree.unite}
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Utilisé: {denree.quantiteUtilisee || 0} {denree.unite}
           </p>
         </div>
@@ -158,7 +158,7 @@ export const DenreesTab: React.FC = () => {
         <div>
           <p className="font-medium">{new Date(denree.dateAllocation).toLocaleDateString()}</p>
           {denree.datePeremption && (
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Expire: {new Date(denree.datePeremption).toLocaleDateString()}
             </p>
           )}
@@ -171,7 +171,7 @@ export const DenreesTab: React.FC = () => {
       render: (denree: StockDenree) => (
         <div className="text-right">
           <p className="font-medium">{(denree.coutTotal || 0).toLocaleString()} XOF</p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             {(denree.coutUnitaire || 0).toLocaleString()} XOF/{denree.unite}
           </p>
         </div>
@@ -433,7 +433,7 @@ export const DenreesTab: React.FC = () => {
 
           {selectedDenree && (
             <div className="bg-gray-50 p-3 rounded">
-              <p className="text-sm text-gray-600">Denrée:</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Denrée:</p>
               <p className="font-medium">{selectedDenree.nomDenree}</p>
               <p className="text-sm text-gray-600 mt-2">Quantité disponible:</p>
               <p className="font-medium">{selectedDenree.quantiteRestante} {selectedDenree.unite}</p>
@@ -493,19 +493,19 @@ export const DenreesTab: React.FC = () => {
             {/* Informations générales */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-600">Denrée</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Denrée</p>
                 <p className="font-medium">{selectedDenree.nomDenree}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Restaurant</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Restaurant</p>
                 <p className="font-medium">{selectedDenree.restaurant?.nom}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Statut</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Statut</p>
                 {getStatutBadge(selectedDenree.statut)}
               </div>
               <div>
-                <p className="text-sm text-gray-600">Stock ID</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Stock ID</p>
                 <p className="font-mono text-sm">{selectedDenree.stockId}</p>
               </div>
             </div>
@@ -515,19 +515,19 @@ export const DenreesTab: React.FC = () => {
               <h4 className="font-semibold mb-3">Quantités</h4>
               <div className="grid grid-cols-3 gap-4">
                 <div className="bg-blue-50 p-3 rounded">
-                  <p className="text-sm text-gray-600">Allouée</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Allouée</p>
                   <p className="text-xl font-bold text-blue-700">
                     {selectedDenree.quantiteAllouee} {selectedDenree.unite}
                   </p>
                 </div>
                 <div className="bg-green-50 p-3 rounded">
-                  <p className="text-sm text-gray-600">Restante</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Restante</p>
                   <p className="text-xl font-bold text-green-700">
                     {selectedDenree.quantiteRestante} {selectedDenree.unite}
                   </p>
                 </div>
                 <div className="bg-purple-50 p-3 rounded">
-                  <p className="text-sm text-gray-600">Utilisée</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Utilisée</p>
                   <p className="text-xl font-bold text-purple-700">
                     {selectedDenree.quantiteUtilisee || 0} {selectedDenree.unite}
                   </p>
@@ -540,13 +540,13 @@ export const DenreesTab: React.FC = () => {
               <h4 className="font-semibold mb-3">Coûts</h4>
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-gray-50 p-3 rounded">
-                  <p className="text-sm text-gray-600">Coût Unitaire</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Coût Unitaire</p>
                   <p className="text-xl font-bold">
                     {(selectedDenree.coutUnitaire || 0).toLocaleString()} XOF/{selectedDenree.unite}
                   </p>
                 </div>
                 <div className="bg-gray-50 p-3 rounded">
-                  <p className="text-sm text-gray-600">Coût Total</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Coût Total</p>
                   <p className="text-xl font-bold">
                     {(selectedDenree.coutTotal || 0).toLocaleString()} XOF
                   </p>
@@ -559,12 +559,12 @@ export const DenreesTab: React.FC = () => {
               <h4 className="font-semibold mb-3">Dates</h4>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-gray-600">Allocation:</p>
+                  <p className="text-gray-600 dark:text-gray-400">Allocation:</p>
                   <p className="font-medium">{new Date(selectedDenree.dateAllocation).toLocaleDateString()}</p>
                 </div>
                 {selectedDenree.datePeremption && (
                   <div>
-                    <p className="text-gray-600">Péremption:</p>
+                    <p className="text-gray-600 dark:text-gray-400">Péremption:</p>
                     <p className="font-medium">{new Date(selectedDenree.datePeremption).toLocaleDateString()}</p>
                   </div>
                 )}
@@ -593,9 +593,9 @@ export const DenreesTab: React.FC = () => {
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="font-medium">{mvt.action}</p>
-                          <p className="text-gray-600">{mvt.description}</p>
+                          <p className="text-gray-600 dark:text-gray-400">{mvt.description}</p>
                         </div>
-                        <p className="text-gray-500">{new Date(mvt.date).toLocaleDateString()}</p>
+                        <p className="text-gray-500 dark:text-gray-400">{new Date(mvt.date).toLocaleDateString()}</p>
                       </div>
                     </div>
                   ))}

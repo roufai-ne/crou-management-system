@@ -29,7 +29,9 @@ import {
   UserGroupIcon,
   CurrencyDollarIcon,
   PlusIcon,
-  EyeIcon
+  EyeIcon,
+  ChartBarIcon,
+  DocumentTextIcon
 } from '@heroicons/react/24/outline';
 import { useRestaurationStatistics, useServiceEnCours, useDenreeAlerts } from '@/hooks/useRestauration';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -67,7 +69,7 @@ export const DashboardTab: React.FC = () => {
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Chargement du dashboard...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Chargement du dashboard...</p>
         </div>
       </div>
     );
@@ -149,11 +151,11 @@ export const DashboardTab: React.FC = () => {
             <Card.Content className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-600">{kpi.label}</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{kpi.label}</p>
                   <div className="mt-2 flex items-baseline">
-                    <p className="text-3xl font-bold text-gray-900">{kpi.value}</p>
+                    <p className="text-3xl font-bold text-gray-900 dark:text-white">{kpi.value}</p>
                     {kpi.total > 0 && (
-                      <p className="ml-2 text-sm text-gray-500">/ {kpi.total}</p>
+                      <p className="ml-2 text-sm text-gray-500 dark:text-gray-400">/ {kpi.total}</p>
                     )}
                   </div>
                   {kpi.change !== 0 && (
@@ -178,7 +180,7 @@ export const DashboardTab: React.FC = () => {
             <Card.Content className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">{kpi.label}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{kpi.label}</p>
                   <p className="text-2xl font-bold text-gray-900 mt-1">{kpi.value}</p>
                   {kpi.change !== 0 && (
                     <p className={`text-xs mt-1 ${kpi.change > 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -216,18 +218,18 @@ export const DashboardTab: React.FC = () => {
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div>
-                      <p className="font-semibold text-gray-900">{service.restaurant?.nom}</p>
-                      <p className="text-sm text-gray-600">{service.menu?.titre}</p>
+                      <p className="font-semibold text-gray-900 dark:text-white">{service.restaurant?.nom}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{service.menu?.titre}</p>
                     </div>
                     <Badge variant="success">En cours</Badge>
                   </div>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Type:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Type:</span>
                       <span className="font-medium">{service.typeRepas}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Démarré:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Démarré:</span>
                       <span className="font-medium">
                         {new Date(service.heureDebut).toLocaleTimeString('fr-FR', {
                           hour: '2-digit',
@@ -236,7 +238,7 @@ export const DashboardTab: React.FC = () => {
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Servis:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Servis:</span>
                       <span className="font-medium">{service.nombreServis || 0}</span>
                     </div>
                   </div>
@@ -252,7 +254,7 @@ export const DashboardTab: React.FC = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
               <ClockIcon className="h-12 w-12 mx-auto mb-3 text-gray-400" />
               <p>Aucun service en cours actuellement</p>
             </div>

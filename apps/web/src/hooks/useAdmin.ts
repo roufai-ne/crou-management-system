@@ -18,7 +18,7 @@
  * DATE: Décembre 2024
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/stores/auth';
 import { useAdmin } from '@/stores/admin';
 import { CreateUserRequest, UpdateUserRequest, User, UserRole, Permission, Tenant } from '@/services/api/adminService';
@@ -30,8 +30,8 @@ export const useAdminUsers = () => {
     users,
     usersLoading: loading,
     usersError: error,
-    userFilters: filters,
-    userPagination: pagination,
+    filters,
+    pagination,
     loadUsers,
     createUser,
     updateUser,
@@ -42,39 +42,58 @@ export const useAdminUsers = () => {
     setUserPagination
   } = useAdmin();
 
-  // Charger les utilisateurs au montage et quand les filtres changent
+  // Extraire les filtres et pagination pour users
+  // Note: Ne pas utiliser useMemo ici car cela casse le système de sélecteurs Zustand
+  const userFilters = filters?.users;
+  const userPagination = pagination?.users;
+
+  console.log('🎣 HOOK useAdminUsers - filters:', filters);
+  console.log('🎣 HOOK useAdminUsers - pagination:', pagination);
+  console.log('🎣 HOOK useAdminUsers - userFilters:', userFilters);
+  console.log('🎣 HOOK useAdminUsers - userPagination:', userPagination);
+
+  // Charger les utilisateurs au montage
   useEffect(() => {
     loadUsers();
   }, [loadUsers]);
 
-  // Fonctions de gestion
+  // Fonctions de gestion avec rechargement automatique
   const handleCreateUser = useCallback(async (data: CreateUserRequest) => {
     await createUser(data);
-  }, [createUser]);
+    await loadUsers(); // Recharger après création
+  }, [createUser, loadUsers]);
 
   const handleUpdateUser = useCallback(async (id: string, data: UpdateUserRequest) => {
     await updateUser(id, data);
-  }, [updateUser]);
+    await loadUsers(); // Recharger après mise à jour
+  }, [updateUser, loadUsers]);
 
   const handleDeleteUser = useCallback(async (id: string) => {
     await deleteUser(id);
-  }, [deleteUser]);
+    await loadUsers(); // Recharger après suppression
+  }, [deleteUser, loadUsers]);
 
   const handleToggleUserStatus = useCallback(async (id: string, isActive: boolean) => {
     await toggleUserStatus(id, isActive);
-  }, [toggleUserStatus]);
+    await loadUsers(); // Recharger après changement de statut
+  }, [toggleUserStatus, loadUsers]);
 
   const handleResetPassword = useCallback(async (id: string, newPassword: string) => {
     await resetUserPassword(id, newPassword);
   }, [resetUserPassword]);
 
-  const updateFilters = useCallback((newFilters: Partial<typeof filters>) => {
+  const updateFilters = useCallback((newFilters: Partial<typeof userFilters>) => {
     setUserFilters(newFilters);
-  }, [setUserFilters]);
+    // Recharger avec les nouveaux filtres
+    setTimeout(() => loadUsers(), 0);
+  }, [setUserFilters, loadUsers, userFilters]);
 
-  const updatePagination = useCallback((newPagination: Partial<typeof pagination>) => {
+  // Nouvelle fonction updatePagination qui recharge automatiquement
+  const updatePagination = useCallback((newPagination: Partial<typeof userPagination>) => {
     setUserPagination(newPagination);
-  }, [setUserPagination]);
+    // Recharger avec la nouvelle pagination
+    setTimeout(() => loadUsers(), 0);
+  }, [setUserPagination, loadUsers, userPagination]);
 
   const resetFilters = useCallback(() => {
     setUserFilters({
@@ -92,8 +111,8 @@ export const useAdminUsers = () => {
     users: safeUsers,
     loading,
     error,
-    filters,
-    pagination,
+    filters: userFilters,
+    pagination: userPagination,
     createUser: handleCreateUser,
     updateUser: handleUpdateUser,
     deleteUser: handleDeleteUser,
@@ -237,12 +256,16 @@ export const useAdminAudit = () => {
     auditLogs,
     auditLoading: loading,
     auditError: error,
-    auditFilters: filters,
-    auditPagination: pagination,
+    filters,
+    pagination,
     loadAuditLogs,
     setAuditFilters,
     setAuditPagination
   } = useAdmin();
+
+  // Extraire les filtres et pagination pour audit
+  const auditFilters = filters?.audit;
+  const auditPagination = pagination?.audit;
 
   // Charger les logs d'audit au montage
   useEffect(() => {
@@ -250,13 +273,13 @@ export const useAdminAudit = () => {
   }, [loadAuditLogs]);
 
   // Fonctions de gestion
-  const updateFilters = useCallback((newFilters: Partial<typeof filters>) => {
+  const updateFilters = useCallback((newFilters: Partial<typeof auditFilters>) => {
     setAuditFilters(newFilters);
-  }, [setAuditFilters]);
+  }, [setAuditFilters, auditFilters]);
 
-  const updatePagination = useCallback((newPagination: Partial<typeof pagination>) => {
+  const updatePagination = useCallback((newPagination: Partial<typeof auditPagination>) => {
     setAuditPagination(newPagination);
-  }, [setAuditPagination]);
+  }, [setAuditPagination, auditPagination]);
 
   const resetFilters = useCallback(() => {
     setAuditFilters({
@@ -275,8 +298,8 @@ export const useAdminAudit = () => {
     auditLogs: safeAuditLogs,
     loading,
     error,
-    filters,
-    pagination,
+    filters: auditFilters,
+    pagination: auditPagination,
     updateFilters,
     updatePagination,
     resetFilters,
