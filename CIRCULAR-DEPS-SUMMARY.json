@@ -1,0 +1,312 @@
+{
+  "circularDependencies": [
+    {
+      "cycle": ["ApplicationBatch", "HousingRequest", "ApplicationBatch"],
+      "details": "ApplicationBatch imports HousingRequest, HousingRequest imports ApplicationBatch",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["User", "Tenant", "User"],
+      "details": "User imports Tenant, Tenant imports User",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["User", "AuditLog", "User"],
+      "details": "User imports AuditLog, AuditLog imports User",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["User", "Role", "User"],
+      "details": "User imports Role, Role imports User",
+      "severity": "high",
+      "recommendation": "Use string references in @ManyToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Role", "Permission", "Role"],
+      "details": "Role imports Permission, Permission imports Role",
+      "severity": "high",
+      "recommendation": "Use string references in @ManyToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Housing", "Room", "Housing"],
+      "details": "Housing imports Room, Room imports Housing",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Housing", "HousingOccupancy", "Housing"],
+      "details": "Housing imports HousingOccupancy, HousingOccupancy imports Housing",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Housing", "HousingMaintenance", "Housing"],
+      "details": "Housing imports HousingMaintenance, HousingMaintenance imports Housing",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Room", "HousingOccupancy", "Room"],
+      "details": "Room imports HousingOccupancy, HousingOccupancy imports Room",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Room", "HousingMaintenance", "Room"],
+      "details": "Room imports HousingMaintenance, HousingMaintenance imports Room",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Student", "HousingRequest", "Student"],
+      "details": "Student imports HousingRequest, HousingRequest imports Student",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Student", "RenewalRequest", "Student"],
+      "details": "Student imports RenewalRequest, RenewalRequest imports Student",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Budget", "BudgetCategory", "Budget"],
+      "details": "Budget imports BudgetCategory, BudgetCategory imports Budget",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Budget", "BudgetTrimester", "Budget"],
+      "details": "Budget imports BudgetTrimester, BudgetTrimester imports Budget",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Budget", "Transaction", "Budget"],
+      "details": "Budget imports Transaction, Transaction imports Budget",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Budget", "ValidationStep", "Budget"],
+      "details": "Budget imports ValidationStep, ValidationStep imports Budget",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["BudgetCategory", "Transaction", "BudgetCategory"],
+      "details": "BudgetCategory imports Transaction, Transaction imports BudgetCategory",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Transaction", "ValidationStep", "Transaction"],
+      "details": "Transaction imports ValidationStep, ValidationStep imports Transaction",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Menu", "Restaurant", "Menu"],
+      "details": "Menu imports Restaurant, Restaurant imports Menu",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Menu", "Repas", "Menu"],
+      "details": "Menu imports Repas, Repas imports Menu",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Restaurant", "Repas", "Restaurant"],
+      "details": "Restaurant imports Repas, Repas imports Restaurant",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Restaurant", "StockDenree", "Restaurant"],
+      "details": "Restaurant imports StockDenree, StockDenree imports Restaurant",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Repas", "TicketRepas", "Repas"],
+      "details": "Repas imports TicketRepas, TicketRepas imports Repas",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Stock", "StockMovement", "Stock"],
+      "details": "Stock imports StockMovement, StockMovement imports Stock",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Stock", "StockAlert", "Stock"],
+      "details": "Stock imports StockAlert, StockAlert imports Stock",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Stock", "Supplier", "Stock"],
+      "details": "Stock imports Supplier, Supplier imports Stock",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["PurchaseOrder", "PurchaseOrderItem", "PurchaseOrder"],
+      "details": "PurchaseOrder imports PurchaseOrderItem, PurchaseOrderItem imports PurchaseOrder",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Driver", "Vehicle", "Driver"],
+      "details": "Driver imports Vehicle, Vehicle imports Driver",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Driver", "VehicleUsage", "Driver"],
+      "details": "Driver imports VehicleUsage, VehicleUsage imports Driver",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Driver", "ScheduledTrip", "Driver"],
+      "details": "Driver imports ScheduledTrip, ScheduledTrip imports Driver",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Vehicle", "VehicleMaintenance", "Vehicle"],
+      "details": "Vehicle imports VehicleMaintenance, VehicleMaintenance imports Vehicle",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Vehicle", "VehicleUsage", "Vehicle"],
+      "details": "Vehicle imports VehicleUsage, VehicleUsage imports Vehicle",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Vehicle", "VehicleFuel", "Vehicle"],
+      "details": "Vehicle imports VehicleFuel, VehicleFuel imports Vehicle",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Vehicle", "ScheduledTrip", "Vehicle"],
+      "details": "Vehicle imports ScheduledTrip, ScheduledTrip imports Vehicle",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["ScheduledTrip", "TransportRoute", "ScheduledTrip"],
+      "details": "ScheduledTrip imports TransportRoute, TransportRoute imports ScheduledTrip",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["ScheduledTrip", "VehicleUsage", "ScheduledTrip"],
+      "details": "ScheduledTrip imports VehicleUsage, VehicleUsage imports ScheduledTrip",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Workflow", "WorkflowStep", "Workflow"],
+      "details": "Workflow imports WorkflowStep, WorkflowStep imports Workflow",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["Workflow", "WorkflowInstance", "Workflow"],
+      "details": "Workflow imports WorkflowInstance, WorkflowInstance imports Workflow",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["WorkflowStep", "WorkflowInstance", "WorkflowStep"],
+      "details": "WorkflowStep imports WorkflowInstance, WorkflowInstance imports WorkflowStep",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    },
+    {
+      "cycle": ["WorkflowAction", "WorkflowInstance", "WorkflowAction"],
+      "details": "WorkflowAction imports WorkflowInstance, WorkflowInstance imports WorkflowAction",
+      "severity": "high",
+      "recommendation": "Use string references in @OneToMany decorator instead of arrow functions"
+    }
+  ],
+  "problematicRelations": [
+    {
+      "entity": "Tenant",
+      "relation": "ManyToOne self-reference",
+      "issue": "Uses arrow function () => Tenant but doesn't import Tenant",
+      "line": 68,
+      "severity": "critical",
+      "fix": "Use string reference 'Tenant' instead of () => Tenant"
+    },
+    {
+      "entity": "Tenant",
+      "relation": "OneToMany self-reference",
+      "issue": "Uses arrow function () => Tenant but doesn't import Tenant",
+      "line": 71,
+      "severity": "critical",
+      "fix": "Use string reference 'Tenant' instead of () => Tenant"
+    },
+    {
+      "entity": "HousingDocument",
+      "relation": "Multiple unnecessary imports",
+      "issue": "Uses string references but still imports Housing, HousingRequest, HousingOccupancy, Room",
+      "line": "N/A",
+      "severity": "low",
+      "fix": "Remove unnecessary imports since using string references"
+    },
+    {
+      "entity": "HousingOccupancyReport",
+      "relation": "Multiple unnecessary imports",
+      "issue": "Uses string references but still imports Tenant, Housing, Room",
+      "line": "N/A",
+      "severity": "low",
+      "fix": "Remove unnecessary imports since using string references"
+    },
+    {
+      "entity": "HousingRequest",
+      "relation": "Multiple unnecessary imports",
+      "issue": "Uses string references but still imports Tenant, Student, Room, User",
+      "line": "N/A",
+      "severity": "low",
+      "fix": "Remove unnecessary imports since using string references"
+    },
+    {
+      "entity": "PurchaseOrder",
+      "relation": "Multiple unnecessary imports",
+      "issue": "Uses string references but still imports Tenant, Budget, StockMovement",
+      "line": "N/A",
+      "severity": "low",
+      "fix": "Remove unnecessary imports since using string references"
+    },
+    {
+      "entity": "RenewalRequest",
+      "relation": "Multiple unnecessary imports",
+      "issue": "Uses string references but still imports Tenant, Student, HousingOccupancy, Room, User",
+      "line": "N/A",
+      "severity": "low",
+      "fix": "Remove unnecessary imports since using string references"
+    }
+  ],
+  "stats": {
+    "totalEntities": 47,
+    "entitiesWithCircularImports": 40,
+    "criticalCycles": 40,
+    "indirectCycles": 60,
+    "totalCycles": 100,
+    "criticalIssues": 2,
+    "lowSeverityIssues": 21,
+    "percentageAffected": 85.1
+  }
+}

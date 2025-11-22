@@ -1,0 +1,1245 @@
+{
+  "circularDependencies": [
+    {
+      "cycle": [
+        "ApplicationBatch",
+        "HousingRequest",
+        "ApplicationBatch"
+      ],
+      "details": "ApplicationBatch imports HousingRequest, HousingRequest imports ApplicationBatch",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "AuditLog",
+        "User",
+        "AuditLog"
+      ],
+      "details": "AuditLog imports User, User imports AuditLog",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Budget",
+        "BudgetCategory",
+        "Budget"
+      ],
+      "details": "Budget imports BudgetCategory, BudgetCategory imports Budget",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Budget",
+        "BudgetTrimester",
+        "Budget"
+      ],
+      "details": "Budget imports BudgetTrimester, BudgetTrimester imports Budget",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Budget",
+        "Transaction",
+        "Budget"
+      ],
+      "details": "Budget imports Transaction, Transaction imports Budget",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Budget",
+        "ValidationStep",
+        "Budget"
+      ],
+      "details": "Budget imports ValidationStep, ValidationStep imports Budget",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "BudgetCategory",
+        "Transaction",
+        "BudgetCategory"
+      ],
+      "details": "BudgetCategory imports Transaction, Transaction imports BudgetCategory",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Driver",
+        "Vehicle",
+        "Driver"
+      ],
+      "details": "Driver imports Vehicle, Vehicle imports Driver",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Driver",
+        "VehicleUsage",
+        "Driver"
+      ],
+      "details": "Driver imports VehicleUsage, VehicleUsage imports Driver",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Driver",
+        "ScheduledTrip",
+        "Driver"
+      ],
+      "details": "Driver imports ScheduledTrip, ScheduledTrip imports Driver",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Housing",
+        "Room",
+        "Housing"
+      ],
+      "details": "Housing imports Room, Room imports Housing",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Housing",
+        "HousingOccupancy",
+        "Housing"
+      ],
+      "details": "Housing imports HousingOccupancy, HousingOccupancy imports Housing",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Housing",
+        "HousingMaintenance",
+        "Housing"
+      ],
+      "details": "Housing imports HousingMaintenance, HousingMaintenance imports Housing",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "HousingMaintenance",
+        "Room",
+        "HousingMaintenance"
+      ],
+      "details": "HousingMaintenance imports Room, Room imports HousingMaintenance",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "HousingOccupancy",
+        "Room",
+        "HousingOccupancy"
+      ],
+      "details": "HousingOccupancy imports Room, Room imports HousingOccupancy",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "HousingRequest",
+        "Student",
+        "HousingRequest"
+      ],
+      "details": "HousingRequest imports Student, Student imports HousingRequest",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Menu",
+        "Restaurant",
+        "Menu"
+      ],
+      "details": "Menu imports Restaurant, Restaurant imports Menu",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Menu",
+        "Repas",
+        "Menu"
+      ],
+      "details": "Menu imports Repas, Repas imports Menu",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Permission",
+        "Role",
+        "Permission"
+      ],
+      "details": "Permission imports Role, Role imports Permission",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "PurchaseOrder",
+        "PurchaseOrderItem",
+        "PurchaseOrder"
+      ],
+      "details": "PurchaseOrder imports PurchaseOrderItem, PurchaseOrderItem imports PurchaseOrder",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "RenewalRequest",
+        "Student",
+        "RenewalRequest"
+      ],
+      "details": "RenewalRequest imports Student, Student imports RenewalRequest",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Repas",
+        "Restaurant",
+        "Repas"
+      ],
+      "details": "Repas imports Restaurant, Restaurant imports Repas",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Repas",
+        "TicketRepas",
+        "Repas"
+      ],
+      "details": "Repas imports TicketRepas, TicketRepas imports Repas",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Restaurant",
+        "StockDenree",
+        "Restaurant"
+      ],
+      "details": "Restaurant imports StockDenree, StockDenree imports Restaurant",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Role",
+        "User",
+        "Role"
+      ],
+      "details": "Role imports User, User imports Role",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "ScheduledTrip",
+        "TransportRoute",
+        "ScheduledTrip"
+      ],
+      "details": "ScheduledTrip imports TransportRoute, TransportRoute imports ScheduledTrip",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "ScheduledTrip",
+        "Vehicle",
+        "ScheduledTrip"
+      ],
+      "details": "ScheduledTrip imports Vehicle, Vehicle imports ScheduledTrip",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "ScheduledTrip",
+        "VehicleUsage",
+        "ScheduledTrip"
+      ],
+      "details": "ScheduledTrip imports VehicleUsage, VehicleUsage imports ScheduledTrip",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Stock",
+        "StockMovement",
+        "Stock"
+      ],
+      "details": "Stock imports StockMovement, StockMovement imports Stock",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Stock",
+        "StockAlert",
+        "Stock"
+      ],
+      "details": "Stock imports StockAlert, StockAlert imports Stock",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Stock",
+        "Supplier",
+        "Stock"
+      ],
+      "details": "Stock imports Supplier, Supplier imports Stock",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Tenant",
+        "User",
+        "Tenant"
+      ],
+      "details": "Tenant imports User, User imports Tenant",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Transaction",
+        "ValidationStep",
+        "Transaction"
+      ],
+      "details": "Transaction imports ValidationStep, ValidationStep imports Transaction",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Vehicle",
+        "VehicleMaintenance",
+        "Vehicle"
+      ],
+      "details": "Vehicle imports VehicleMaintenance, VehicleMaintenance imports Vehicle",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Vehicle",
+        "VehicleUsage",
+        "Vehicle"
+      ],
+      "details": "Vehicle imports VehicleUsage, VehicleUsage imports Vehicle",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Vehicle",
+        "VehicleFuel",
+        "Vehicle"
+      ],
+      "details": "Vehicle imports VehicleFuel, VehicleFuel imports Vehicle",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Workflow",
+        "WorkflowStep",
+        "Workflow"
+      ],
+      "details": "Workflow imports WorkflowStep, WorkflowStep imports Workflow",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Workflow",
+        "WorkflowInstance",
+        "Workflow"
+      ],
+      "details": "Workflow imports WorkflowInstance, WorkflowInstance imports Workflow",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "WorkflowAction",
+        "WorkflowInstance",
+        "WorkflowAction"
+      ],
+      "details": "WorkflowAction imports WorkflowInstance, WorkflowInstance imports WorkflowAction",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "WorkflowInstance",
+        "WorkflowStep",
+        "WorkflowInstance"
+      ],
+      "details": "WorkflowInstance imports WorkflowStep, WorkflowStep imports WorkflowInstance",
+      "severity": "high",
+      "recommendation": "Use string references in decorators instead of arrow functions"
+    },
+    {
+      "cycle": [
+        "Tenant",
+        "User",
+        "Tenant"
+      ],
+      "details": "Tenant imports User, User imports Tenant",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "User",
+        "AuditLog",
+        "User"
+      ],
+      "details": "User imports AuditLog, AuditLog imports User",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Tenant",
+        "User",
+        "AuditLog",
+        "Tenant"
+      ],
+      "details": "Tenant imports User, User imports AuditLog, AuditLog imports Tenant",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "User",
+        "Role",
+        "User"
+      ],
+      "details": "User imports Role, Role imports User",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Role",
+        "Permission",
+        "Role"
+      ],
+      "details": "Role imports Permission, Permission imports Role",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "HousingRequest",
+        "Student",
+        "HousingRequest"
+      ],
+      "details": "HousingRequest imports Student, Student imports HousingRequest",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Student",
+        "RenewalRequest",
+        "Student"
+      ],
+      "details": "Student imports RenewalRequest, RenewalRequest imports Student",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Housing",
+        "Room",
+        "Housing"
+      ],
+      "details": "Housing imports Room, Room imports Housing",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "HousingOccupancy",
+        "Housing",
+        "Room",
+        "HousingOccupancy"
+      ],
+      "details": "HousingOccupancy imports Housing, Housing imports Room, Room imports HousingOccupancy",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Housing",
+        "Room",
+        "HousingMaintenance",
+        "Housing"
+      ],
+      "details": "Housing imports Room, Room imports HousingMaintenance, HousingMaintenance imports Housing",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Room",
+        "HousingMaintenance",
+        "Room"
+      ],
+      "details": "Room imports HousingMaintenance, HousingMaintenance imports Room",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "HousingOccupancy",
+        "Housing",
+        "HousingOccupancy"
+      ],
+      "details": "HousingOccupancy imports Housing, Housing imports HousingOccupancy",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Housing",
+        "HousingMaintenance",
+        "Housing"
+      ],
+      "details": "Housing imports HousingMaintenance, HousingMaintenance imports Housing",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "HousingOccupancy",
+        "Housing",
+        "HousingMaintenance",
+        "Room",
+        "HousingOccupancy"
+      ],
+      "details": "HousingOccupancy imports Housing, Housing imports HousingMaintenance, HousingMaintenance imports Room, Room imports HousingOccupancy",
+      "severity": "medium",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "HousingOccupancy",
+        "Room",
+        "HousingOccupancy"
+      ],
+      "details": "HousingOccupancy imports Room, Room imports HousingOccupancy",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "HousingRequest",
+        "Student",
+        "RenewalRequest",
+        "HousingRequest"
+      ],
+      "details": "HousingRequest imports Student, Student imports RenewalRequest, RenewalRequest imports HousingRequest",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "ApplicationBatch",
+        "HousingRequest",
+        "ApplicationBatch"
+      ],
+      "details": "ApplicationBatch imports HousingRequest, HousingRequest imports ApplicationBatch",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Budget",
+        "BudgetCategory",
+        "Budget"
+      ],
+      "details": "Budget imports BudgetCategory, BudgetCategory imports Budget",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Budget",
+        "BudgetCategory",
+        "Transaction",
+        "Budget"
+      ],
+      "details": "Budget imports BudgetCategory, BudgetCategory imports Transaction, Transaction imports Budget",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "BudgetCategory",
+        "Transaction",
+        "BudgetCategory"
+      ],
+      "details": "BudgetCategory imports Transaction, Transaction imports BudgetCategory",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Budget",
+        "BudgetCategory",
+        "Transaction",
+        "ValidationStep",
+        "Budget"
+      ],
+      "details": "Budget imports BudgetCategory, BudgetCategory imports Transaction, Transaction imports ValidationStep, ValidationStep imports Budget",
+      "severity": "medium",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Transaction",
+        "ValidationStep",
+        "Transaction"
+      ],
+      "details": "Transaction imports ValidationStep, ValidationStep imports Transaction",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Budget",
+        "BudgetTrimester",
+        "Budget"
+      ],
+      "details": "Budget imports BudgetTrimester, BudgetTrimester imports Budget",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Budget",
+        "Transaction",
+        "Budget"
+      ],
+      "details": "Budget imports Transaction, Transaction imports Budget",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Budget",
+        "Transaction",
+        "ValidationStep",
+        "Budget"
+      ],
+      "details": "Budget imports Transaction, Transaction imports ValidationStep, ValidationStep imports Budget",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Budget",
+        "ValidationStep",
+        "Budget"
+      ],
+      "details": "Budget imports ValidationStep, ValidationStep imports Budget",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Vehicle",
+        "VehicleMaintenance",
+        "Vehicle"
+      ],
+      "details": "Vehicle imports VehicleMaintenance, VehicleMaintenance imports Vehicle",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Vehicle",
+        "VehicleUsage",
+        "Vehicle"
+      ],
+      "details": "Vehicle imports VehicleUsage, VehicleUsage imports Vehicle",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Driver",
+        "Vehicle",
+        "VehicleUsage",
+        "Driver"
+      ],
+      "details": "Driver imports Vehicle, Vehicle imports VehicleUsage, VehicleUsage imports Driver",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "ScheduledTrip",
+        "TransportRoute",
+        "ScheduledTrip"
+      ],
+      "details": "ScheduledTrip imports TransportRoute, TransportRoute imports ScheduledTrip",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Vehicle",
+        "VehicleUsage",
+        "ScheduledTrip",
+        "Vehicle"
+      ],
+      "details": "Vehicle imports VehicleUsage, VehicleUsage imports ScheduledTrip, ScheduledTrip imports Vehicle",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Driver",
+        "Vehicle",
+        "VehicleUsage",
+        "ScheduledTrip",
+        "Driver"
+      ],
+      "details": "Driver imports Vehicle, Vehicle imports VehicleUsage, VehicleUsage imports ScheduledTrip, ScheduledTrip imports Driver",
+      "severity": "medium",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "VehicleUsage",
+        "ScheduledTrip",
+        "VehicleUsage"
+      ],
+      "details": "VehicleUsage imports ScheduledTrip, ScheduledTrip imports VehicleUsage",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Vehicle",
+        "VehicleFuel",
+        "Vehicle"
+      ],
+      "details": "Vehicle imports VehicleFuel, VehicleFuel imports Vehicle",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Vehicle",
+        "ScheduledTrip",
+        "Vehicle"
+      ],
+      "details": "Vehicle imports ScheduledTrip, ScheduledTrip imports Vehicle",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Driver",
+        "Vehicle",
+        "ScheduledTrip",
+        "Driver"
+      ],
+      "details": "Driver imports Vehicle, Vehicle imports ScheduledTrip, ScheduledTrip imports Driver",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Driver",
+        "Vehicle",
+        "Driver"
+      ],
+      "details": "Driver imports Vehicle, Vehicle imports Driver",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Driver",
+        "VehicleUsage",
+        "Driver"
+      ],
+      "details": "Driver imports VehicleUsage, VehicleUsage imports Driver",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Driver",
+        "VehicleUsage",
+        "ScheduledTrip",
+        "Driver"
+      ],
+      "details": "Driver imports VehicleUsage, VehicleUsage imports ScheduledTrip, ScheduledTrip imports Driver",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Driver",
+        "ScheduledTrip",
+        "Driver"
+      ],
+      "details": "Driver imports ScheduledTrip, ScheduledTrip imports Driver",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Menu",
+        "Restaurant",
+        "Menu"
+      ],
+      "details": "Menu imports Restaurant, Restaurant imports Menu",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Restaurant",
+        "Repas",
+        "Restaurant"
+      ],
+      "details": "Restaurant imports Repas, Repas imports Restaurant",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Menu",
+        "Restaurant",
+        "Repas",
+        "Menu"
+      ],
+      "details": "Menu imports Restaurant, Restaurant imports Repas, Repas imports Menu",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Restaurant",
+        "Repas",
+        "TicketRepas",
+        "Restaurant"
+      ],
+      "details": "Restaurant imports Repas, Repas imports TicketRepas, TicketRepas imports Restaurant",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Repas",
+        "TicketRepas",
+        "Repas"
+      ],
+      "details": "Repas imports TicketRepas, TicketRepas imports Repas",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Restaurant",
+        "StockDenree",
+        "Restaurant"
+      ],
+      "details": "Restaurant imports StockDenree, StockDenree imports Restaurant",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Stock",
+        "StockMovement",
+        "Stock"
+      ],
+      "details": "Stock imports StockMovement, StockMovement imports Stock",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Stock",
+        "StockAlert",
+        "Stock"
+      ],
+      "details": "Stock imports StockAlert, StockAlert imports Stock",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Stock",
+        "Supplier",
+        "Stock"
+      ],
+      "details": "Stock imports Supplier, Supplier imports Stock",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Menu",
+        "Restaurant",
+        "StockDenree",
+        "Menu"
+      ],
+      "details": "Menu imports Restaurant, Restaurant imports StockDenree, StockDenree imports Menu",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Menu",
+        "Repas",
+        "Restaurant",
+        "StockDenree",
+        "Menu"
+      ],
+      "details": "Menu imports Repas, Repas imports Restaurant, Restaurant imports StockDenree, StockDenree imports Menu",
+      "severity": "medium",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Menu",
+        "Repas",
+        "Menu"
+      ],
+      "details": "Menu imports Repas, Repas imports Menu",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Menu",
+        "Repas",
+        "TicketRepas",
+        "Restaurant",
+        "Menu"
+      ],
+      "details": "Menu imports Repas, Repas imports TicketRepas, TicketRepas imports Restaurant, Restaurant imports Menu",
+      "severity": "medium",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Menu",
+        "Repas",
+        "TicketRepas",
+        "Restaurant",
+        "StockDenree",
+        "Menu"
+      ],
+      "details": "Menu imports Repas, Repas imports TicketRepas, TicketRepas imports Restaurant, Restaurant imports StockDenree, StockDenree imports Menu",
+      "severity": "medium",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "PurchaseOrder",
+        "PurchaseOrderItem",
+        "PurchaseOrder"
+      ],
+      "details": "PurchaseOrder imports PurchaseOrderItem, PurchaseOrderItem imports PurchaseOrder",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Workflow",
+        "WorkflowStep",
+        "Workflow"
+      ],
+      "details": "Workflow imports WorkflowStep, WorkflowStep imports Workflow",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Workflow",
+        "WorkflowStep",
+        "WorkflowInstance",
+        "Workflow"
+      ],
+      "details": "Workflow imports WorkflowStep, WorkflowStep imports WorkflowInstance, WorkflowInstance imports Workflow",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "WorkflowStep",
+        "WorkflowInstance",
+        "WorkflowStep"
+      ],
+      "details": "WorkflowStep imports WorkflowInstance, WorkflowInstance imports WorkflowStep",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "WorkflowInstance",
+        "WorkflowAction",
+        "WorkflowInstance"
+      ],
+      "details": "WorkflowInstance imports WorkflowAction, WorkflowAction imports WorkflowInstance",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    },
+    {
+      "cycle": [
+        "Workflow",
+        "WorkflowInstance",
+        "Workflow"
+      ],
+      "details": "Workflow imports WorkflowInstance, WorkflowInstance imports Workflow",
+      "severity": "high",
+      "recommendation": "Break the circular dependency using string references or lazy imports"
+    }
+  ],
+  "problematicRelations": [
+    {
+      "entity": "ApplicationBatch",
+      "relation": "ManyToOne",
+      "target": "Tenant",
+      "issue": "Uses string reference 'Tenant' but still imports it (unnecessary)",
+      "line": 74,
+      "severity": "low",
+      "fix": "Remove the import statement for Tenant since you're using string reference"
+    },
+    {
+      "entity": "HousingDocument",
+      "relation": "ManyToOne",
+      "target": "Student",
+      "issue": "Uses string reference 'Student' but still imports it (unnecessary)",
+      "line": 67,
+      "severity": "low",
+      "fix": "Remove the import statement for Student since you're using string reference"
+    },
+    {
+      "entity": "HousingDocument",
+      "relation": "ManyToOne",
+      "target": "HousingRequest",
+      "issue": "Uses string reference 'HousingRequest' but still imports it (unnecessary)",
+      "line": 74,
+      "severity": "low",
+      "fix": "Remove the import statement for HousingRequest since you're using string reference"
+    },
+    {
+      "entity": "HousingOccupancyReport",
+      "relation": "ManyToOne",
+      "target": "Tenant",
+      "issue": "Uses string reference 'Tenant' but still imports it (unnecessary)",
+      "line": 55,
+      "severity": "low",
+      "fix": "Remove the import statement for Tenant since you're using string reference"
+    },
+    {
+      "entity": "HousingOccupancyReport",
+      "relation": "ManyToOne",
+      "target": "Housing",
+      "issue": "Uses string reference 'Housing' but still imports it (unnecessary)",
+      "line": 62,
+      "severity": "low",
+      "fix": "Remove the import statement for Housing since you're using string reference"
+    },
+    {
+      "entity": "HousingOccupancyReport",
+      "relation": "ManyToOne",
+      "target": "Room",
+      "issue": "Uses string reference 'Room' but still imports it (unnecessary)",
+      "line": 69,
+      "severity": "low",
+      "fix": "Remove the import statement for Room since you're using string reference"
+    },
+    {
+      "entity": "HousingRequest",
+      "relation": "ManyToOne",
+      "target": "Tenant",
+      "issue": "Uses string reference 'Tenant' but still imports it (unnecessary)",
+      "line": 104,
+      "severity": "low",
+      "fix": "Remove the import statement for Tenant since you're using string reference"
+    },
+    {
+      "entity": "HousingRequest",
+      "relation": "ManyToOne",
+      "target": "Student",
+      "issue": "Uses string reference 'Student' but still imports it (unnecessary)",
+      "line": 111,
+      "severity": "low",
+      "fix": "Remove the import statement for Student since you're using string reference"
+    },
+    {
+      "entity": "HousingRequest",
+      "relation": "ManyToOne",
+      "target": "Room",
+      "issue": "Uses string reference 'Room' but still imports it (unnecessary)",
+      "line": 206,
+      "severity": "low",
+      "fix": "Remove the import statement for Room since you're using string reference"
+    },
+    {
+      "entity": "HousingRequest",
+      "relation": "ManyToOne",
+      "target": "User",
+      "issue": "Uses string reference 'User' but still imports it (unnecessary)",
+      "line": 218,
+      "severity": "low",
+      "fix": "Remove the import statement for User since you're using string reference"
+    },
+    {
+      "entity": "PurchaseOrder",
+      "relation": "ManyToOne",
+      "target": "Tenant",
+      "issue": "Uses string reference 'Tenant' but still imports it (unnecessary)",
+      "line": 86,
+      "severity": "low",
+      "fix": "Remove the import statement for Tenant since you're using string reference"
+    },
+    {
+      "entity": "PurchaseOrder",
+      "relation": "ManyToOne",
+      "target": "Budget",
+      "issue": "Uses string reference 'Budget' but still imports it (unnecessary)",
+      "line": 99,
+      "severity": "low",
+      "fix": "Remove the import statement for Budget since you're using string reference"
+    },
+    {
+      "entity": "PurchaseOrder",
+      "relation": "OneToMany",
+      "target": "StockMovement",
+      "issue": "Uses string reference 'StockMovement' but still imports it (unnecessary)",
+      "line": 254,
+      "severity": "low",
+      "fix": "Remove the import statement for StockMovement since you're using string reference"
+    },
+    {
+      "entity": "PurchaseOrderItem",
+      "relation": "ManyToOne",
+      "target": "Stock",
+      "issue": "Uses string reference 'Stock' but still imports it (unnecessary)",
+      "line": 52,
+      "severity": "low",
+      "fix": "Remove the import statement for Stock since you're using string reference"
+    },
+    {
+      "entity": "RenewalRequest",
+      "relation": "ManyToOne",
+      "target": "Tenant",
+      "issue": "Uses string reference 'Tenant' but still imports it (unnecessary)",
+      "line": 88,
+      "severity": "low",
+      "fix": "Remove the import statement for Tenant since you're using string reference"
+    },
+    {
+      "entity": "RenewalRequest",
+      "relation": "ManyToOne",
+      "target": "Student",
+      "issue": "Uses string reference 'Student' but still imports it (unnecessary)",
+      "line": 95,
+      "severity": "low",
+      "fix": "Remove the import statement for Student since you're using string reference"
+    },
+    {
+      "entity": "RenewalRequest",
+      "relation": "ManyToOne",
+      "target": "HousingOccupancy",
+      "issue": "Uses string reference 'HousingOccupancy' but still imports it (unnecessary)",
+      "line": 102,
+      "severity": "low",
+      "fix": "Remove the import statement for HousingOccupancy since you're using string reference"
+    },
+    {
+      "entity": "RenewalRequest",
+      "relation": "ManyToOne",
+      "target": "Room",
+      "issue": "Uses string reference 'Room' but still imports it (unnecessary)",
+      "line": 152,
+      "severity": "low",
+      "fix": "Remove the import statement for Room since you're using string reference"
+    },
+    {
+      "entity": "RenewalRequest",
+      "relation": "ManyToOne",
+      "target": "User",
+      "issue": "Uses string reference 'User' but still imports it (unnecessary)",
+      "line": 165,
+      "severity": "low",
+      "fix": "Remove the import statement for User since you're using string reference"
+    },
+    {
+      "entity": "Student",
+      "relation": "ManyToOne",
+      "target": "Tenant",
+      "issue": "Uses string reference 'Tenant' but still imports it (unnecessary)",
+      "line": 73,
+      "severity": "low",
+      "fix": "Remove the import statement for Tenant since you're using string reference"
+    },
+    {
+      "entity": "Tenant",
+      "relation": "ManyToOne",
+      "target": "Tenant",
+      "issue": "Uses arrow function () => Tenant but doesn't import Tenant",
+      "line": 68,
+      "severity": "critical",
+      "fix": "Add import { Tenant } from './Tenant.entity' or use string reference"
+    },
+    {
+      "entity": "Tenant",
+      "relation": "OneToMany",
+      "target": "Tenant",
+      "issue": "Uses arrow function () => Tenant but doesn't import Tenant",
+      "line": 71,
+      "severity": "critical",
+      "fix": "Add import { Tenant } from './Tenant.entity' or use string reference"
+    },
+    {
+      "entity": "TransportTicketPrice",
+      "relation": "ManyToOne",
+      "target": "Tenant",
+      "issue": "Uses string reference 'Tenant' but still imports it (unnecessary)",
+      "line": 54,
+      "severity": "low",
+      "fix": "Remove the import statement for Tenant since you're using string reference"
+    }
+  ],
+  "stats": {
+    "totalEntities": 47,
+    "entitiesWithCircularImports": 40,
+    "criticalCycles": 94
+  }
+}

@@ -65,10 +65,10 @@ export class Tenant {
   @Column({ type: 'uuid', nullable: true })
   parentId: string | null;
 
-  @ManyToOne(() => Tenant, tenant => tenant.children, { nullable: true })
+  @ManyToOne('Tenant', (tenant: Tenant) => tenant.children, { nullable: true })
   parent: Tenant | null;
 
-  @OneToMany(() => Tenant, tenant => tenant.parent)
+  @OneToMany('Tenant', (tenant: Tenant) => tenant.parent)
   children: Tenant[];
 
   /**
