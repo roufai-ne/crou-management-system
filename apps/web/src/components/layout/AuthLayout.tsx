@@ -27,12 +27,7 @@
  */
 
 import React from 'react';
-import { 
-  AcademicCapIcon,
-  GlobeAltIcon,
-  ShieldCheckIcon,
-  BuildingOffice2Icon
-} from '@heroicons/react/24/outline';
+import { Globe, Shield, Building2 } from 'lucide-react';
 
 // Props interface
 interface AuthLayoutProps {
@@ -43,142 +38,136 @@ interface AuthLayoutProps {
 export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen flex">
-      {/* Section gauche - Branding et informations */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-600 to-primary-800 relative overflow-hidden">
-        {/* Background pattern */}
+      {/* Section gauche - Branding République du Niger */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-crou relative overflow-hidden">
+        {/* Motifs décoratifs */}
         <div className="absolute inset-0 opacity-10">
-          <svg className="w-full h-full" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
-                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" strokeWidth="0.5"/>
-              </pattern>
-            </defs>
-            <rect width="100" height="100" fill="url(#grid)" />
-          </svg>
+          <div className="absolute top-20 left-20 w-64 h-64 bg-white rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-white rounded-full blur-3xl"></div>
         </div>
 
         {/* Contenu branding */}
-        <div className="relative flex flex-col justify-center px-12 text-white">
-          {/* Logo et titre principal */}
-          <div className="mb-8">
-            <div className="flex items-center mb-6">
-              <div className="w-16 h-16 bg-white bg-opacity-20 backdrop-blur-sm rounded-2xl flex items-center justify-center mr-4">
-                <AcademicCapIcon className="w-8 h-8 text-white" />
+        <div className="relative z-10 flex flex-col justify-between p-12 text-white">
+          {/* Haut - Logo République */}
+          <div>
+            <div className="flex items-center gap-4 mb-12">
+              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg">
+                <span className="text-2xl font-bold bg-gradient-crou bg-clip-text text-transparent">NE</span>
               </div>
               <div>
-                <h1 className="text-3xl font-bold">CROU</h1>
-                <p className="text-primary-100 text-sm">Centres Régionaux des Œuvres Universitaires</p>
+                <h1 className="text-xl font-bold">République du Niger</h1>
+                <p className="text-sm text-white/90">Fraternité - Travail - Progrès</p>
               </div>
             </div>
-            
-            <h2 className="text-xl font-semibold mb-4">
-              Système de Gestion Intégré
-            </h2>
-            <p className="text-primary-100 text-lg leading-relaxed">
-              Plateforme unifiée pour la gestion des 8 centres régionaux 
-              des œuvres universitaires du Niger.
-            </p>
+
+            {/* Titre principal */}
+            <div className="space-y-6">
+              <h2 className="text-4xl font-bold leading-tight">
+                Système de Gestion<br />
+                des Œuvres Universitaires
+              </h2>
+              <p className="text-xl text-white/90">
+                Centre Régional des Œuvres Universitaires
+              </p>
+              <div className="w-24 h-1 bg-white/30 rounded-full"></div>
+            </div>
           </div>
 
-          {/* Caractéristiques du système */}
+          {/* Milieu - Caractéristiques */}
+          <div className="space-y-6 my-8">
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0 w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
+                <Globe className="w-5 h-5" strokeWidth={2} />
+              </div>
+              <div>
+                <h3 className="font-semibold">Couverture Nationale</h3>
+                <p className="text-white/80 text-sm">
+                  8 centres régionaux supervisés depuis le Ministère
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0 w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
+                <Shield className="w-5 h-5" strokeWidth={2} />
+              </div>
+              <div>
+                <h3 className="font-semibold">Sécurité Renforcée</h3>
+                <p className="text-white/80 text-sm">
+                  Authentification multi-niveaux et traçabilité complète
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0 w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
+                <Building2 className="w-5 h-5" strokeWidth={2} />
+              </div>
+              <div>
+                <h3 className="font-semibold">Gestion Intégrée</h3>
+                <p className="text-white/80 text-sm">
+                  Finance, Stocks, Logement, Transport, Restauration
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Bas - Description et ministère */}
           <div className="space-y-6">
-            <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0">
-                <GlobeAltIcon className="w-6 h-6 text-primary-200" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-white">Couverture Nationale</h3>
-                <p className="text-primary-100 text-sm">
-                  Supervision centralisée de tous les CROU du Niger depuis le Ministère
-                </p>
-              </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+              <h3 className="text-lg font-semibold mb-3">À propos du système</h3>
+              <p className="text-white/90 text-sm leading-relaxed">
+                Plateforme intégrée de gestion des services universitaires incluant 
+                l'hébergement, la restauration, le transport, et l'approvisionnement. 
+                Solution moderne pour améliorer la vie étudiante au Niger.
+              </p>
             </div>
 
-            <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0">
-                <ShieldCheckIcon className="w-6 h-6 text-primary-200" />
-              </div>
+            <div className="flex items-center gap-3 text-white/80 text-sm">
+              <div className="w-px h-12 bg-white/30"></div>
               <div>
-                <h3 className="font-semibold text-white">Sécurité Renforcée</h3>
-                <p className="text-primary-100 text-sm">
-                  Authentification multi-niveaux et traçabilité complète des opérations
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0">
-                <BuildingOffice2Icon className="w-6 h-6 text-primary-200" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-white">Gestion Intégrée</h3>
-                <p className="text-primary-100 text-sm">
-                  Finance, Stocks, Logement, Transport, Restauration en une seule plateforme
-                </p>
+                <p className="font-medium">Ministère de l'Enseignement Supérieur,</p>
+                <p>de la Recherche et de l'Innovation</p>
               </div>
             </div>
           </div>
-
-          {/* Statistiques en temps réel (optionnel) */}
-          <div className="mt-12 grid grid-cols-2 gap-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white">8</div>
-              <div className="text-primary-200 text-sm">CROU Connectés</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white">24/7</div>
-              <div className="text-primary-200 text-sm">Disponibilité</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Décoration géométrique */}
-        <div className="absolute bottom-0 right-0 transform translate-x-16 translate-y-16">
-          <div className="w-64 h-64 bg-white bg-opacity-5 rounded-full"></div>
-        </div>
-        <div className="absolute top-0 right-0 transform translate-x-32 -translate-y-32">
-          <div className="w-96 h-96 bg-white bg-opacity-5 rounded-full"></div>
         </div>
       </div>
 
       {/* Section droite - Formulaires d'authentification */}
-      <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900">
+      <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 via-white to-gray-100">
         <div className="mx-auto w-full max-w-md">
           {/* Logo mobile */}
           <div className="lg:hidden text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-600 rounded-2xl mb-4">
-              <AcademicCapIcon className="w-8 h-8 text-white" />
+            <div className="inline-flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-gradient-crou rounded-full flex items-center justify-center shadow-lg">
+                <span className="text-xl font-bold text-white">NE</span>
+              </div>
+              <div className="text-left">
+                <h1 className="text-lg font-bold text-gray-900">République du Niger</h1>
+                <p className="text-xs text-gray-600">CROU</p>
+              </div>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">CROU Niger</h1>
-            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">Système de Gestion</p>
           </div>
 
           {/* Zone de contenu des formulaires */}
-          <div className="bg-white dark:bg-gray-800 py-8 px-6 shadow-xl rounded-2xl border border-gray-100 dark:border-gray-700">
+          <div className="bg-white py-8 px-6 shadow-xl rounded-2xl border border-gray-100">
             {children}
           </div>
 
-          {/* Informations de support */}
-          <div className="mt-8 text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+          {/* Footer */}
+          <div className="mt-8 text-center space-y-4">
+            <p className="text-sm text-gray-600">
               Besoin d'aide ?
-              <button className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 ml-1">
+              <button className="font-medium text-primary-600 hover:text-primary-500 ml-1">
                 Contactez le support
               </button>
             </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              Version 1.0.0 - MESRIT Niger
-            </p>
-          </div>
-
-          {/* Mentions légales */}
-          <div className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
-            <p>
-              © 2024 Ministère de l'Enseignement Supérieur et de la Recherche
-            </p>
-            <p className="mt-1">
-              République du Niger - Tous droits réservés
-            </p>
+            <div className="text-xs text-gray-500 space-y-1">
+              <p>Version 1.0.0 - MESRIT Niger</p>
+              <p>© 2024 Ministère de l'Enseignement Supérieur et de la Recherche</p>
+              <p>République du Niger - Tous droits réservés</p>
+            </div>
           </div>
         </div>
       </div>
@@ -192,16 +181,16 @@ export const AuthError: React.FC<{ message: string; onRetry?: () => void }> = ({
   onRetry
 }) => {
   return (
-    <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4 mb-4 border border-red-200 dark:border-red-800">
+    <div className="rounded-md bg-red-50 p-4 mb-4 border border-red-200">
       <div className="flex">
         <div className="flex-shrink-0">
-          <ShieldCheckIcon className="h-5 w-5 text-red-400 dark:text-red-500" />
+          <Shield className="h-5 w-5 text-red-400" strokeWidth={2} />
         </div>
         <div className="ml-3">
-          <h3 className="text-sm font-medium text-red-800 dark:text-red-300">
+          <h3 className="text-sm font-medium text-red-800">
             Erreur d'authentification
           </h3>
-          <div className="mt-2 text-sm text-red-700 dark:text-red-400">
+          <div className="mt-2 text-sm text-red-700">
             <p>{message}</p>
           </div>
           {onRetry && (
@@ -209,7 +198,7 @@ export const AuthError: React.FC<{ message: string; onRetry?: () => void }> = ({
               <div className="-mx-2 -my-1.5 flex">
                 <button
                   type="button"
-                  className="bg-red-50 dark:bg-red-900/30 px-2 py-1.5 rounded-md text-sm font-medium text-red-800 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-50 focus:ring-red-600"
+                  className="bg-red-50 px-2 py-1.5 rounded-md text-sm font-medium text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-50 focus:ring-red-600"
                   onClick={onRetry}
                 >
                   Réessayer
@@ -227,8 +216,8 @@ export const AuthError: React.FC<{ message: string; onRetry?: () => void }> = ({
 export const AuthLoading: React.FC = () => {
   return (
     <div className="flex justify-center items-center py-8">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 dark:border-primary-400"></div>
-      <span className="ml-3 text-sm text-gray-600 dark:text-gray-400">Connexion en cours...</span>
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      <span className="ml-3 text-sm text-gray-600">Connexion en cours...</span>
     </div>
   );
 };

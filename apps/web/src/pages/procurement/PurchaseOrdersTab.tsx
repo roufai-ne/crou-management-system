@@ -16,14 +16,21 @@ import {
   PlusIcon,
   CheckIcon,
   XMarkIcon,
-  TruckIcon
+  TruckIcon,
+  EyeIcon
 } from '@heroicons/react/24/outline';
 import { 
   procurementService, 
   PurchaseOrder, 
-  PurchaseOrderStatus
+  PurchaseOrderStatus,
+  type CreatePurchaseOrderRequest
 } from '@/services/api/procurementService';
+import { financialService, type Budget } from '@/services/api/financialService';
+import { suppliersService, type Supplier } from '@/services/api/suppliersService';
 import { ExportButton } from '@/components/reports/ExportButton';
+import { PurchaseOrderFormModal, PurchaseOrderDetailsModal, ReceptionModal, ProcurementFilterBar } from '@/components/procurement';
+import { useProcurement } from '@/hooks/useProcurement';
+import { useProcurementFilters } from '@/hooks/useProcurementFilters';
 
 const formatAmount = (amount: number) => {
   return `${amount.toLocaleString('fr-FR')} XOF`;
@@ -52,68 +59,196 @@ const STATUS_LABELS: Record<PurchaseOrderStatus, string> = {
 };
 
 export const PurchaseOrdersTab: React.FC = () => {
-  const [orders, setOrders] = useState<PurchaseOrder[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    orders,
+    loading: isLoading,
+    error,
+    fetchOrders: loadOrders,
+    createOrder,
+    submitOrder,
+    approveOrder,
+    markAsOrdered,
+    cancelOrder
+  } = useProcurement();
 
-  // Charger les bons de commande
-  const loadOrders = async () => {
-    setIsLoading(true);
-    setError(null);
+  const {
+    filters,
+    updateFilter,
+    clearAllFilters,
+    hasActiveFilters
+  } = useProcurementFilters();
 
-    try {
-      const response = await procurementService.getPurchaseOrders();
-      setOrders(response.data.orders || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors du chargement des BCs');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isReceptionModalOpen, setIsReceptionModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<PurchaseOrder | null>(null);
+  const [budgets, setBudgets] = useState<Budget[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [loadingFormData, setLoadingFormData] = useState(true);
 
+  // Charger budgets et fournisseurs pour le formulaire
   useEffect(() => {
-    loadOrders();
+    const loadFormData = async () => {
+      setLoadingFormData(true);
+      try {
+        const [budgetsRes, suppliersRes] = await Promise.all([
+          financialService.getBudgets({ status: 'active' }),
+          suppliersService.getSuppliers({ status: 'ACTIF' as any })
+        ]);
+        
+        // Extract budgets - handle multiple response formats
+        let budgetData: Budget[] = [];
+        if (Array.isArray(budgetsRes)) {
+          budgetData = budgetsRes;
+        } else if ('budgets' in budgetsRes) {
+          budgetData = budgetsRes.budgets;
+        } else if ('data' in budgetsRes && budgetsRes.data) {
+          budgetData = Array.isArray(budgetsRes.data) ? budgetsRes.data : budgetsRes.data.budgets || [];
+        }
+        
+        // Extract suppliers
+        const supplierData = suppliersRes.suppliers || [];
+        
+        setBudgets(budgetData);
+        setSuppliers(supplierData);
+        
+        console.log(`Loaded ${budgetData.length} budgets and ${supplierData.length} suppliers`);
+      } catch (err) {
+        console.error('Erreur chargement données formulaire:', err);
+      } finally {
+        setLoadingFormData(false);
+      }
+    };
+    loadFormData();
   }, []);
 
   // Soumettre pour approbation
   const handleSubmit = async (orderId: string) => {
     try {
-      await procurementService.submitPurchaseOrder(orderId);
-      loadOrders();
+      await submitOrder(orderId);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de la soumission');
+      console.error('Erreur soumission:', err);
     }
   };
 
   // Approuver un BC
   const handleApprove = async (orderId: string) => {
     try {
-      await procurementService.approvePurchaseOrder(orderId);
-      loadOrders();
+      await approveOrder(orderId);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de l\'approbation');
+      console.error('Erreur approbation:', err);
     }
   };
 
   // Marquer comme commandé
   const handleMarkAsOrdered = async (orderId: string) => {
     try {
-      await procurementService.markAsOrdered(orderId);
-      loadOrders();
+      await markAsOrdered(orderId);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur');
+      console.error('Erreur marquage commandé:', err);
     }
   };
 
   // Annuler un BC
   const handleCancel = async (orderId: string) => {
+    if (!confirm('Êtes-vous sûr de vouloir annuler ce bon de commande ?')) {
+      return;
+    }
     try {
-      await procurementService.cancelPurchaseOrder(orderId, 'Annulation manuelle');
-      loadOrders();
+      await cancelOrder(orderId, 'Annulation manuelle');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de l\'annulation');
+      console.error('Erreur annulation:', err);
     }
   };
+
+  // Créer un nouveau BC
+  const handleCreateOrder = async (data: CreatePurchaseOrderRequest) => {
+    await createOrder(data);
+    setIsCreateModalOpen(false);
+  };
+
+  // Voir les détails
+  const handleViewDetails = (order: PurchaseOrder) => {
+    setSelectedOrder(order);
+    setIsDetailsModalOpen(true);
+  };
+
+  // Ouvrir le modal de réception
+  const handleReceive = (orderId: string) => {
+    const order = orders.find(o => o.id === orderId);
+    if (order) {
+      setSelectedOrder(order);
+      setIsReceptionModalOpen(true);
+    }
+  };
+
+  // Soumettre la réception
+  const handleReceptionSubmit = async (orderId: string, data: any) => {
+    // Le hook useProcurement n'a pas de receiveOrder, on va utiliser le service directement
+    try {
+      await procurementService.receivePurchaseOrder(orderId, data);
+      await loadOrders(); // Recharger la liste
+      setIsReceptionModalOpen(false);
+      setSelectedOrder(null);
+    } catch (err) {
+      console.error('Erreur réception:', err);
+      throw err;
+    }
+  };
+
+  // Filtrage côté client des commandes
+  const filteredOrders = React.useMemo(() => {
+    let result = [...orders];
+
+    // Filtre par statut
+    if (filters.status && filters.status.length > 0) {
+      result = result.filter(order => filters.status!.includes(order.status));
+    }
+
+    // Filtre par fournisseur
+    if (filters.supplierId) {
+      result = result.filter(order => order.supplierId === filters.supplierId);
+    }
+
+    // Filtre par budget
+    if (filters.budgetId) {
+      result = result.filter(order => order.budgetId === filters.budgetId);
+    }
+
+    // Filtre par recherche textuelle
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      result = result.filter(order =>
+        order.reference.toLowerCase().includes(searchLower) ||
+        order.objet.toLowerCase().includes(searchLower) ||
+        order.supplier?.nom.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Filtre par plage de dates
+    if (filters.dateRange) {
+      if (filters.dateRange.start) {
+        const startDate = new Date(filters.dateRange.start);
+        result = result.filter(order => new Date(order.dateCommande) >= startDate);
+      }
+      if (filters.dateRange.end) {
+        const endDate = new Date(filters.dateRange.end);
+        result = result.filter(order => new Date(order.dateCommande) <= endDate);
+      }
+    }
+
+    // Filtre par plage de montants
+    if (filters.amountRange) {
+      if (filters.amountRange.min !== undefined) {
+        result = result.filter(order => order.montantTTC >= filters.amountRange!.min!);
+      }
+      if (filters.amountRange.max !== undefined) {
+        result = result.filter(order => order.montantTTC <= filters.amountRange!.max!);
+      }
+    }
+
+    return result;
+  }, [orders, filters]);
 
   // Colonnes du DataTable
   const columns = [
@@ -161,6 +296,15 @@ export const PurchaseOrdersTab: React.FC = () => {
       label: 'Actions',
       render: (row: PurchaseOrder) => (
         <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => handleViewDetails(row)}
+            leftIcon={<EyeIcon className="h-4 w-4" />}
+            title="Voir détails"
+          >
+            Voir
+          </Button>
           {row.status === PurchaseOrderStatus.DRAFT && (
             <Button
               size="sm"
@@ -208,6 +352,7 @@ export const PurchaseOrdersTab: React.FC = () => {
             <Button
               size="sm"
               variant="success"
+              onClick={() => handleReceive(row.id)}
               leftIcon={<TruckIcon className="h-4 w-4" />}
               title="Réceptionner"
             >
@@ -239,8 +384,10 @@ export const PurchaseOrdersTab: React.FC = () => {
           <Button
             variant="primary"
             leftIcon={<PlusIcon className="h-4 w-4" />}
+            onClick={() => setIsCreateModalOpen(true)}
+            disabled={loadingFormData}
           >
-            Nouveau BC
+            {loadingFormData ? 'Chargement...' : 'Nouveau BC'}
           </Button>
         </div>
       </div>
@@ -256,16 +403,81 @@ export const PurchaseOrdersTab: React.FC = () => {
         </Card>
       )}
 
+      {/* Avertissement si pas de budgets ou fournisseurs */}
+      {!loadingFormData && (budgets.length === 0 || suppliers.length === 0) && (
+        <Card>
+          <Card.Content>
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+              <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                {budgets.length === 0 && suppliers.length === 0 && 
+                  '⚠️ Aucun budget ni fournisseur disponible. Veuillez créer au moins un budget et un fournisseur pour créer des bons de commande.'}
+                {budgets.length === 0 && suppliers.length > 0 && 
+                  '⚠️ Aucun budget disponible. Veuillez créer au moins un budget pour créer des bons de commande.'}
+                {budgets.length > 0 && suppliers.length === 0 && 
+                  '⚠️ Aucun fournisseur disponible. Veuillez créer au moins un fournisseur pour créer des bons de commande.'}
+              </p>
+            </div>
+          </Card.Content>
+        </Card>
+      )}
+
+      {/* Filtres */}
+      <ProcurementFilterBar
+        filters={filters}
+        onFilterChange={updateFilter}
+        onClearFilters={clearAllFilters}
+        budgets={budgets}
+        suppliers={suppliers}
+      />
+
+      {/* Modal de création */}
+      <PurchaseOrderFormModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSubmit={handleCreateOrder}
+        budgets={budgets}
+        suppliers={suppliers}
+      />
+
+      <PurchaseOrderDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => {
+          setIsDetailsModalOpen(false);
+          setSelectedOrder(null);
+        }}
+        order={selectedOrder}
+        onSubmit={submitOrder}
+        onApprove={approveOrder}
+        onMarkAsOrdered={markAsOrdered}
+        onCancel={(id) => cancelOrder(id, 'Annulation depuis les détails')}
+        onReceive={handleReceive}
+      />
+
+      <ReceptionModal
+        isOpen={isReceptionModalOpen}
+        onClose={() => {
+          setIsReceptionModalOpen(false);
+          setSelectedOrder(null);
+        }}
+        order={selectedOrder}
+        onSubmit={handleReceptionSubmit}
+      />
+
       {/* Table des BCs */}
       <Card>
         <Card.Content>
           <DataTable
             columns={columns}
-            data={orders}
+            data={filteredOrders}
             isLoading={isLoading}
             pagination
             pageSize={10}
           />
+          {hasActiveFilters && filteredOrders.length === 0 && !isLoading && (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              Aucun bon de commande ne correspond aux filtres appliqués.
+            </div>
+          )}
         </Card.Content>
       </Card>
     </div>

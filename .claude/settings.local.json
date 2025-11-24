@@ -15,7 +15,8 @@
       "Bash(mkdir:*)",
       "Bash(\"C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe\" -h localhost -U crou_user -d crou_database -c \"SELECT DISTINCT name FROM roles ORDER BY name;\")",
       "Bash(node fix-dark-mode.js:*)",
-      "Bash(perl -i -pe:*)"
+      "Bash(perl -i -pe:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

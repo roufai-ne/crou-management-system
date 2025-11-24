@@ -30,16 +30,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import toast from 'react-hot-toast';
-import {
-  EyeIcon,
-  EyeSlashIcon,
-  KeyIcon,
-  EnvelopeIcon,
-  ExclamationCircleIcon
-} from '@/components/ui/IconFallback';
+import { Mail, Lock } from 'lucide-react';
 
 import { useAuth } from '@/stores/auth';
 import { AuthError, AuthLoading } from '@/components/layout/AuthLayout';
+import { ModernInput } from '@/components/ui/ModernInput';
+import { ModernButton } from '@/components/ui/ModernButton';
 
 // Schéma de validation Zod
 const loginSchema = z.object({
@@ -167,13 +163,13 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* En-tête */}
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+        <h2 className="text-3xl font-bold text-gray-900">
           Connexion
         </h2>
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+        <p className="mt-2 text-gray-600">
           Accédez au système de gestion CROU
         </p>
       </div>
@@ -191,75 +187,31 @@ export const LoginPage: React.FC = () => {
 
       {/* Formulaire de connexion */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Champ Email */}
-        <div>
-          <label htmlFor="email" className="form-label">
-            Adresse email
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <EnvelopeIcon className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              {...register('email')}
-              type="email"
-              autoComplete="email"
-              placeholder="nom@crou.gov.ne"
-              className={`
-                form-input pl-10
-                ${errors.email ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}
-              `}
-              disabled={isSubmitting}
-            />
-          </div>
-          {errors.email && (
-            <p className="mt-1 text-sm text-red-600 flex items-center">
-              <ExclamationCircleIcon className="w-4 h-4 mr-1" />
-              {errors.email.message}
-            </p>
-          )}
-        </div>
+        <ModernInput
+          {...register('email')}
+          type="email"
+          label="Adresse email"
+          placeholder="nom@crou.gov.ne"
+          icon={Mail}
+          error={errors.email?.message}
+          disabled={isSubmitting}
+          required
+          variant="gradient-crou"
+          autoComplete="email"
+        />
 
-        {/* Champ Mot de passe */}
-        <div>
-          <label htmlFor="password" className="form-label">
-            Mot de passe
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <KeyIcon className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              {...register('password')}
-              type={showPassword ? 'text' : 'password'}
-              autoComplete="current-password"
-              placeholder="Votre mot de passe"
-              className={`
-                form-input pl-10 pr-10
-                ${errors.password ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}
-              `}
-              disabled={isSubmitting}
-            />
-            <button
-              type="button"
-              className="absolute inset-y-0 right-0 pr-3 flex items-center"
-              onClick={() => setShowPassword(!showPassword)}
-              disabled={isSubmitting}
-            >
-              {showPassword ? (
-                <EyeSlashIcon className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:text-gray-400" />
-              ) : (
-                <EyeIcon className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:text-gray-400" />
-              )}
-            </button>
-          </div>
-          {errors.password && (
-            <p className="mt-1 text-sm text-red-600 flex items-center">
-              <ExclamationCircleIcon className="w-4 h-4 mr-1" />
-              {errors.password.message}
-            </p>
-          )}
-        </div>
+        <ModernInput
+          {...register('password')}
+          type="password"
+          label="Mot de passe"
+          placeholder="Votre mot de passe"
+          icon={Lock}
+          error={errors.password?.message}
+          disabled={isSubmitting}
+          required
+          variant="gradient-crou"
+          autoComplete="current-password"
+        />
 
         {/* Options additionnelles */}
         <div className="flex items-center justify-between">
@@ -268,53 +220,34 @@ export const LoginPage: React.FC = () => {
               id="remember-me"
               name="remember-me"
               type="checkbox"
-              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded"
+              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
             />
-            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
               Se souvenir de moi
             </label>
           </div>
 
           <button
             type="button"
-            className="text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300"
-            onClick={() => {
-              // TODO: Implémenter reset password
-              alert('Fonctionnalité de réinitialisation à implémenter');
-            }}
+            className="text-sm font-medium text-primary-600 hover:text-primary-500"
           >
             Mot de passe oublié ?
           </button>
         </div>
 
-        {/* Bouton de connexion */}
-        <button
+        <ModernButton
           type="submit"
-          disabled={isSubmitting || isLoading}
-          className={`
-            group relative w-full flex justify-center py-3 px-4 border border-transparent 
-            text-sm font-medium rounded-md text-white 
-            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500
-            transition-colors duration-200
-            ${isSubmitting || isLoading 
-              ? 'bg-gray-400 cursor-not-allowed' 
-              : 'bg-primary-600 hover:bg-primary-700'
-            }
-          `}
+          variant="gradient-crou"
+          size="lg"
+          fullWidth
+          loading={isSubmitting || isLoading}
         >
-          {isSubmitting ? (
-            <div className="flex items-center">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              Connexion...
-            </div>
-          ) : (
-            'Se connecter'
-          )}
-        </button>
+          Se connecter
+        </ModernButton>
       </form>
 
       {/* Footer */}
-      <div className="text-center text-xs text-gray-500 dark:text-gray-400">
+      <div className="text-center text-xs text-gray-500">
         <p>
           En vous connectant, vous acceptez les conditions d'utilisation
           et la politique de confidentialité du système CROU.

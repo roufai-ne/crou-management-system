@@ -24,19 +24,19 @@ export default {
     extend: {
       // Couleurs officielles CROU - Palette complète
       colors: {
-        // Couleur principale CROU (Bleu institutionnel)
+        // Couleur principale CROU (Vert moderne inspiré du drapeau Niger)
         primary: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb', // Couleur principale CROU
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
-          950: '#172554'
+          50: '#ecfdf5',
+          100: '#d1fae5',
+          200: '#a7f3d0',
+          300: '#6ee7b7',
+          400: '#34d399',
+          500: '#10b981', // Vert moderne principal
+          600: '#059669', // Couleur principale CROU
+          700: '#047857',
+          800: '#065f46',
+          900: '#064e3b',
+          950: '#022c22'
         },
         // Couleur secondaire (Gris neutre)
         secondary: {
@@ -61,7 +61,7 @@ export default {
           300: '#86efac',
           400: '#4ade80',
           500: '#22c55e',
-          600: '#16a34a', // Vert CROU
+          600: '#16a34a', // Vert drapeau Niger
           700: '#15803d',
           800: '#166534',
           900: '#14532d',
@@ -80,13 +80,27 @@ export default {
           900: '#7f1d1d',
           950: '#450a0a'
         },
+        // Couleur accent CROU (Orange moderne inspiré du drapeau Niger)
+        accent: {
+          50: '#fff7ed',
+          100: '#ffedd5',
+          200: '#fed7aa',
+          300: '#fdba74',
+          400: '#fb923c',
+          500: '#f97316', // Orange moderne principal
+          600: '#ea580c', // Orange accent CROU
+          700: '#c2410c',
+          800: '#9a3412',
+          900: '#7c2d12',
+          950: '#431407'
+        },
         warning: {
           50: '#fffbeb',
           100: '#fef3c7',
           200: '#fde68a',
           300: '#fcd34d',
           400: '#fbbf24',
-          500: '#f59e0b', // Orange CROU
+          500: '#f59e0b',
           600: '#d97706',
           700: '#b45309',
           800: '#92400e',
@@ -94,35 +108,35 @@ export default {
           950: '#451a03'
         },
         info: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
-          950: '#082f49'
+          50: '#ecfeff',
+          100: '#cffafe',
+          200: '#a5f3fc',
+          300: '#67e8f9',
+          400: '#22d3ee',
+          500: '#06b6d4', // Cyan moderne principal
+          600: '#0891b2', // Info CROU
+          700: '#0e7490',
+          800: '#155e75',
+          900: '#164e63',
+          950: '#083344'
         },
         
         // Couleurs spécifiques CROU
         crou: {
-          // Couleurs institutionnelles Niger
+          // Couleurs institutionnelles Niger (drapeau)
           green: '#16a34a',  // Vert du drapeau
           orange: '#f59e0b', // Orange du drapeau
           white: '#ffffff',  // Blanc du drapeau
           
-          // Couleurs métier
+          // Couleurs métier modernisées
           budget: {
-            allocated: '#3b82f6',
-            spent: '#16a34a',
-            remaining: '#f59e0b',
-            overbudget: '#dc2626'
+            allocated: '#06b6d4', // Cyan moderne
+            spent: '#10b981',     // Vert moderne
+            remaining: '#f97316', // Orange moderne
+            overbudget: '#ef4444' // Rouge moderne
           },
           status: {
-            active: '#16a34a',
+            active: '#10b981',    // Vert moderne
             inactive: '#6b7280',
             pending: '#f59e0b',
             rejected: '#dc2626',
@@ -145,14 +159,18 @@ export default {
         '128': '32rem'
       },
       
-      // Animations personnalisées
+      // Animations personnalisées CROU (modernes et fluides)
       animation: {
         'slide-in-right': 'slide-in-right 0.3s ease-out',
         'slide-in-left': 'slide-in-left 0.3s ease-out',
+        'slide-up': 'slide-up 0.4s ease-out',
         'fade-in': 'fade-in 0.2s ease-out',
         'bounce-subtle': 'bounce-subtle 2s infinite',
         'pulse-slow': 'pulse 3s infinite',
-        'shimmer': 'shimmer 2s infinite'
+        'shimmer': 'shimmer 2.5s infinite linear',
+        'glow': 'glow 2s ease-in-out infinite',
+        'scale-in': 'scale-in 0.2s ease-out',
+        'rotate-slow': 'rotate-slow 20s linear infinite'
       },
 
       keyframes: {
@@ -164,6 +182,10 @@ export default {
           '0%': { transform: 'translateX(-100%)', opacity: '0' },
           '100%': { transform: 'translateX(0)', opacity: '1' }
         },
+        'slide-up': {
+          '0%': { transform: 'translateY(20px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' }
+        },
         'fade-in': {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' }
@@ -172,9 +194,21 @@ export default {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-5px)' }
         },
+        'glow': {
+          '0%, 100%': { boxShadow: '0 0 20px rgba(16, 185, 129, 0.4)' },
+          '50%': { boxShadow: '0 0 40px rgba(16, 185, 129, 0.8)' }
+        },
+        'scale-in': {
+          '0%': { transform: 'scale(0.9)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' }
+        },
+        'rotate-slow': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' }
+        },
         'shimmer': {
-          '0%': { transform: 'translateX(-100%)' },
-          '100%': { transform: 'translateX(100%)' }
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' }
         }
       },
       
@@ -192,33 +226,37 @@ export default {
         '3xl': '1600px'
       },
       
-      // Gradients modernes
+      // Gradients modernes CROU (inspirés du drapeau Niger)
       backgroundImage: {
-        // Gradients principaux
-        'gradient-primary': 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+        // Gradients principaux modernisés
+        'gradient-primary': 'linear-gradient(135deg, #10b981 0%, #059669 100%)', // Vert moderne
         'gradient-success': 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
         'gradient-danger': 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
         'gradient-warning': 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-        'gradient-info': 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
+        'gradient-info': 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)', // Cyan moderne
+        'gradient-accent': 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)', // Orange moderne
 
-        // Gradient CROU (couleurs Niger)
-        'gradient-crou': 'linear-gradient(135deg, #16a34a 0%, #f59e0b 100%)',
-        'gradient-crou-reverse': 'linear-gradient(135deg, #f59e0b 0%, #16a34a 100%)',
+        // Gradients CROU signature (couleurs drapeau Niger)
+        'gradient-crou': 'linear-gradient(135deg, #10b981 0%, #f97316 100%)', // Vert → Orange moderne
+        'gradient-crou-reverse': 'linear-gradient(135deg, #f97316 0%, #10b981 100%)', // Orange → Vert
+        'gradient-crou-radial': 'radial-gradient(circle at top right, #10b981, #f97316)', // Radial moderne
 
         // Backgrounds subtils
         'gradient-soft': 'linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%)',
         'gradient-soft-dark': 'linear-gradient(135deg, #1f2937 0%, #111827 100%)',
 
-        // Mesh gradients pour backgrounds complexes
-        'mesh-primary': 'radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.3) 0%, transparent 50%), radial-gradient(at 100% 100%, rgba(37, 99, 235, 0.3) 0%, transparent 50%)',
-        'mesh-crou': 'radial-gradient(at 0% 0%, rgba(22, 163, 74, 0.2) 0%, transparent 50%), radial-gradient(at 100% 100%, rgba(245, 158, 11, 0.2) 0%, transparent 50%)',
+        // Mesh gradients pour backgrounds complexes (modernisés)
+        'mesh-primary': 'radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.3) 0%, transparent 50%), radial-gradient(at 100% 100%, rgba(5, 150, 105, 0.3) 0%, transparent 50%)',
+        'mesh-crou': 'radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.2) 0%, transparent 50%), radial-gradient(at 100% 100%, rgba(249, 115, 22, 0.2) 0%, transparent 50%)',
+        'mesh-accent': 'radial-gradient(at 50% 0%, rgba(249, 115, 22, 0.2) 0%, transparent 50%), radial-gradient(at 0% 100%, rgba(16, 185, 129, 0.15) 0%, transparent 50%)',
 
-        // Gradients pour hover states
-        'gradient-primary-hover': 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+        // Gradients pour hover states (modernisés)
+        'gradient-primary-hover': 'linear-gradient(135deg, #059669 0%, #047857 100%)',
         'gradient-success-hover': 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+        'gradient-accent-hover': 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',
       },
 
-      // Box shadow personnalisées (améliorées)
+      // Box shadow personnalisées CROU (ombres modernes avec couleurs brand)
       boxShadow: {
         // Ombres douces
         'soft': '0 2px 8px -2px rgba(0, 0, 0, 0.1)',
@@ -229,15 +267,22 @@ export default {
         'card-hover': '0 4px 20px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04)',
         'card-active': '0 8px 30px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.06)',
 
+        // Cards avec glow CROU (couleurs brand)
+        'card-glow-green': '0 4px 20px rgba(16, 185, 129, 0.15), 0 2px 8px rgba(16, 185, 129, 0.08)',
+        'card-glow-orange': '0 4px 20px rgba(249, 115, 22, 0.15), 0 2px 8px rgba(249, 115, 22, 0.08)',
+        'card-glow-crou': '0 8px 30px rgba(16, 185, 129, 0.2), 0 4px 12px rgba(249, 115, 22, 0.15)',
+
         // Modal et overlays
         'modal': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
         'dropdown': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
 
-        // Glow effects pour états actifs
-        'glow-primary': '0 0 20px rgba(59, 130, 246, 0.3)',
+        // Glow effects pour états actifs CROU (couleurs brand)
+        'glow-primary': '0 0 20px rgba(16, 185, 129, 0.3)',
         'glow-success': '0 0 20px rgba(16, 185, 129, 0.3)',
         'glow-danger': '0 0 20px rgba(239, 68, 68, 0.3)',
         'glow-warning': '0 0 20px rgba(245, 158, 11, 0.3)',
+        'glow-accent': '0 0 20px rgba(249, 115, 22, 0.3)',
+        'glow-info': '0 0 20px rgba(6, 182, 212, 0.3)',
 
         // Inner shadow pour inputs
         'inner': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
@@ -245,7 +290,11 @@ export default {
 
         // Ombres élégantes pour élévation
         'elevated': '0 10px 40px rgba(0, 0, 0, 0.08)',
-        'floating': '0 12px 48px rgba(0, 0, 0, 0.12)'
+        'floating': '0 12px 48px rgba(0, 0, 0, 0.12)',
+        
+        // Ombres spéciales CROU pour boutons et éléments interactifs
+        'button-primary': '0 4px 12px rgba(16, 185, 129, 0.25)',
+        'button-accent': '0 4px 12px rgba(249, 115, 22, 0.25)',
       },
       
       // Border radius

@@ -19,7 +19,7 @@
  * DATE: Décembre 2024
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Container, Card, Badge, Button, Table, Modal, Input, Select, DateInput, Tabs } from '@/components/ui';
 import { 
   PlusIcon, 
@@ -40,6 +40,7 @@ import { useStockItems, useStockMovements, useStockAlerts, useStocksStatistics }
 import { StockItem, CreateStockItemRequest, StockMovement, StockAlert } from '@/services/api/stocksService';
 import { ExportButton } from '@/components/reports/ExportButton';
 import { SuppliersTab } from '@/components/stocks/SuppliersTab';
+import ModernPagination from '@/components/ui/ModernPagination';
 
 export const StocksPage: React.FC = () => {
   const { user } = useAuth();
@@ -47,6 +48,12 @@ export const StocksPage: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isMovementModalOpen, setIsMovementModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<StockItem | null>(null);
+  
+  // États de pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [movementsPage, setMovementsPage] = useState(1);
+  const [movementsPageSize, setMovementsPageSize] = useState(10);
 
   // Hooks pour la gestion des données
   const {
@@ -79,6 +86,29 @@ export const StocksPage: React.FC = () => {
     lowStockItems = 0,
     topCategories = []
   } = useStocksStatistics();
+
+  // Pagination des articles
+  const paginatedItems = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return stockItems.slice(startIndex, endIndex);
+  }, [stockItems, currentPage, pageSize]);
+
+  const totalPages = Math.ceil(stockItems.length / pageSize);
+
+  // Pagination des mouvements
+  const paginatedMovements = useMemo(() => {
+    const startIndex = (movementsPage - 1) * movementsPageSize;
+    const endIndex = startIndex + movementsPageSize;
+    return movements.slice(startIndex, endIndex);
+  }, [movements, movementsPage, movementsPageSize]);
+
+  const totalMovementsPages = Math.ceil(movements.length / movementsPageSize);
+
+  // Réinitialiser la page lors du changement de filtres
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters.search, filters.category]);
 
   // Gestion de la création d'article
   const handleCreateItem = async (data: CreateStockItemRequest) => {
@@ -291,16 +321,39 @@ export const StocksPage: React.FC = () => {
           {/* Tableau des articles */}
           <Card>
             <Card.Header>
-              <Card.Title>Articles en Stock ({totalItems})</Card.Title>
+              <Card.Title>Articles en Stock ({stockItems.length})</Card.Title>
             </Card.Header>
             <Card.Content>
               <Table
-                data={stockItems}
+                data={paginatedItems}
                 columns={itemColumns}
                 loading={itemsLoading}
                 emptyMessage="Aucun article trouvé"
                 onRowClick={(item) => setSelectedItem(item)}
               />
+              
+              {/* Pagination */}
+              {stockItems.length > 0 && (
+                <div className="mt-6 flex justify-center">
+                  <ModernPagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                    pageSize={pageSize}
+                    totalItems={stockItems.length}
+                    pageSizeOptions={[5, 10, 20, 50]}
+                    onPageSizeChange={(newSize) => {
+                      setPageSize(newSize);
+                      setCurrentPage(1);
+                    }}
+                    showPageSize
+                    showTotal
+                    showFirstLast
+                    variant="default"
+                    size="md"
+                  />
+                </div>
+              )}
             </Card.Content>
           </Card>
         </div>
@@ -328,11 +381,34 @@ export const StocksPage: React.FC = () => {
             </Card.Header>
             <Card.Content>
               <Table
-                data={movements}
+                data={paginatedMovements}
                 columns={movementColumns}
                 loading={movementsLoading}
                 emptyMessage="Aucun mouvement trouvé"
               />
+              
+              {/* Pagination des mouvements */}
+              {movements.length > 0 && (
+                <div className="mt-6 flex justify-center">
+                  <ModernPagination
+                    currentPage={movementsPage}
+                    totalPages={totalMovementsPages}
+                    onPageChange={setMovementsPage}
+                    pageSize={movementsPageSize}
+                    totalItems={movements.length}
+                    pageSizeOptions={[5, 10, 20, 50]}
+                    onPageSizeChange={(newSize) => {
+                      setMovementsPageSize(newSize);
+                      setMovementsPage(1);
+                    }}
+                    showPageSize
+                    showTotal
+                    showFirstLast
+                    variant="default"
+                    size="md"
+                  />
+                </div>
+              )}
             </Card.Content>
           </Card>
         </div>

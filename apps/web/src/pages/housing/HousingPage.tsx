@@ -18,8 +18,9 @@
  * DATE: Décembre 2024
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Container, Card, Badge, Button, Table, Modal, Input, Select, DateInput, Tabs } from '@/components/ui';
+import ModernPagination from '@/components/ui/ModernPagination';
 import { 
   PlusIcon, 
   MagnifyingGlassIcon, 
@@ -53,6 +54,12 @@ export const HousingPage: React.FC = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [modalType, setModalType] = useState<'complex' | 'room' | 'resident' | 'maintenance' | 'payment'>('complex');
+  
+  // États de pagination
+  const [roomsPage, setRoomsPage] = useState(1);
+  const [roomsPageSize, setRoomsPageSize] = useState(10);
+  const [residentsPage, setResidentsPage] = useState(1);
+  const [residentsPageSize, setResidentsPageSize] = useState(10);
 
   // Hooks pour la gestion des données
   const {
@@ -113,6 +120,33 @@ export const HousingPage: React.FC = () => {
     monthlyRevenue = 0,
     overduePayments = 0
   } = useHousingStatistics();
+
+  // Pagination des chambres
+  const paginatedRooms = useMemo(() => {
+    const startIndex = (roomsPage - 1) * roomsPageSize;
+    const endIndex = startIndex + roomsPageSize;
+    return rooms.slice(startIndex, endIndex);
+  }, [rooms, roomsPage, roomsPageSize]);
+
+  const totalRoomsPages = Math.ceil(rooms.length / roomsPageSize);
+
+  // Pagination des résidents
+  const paginatedResidents = useMemo(() => {
+    const startIndex = (residentsPage - 1) * residentsPageSize;
+    const endIndex = startIndex + residentsPageSize;
+    return residents.slice(startIndex, endIndex);
+  }, [residents, residentsPage, residentsPageSize]);
+
+  const totalResidentsPages = Math.ceil(residents.length / residentsPageSize);
+
+  // Réinitialiser la page lors du changement de filtres
+  useEffect(() => {
+    setRoomsPage(1);
+  }, [roomsFilters.search, roomsFilters.complexId, roomsFilters.status]);
+
+  useEffect(() => {
+    setResidentsPage(1);
+  }, [residentsFilters.search, residentsFilters.complexId, residentsFilters.status]);
 
   // Gestion de la création d'élément
   const handleCreateItem = async (data: any) => {
@@ -663,7 +697,7 @@ export const HousingPage: React.FC = () => {
             </Card.Header>
             <Card.Content>
               <Table
-                data={rooms}
+                data={paginatedRooms}
                 columns={roomColumns}
                 loading={roomsLoading}
                 emptyMessage="Aucune chambre trouvée"
@@ -673,6 +707,29 @@ export const HousingPage: React.FC = () => {
                   setIsEditModalOpen(true);
                 }}
               />
+              
+              {/* Pagination */}
+              {rooms.length > 0 && (
+                <div className="mt-6 flex justify-center">
+                  <ModernPagination
+                    currentPage={roomsPage}
+                    totalPages={totalRoomsPages}
+                    onPageChange={setRoomsPage}
+                    pageSize={roomsPageSize}
+                    totalItems={rooms.length}
+                    pageSizeOptions={[5, 10, 20, 50]}
+                    onPageSizeChange={(newSize) => {
+                      setRoomsPageSize(newSize);
+                      setRoomsPage(1);
+                    }}
+                    showPageSize
+                    showTotal
+                    showFirstLast
+                    variant="default"
+                    size="md"
+                  />
+                </div>
+              )}
             </Card.Content>
           </Card>
         </div>
@@ -703,7 +760,7 @@ export const HousingPage: React.FC = () => {
             </Card.Header>
             <Card.Content>
               <Table
-                data={residents}
+                data={paginatedResidents}
                 columns={residentColumns}
                 loading={residentsLoading}
                 emptyMessage="Aucun résident trouvé"
@@ -713,6 +770,29 @@ export const HousingPage: React.FC = () => {
                   setIsEditModalOpen(true);
                 }}
               />
+              
+              {/* Pagination */}
+              {residents.length > 0 && (
+                <div className="mt-6 flex justify-center">
+                  <ModernPagination
+                    currentPage={residentsPage}
+                    totalPages={totalResidentsPages}
+                    onPageChange={setResidentsPage}
+                    pageSize={residentsPageSize}
+                    totalItems={residents.length}
+                    pageSizeOptions={[5, 10, 20, 50]}
+                    onPageSizeChange={(newSize) => {
+                      setResidentsPageSize(newSize);
+                      setResidentsPage(1);
+                    }}
+                    showPageSize
+                    showTotal
+                    showFirstLast
+                    variant="default"
+                    size="md"
+                  />
+                </div>
+              )}
             </Card.Content>
           </Card>
         </div>

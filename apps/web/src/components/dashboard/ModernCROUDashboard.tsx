@@ -21,20 +21,28 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Card, Badge, Button, Grid, Section, KPICard, KPIGrid, CardHeader, CardTitle, CardContent } from '@/components/ui';
 import {
-  BanknotesIcon,
-  HomeModernIcon,
-  TruckIcon,
-  CubeIcon,
-  ChartBarIcon,
-  UserGroupIcon,
-  CurrencyDollarIcon,
-  ExclamationTriangleIcon,
-  DocumentArrowDownIcon,
-  ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
-  MinusIcon,
-  ArrowPathIcon
-} from '@heroicons/react/24/outline';
+  Banknote,
+  Home,
+  Truck,
+  Package,
+  BarChart3,
+  Users,
+  DollarSign,
+  AlertTriangle,
+  FileDown,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  RefreshCw,
+  Activity,
+  Bell
+} from 'lucide-react';
+import { IconWrapper, IconWithBackground, IconDecorative } from '@/components/ui/IconWrapper';
+import { ModernKPICard, ModernKPIGrid } from '@/components/ui/ModernKPICard';
+import ModernTabs, { Tab } from '@/components/ui/ModernTabs';
+import ModernChart from '@/components/ui/ModernChart';
+import ModernStatsCard from '@/components/ui/ModernStatsCard';
+import ModernProgressRing from '@/components/ui/ModernProgressRing';
 import { useAuth } from '@/stores/auth';
 import {
   useFinancialMetrics,
@@ -49,7 +57,6 @@ import { TransportDashboard } from './TransportDashboard';
 
 export const ModernCROUDashboard: React.FC = () => {
   const { user, hasPermission } = useAuth();
-  const [activeTab, setActiveTab] = useState('overview');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Hooks pour les métriques - only load if user has permission
@@ -81,7 +88,7 @@ export const ModernCROUDashboard: React.FC = () => {
       value: financialMetrics.metrics.totalBudget,
       change: '+5.2%',
       trend: 'up' as const,
-      icon: <CurrencyDollarIcon className="h-6 w-6" />,
+      icon: <IconWrapper icon={DollarSign} size="lg" variant="primary" strokeWidth={2.5} />,
       color: 'primary' as const,
       format: 'currency' as const
     },
@@ -90,7 +97,7 @@ export const ModernCROUDashboard: React.FC = () => {
       value: financialMetrics.metrics.totalSpent,
       change: '+2.1%',
       trend: 'up' as const,
-      icon: <ChartBarIcon className="h-6 w-6" />,
+      icon: <IconWrapper icon={BarChart3} size="lg" variant="warning" strokeWidth={2.5} />,
       color: 'warning' as const,
       format: 'currency' as const
     },
@@ -99,7 +106,7 @@ export const ModernCROUDashboard: React.FC = () => {
       value: financialMetrics.metrics.totalRevenue,
       change: '+8.3%',
       trend: 'up' as const,
-      icon: <BanknotesIcon className="h-6 w-6" />,
+      icon: <IconWrapper icon={Banknote} size="lg" variant="success" strokeWidth={2.5} />,
       color: 'success' as const,
       format: 'currency' as const
     },
@@ -108,7 +115,7 @@ export const ModernCROUDashboard: React.FC = () => {
       value: financialMetrics.metrics.balance,
       change: '+12.5%',
       trend: 'up' as const,
-      icon: <ArrowTrendingUpIcon className="h-6 w-6" />,
+      icon: <IconWrapper icon={TrendingUp} size="lg" variant="gradient-crou" strokeWidth={2.5} />,
       color: 'success' as const,
       format: 'currency' as const
     }
@@ -121,7 +128,7 @@ export const ModernCROUDashboard: React.FC = () => {
       value: stocksMetrics.metrics.totalItems,
       change: '+23',
       trend: 'up' as const,
-      icon: <CubeIcon className="h-6 w-6" />,
+      icon: <IconWrapper icon={Package} size="lg" variant="info" strokeWidth={2.5} />,
       color: 'info' as const,
       format: 'number' as const
     },
@@ -130,7 +137,7 @@ export const ModernCROUDashboard: React.FC = () => {
       value: stocksMetrics.metrics.totalValue,
       change: '+8.1%',
       trend: 'up' as const,
-      icon: <CurrencyDollarIcon className="h-6 w-6" />,
+      icon: <IconWrapper icon={DollarSign} size="lg" variant="gradient-primary" strokeWidth={2.5} />,
       color: 'primary' as const,
       format: 'currency' as const
     },
@@ -139,7 +146,7 @@ export const ModernCROUDashboard: React.FC = () => {
       value: stocksMetrics.metrics.lowStockAlerts,
       change: '-3',
       trend: 'down' as const,
-      icon: <ExclamationTriangleIcon className="h-6 w-6" />,
+      icon: <IconWrapper icon={AlertTriangle} size="lg" variant="danger" strokeWidth={2.5} />,
       color: 'danger' as const,
       format: 'number' as const
     },
@@ -148,7 +155,7 @@ export const ModernCROUDashboard: React.FC = () => {
       value: stocksMetrics.metrics.pendingOrders,
       change: '+2',
       trend: 'up' as const,
-      icon: <DocumentArrowDownIcon className="h-6 w-6" />,
+      icon: <IconWrapper icon={FileDown} size="lg" variant="warning" strokeWidth={2.5} />,
       color: 'warning' as const,
       format: 'number' as const
     }
@@ -161,7 +168,7 @@ export const ModernCROUDashboard: React.FC = () => {
       value: housingMetrics.metrics.availableRooms,
       change: '+12',
       trend: 'up' as const,
-      icon: <HomeModernIcon className="h-6 w-6" />,
+      icon: <IconWrapper icon={Home} size="lg" variant="success" strokeWidth={2.5} />,
       color: 'success' as const,
       format: 'number' as const
     },
@@ -170,7 +177,7 @@ export const ModernCROUDashboard: React.FC = () => {
       value: housingMetrics.metrics.occupiedRooms,
       change: '+45',
       trend: 'up' as const,
-      icon: <UserGroupIcon className="h-6 w-6" />,
+      icon: <IconWrapper icon={Users} size="lg" variant="gradient-crou" strokeWidth={2.5} />,
       color: 'primary' as const,
       format: 'number' as const
     },
@@ -179,7 +186,7 @@ export const ModernCROUDashboard: React.FC = () => {
       value: housingMetrics.metrics.occupancyRate,
       change: '+2.1%',
       trend: 'up' as const,
-      icon: <ChartBarIcon className="h-6 w-6" />,
+      icon: <IconWrapper icon={BarChart3} size="lg" variant="success" strokeWidth={2.5} />,
       color: 'success' as const,
       format: 'percentage' as const
     },
@@ -188,7 +195,7 @@ export const ModernCROUDashboard: React.FC = () => {
       value: housingMetrics.metrics.maintenancePending,
       change: '-2',
       trend: 'down' as const,
-      icon: <ExclamationTriangleIcon className="h-6 w-6" />,
+      icon: <IconWrapper icon={AlertTriangle} size="lg" variant="warning" strokeWidth={2.5} />,
       color: 'warning' as const,
       format: 'number' as const
     }
@@ -201,7 +208,7 @@ export const ModernCROUDashboard: React.FC = () => {
       value: transportMetrics.metrics.activeVehicles,
       change: '+1',
       trend: 'up' as const,
-      icon: <TruckIcon className="h-6 w-6" />,
+      icon: <IconWrapper icon={Truck} size="lg" variant="gradient-accent" strokeWidth={2.5} />,
       color: 'primary' as const,
       format: 'number' as const
     },
@@ -210,7 +217,7 @@ export const ModernCROUDashboard: React.FC = () => {
       value: transportMetrics.metrics.totalKm,
       change: '+5.2%',
       trend: 'up' as const,
-      icon: <ChartBarIcon className="h-6 w-6" />,
+      icon: <IconWrapper icon={BarChart3} size="lg" variant="info" strokeWidth={2.5} />,
       color: 'info' as const,
       format: 'number' as const
     },
@@ -219,7 +226,7 @@ export const ModernCROUDashboard: React.FC = () => {
       value: transportMetrics.metrics.fuelCost,
       change: '+3.1%',
       trend: 'up' as const,
-      icon: <CurrencyDollarIcon className="h-6 w-6" />,
+      icon: <IconWrapper icon={DollarSign} size="lg" variant="warning" strokeWidth={2.5} />,
       color: 'warning' as const,
       format: 'currency' as const
     },
@@ -228,7 +235,7 @@ export const ModernCROUDashboard: React.FC = () => {
       value: transportMetrics.metrics.efficiency,
       change: '+1.2%',
       trend: 'up' as const,
-      icon: <ArrowTrendingUpIcon className="h-6 w-6" />,
+      icon: <IconWrapper icon={TrendingUp} size="lg" variant="success" strokeWidth={2.5} />,
       color: 'success' as const,
       format: 'percentage' as const
     }
@@ -236,50 +243,51 @@ export const ModernCROUDashboard: React.FC = () => {
 
   // Filter tabs based on permissions
   const allTabs = [
-    { id: 'overview', label: 'Vue d\'ensemble', icon: ChartBarIcon, permission: null },
-    { id: 'financial', label: 'Finances', icon: BanknotesIcon, permission: 'financial:read' },
-    { id: 'stocks', label: 'Stocks', icon: CubeIcon, permission: 'stocks:read' },
-    { id: 'housing', label: 'Logement', icon: HomeModernIcon, permission: 'housing:read' },
-    { id: 'transport', label: 'Transport', icon: TruckIcon, permission: 'transport:read' }
+    { id: 'overview', label: 'Vue d\'ensemble', icon: BarChart3, permission: null },
+    { id: 'financial', label: 'Finances', icon: Banknote, permission: 'financial:read' },
+    { id: 'stocks', label: 'Stocks', icon: Package, permission: 'stocks:read' },
+    { id: 'housing', label: 'Logement', icon: Home, permission: 'housing:read' },
+    { id: 'transport', label: 'Transport', icon: Truck, permission: 'transport:read' }
   ];
 
-  const tabs = allTabs.filter(tab => !tab.permission || hasPermission(tab.permission));
+  // Configuration des tabs pour ModernTabs
+  const dashboardTabs: Tab[] = allTabs
+    .filter(tab => !tab.permission || hasPermission(tab.permission))
+    .map(tab => ({
+      id: tab.id,
+      label: tab.label,
+      icon: tab.icon,
+      badge: tab.id === 'overview' && totalAlerts > 0 ? totalAlerts.toString() : undefined,
+      content: renderTabContent(tab.id),
+    }));
 
-  return (
+  // Fonction pour rendre le contenu de chaque onglet
+  function renderTabContent(tabId: string) {
+    switch (tabId) {
+      case 'overview':
+        return <OverviewContent />;
+      case 'financial':
+        return <FinancialContent />;
+      case 'stocks':
+        return <StocksDashboard />;
+      case 'housing':
+        return <HousingDashboard />;
+      case 'transport':
+        return <TransportDashboard />;
+      default:
+        return null;
+    }
+  }
+
+  // Composant Vue d'ensemble
+  const OverviewContent = () => (
     <div className="space-y-8">
-      {/* Header avec titre et actions */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Dashboard CROU {user?.crouId || 'Local'}
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">
-            Vue d'ensemble des opérations et performances
-          </p>
-        </div>
-        <div className="flex items-center gap-4">
-          {totalAlerts > 0 && (
-            <Badge variant="danger" className="text-lg px-4 py-2">
-              {totalAlerts} Alerte{totalAlerts > 1 ? 's' : ''}
-            </Badge>
-          )}
-          <Button
-            variant="outline"
-            leftIcon={<ArrowPathIcon className="h-4 w-4" />}
-            onClick={handleRefresh}
-            loading={isRefreshing}
-          >
-            Actualiser
-          </Button>
-        </div>
-      </div>
-
       {/* Alertes critiques */}
       {criticalAlerts.length > 0 && (
         <Card className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20">
           <CardHeader>
             <CardTitle className="text-red-800 dark:text-red-300 flex items-center gap-2">
-              <ExclamationTriangleIcon className="h-5 w-5" />
+              <IconWrapper icon={AlertTriangle} size="md" variant="danger" strokeWidth={2.5} />
               Alertes Critiques
             </CardTitle>
           </CardHeader>
@@ -302,125 +310,210 @@ export const ModernCROUDashboard: React.FC = () => {
         </Card>
       )}
 
-      {/* Navigation par boutons */}
-      <div className="flex space-x-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg mb-8">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              activeTab === tab.id
-                ? 'bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'
-            }`}
-          >
-            <tab.icon className="h-4 w-4" />
-            {tab.label}
-          </button>
-        ))}
+      {/* KPIs en cartes modernes */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {hasPermission('financial:read') && (
+          <ModernStatsCard
+            title="Revenus Totaux"
+            value={`${(financialMetrics.metrics.totalRevenue || 0).toLocaleString()} FCFA`}
+            change={8.3}
+            changeLabel="vs mois dernier"
+            icon={DollarSign}
+            iconColor="bg-emerald-500"
+            sparklineData={[85000, 92000, 88000, 95000, 98000, 105000]}
+            variant="gradient-crou"
+          />
+        )}
+        {hasPermission('stocks:read') && (
+          <ModernStatsCard
+            title="Valeur Stock"
+            value={`${(stocksMetrics.metrics.totalValue || 0).toLocaleString()} FCFA`}
+            change={5.1}
+            changeLabel="vs semaine dernière"
+            icon={Package}
+            iconColor="bg-blue-500"
+            sparklineData={[450000, 460000, 455000, 470000, 465000, 480000]}
+          />
+        )}
+        {hasPermission('housing:read') && (
+          <ModernStatsCard
+            title="Taux d'Occupation"
+            value="92%"
+            change={2.5}
+            changeLabel="vs mois dernier"
+            icon={Home}
+            iconColor="bg-orange-500"
+            sparklineData={[85, 87, 89, 90, 91, 92]}
+          />
+        )}
+        {hasPermission('transport:read') && (
+          <ModernStatsCard
+            title="Véhicules Actifs"
+            value={`${transportMetrics.metrics.activeVehicles || 0}`}
+            change={0}
+            changeLabel="stable"
+            icon={Truck}
+            iconColor="bg-purple-500"
+            sparklineData={[12, 12, 11, 12, 12, 12]}
+          />
+        )}
       </div>
 
-      {/* Contenu conditionnel */}
-      {activeTab === 'overview' && (
-        <div className="space-y-8">
-          {/* KPIs principaux - Only show if user has financial permissions */}
+      {/* Anneaux de progression */}
+      <div>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          📊 Indicateurs Clés
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {hasPermission('financial:read') && (
-            <Section title="Indicateurs Clés de Performance">
-              <KPIGrid kpis={financialKPIs} columns={4} />
-            </Section>
+            <ModernProgressRing
+              percentage={75}
+              label="Budget Consommé"
+              variant="gradient-crou"
+              animated
+              size="md"
+            />
           )}
-
-          {/* KPIs par module - Only show modules user has access to */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {hasPermission('stocks:read') && (
-              <Section title="Stocks & Approvisionnement">
-                <KPIGrid kpis={stocksKPIs} columns={2} />
-              </Section>
-            )}
-            {hasPermission('housing:read') && (
-              <Section title="Logement Universitaire">
-                <KPIGrid kpis={housingKPIs} columns={2} />
-              </Section>
-            )}
-          </div>
-
+          {hasPermission('housing:read') && (
+            <ModernProgressRing
+              percentage={92}
+              label="Chambres Occupées"
+              variant="success"
+              animated
+              size="md"
+            />
+          )}
+          {hasPermission('stocks:read') && (
+            <ModernProgressRing
+              percentage={65}
+              label="Stock Optimal"
+              variant="warning"
+              animated
+              size="md"
+            />
+          )}
           {hasPermission('transport:read') && (
-            <Section title="Transport & Mobilité">
-              <KPIGrid kpis={transportKPIs} columns={4} />
-            </Section>
+            <ModernProgressRing
+              percentage={88}
+              label="Disponibilité Flotte"
+              variant="default"
+              animated
+              size="md"
+            />
           )}
         </div>
-      )}
+      </div>
 
-      {activeTab === 'financial' && (
-        <div className="space-y-8">
-          <Section title="Métriques Financières">
-            <KPIGrid kpis={financialKPIs} columns={4} />
-          </Section>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>Évolution Mensuelle</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {financialMetrics.metrics.monthlyTrend.map((month, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                      <span className="font-medium text-gray-900 dark:text-gray-100">{month.month}</span>
-                      <div className="flex items-center gap-4 text-sm">
-                        <span className="text-green-600 dark:text-green-400">+{month.revenue.toLocaleString()} XOF</span>
-                        <span className="text-red-600 dark:text-red-400">-{month.spent.toLocaleString()} XOF</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Utilisation du Budget</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-900 dark:text-gray-100">Utilisation</span>
-                    <span className="font-bold text-gray-900 dark:text-gray-100">{financialMetrics.metrics.budgetUtilization}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div
-                      className="bg-primary-600 dark:bg-primary-500 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${financialMetrics.metrics.budgetUtilization}%` }}
-                    ></div>
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    {financialMetrics.metrics.totalSpent.toLocaleString()} XOF sur {financialMetrics.metrics.totalBudget.toLocaleString()} XOF
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+      {/* Graphiques */}
+      {hasPermission('financial:read') && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ModernChart
+            type="line"
+            title="Évolution des Revenus (6 mois)"
+            labels={['Juin', 'Juillet', 'Août', 'Sept', 'Oct', 'Nov']}
+            datasets={[
+              {
+                label: '2024',
+                data: [850000, 920000, 880000, 950000, 980000, 1050000],
+                borderColor: '#059669',
+                backgroundColor: 'rgba(5, 150, 105, 0.1)',
+              },
+            ]}
+            height={300}
+            variant="gradient-crou"
+          />
+          <ModernChart
+            type="doughnut"
+            title="Répartition des Dépenses"
+            labels={['Logement', 'Restauration', 'Transport', 'Administration']}
+            datasets={[
+              {
+                data: [40, 30, 20, 10],
+              },
+            ]}
+            height={300}
+            showLegend
+          />
         </div>
       )}
+    </div>
+  );
 
-      {activeTab === 'stocks' && (
-        <div className="space-y-8">
-          <StocksDashboard />
-        </div>
-      )}
+  // Composant Finance
+  const FinancialContent = () => (
+    <div className="space-y-6">
+      <ModernKPIGrid
+        columns={4}
+        cards={financialKPIs.map(kpi => ({
+          title: kpi.title,
+          value: kpi.value,
+          valueType: kpi.format,
+          icon: kpi.icon.props.icon,
+          variant: kpi.color === 'success' ? 'gradient-primary' : 'default',
+          trend: {
+            direction: kpi.trend,
+            value: kpi.change,
+            label: 'vs mois précédent',
+          },
+        }))}
+      />
+      <ModernChart
+        type="bar"
+        title="Budget vs Dépenses (12 mois)"
+        labels={['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc']}
+        datasets={[
+          {
+            label: 'Budget',
+            data: [120000, 120000, 120000, 120000, 120000, 120000, 130000, 130000, 130000, 130000, 130000, 130000],
+            backgroundColor: 'rgba(5, 150, 105, 0.7)',
+          },
+          {
+            label: 'Dépenses',
+            data: [85000, 92000, 88000, 95000, 98000, 105000, 110000, 108000, 115000, 118000, 120000, 125000],
+            backgroundColor: 'rgba(234, 88, 12, 0.7)',
+          },
+        ]}
+        height={400}
+      />
+    </div>
+  );
 
-      {activeTab === 'housing' && (
-        <div className="space-y-8">
-          <HousingDashboard />
+  return (
+    <div className="space-y-8">
+      {/* Header avec titre et actions */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Dashboard CROU {user?.crouId || 'Local'}
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">
+            Vue d'ensemble des opérations et performances
+          </p>
         </div>
-      )}
+        <div className="flex items-center gap-4">
+          {totalAlerts > 0 && (
+            <Badge variant="danger" className="text-lg px-4 py-2 flex items-center gap-2">
+              <Bell className="w-4 h-4" />
+              {totalAlerts} Alerte{totalAlerts > 1 ? 's' : ''}
+            </Badge>
+          )}
+          <Button
+            variant="outline"
+            leftIcon={<IconWrapper icon={RefreshCw} size="sm" strokeWidth={2.5} />}
+            onClick={handleRefresh}
+            loading={isRefreshing}
+          >
+            Actualiser
+          </Button>
+        </div>
+      </div>
 
-      {activeTab === 'transport' && (
-        <div className="space-y-8">
-          <TransportDashboard />
-        </div>
-      )}
+      {/* Navigation ModernTabs */}
+      <ModernTabs
+        tabs={dashboardTabs}
+        variant="pills"
+        size="md"
+      />
     </div>
   );
 };

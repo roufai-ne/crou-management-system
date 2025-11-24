@@ -76,9 +76,9 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
         onClick={cycleTheme}
         className={cn(
           'inline-flex items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700 shadow-sm transition-all duration-200',
-          'hover:bg-gray-50 hover:text-gray-900',
-          'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
-          'dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-gray-100',
+          'hover:bg-emerald-50 hover:text-emerald-600',
+          'focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2',
+          'dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-emerald-900/20 dark:hover:text-emerald-400',
           sizeClasses[size],
           className
         )}
@@ -95,9 +95,9 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
       onClick={cycleTheme}
       className={cn(
         'inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-all duration-200',
-        'hover:bg-gray-50 hover:text-gray-900',
-        'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
-        'dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-gray-100',
+        'hover:bg-emerald-50 hover:text-emerald-600',
+        'focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2',
+        'dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-emerald-900/20 dark:hover:text-emerald-400',
         className
       )}
       title={`Basculer vers ${theme === 'light' ? 'thème sombre' : theme === 'dark' ? 'thème système' : 'thème clair'}`}

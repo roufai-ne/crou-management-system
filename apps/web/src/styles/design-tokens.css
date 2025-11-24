@@ -22,18 +22,18 @@
    * COULEURS MODERNES - Palette étendue avec nuances subtiles
    * ============================================================================ */
 
-  /* Primary - Bleu moderne avec profondeur */
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e40af;
-  --color-primary-900: #1e3a8a;
-  --color-primary-950: #172554;
+  /* Primary - Vert moderne CROU (inspiré du drapeau Niger) */
+  --color-primary-50: #ecfdf5;
+  --color-primary-100: #d1fae5;
+  --color-primary-200: #a7f3d0;
+  --color-primary-300: #6ee7b7;
+  --color-primary-400: #34d399;
+  --color-primary-500: #10b981;
+  --color-primary-600: #059669;
+  --color-primary-700: #047857;
+  --color-primary-800: #065f46;
+  --color-primary-900: #064e3b;
+  --color-primary-950: #022c22;
 
   /* Success - Vert vibrant mais doux */
   --color-success-50: #f0fdf4;
@@ -58,6 +58,18 @@
   --color-warning-700: #b45309;
   --color-warning-800: #92400e;
   --color-warning-900: #78350f;
+
+  /* Accent - Orange moderne CROU (inspiré du drapeau Niger) */
+  --color-accent-50: #fff7ed;
+  --color-accent-100: #ffedd5;
+  --color-accent-200: #fed7aa;
+  --color-accent-300: #fdba74;
+  --color-accent-400: #fb923c;
+  --color-accent-500: #f97316;
+  --color-accent-600: #ea580c;
+  --color-accent-700: #c2410c;
+  --color-accent-800: #9a3412;
+  --color-accent-900: #7c2d12;
 
   /* Danger - Rouge vibrant mais professionnel */
   --color-danger-50: #fef2f2;
@@ -111,8 +123,8 @@
   --text-tertiary: #a1a1aa;
   --text-disabled: #d4d4d8;
   --text-inverse: #ffffff;
-  --text-link: #2563eb;
-  --text-link-hover: #1d4ed8;
+  --text-link: #059669;
+  --text-link-hover: #047857;
 
   /* ============================================================================
    * BORDERS - Subtils et élégants
@@ -122,7 +134,7 @@
   --border-default: #e4e4e7;
   --border-strong: #d4d4d8;
   --border-interactive: #a1a1aa;
-  --border-focus: #2563eb;
+  --border-focus: #059669;
 
   /* ============================================================================
    * SHADOWS - Profondeur moderne et subtile
@@ -141,16 +153,18 @@
   --shadow-inner-md: inset 0 4px 8px 0 rgba(0, 0, 0, 0.1);
 
   /* Colored shadows pour états */
-  --shadow-primary: 0 10px 40px -10px rgba(37, 99, 235, 0.3);
+  --shadow-primary: 0 10px 40px -10px rgba(5, 150, 105, 0.3);
   --shadow-success: 0 10px 40px -10px rgba(22, 163, 74, 0.3);
   --shadow-warning: 0 10px 40px -10px rgba(217, 119, 6, 0.3);
   --shadow-danger: 0 10px 40px -10px rgba(220, 38, 38, 0.3);
+  --shadow-accent: 0 10px 40px -10px rgba(234, 88, 12, 0.3);
 
   /* Glow effects */
-  --glow-primary: 0 0 20px rgba(37, 99, 235, 0.4);
+  --glow-primary: 0 0 20px rgba(5, 150, 105, 0.4);
   --glow-success: 0 0 20px rgba(22, 163, 74, 0.4);
   --glow-warning: 0 0 20px rgba(217, 119, 6, 0.4);
   --glow-danger: 0 0 20px rgba(220, 38, 38, 0.4);
+  --glow-accent: 0 0 20px rgba(234, 88, 12, 0.4);
 
   /* ============================================================================
    * SPACING - Échelle harmonieuse
@@ -364,15 +378,15 @@
   --text-tertiary: #a1a1aa;
   --text-disabled: #52525b;
   --text-inverse: #18181b;
-  --text-link: #60a5fa;
-  --text-link-hover: #93c5fd;
+  --text-link: #34d399;
+  --text-link-hover: #6ee7b7;
 
   /* Borders sombres */
   --border-subtle: #27272a;
   --border-default: #3f3f46;
   --border-strong: #52525b;
   --border-interactive: #71717a;
-  --border-focus: #3b82f6;
+  --border-focus: #10b981;
 
   /* Shadows sombres plus marquées */
   --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);

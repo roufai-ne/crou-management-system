@@ -47,6 +47,7 @@ import { LoginPage } from '@/pages/auth/LoginPage';
 import { DashboardPage } from '@/pages/dashboard/DashboardPage';
 import { FinancialPage } from '@/pages/financial/FinancialPage';
 import { StocksPage } from '@/pages/stocks/StocksPage';
+import { ProcurementPage } from '@/pages/procurement/ProcurementPage';
 import { HousingPage } from '@/pages/housing/HousingPage';
 import { TransportPage } from '@/pages/transport/TransportPage';
 import { ReportsPage } from '@/pages/reports/ReportsPage';
@@ -56,6 +57,9 @@ import { ProfilePage } from '@/pages/profile/ProfilePage';
 import { StyleTest } from '@/pages/test/StyleTest';
 import { LoginTest } from '@/pages/test/LoginTest';
 import { CSSTest } from '@/pages/test/CSSTest';
+import DesignShowcase from '@/pages/DesignShowcase';
+import KPIComparison from '@/pages/KPIComparison';
+import ComponentShowcase from '@/pages/ComponentShowcase';
 
 // Components utilitaires
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
@@ -165,6 +169,9 @@ function App() {
                 <Route path="/test-styles" element={<StyleTest />} />
                 <Route path="/test-login" element={<LoginTest />} />
                 <Route path="/test-css" element={<CSSTest />} />
+                <Route path="/design-showcase" element={<DesignShowcase />} />
+                <Route path="/kpi-comparison" element={<KPIComparison />} />
+                <Route path="/component-showcase" element={<ComponentShowcase />} />
 
                 {/* Routes d'authentification */}
                 <Route path="/auth/*" element={
@@ -190,6 +197,7 @@ function App() {
                         {/* Modules principaux */}
                         <Route path="/financial/*" element={<FinancialPage />} />
                         <Route path="/stocks/*" element={<StocksPage />} />
+                        <Route path="/procurement/*" element={<ProcurementPage />} />
                         <Route path="/housing/*" element={<HousingPage />} />
                         <Route path="/transport/*" element={<TransportPage />} />
                         <Route path="/restauration/*" element={<RestaurationPage />} />
@@ -234,6 +242,24 @@ function App() {
                             } />
                             <Route path="/examples/modals" element={
                               React.lazy(() => import('@/pages/examples/ModalExamples'))
+                            } />
+                            <Route path="/examples/sprint3" element={
+                              React.lazy(() => import('@/pages/examples/Sprint3Demo'))
+                            } />
+                            <Route path="/examples/sprint4" element={
+                              React.lazy(() => import('@/pages/examples/Sprint4Demo'))
+                            } />
+                            <Route path="/examples/sprint5" element={
+                              React.lazy(() => import('@/pages/examples/Sprint5Demo'))
+                            } />
+                            <Route path="/examples/sprint6" element={
+                              React.lazy(() => import('@/pages/examples/Sprint6Demo'))
+                            } />
+                            <Route path="/help" element={
+                              React.lazy(() => import('@/pages/help/FAQPage'))
+                            } />
+                            <Route path="/home" element={
+                              React.lazy(() => import('@/pages/home/HomePage'))
                             } />
                           </>
                         )}

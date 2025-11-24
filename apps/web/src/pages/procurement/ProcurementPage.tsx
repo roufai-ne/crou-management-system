@@ -13,6 +13,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/stores/auth';
+import { useProcurementStats } from '@/hooks/useProcurementStats';
 import { Container, Card, Badge, Button, Grid, KPICard, Tabs } from '@/components/ui';
 import { 
   ShoppingCartIcon, 
@@ -30,7 +31,12 @@ import { ExportButton } from '@/components/reports/ExportButton';
 
 export const ProcurementPage: React.FC = () => {
   const { user } = useAuth();
+  const { stats, loading } = useProcurementStats();
   const [activeTab, setActiveTab] = useState('overview');
+
+  const formatCurrency = (amount: number) => {
+    return `${(amount / 1000000).toFixed(1)}M XOF`;
+  };
 
   const tabs = [
     {
@@ -43,29 +49,29 @@ export const ProcurementPage: React.FC = () => {
           <Grid cols={4} gap={6} className="mb-8">
             <KPICard
               title="Bons de commande"
-              value="45"
-              trend={{ direction: 'up' as const, value: 12.5 }}
+              value={stats?.totalOrders.toString() || '0'}
+              trend={{ direction: stats?.trend || 'stable', value: stats ? ((stats.ordersThisMonth - stats.ordersLastMonth) / Math.max(stats.ordersLastMonth, 1) * 100) : 0 }}
               icon={<DocumentTextIcon className="h-6 w-6" />}
-              description="En cours ce mois"
+              description="Total ce mois"
             />
             <KPICard
               title="Montant engagé"
-              value="8.5M XOF"
-              trend={{ direction: 'up' as const, value: 5.2 }}
+              value={stats ? formatCurrency(stats.totalEngaged) : '0 XOF'}
+              trend={{ direction: 'up', value: 0 }}
               icon={<CurrencyDollarIcon className="h-6 w-6" />}
               description="Budget engagé"
             />
             <KPICard
               title="En attente réception"
-              value="12"
-              trend={{ direction: 'down' as const, value: 8.1 }}
+              value={stats?.awaitingReception.toString() || '0'}
+              trend={{ direction: 'down', value: 0 }}
               icon={<TruckIcon className="h-6 w-6" />}
               description="Commandes à recevoir"
             />
             <KPICard
               title="Taux de réception"
-              value="87%"
-              trend={{ direction: 'up' as const, value: 3.4 }}
+              value={stats ? `${stats.receptionRate.toFixed(0)}%` : '0%'}
+              trend={{ direction: stats && stats.receptionRate > 80 ? 'up' : 'down', value: 0 }}
               icon={<ArchiveBoxIcon className="h-6 w-6" />}
               description="Dans les délais"
             />
@@ -197,7 +203,7 @@ export const ProcurementPage: React.FC = () => {
   ];
 
   return (
-    <Container>
+    <Container size="xl" className="py-6">
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Achats & Approvisionnements</h1>
