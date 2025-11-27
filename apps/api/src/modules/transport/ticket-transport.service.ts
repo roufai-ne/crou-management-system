@@ -17,7 +17,6 @@
 
 import { AppDataSource } from '../../../../../packages/database/src/config/datasource';
 import { TicketTransport, TicketTransportStatus, CategorieTicketTransport } from '../../../../../packages/database/src/entities/TicketTransport.entity';
-import { TransportRoute } from '../../../../../packages/database/src/entities/TransportRoute.entity';
 import { Like } from 'typeorm';
 import { logger } from '@/shared/utils/logger';
 import { randomBytes } from 'crypto';
@@ -29,18 +28,13 @@ import { randomBytes } from 'crypto';
 export interface TicketTransportFilters {
   status?: TicketTransportStatus;
   categorie?: CategorieTicketTransport;
-  circuitId?: string;
-  dateVoyageDebut?: Date;
-  dateVoyageFin?: Date;
   numeroTicket?: string;
   qrCode?: string;
   annee?: number;
 }
 
 export interface CreateTicketTransportDTO {
-  circuitId: string;            // Circuit de transport (obligatoire)
   categorie: CategorieTicketTransport; // PAYANT ou GRATUIT
-  dateVoyage: Date;             // Date du voyage prévu
   tarif: number;                // Montant en FCFA (0 si gratuit)
   dateExpiration: Date;         // Date d'expiration
   annee?: number;               // Année (défaut: année courante)
@@ -52,9 +46,7 @@ export interface CreateTicketTransportDTO {
 
 export interface CreateTicketsTransportBatchDTO {
   quantite: number;             // Nombre de tickets à créer
-  circuitId: string;
   categorie: CategorieTicketTransport;
-  dateVoyage: Date;
   tarif: number;
   dateExpiration: Date;
   annee?: number;
@@ -135,7 +127,6 @@ export class TicketTransportService {
 
       const ticketRepo = AppDataSource.getRepository(TicketTransport);
       const queryBuilder = ticketRepo.createQueryBuilder('ticket')
-        .leftJoinAndSelect('ticket.circuit', 'circuit')
         .where('ticket.tenantId = :tenantId', { tenantId });
 
       // Filtre par statut
@@ -148,22 +139,9 @@ export class TicketTransportService {
         queryBuilder.andWhere('ticket.categorie = :categorie', { categorie: filters.categorie });
       }
 
-      // Filtre par circuit
-      if (filters?.circuitId) {
-        queryBuilder.andWhere('ticket.circuitId = :circuitId', { circuitId: filters.circuitId });
-      }
-
       // Filtre par année
       if (filters?.annee) {
         queryBuilder.andWhere('ticket.annee = :annee', { annee: filters.annee });
-      }
-
-      // Filtre par date de voyage
-      if (filters?.dateVoyageDebut && filters?.dateVoyageFin) {
-        queryBuilder.andWhere(
-          'ticket.dateVoyage BETWEEN :dateDebut AND :dateFin',
-          { dateDebut: filters.dateVoyageDebut, dateFin: filters.dateVoyageFin }
-        );
       }
 
       // Recherche par numéro
@@ -181,8 +159,7 @@ export class TicketTransportService {
       }
 
       const tickets = await queryBuilder
-        .orderBy('ticket.dateVoyage', 'DESC')
-        .addOrderBy('ticket.dateEmission', 'DESC')
+        .orderBy('ticket.dateEmission', 'DESC')
         .getMany();
 
       logger.info('[TicketTransportService.getTickets] Tickets trouvés:', tickets.length);
@@ -221,8 +198,7 @@ export class TicketTransportService {
         where: [
           { numeroTicket: identifier, tenantId },
           { qrCode: identifier, tenantId }
-        ],
-        relations: ['circuit']
+        ]
       });
 
       if (!ticket) {
@@ -245,19 +221,9 @@ export class TicketTransportService {
     data: CreateTicketTransportDTO
   ) {
     try {
-      logger.info('[TicketTransportService.createTicket] Création ticket:', data.categorie, data.circuitId);
+      logger.info('[TicketTransportService.createTicket] Création ticket:', data.categorie);
 
       const ticketRepo = AppDataSource.getRepository(TicketTransport);
-      const circuitRepo = AppDataSource.getRepository(TransportRoute);
-
-      // Vérifier que le circuit existe
-      const circuit = await circuitRepo.findOne({
-        where: { id: data.circuitId, tenantId }
-      });
-
-      if (!circuit) {
-        throw new Error('Circuit de transport non trouvé');
-      }
 
       // Validation: tarif = 0 si gratuit
       if (data.categorie === CategorieTicketTransport.GRATUIT && data.tarif !== 0) {
@@ -292,11 +258,7 @@ export class TicketTransportService {
 
       logger.info('[TicketTransportService.createTicket] Ticket créé:', savedTicket.numeroTicket, '- QR:', savedTicket.qrCode);
 
-      // Retourner avec les relations
-      return await ticketRepo.findOne({
-        where: { id: savedTicket.id },
-        relations: ['circuit']
-      });
+      return savedTicket;
     } catch (error) {
       logger.error('[TicketTransportService.createTicket] ERREUR:', error);
       throw error;
@@ -319,9 +281,7 @@ export class TicketTransportService {
       // Créer N tickets identiques
       for (let i = 0; i < data.quantite; i++) {
         const ticketData: CreateTicketTransportDTO = {
-          circuitId: data.circuitId,
           categorie: data.categorie,
-          dateVoyage: data.dateVoyage,
           tarif: data.tarif,
           dateExpiration: data.dateExpiration,
           annee: data.annee,

@@ -23,18 +23,18 @@ const breadcrumbVariants = (props: {
   variant?: 'default' | 'minimal';
 }) => {
   const baseClasses = 'flex items-center space-x-1 text-sm';
-  
+
   const sizeClasses = {
     sm: 'text-xs',
     md: 'text-sm',
     lg: 'text-base'
   };
-  
+
   const variantClasses = {
     default: '',
     minimal: 'space-x-2'
   };
-  
+
   return cn(
     baseClasses,
     sizeClasses[props.size || 'md'],
@@ -48,15 +48,15 @@ const breadcrumbItemVariants = (props: {
   isClickable?: boolean;
 }) => {
   const baseClasses = 'inline-flex items-center gap-1 transition-colors duration-200';
-  
+
   if (props.isActive) {
     return cn(baseClasses, 'text-gray-900 font-medium');
   }
-  
+
   if (props.isClickable) {
     return cn(baseClasses, 'text-gray-500 hover:text-gray-700 cursor-pointer');
   }
-  
+
   return cn(baseClasses, 'text-gray-500');
 };
 
@@ -124,7 +124,7 @@ export const useBreadcrumbs = (): BreadcrumbItem[] => {
 };
 
 // Interface des props
-interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
+export interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
   items?: BreadcrumbItem[]; // Optionnel - auto-génération si non fourni
   size?: 'sm' | 'md' | 'lg';
   variant?: 'default' | 'minimal';
@@ -164,7 +164,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({
     // Si trop d'éléments, afficher les premiers, "...", et les derniers
     const firstItems = items.slice(0, 1);
     const lastItems = items.slice(-2);
-    
+
     return [
       ...firstItems,
       { label: '...', isEllipsis: true } as BreadcrumbItem & { isEllipsis: boolean },

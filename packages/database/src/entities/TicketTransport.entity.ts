@@ -29,7 +29,6 @@ import {
 import { IsEnum, IsNumber, IsString, IsOptional, IsBoolean, IsDate, Min } from 'class-validator';
 
 import { Tenant } from './Tenant.entity';
-import { TransportRoute } from './TransportRoute.entity';
 
 // Statuts de tickets transport
 export enum TicketTransportStatus {
@@ -49,7 +48,6 @@ export enum CategorieTicketTransport {
 @Index(['tenantId', 'numeroTicket'])   // Index pour recherche rapide
 @Index(['qrCode'])                     // Index pour scan QR
 @Index(['status', 'dateExpiration'])   // Index pour expiration
-@Index(['circuitId', 'dateVoyage'])    // Index pour recherche par circuit + date
 @Index(['categorie'])                  // Index pour stats par catégorie
 @Index(['annee'])                      // Index pour stats annuelles
 export class TicketTransport {
@@ -100,27 +98,12 @@ export class TicketTransport {
   messageIndication: string; // Message affiché sur le ticket (ex: "Bon voyage!")
 
   // ========================================
-  // CIRCUIT DE TRANSPORT
-  // ========================================
-
-  @Column({ type: 'uuid', name: 'circuit_id' })
-  circuitId: string; // Circuit de transport (ex: Centre → Campus)
-
-  @ManyToOne(() => TransportRoute, { onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'circuit_id' })
-  circuit: TransportRoute;
-
-  // ========================================
   // VALIDITÉ
   // ========================================
 
   @Column({ type: 'date', name: 'date_emission' })
   @IsDate()
   dateEmission: Date; // Date d'émission du ticket
-
-  @Column({ type: 'date', name: 'date_voyage' })
-  @IsDate()
-  dateVoyage: Date; // Date du voyage prévu
 
   @Column({ type: 'date', name: 'date_expiration' })
   @IsDate()

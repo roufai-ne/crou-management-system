@@ -14,7 +14,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/stores/auth';
 import { useProcurementStats } from '@/hooks/useProcurementStats';
-import { Container, Card, Badge, Button, Grid, KPICard, Tabs } from '@/components/ui';
+import { Container, Card, Badge, Button, Grid, KPICard } from '@/components/ui';
+import ModernTabs, { Tab } from '@/components/ui/ModernTabs';
 import { 
   ShoppingCartIcon, 
   DocumentTextIcon, 
@@ -42,7 +43,7 @@ export const ProcurementPage: React.FC = () => {
     {
       id: 'overview',
       label: 'Vue d\'ensemble',
-      icon: <ClipboardDocumentCheckIcon className="h-4 w-4" />,
+      icon: ClipboardDocumentCheckIcon,
       content: (
         <div className="space-y-8">
           {/* KPIs Procurement */}
@@ -184,20 +185,20 @@ export const ProcurementPage: React.FC = () => {
     },
     {
       id: 'purchase-orders',
-      label: 'Bons de Commande',
-      icon: <DocumentTextIcon className="h-4 w-4" />,
+      label: 'Commandes',
+      icon: DocumentTextIcon,
       content: <PurchaseOrdersTab />
     },
     {
       id: 'requests',
       label: 'Demandes d\'Achat',
-      icon: <ShoppingCartIcon className="h-4 w-4" />,
+      icon: ShoppingCartIcon,
       content: <PurchaseRequestsTab />
     },
     {
       id: 'receptions',
       label: 'Réceptions',
-      icon: <TruckIcon className="h-4 w-4" />,
+      icon: TruckIcon,
       content: <ReceptionsTab />
     }
   ];
@@ -226,22 +227,12 @@ export const ProcurementPage: React.FC = () => {
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <Tabs.List>
-          {tabs.map((tab) => (
-            <Tabs.Trigger key={tab.id} value={tab.id}>
-              {tab.icon}
-              <span className="ml-2">{tab.label}</span>
-            </Tabs.Trigger>
-          ))}
-        </Tabs.List>
-
-        {tabs.map((tab) => (
-          <Tabs.Content key={tab.id} value={tab.id}>
-            {tab.content}
-          </Tabs.Content>
-        ))}
-      </Tabs>
+      <ModernTabs
+        tabs={tabs}
+        defaultTab="overview"
+        variant="pills"
+        animated
+      />
     </Container>
   );
 };

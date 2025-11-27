@@ -11,11 +11,12 @@
  * DATE: Janvier 2025
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { Grid, KPICard } from '@/components/ui';
+import ModernPagination from '@/components/ui/ModernPagination';
 import { TransactionTable } from '@/components/financial/TransactionTable';
 import { TransactionForm, TransactionFormData } from '@/components/financial/TransactionForm';
 import { TransactionDetailModal } from '@/components/financial/TransactionDetailModal';
@@ -41,6 +42,24 @@ export function TransactionsTab() {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  // États de pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+
+  // Pagination des transactions
+  const paginatedTransactions = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return transactions.slice(startIndex, endIndex);
+  }, [transactions, currentPage, pageSize]);
+
+  const totalPages = Math.ceil(transactions.length / pageSize);
+
+  // Réinitialiser la page lors du changement de filtres ou du chargement
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [transactions.length]);
 
   // Modals
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -371,7 +390,7 @@ export function TransactionsTab() {
       <Card>
         <Card.Content className="p-0">
           <TransactionTable
-            transactions={transactions}
+            transactions={paginatedTransactions}
             loading={loading}
             onView={handleView}
             onEdit={handleEditClick}
@@ -383,6 +402,29 @@ export function TransactionsTab() {
             onExport={handleExport}
             onAdd={() => setShowCreateModal(true)}
           />
+
+          {/* Pagination */}
+          {transactions.length > 0 && (
+            <div className="border-t border-gray-200 dark:border-gray-700 p-4">
+              <ModernPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                pageSize={pageSize}
+                totalItems={transactions.length}
+                pageSizeOptions={[10, 20, 50, 100]}
+                onPageSizeChange={(newSize) => {
+                  setPageSize(newSize);
+                  setCurrentPage(1);
+                }}
+                showPageSize
+                showTotal
+                showFirstLast
+                variant="default"
+                size="md"
+              />
+            </div>
+          )}
         </Card.Content>
       </Card>
 

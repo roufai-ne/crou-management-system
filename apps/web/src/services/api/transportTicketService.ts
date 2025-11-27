@@ -66,20 +66,20 @@ export interface TicketTransport {
 }
 
 export interface CreateTicketTransportRequest {
-  circuitId: string;
+  circuitId?: string;
   categorie: CategorieTicketTransport;
   tarif: number;
-  dateVoyage: string; // ISO date
+  dateVoyage?: string; // ISO date
   dateExpiration: string; // ISO date
   annee?: number;
   observations?: string;
 }
 
 export interface CreateTicketsTransportBatchRequest {
-  circuitId: string;
+  circuitId?: string;
   categorie: CategorieTicketTransport;
   tarif: number;
-  dateVoyage: string;
+  dateVoyage?: string;
   dateExpiration: string;
   quantite: number; // Max 1000
   annee?: number;

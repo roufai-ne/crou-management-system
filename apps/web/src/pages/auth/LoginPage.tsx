@@ -34,8 +34,8 @@ import { Mail, Lock } from 'lucide-react';
 
 import { useAuth } from '@/stores/auth';
 import { AuthError, AuthLoading } from '@/components/layout/AuthLayout';
-import { ModernInput } from '@/components/ui/ModernInput';
-import { ModernButton } from '@/components/ui/ModernButton';
+import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
 
 // Schéma de validation Zod
 const loginSchema = z.object({
@@ -99,8 +99,8 @@ export const LoginPage: React.FC = () => {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-600 mb-4">Erreur de chargement</h1>
           <p className="text-gray-600 mb-4">{componentError}</p>
-          <button 
-            onClick={() => window.location.reload()} 
+          <button
+            onClick={() => window.location.reload()}
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
           >
             Recharger la page
@@ -176,9 +176,9 @@ export const LoginPage: React.FC = () => {
 
       {/* Erreur globale */}
       {loginError && (
-        <AuthError 
-          message={loginError} 
-          onRetry={() => setLoginError(null)} 
+        <AuthError
+          message={loginError}
+          onRetry={() => setLoginError(null)}
         />
       )}
 
@@ -187,7 +187,7 @@ export const LoginPage: React.FC = () => {
 
       {/* Formulaire de connexion */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <ModernInput
+        <Input
           {...register('email')}
           type="email"
           label="Adresse email"
@@ -196,11 +196,11 @@ export const LoginPage: React.FC = () => {
           error={errors.email?.message}
           disabled={isSubmitting}
           required
-          variant="gradient-crou"
+          variant="gradient"
           autoComplete="email"
         />
 
-        <ModernInput
+        <Input
           {...register('password')}
           type="password"
           label="Mot de passe"
@@ -209,7 +209,7 @@ export const LoginPage: React.FC = () => {
           error={errors.password?.message}
           disabled={isSubmitting}
           required
-          variant="gradient-crou"
+          variant="gradient"
           autoComplete="current-password"
         />
 
@@ -235,15 +235,24 @@ export const LoginPage: React.FC = () => {
           </button>
         </div>
 
-        <ModernButton
+        <Button
           type="submit"
-          variant="gradient-crou"
+          variant="gradient"
           size="lg"
           fullWidth
           loading={isSubmitting || isLoading}
         >
           Se connecter
-        </ModernButton>
+        </Button>
+
+        <div className="text-center mt-4">
+          <p className="text-sm text-gray-600">
+            Pas encore de compte étudiant ?{' '}
+            <a href="/register" className="font-medium text-primary-600 hover:text-primary-500">
+              S'inscrire maintenant
+            </a>
+          </p>
+        </div>
       </form>
 
       {/* Footer */}

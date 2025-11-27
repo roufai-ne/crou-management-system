@@ -19,15 +19,15 @@ import { ModernTable, Column } from '@/components/ui/ModernTable';
 import { ModernModal } from '@/components/ui/ModernModal';
 import { ModernDrawer } from '@/components/ui/ModernDrawer';
 import { ModernToaster, modernToast } from '@/components/ui/ModernToast';
-import { 
-  TableSkeleton, 
-  CardSkeleton, 
-  ListSkeleton, 
+import {
+  TableSkeleton,
+  CardSkeleton,
+  ListSkeleton,
   FormSkeleton,
-  DashboardSkeleton 
+  DashboardSkeleton
 } from '@/components/ui/LoadingSkeleton';
-import { ModernButton } from '@/components/ui/ModernButton';
-import { ModernBadge } from '@/components/ui/ModernBadge';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
 import { User, Mail, Phone, MapPin, Calendar } from 'lucide-react';
 
 interface Student {
@@ -47,7 +47,7 @@ export default function Sprint3Demo() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [drawerPosition, setDrawerPosition] = useState<'left' | 'right' | 'top' | 'bottom'>('right');
   const [modalSize, setModalSize] = useState<'sm' | 'md' | 'lg' | 'xl' | 'full'>('md');
-  
+
   // État pour skeleton demo
   const [isLoading, setIsLoading] = useState(false);
   const [skeletonType, setSkeletonType] = useState<'table' | 'card' | 'list' | 'form' | 'dashboard'>('table');
@@ -158,27 +158,6 @@ export default function Sprint3Demo() {
         <div className="flex items-center gap-2">
           <MapPin className="w-4 h-4 text-gray-400" strokeWidth={2} />
           <span className="text-sm">{value}</span>
-        </div>
-      )
-    },
-    {
-      key: 'statut',
-      header: 'Statut',
-      sortable: true,
-      width: '120px',
-      render: (value: string) => {
-        const variant = value === 'actif' ? 'success' : value === 'suspendu' ? 'danger' : 'neutral';
-        return <ModernBadge variant={variant}>{value}</ModernBadge>;
-      }
-    },
-    {
-      key: 'dateInscription',
-      header: 'Date Inscription',
-      sortable: true,
-      width: '150px',
-      render: (value) => (
-        <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-gray-400" strokeWidth={2} />
           <span className="text-sm">{new Date(value).toLocaleDateString('fr-FR')}</span>
         </div>
       )
@@ -198,7 +177,7 @@ export default function Sprint3Demo() {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <ModernToaster />
-      
+
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
@@ -216,7 +195,7 @@ export default function Sprint3Demo() {
           <p className="text-gray-600 mb-6">
             Table avec tri sur colonnes, filtres inline, pagination et sélection de lignes
           </p>
-          
+
           <ModernTable
             data={students}
             columns={columns}
@@ -229,7 +208,7 @@ export default function Sprint3Demo() {
               onPageChange: setCurrentPage
             }}
           />
-          
+
           {selectedRows.length > 0 && (
             <div className="mt-4 p-4 bg-primary-50 rounded-lg border border-primary-200">
               <p className="text-sm font-medium text-primary-900">
@@ -245,10 +224,10 @@ export default function Sprint3Demo() {
           <p className="text-gray-600 mb-6">
             Modal avec animations Framer Motion, backdrop blur et 5 tailles
           </p>
-          
+
           <div className="flex flex-wrap gap-3 mb-4">
             {(['sm', 'md', 'lg', 'xl', 'full'] as const).map((size) => (
-              <ModernButton
+              <Button
                 key={size}
                 variant="outline"
                 onClick={() => {
@@ -257,7 +236,7 @@ export default function Sprint3Demo() {
                 }}
               >
                 Modal {size.toUpperCase()}
-              </ModernButton>
+              </Button>
             ))}
           </div>
 
@@ -268,12 +247,12 @@ export default function Sprint3Demo() {
             size={modalSize}
             footer={
               <div className="flex gap-3">
-                <ModernButton variant="outline" onClick={() => setIsModalOpen(false)}>
+                <Button variant="outline" onClick={() => setIsModalOpen(false)}>
                   Annuler
-                </ModernButton>
-                <ModernButton variant="gradient-crou" onClick={() => setIsModalOpen(false)}>
+                </Button>
+                <Button variant="gradient" onClick={() => setIsModalOpen(false)}>
                   Confirmer
-                </ModernButton>
+                </Button>
               </div>
             }
           >
@@ -287,7 +266,7 @@ export default function Sprint3Demo() {
                   <p className="text-sm text-gray-600">Étudiant CROU Niamey</p>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-700">Email</label>
@@ -303,7 +282,7 @@ export default function Sprint3Demo() {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-700">Statut</label>
-                  <ModernBadge variant="success">Actif</ModernBadge>
+                  <Badge variant="success">Actif</Badge>
                 </div>
               </div>
             </div>
@@ -316,10 +295,10 @@ export default function Sprint3Demo() {
           <p className="text-gray-600 mb-6">
             Drawer avec 4 positions (left/right/top/bottom) et animations directionnelles
           </p>
-          
+
           <div className="flex flex-wrap gap-3 mb-4">
             {(['left', 'right', 'top', 'bottom'] as const).map((pos) => (
-              <ModernButton
+              <Button
                 key={pos}
                 variant="outline"
                 onClick={() => {
@@ -328,7 +307,7 @@ export default function Sprint3Demo() {
                 }}
               >
                 Drawer {pos}
-              </ModernButton>
+              </Button>
             ))}
           </div>
 
@@ -340,12 +319,12 @@ export default function Sprint3Demo() {
             size="md"
             footer={
               <div className="flex gap-3">
-                <ModernButton variant="outline" onClick={() => setIsDrawerOpen(false)} className="flex-1">
+                <Button variant="outline" onClick={() => setIsDrawerOpen(false)} className="flex-1">
                   Fermer
-                </ModernButton>
-                <ModernButton variant="gradient-crou" className="flex-1">
+                </Button>
+                <Button variant="gradient" className="flex-1">
                   Appliquer
-                </ModernButton>
+                </Button>
               </div>
             }
           >
@@ -353,7 +332,7 @@ export default function Sprint3Demo() {
               <p className="text-gray-600">
                 Ce drawer s'ouvre depuis la position <strong>{drawerPosition}</strong>.
               </p>
-              
+
               <div className="space-y-2">
                 {['Dashboard', 'Finances', 'Logements', 'Transport', 'Stocks'].map((item) => (
                   <button
@@ -374,44 +353,44 @@ export default function Sprint3Demo() {
           <p className="text-gray-600 mb-6">
             Notifications avec 5 variantes, boutons d'action et support des promesses
           </p>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            <ModernButton
+            <Button
               variant="primary"
               onClick={() => modernToast.success('Opération réussie avec succès!')}
             >
               Success Toast
-            </ModernButton>
-            
-            <ModernButton
+            </Button>
+
+            <Button
               variant="danger"
               onClick={() => modernToast.error('Une erreur est survenue!')}
             >
               Error Toast
-            </ModernButton>
-            
-            <ModernButton
-              variant="accent"
+            </Button>
+
+            <Button
+              variant="warning"
               onClick={() => modernToast.warning('Attention: action à confirmer')}
             >
               Warning Toast
-            </ModernButton>
-            
-            <ModernButton
+            </Button>
+
+            <Button
               variant="outline"
               onClick={() => modernToast.info('Information importante à lire')}
             >
               Info Toast
-            </ModernButton>
-            
-            <ModernButton
-              variant="gradient-crou"
+            </Button>
+
+            <Button
+              variant="gradient"
               onClick={() => modernToast.gradientCrou('Niger CROU - Opération validée!')}
             >
               Gradient CROU Toast
-            </ModernButton>
-            
-            <ModernButton
+            </Button>
+
+            <Button
               variant="outline"
               onClick={() => modernToast.withAction(
                 'Étudiant supprimé',
@@ -420,7 +399,7 @@ export default function Sprint3Demo() {
               )}
             >
               Toast avec Action
-            </ModernButton>
+            </Button>
           </div>
         </div>
 
@@ -430,25 +409,25 @@ export default function Sprint3Demo() {
           <p className="text-gray-600 mb-6">
             Skeletons avec effet shimmer pour 5 types de contenu
           </p>
-          
+
           <div className="flex flex-wrap gap-3 mb-6">
             {(['table', 'card', 'list', 'form', 'dashboard'] as const).map((type) => (
-              <ModernButton
+              <Button
                 key={type}
-                variant={skeletonType === type ? 'gradient-crou' : 'outline'}
+                variant={skeletonType === type ? 'gradient' : 'outline'}
                 onClick={() => setSkeletonType(type)}
               >
                 {type.charAt(0).toUpperCase() + type.slice(1)}
-              </ModernButton>
+              </Button>
             ))}
-            
-            <ModernButton
+
+            <Button
               variant="primary"
               onClick={simulateLoading}
               disabled={isLoading}
             >
               {isLoading ? 'Chargement...' : 'Simuler Chargement'}
-            </ModernButton>
+            </Button>
           </div>
 
           <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">

@@ -20,11 +20,11 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  User, 
-  FileText, 
-  Home, 
-  CreditCard, 
+import {
+  User,
+  FileText,
+  Home,
+  CreditCard,
   CheckCircle,
   Upload,
   Camera,
@@ -32,11 +32,12 @@ import {
   Bus
 } from 'lucide-react';
 import ModernStepper, { Step } from '@/components/ui/ModernStepper';
-import ModernInput from '@/components/ui/ModernInput';
+import { Input } from '@/components/ui/Input';
 import ModernSelect from '@/components/ui/ModernSelect';
 import ModernCheckbox from '@/components/ui/ModernCheckbox';
 import ModernFileUpload from '@/components/ui/ModernFileUpload';
 import { toast } from 'react-hot-toast';
+import { useAuth } from '@/stores/auth';
 
 interface RegistrationData {
   // Étape 1: Informations personnelles
@@ -47,12 +48,12 @@ interface RegistrationData {
   studentId: string;
   faculty: string;
   level: string;
-  
+
   // Étape 2: Documents
   photo?: File;
   idCard?: File;
   enrollmentCertificate?: File;
-  
+
   // Étape 3: Services
   needHousing: boolean;
   housingType?: 'simple' | 'double' | 'triple';
@@ -60,7 +61,7 @@ interface RegistrationData {
   restaurantPlan?: 'basic' | 'premium';
   needTransport: boolean;
   transportRoute?: string;
-  
+
   // Étape 4: Paiement
   paymentMethod?: 'cash' | 'bank' | 'mobile';
   mobileNumber?: string;
@@ -68,9 +69,10 @@ interface RegistrationData {
 
 export const StudentRegistrationPage: React.FC = () => {
   const navigate = useNavigate();
+  const { setUser, setTokens } = useAuth.getState();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const [formData, setFormData] = useState<RegistrationData>({
     firstName: '',
     lastName: '',
@@ -193,8 +195,26 @@ export const StudentRegistrationPage: React.FC = () => {
     try {
       // Simuler l'envoi des données
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      
-      toast.success('Inscription réussie ! Vérifiez votre email.');
+
+      // Simuler une connexion automatique
+      setUser({
+        id: 'new-student',
+        email: formData.email,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        name: `${formData.firstName} ${formData.lastName}`,
+        role: 'Etudiant',
+        tenantId: 'niamey',
+        tenantType: 'crou',
+        hierarchyLevel: 'crou',
+        level: 'crou',
+        crouId: 'niamey',
+        permissions: ['housing:read', 'housing:write'],
+        lastLoginAt: new Date()
+      });
+      setTokens('mock-token', 'mock-refresh-token');
+
+      toast.success('Inscription réussie ! Bienvenue sur votre espace.');
       navigate('/dashboard');
     } catch (error) {
       toast.error('Erreur lors de l\'inscription. Veuillez réessayer.');
@@ -271,16 +291,16 @@ export const StudentRegistrationPage: React.FC = () => {
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">
                   Informations Personnelles
                 </h2>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <ModernInput
+                  <Input
                     label="Prénom"
                     value={formData.firstName}
                     onChange={(e) => updateFormData('firstName', e.target.value)}
                     error={errors.firstName}
                     required
                   />
-                  <ModernInput
+                  <Input
                     label="Nom"
                     value={formData.lastName}
                     onChange={(e) => updateFormData('lastName', e.target.value)}
@@ -290,7 +310,7 @@ export const StudentRegistrationPage: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <ModernInput
+                  <Input
                     label="Email"
                     type="email"
                     value={formData.email}
@@ -298,7 +318,7 @@ export const StudentRegistrationPage: React.FC = () => {
                     error={errors.email}
                     required
                   />
-                  <ModernInput
+                  <Input
                     label="Téléphone"
                     type="tel"
                     value={formData.phone}
@@ -308,7 +328,7 @@ export const StudentRegistrationPage: React.FC = () => {
                   />
                 </div>
 
-                <ModernInput
+                <Input
                   label="Numéro Étudiant"
                   value={formData.studentId}
                   onChange={(e) => updateFormData('studentId', e.target.value)}
@@ -357,38 +377,38 @@ export const StudentRegistrationPage: React.FC = () => {
                   Documents et Photo
                 </h2>
 
-                <ModernFileUpload
-                  label="Photo d'identité"
-                  accept="image/*"
-                  maxSize={2}
-                  onChange={(files) => updateFormData('photo', files[0])}
-                  error={errors.photo as string}
-                  helperText="Format JPG ou PNG, max 2MB"
-                  required
-                  icon={<Camera className="w-8 h-8" />}
-                />
+                <div>
+                  <ModernFileUpload
+                    label="Photo d'identité *"
+                    accept="image/*"
+                    maxSize={2}
+                    onChange={(files) => updateFormData('photo', files[0])}
+                    error={errors.photo as string}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Format JPG ou PNG, max 2MB</p>
+                </div>
 
-                <ModernFileUpload
-                  label="Carte d'identité"
-                  accept="image/*,.pdf"
-                  maxSize={5}
-                  onChange={(files) => updateFormData('idCard', files[0])}
-                  error={errors.idCard as string}
-                  helperText="Recto-verso de votre CNI"
-                  required
-                  icon={<Upload className="w-8 h-8" />}
-                />
+                <div>
+                  <ModernFileUpload
+                    label="Carte d'identité *"
+                    accept="image/*,.pdf"
+                    maxSize={5}
+                    onChange={(files) => updateFormData('idCard', files[0])}
+                    error={errors.idCard as string}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Recto-verso de votre CNI</p>
+                </div>
 
-                <ModernFileUpload
-                  label="Certificat d'inscription"
-                  accept=".pdf"
-                  maxSize={5}
-                  onChange={(files) => updateFormData('enrollmentCertificate', files[0])}
-                  error={errors.enrollmentCertificate as string}
-                  helperText="Délivré par votre faculté"
-                  required
-                  icon={<FileText className="w-8 h-8" />}
-                />
+                <div>
+                  <ModernFileUpload
+                    label="Certificat d'inscription *"
+                    accept=".pdf"
+                    maxSize={5}
+                    onChange={(files) => updateFormData('enrollmentCertificate', files[0])}
+                    error={errors.enrollmentCertificate as string}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Délivré par votre faculté</p>
+                </div>
               </div>
             )}
 
@@ -507,7 +527,7 @@ export const StudentRegistrationPage: React.FC = () => {
                         <span className="text-gray-600">Logement ({formData.housingType})</span>
                         <span className="font-medium">
                           {formData.housingType === 'simple' ? '50,000' :
-                           formData.housingType === 'double' ? '35,000' : '25,000'} FCFA
+                            formData.housingType === 'double' ? '35,000' : '25,000'} FCFA
                         </span>
                       </div>
                     )}
@@ -549,7 +569,7 @@ export const StudentRegistrationPage: React.FC = () => {
                 />
 
                 {formData.paymentMethod === 'mobile' && (
-                  <ModernInput
+                  <Input
                     label="Numéro Mobile Money"
                     type="tel"
                     value={formData.mobileNumber || ''}
@@ -607,7 +627,7 @@ export const StudentRegistrationPage: React.FC = () => {
                       {formData.needHousing && <>✓ Logement<br /></>}
                       {formData.needRestaurant && <>✓ Restauration<br /></>}
                       {formData.needTransport && <>✓ Transport<br /></>}
-                      {!formData.needHousing && !formData.needRestaurant && !formData.needTransport && 
+                      {!formData.needHousing && !formData.needRestaurant && !formData.needTransport &&
                         'Inscription uniquement'
                       }
                     </p>

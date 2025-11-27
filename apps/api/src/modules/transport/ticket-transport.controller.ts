@@ -49,15 +49,6 @@ export class TicketTransportController {
         filters.categorie = req.query.categorie as CategorieTicketTransport;
       }
 
-      if (req.query.circuitId) {
-        filters.circuitId = req.query.circuitId as string;
-      }
-
-      if (req.query.dateVoyageDebut && req.query.dateVoyageFin) {
-        filters.dateVoyageDebut = new Date(req.query.dateVoyageDebut as string);
-        filters.dateVoyageFin = new Date(req.query.dateVoyageFin as string);
-      }
-
       if (req.query.numeroTicket) {
         filters.numeroTicket = req.query.numeroTicket as string;
       }
@@ -150,17 +141,14 @@ export class TicketTransportController {
       const data: CreateTicketTransportDTO = req.body;
 
       // Validation des champs obligatoires
-      if (!data.circuitId || !data.categorie || data.tarif === undefined || !data.dateVoyage || !data.dateExpiration) {
+      if (!data.categorie || data.tarif === undefined || !data.dateExpiration) {
         return res.status(400).json({
           success: false,
-          error: 'Champs obligatoires manquants (circuitId, categorie, tarif, dateVoyage, dateExpiration)'
+          error: 'Champs obligatoires manquants (categorie, tarif, dateExpiration)'
         });
       }
 
       // Convertir les dates si nécessaire
-      if (typeof data.dateVoyage === 'string') {
-        data.dateVoyage = new Date(data.dateVoyage);
-      }
       if (typeof data.dateExpiration === 'string') {
         data.dateExpiration = new Date(data.dateExpiration);
       }
@@ -200,10 +188,10 @@ export class TicketTransportController {
       const data: CreateTicketsTransportBatchDTO = req.body;
 
       // Validation des champs obligatoires
-      if (!data.quantite || data.quantite <= 0 || !data.circuitId || !data.categorie || data.tarif === undefined || !data.dateVoyage || !data.dateExpiration) {
+      if (!data.quantite || data.quantite <= 0 || !data.categorie || data.tarif === undefined || !data.dateExpiration) {
         return res.status(400).json({
           success: false,
-          error: 'Champs obligatoires manquants ou invalides (quantite, circuitId, categorie, tarif, dateVoyage, dateExpiration)'
+          error: 'Champs obligatoires manquants ou invalides (quantite, categorie, tarif, dateExpiration)'
         });
       }
 
@@ -216,9 +204,6 @@ export class TicketTransportController {
       }
 
       // Convertir les dates si nécessaire
-      if (typeof data.dateVoyage === 'string') {
-        data.dateVoyage = new Date(data.dateVoyage);
-      }
       if (typeof data.dateExpiration === 'string') {
         data.dateExpiration = new Date(data.dateExpiration);
       }

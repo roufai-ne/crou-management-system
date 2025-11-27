@@ -11,6 +11,7 @@
  * - 'default': Style standard avec bordure
  * - filled: Fond coloré avec bordure subtile
  * - flushed: Bordure inférieure uniquement
+ * - gradient: Bordure gradient CROU
  * 
  * TAILLES:
  * - sm: Petit (32px)
@@ -33,6 +34,8 @@
  * - required: Champ obligatoire
  * - disabled: Champ désactivé
  * - loading: État de chargement
+ * - icon: Alias pour leftIcon (compatibilité)
+ * - iconPosition: Position de l'icône (compatibilité)
  * 
  * USAGE:
  * <Input
@@ -52,44 +55,11 @@ import React, { forwardRef, useState } from 'react';
 type VariantProps<T> = T extends (...args: any[]) => any
   ? Parameters<T>[0]
   : never;
-import { EyeIcon, EyeSlashIcon, ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { Eye, EyeOff, AlertCircle, CheckCircle, Info, Loader2 } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
-// Composant Spinner pour l'état de chargement
-const InputSpinner: React.FC<{ size?: 'sm' | 'md' | 'lg' }> = ({ size = 'md' }) => {
-  const sizeClasses = {
-    sm: 'h-4 w-4',
-    md: 'h-4 w-4',
-    lg: 'h-5 w-5'
-  };
-
-  return (
-    <svg
-      className={cn('animate-spin text-gray-400', sizeClasses[size])}
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-      />
-    </svg>
-  );
-};
-
 // Types pour les variantes
-type InputVariant = 'default' | 'filled' | 'flushed';
+type InputVariant = 'default' | 'filled' | 'flushed' | 'gradient';
 type InputSize = 'sm' | 'md' | 'lg';
 type ValidationState = 'default' | 'success' | 'error' | 'warning';
 
@@ -109,14 +79,15 @@ const inputContainerVariants = (props: {
   const variantClasses = {
     'default': 'rounded-md border bg-white dark:bg-gray-700',
     filled: 'rounded-md border bg-gray-50 dark:bg-gray-800',
-    flushed: 'border-b bg-transparent'
+    flushed: 'border-b bg-transparent',
+    gradient: 'rounded-md border-2 border-transparent bg-gradient-to-r from-primary-50 to-accent-50 dark:from-primary-900/20 dark:to-accent-900/20'
   };
 
   // Classes de tailles
   const sizeClasses = {
-    sm: 'h-8',
-    md: 'h-10',
-    lg: 'h-11'
+    sm: 'h-9',
+    md: 'h-11',
+    lg: 'h-13'
   };
 
   // Classes de validation
@@ -132,7 +103,8 @@ const inputContainerVariants = (props: {
     disabled && 'opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-800',
     variant === 'filled' && validationState === 'success' && 'bg-success-50 dark:bg-success-900/20',
     variant === 'filled' && validationState === 'error' && 'bg-danger-50 dark:bg-danger-900/20',
-    variant === 'filled' && validationState === 'warning' && 'bg-warning-50 dark:bg-warning-900/20'
+    variant === 'filled' && validationState === 'warning' && 'bg-warning-50 dark:bg-warning-900/20',
+    variant === 'gradient' && 'focus-within:border-primary-500 focus-within:ring-primary-500/20'
   ].filter(Boolean);
 
   return cn(
@@ -157,31 +129,32 @@ const inputVariants = (props: {
     'flex-1 bg-transparent border-0 outline-none transition-all duration-200',
     'placeholder:text-gray-400 dark:placeholder:text-gray-500',
     'text-gray-900 dark:text-gray-100',
-    'disabled:cursor-not-allowed disabled:opacity-50'
+    'disabled:cursor-not-allowed disabled:opacity-50',
+    'w-full'
   ];
 
   // Classes de tailles
   const sizeClasses = {
     sm: 'px-3 py-1.5 text-sm',
-    md: 'px-3 py-2 text-sm',
-    lg: 'px-4 py-2.5 text-base'
+    md: 'px-4 py-2 text-base',
+    lg: 'px-5 py-2.5 text-lg'
   };
 
   // Classes conditionnelles pour les icônes
   const iconClasses = [];
   if (hasLeftIcon) {
     const leftIconClasses = {
-      sm: 'pl-8',
-      md: 'pl-10',
-      lg: 'pl-11'
+      sm: 'pl-9',
+      md: 'pl-11',
+      lg: 'pl-12'
     };
     iconClasses.push(leftIconClasses[size]);
   }
   if (hasRightIcon) {
     const rightIconClasses = {
-      sm: 'pr-8',
-      md: 'pr-10',
-      lg: 'pr-11'
+      sm: 'pr-9',
+      md: 'pr-11',
+      lg: 'pr-12'
     };
     iconClasses.push(rightIconClasses[size]);
   }
@@ -196,33 +169,42 @@ const inputVariants = (props: {
 // Interface des props
 export interface InputProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'>,
-    VariantProps<typeof inputContainerVariants> {
+  VariantProps<typeof inputContainerVariants> {
   /** Libellé du champ */
   label?: string;
-  
+
   /** Message d'erreur */
   error?: string;
-  
+
   /** Texte d'aide */
   helperText?: string;
-  
+
   /** Icône à gauche */
   leftIcon?: React.ReactNode;
-  
+
   /** Icône à droite */
   rightIcon?: React.ReactNode;
-  
+
   /** État de chargement */
   loading?: boolean;
-  
+
   /** Classe CSS pour le conteneur */
   containerClassName?: string;
-  
+
   /** Classe CSS pour le label */
   labelClassName?: string;
-  
+
   /** ID unique pour l'accessibilité */
   id?: string;
+
+  /** Compatibilité ModernInput: Icône principale */
+  icon?: React.ElementType;
+
+  /** Compatibilité ModernInput: Position de l'icône */
+  iconPosition?: 'left' | 'right';
+
+  /** Compatibilité ModernInput: Succès */
+  success?: boolean;
 }
 
 // Composant Input principal
@@ -239,45 +221,61 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       label,
       error,
       helperText,
-      leftIcon,
-      rightIcon,
+      leftIcon: propLeftIcon,
+      rightIcon: propRightIcon,
       loading,
       required,
       type = 'text',
       id,
+      icon: Icon,
+      iconPosition = 'left',
+      success,
       ...props
     },
     ref
   ) => {
     const [showPassword, setShowPassword] = useState(false);
-    
+
     // Génération d'un ID unique si non fourni
     const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
-    
+
     // Détermination de l'état de validation
-    const currentValidationState = error ? 'error' : validationState || 'default';
-    
+    const currentValidationState = error ? 'error' : success ? 'success' : validationState || 'default';
+
     // Gestion du type password avec toggle
     const inputType = type === 'password' && showPassword ? 'text' : type;
-    
+
+    // Gestion des icônes de compatibilité
+    let leftIcon = propLeftIcon;
+    let rightIcon = propRightIcon;
+
+    if (Icon) {
+      const IconElement = <Icon className="h-5 w-5" />;
+      if (iconPosition === 'left') {
+        leftIcon = leftIcon || IconElement;
+      } else {
+        rightIcon = rightIcon || IconElement;
+      }
+    }
+
     // Détermination des icônes à afficher
     const hasLeftIcon = Boolean(leftIcon);
     const hasRightIcon = Boolean(rightIcon || loading || type === 'password' || currentValidationState !== 'default');
-    
+
     // Icône de validation automatique
     const getValidationIcon = () => {
       if (loading) {
-        return <InputSpinner size={size} />;
+        return <Loader2 className="h-4 w-4 animate-spin text-gray-400" />;
       }
-      
+
       switch (currentValidationState) {
         case 'success':
-          return <CheckCircleIcon className="h-5 w-5 text-success-500" />;
+          return <CheckCircle className="h-5 w-5 text-success-500" />;
         case 'error':
-          return <ExclamationCircleIcon className="h-5 w-5 text-danger-500" />;
+          return <AlertCircle className="h-5 w-5 text-danger-500" />;
         case 'warning':
-          return <ExclamationCircleIcon className="h-5 w-5 text-warning-500" />;
-  default:
+          return <AlertCircle className="h-5 w-5 text-warning-500" />;
+        default:
           return null;
       }
     };
@@ -336,9 +334,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             )}
             aria-invalid={currentValidationState === 'error'}
             aria-describedby={
-              error ? `${inputId}-error` : 
-              helperText ? `${inputId}-helper` : 
-              undefined
+              error ? `${inputId}-error` :
+                helperText ? `${inputId}-helper` :
+                  undefined
             }
             {...props}
           />
@@ -348,24 +346,24 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             <div className="absolute right-3 flex items-center space-x-1">
               {/* Icône de validation ou loading */}
               {getValidationIcon()}
-              
+
               {/* Toggle password visibility */}
               {type === 'password' && !loading && (
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors focus:outline-none"
                   aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                   tabIndex={-1}
                 >
                   {showPassword ? (
-                    <EyeSlashIcon className="h-5 w-5" />
+                    <EyeOff className="h-5 w-5" />
                   ) : (
-                    <EyeIcon className="h-5 w-5" />
+                    <Eye className="h-5 w-5" />
                   )}
                 </button>
               )}
-              
+
               {/* Icône personnalisée de droite */}
               {rightIcon && !loading && (
                 <span className="text-gray-400 dark:text-gray-500">
@@ -383,7 +381,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             className="text-sm text-danger-600 dark:text-danger-400 flex items-center gap-1"
             role="alert"
           >
-            <ExclamationCircleIcon className="h-4 w-4 flex-shrink-0" />
+            <AlertCircle className="h-4 w-4 flex-shrink-0" />
             {error}
           </p>
         )}
@@ -392,8 +390,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         {helperText && !error && (
           <p
             id={`${inputId}-helper`}
-            className="text-sm text-gray-500 dark:text-gray-400"
+            className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1"
           >
+            <Info className="h-4 w-4 flex-shrink-0" />
             {helperText}
           </p>
         )}
@@ -405,5 +404,5 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 Input.displayName = 'Input';
 
 // Export des types et composants
-export { Input, inputContainerVariants, inputVariants, type InputProps };
+export { Input, inputContainerVariants, inputVariants };
 export default Input;

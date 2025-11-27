@@ -22,7 +22,7 @@ import {
   Card,
   Badge,
   Button,
-  Table,
+  DataTable,
   Modal,
   Input,
   Select,
@@ -49,6 +49,8 @@ import {
 } from '@/services/api/transportTicketService';
 import { useTransportRoutes } from '@/hooks/useTransport';
 import toast from 'react-hot-toast';
+
+import { generateTransportTicketPDF } from '@/utils/ticketGenerator';
 
 export const TicketsTransportTab: React.FC = () => {
   const [isEmissionModalOpen, setIsEmissionModalOpen] = useState(false);
@@ -88,22 +90,27 @@ export const TicketsTransportTab: React.FC = () => {
     refresh
   } = useTransportTickets();
 
-  const { routes = [] } = useTransportRoutes({ status: 'active' });
+  const { routes = [] } = useTransportRoutes();
   const { ConfirmDialog, confirm } = useConfirmDialog();
 
   /**
    * Gérer l'émission d'un ticket individuel
    */
   const handleEmission = async () => {
-    if (!formData.circuitId || !formData.dateVoyage || !formData.dateExpiration) {
-      toast.error('Veuillez remplir tous les champs obligatoires');
-      return;
-    }
+    // Auto-set expiration to end of current year
+    const currentYear = new Date().getFullYear();
+    const endOfYear = new Date(currentYear, 11, 31).toISOString();
+
+    const ticketData = {
+      ...formData,
+      dateExpiration: endOfYear
+    };
 
     try {
-      await createTicket(formData as CreateTicketTransportRequest);
+      await createTicket(ticketData as CreateTicketTransportRequest);
       setIsEmissionModalOpen(false);
       resetFormData();
+      toast.success('Ticket émis avec succès');
     } catch (err) {
       // Error handled by hook
     }
@@ -114,9 +121,6 @@ export const TicketsTransportTab: React.FC = () => {
    */
   const handleBatchEmission = async () => {
     if (
-      !batchFormData.circuitId ||
-      !batchFormData.dateVoyage ||
-      !batchFormData.dateExpiration ||
       !batchFormData.quantite ||
       batchFormData.quantite < 1 ||
       batchFormData.quantite > 1000
@@ -125,8 +129,17 @@ export const TicketsTransportTab: React.FC = () => {
       return;
     }
 
+    // Auto-set expiration to end of current year
+    const currentYear = new Date().getFullYear();
+    const endOfYear = new Date(currentYear, 11, 31).toISOString();
+
+    const batchData = {
+      ...batchFormData,
+      dateExpiration: endOfYear
+    };
+
     try {
-      const result = await createTicketsBatch(batchFormData as CreateTicketsTransportBatchRequest);
+      const result = await createTicketsBatch(batchData as CreateTicketsTransportBatchRequest);
       if (result) {
         toast.success(
           `${result.total} tickets créés - Montant total: ${result.montantTotal.toLocaleString()} XOF`
@@ -278,18 +291,7 @@ export const TicketsTransportTab: React.FC = () => {
         </div>
       )
     },
-    {
-      key: 'circuit',
-      label: 'Circuit',
-      render: (ticket: TicketTransport) => (
-        <div>
-          <p className="font-medium">{ticket.circuitNom || ticket.circuitId}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {new Date(ticket.dateVoyage).toLocaleDateString()}
-          </p>
-        </div>
-      )
-    },
+    // ... (other columns)
     {
       key: 'emission',
       label: 'Émission',
@@ -372,7 +374,7 @@ export const TicketsTransportTab: React.FC = () => {
             size="sm"
             variant="outline"
             leftIcon={<DocumentArrowDownIcon className="h-4 w-4" />}
-            onClick={() => downloadTicketPDF(ticket.id)}
+            onClick={() => generateTransportTicketPDF(ticket)}
           >
             PDF
           </Button>
@@ -452,41 +454,43 @@ export const TicketsTransportTab: React.FC = () => {
       </div>
 
       {/* Filtres et actions */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="flex flex-col sm:flex-row gap-4 flex-1">
+      <div className="flex flex-col xl:flex-row gap-4 justify-between items-start xl:items-center">
+        <div className="flex flex-col md:flex-row gap-4 flex-1 w-full xl:w-auto">
           <Input
             placeholder="Rechercher un ticket..."
             value={filters.status || ''}
             onChange={(e) => setFilters({ ...filters, status: e.target.value as any })}
             leftIcon={<MagnifyingGlassIcon className="h-4 w-4" />}
-            className="w-full sm:w-80"
+            className="w-full md:flex-1"
           />
-          <Select
-            value={filters.status || ''}
-            onChange={(value) => setFilters({ ...filters, status: value as TicketTransportStatus })}
-            options={[
-              { value: '', label: 'Tous les statuts' },
-              { value: TicketTransportStatus.ACTIF, label: 'Actif' },
-              { value: TicketTransportStatus.UTILISE, label: 'Utilisé' },
-              { value: TicketTransportStatus.EXPIRE, label: 'Expiré' },
-              { value: TicketTransportStatus.ANNULE, label: 'Annulé' }
-            ]}
-            className="w-full sm:w-48"
-          />
-          <Select
-            value={filters.categorie || ''}
-            onChange={(value) =>
-              setFilters({ ...filters, categorie: value as CategorieTicketTransport })
-            }
-            options={[
-              { value: '', label: 'Toutes catégories' },
-              { value: CategorieTicketTransport.PAYANT, label: 'Payant' },
-              { value: CategorieTicketTransport.GRATUIT, label: 'Gratuit' }
-            ]}
-            className="w-full sm:w-48"
-          />
+          <div className="flex flex-col md:flex-row gap-4">
+            <Select
+              value={filters.status || ''}
+              onChange={(value) => setFilters({ ...filters, status: value as TicketTransportStatus })}
+              options={[
+                { value: '', label: 'Tous les statuts' },
+                { value: TicketTransportStatus.ACTIF, label: 'Actif' },
+                { value: TicketTransportStatus.UTILISE, label: 'Utilisé' },
+                { value: TicketTransportStatus.EXPIRE, label: 'Expiré' },
+                { value: TicketTransportStatus.ANNULE, label: 'Annulé' }
+              ]}
+              className="w-full md:w-48"
+            />
+            <Select
+              value={filters.categorie || ''}
+              onChange={(value) =>
+                setFilters({ ...filters, categorie: value as CategorieTicketTransport })
+              }
+              options={[
+                { value: '', label: 'Toutes catégories' },
+                { value: CategorieTicketTransport.PAYANT, label: 'Payant' },
+                { value: CategorieTicketTransport.GRATUIT, label: 'Gratuit' }
+              ]}
+              className="w-full md:w-48"
+            />
+          </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 justify-end w-full xl:w-auto shrink-0">
           <Button
             variant="outline"
             leftIcon={<QrCodeIcon className="h-4 w-4" />}
@@ -529,7 +533,7 @@ export const TicketsTransportTab: React.FC = () => {
           {loading ? (
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">Chargement...</div>
           ) : (
-            <Table data={tickets || []} columns={columns} emptyMessage="Aucun ticket trouvé" />
+            <DataTable data={tickets || []} columns={columns} emptyMessage="Aucun ticket trouvé" />
           )}
         </Card.Content>
       </Card>
@@ -545,20 +549,6 @@ export const TicketsTransportTab: React.FC = () => {
         size="lg"
       >
         <div className="space-y-4">
-          <Select
-            label="Circuit de transport"
-            value={formData.circuitId || ''}
-            onChange={(value) => setFormData({ ...formData, circuitId: String(value) })}
-            options={[
-              { value: '', label: 'Sélectionner un circuit' },
-              ...routes.map((route) => ({
-                value: route.id,
-                label: route.name
-              }))
-            ]}
-            required
-          />
-
           <Select
             label="Catégorie"
             value={formData.categorie || ''}
@@ -587,19 +577,10 @@ export const TicketsTransportTab: React.FC = () => {
             />
           )}
 
-          <div className="grid grid-cols-2 gap-4">
-            <DateInput
-              label="Date du voyage"
-              value={formData.dateVoyage || ''}
-              onChange={(value) => setFormData({ ...formData, dateVoyage: value })}
-              required
-            />
-            <DateInput
-              label="Date d'expiration"
-              value={formData.dateExpiration || ''}
-              onChange={(value) => setFormData({ ...formData, dateExpiration: value })}
-              required
-            />
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p className="text-sm text-blue-900">
+              Le ticket sera valide jusqu'au 31 décembre {new Date().getFullYear()}.
+            </p>
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
@@ -630,20 +611,6 @@ export const TicketsTransportTab: React.FC = () => {
         size="lg"
       >
         <div className="space-y-4">
-          <Select
-            label="Circuit de transport"
-            value={batchFormData.circuitId || ''}
-            onChange={(value) => setBatchFormData({ ...batchFormData, circuitId: String(value) })}
-            options={[
-              { value: '', label: 'Sélectionner un circuit' },
-              ...routes.map((route) => ({
-                value: route.id,
-                label: route.name
-              }))
-            ]}
-            required
-          />
-
           <Select
             label="Catégorie"
             value={batchFormData.categorie || ''}
@@ -685,19 +652,10 @@ export const TicketsTransportTab: React.FC = () => {
             required
           />
 
-          <div className="grid grid-cols-2 gap-4">
-            <DateInput
-              label="Date du voyage"
-              value={batchFormData.dateVoyage || ''}
-              onChange={(value) => setBatchFormData({ ...batchFormData, dateVoyage: value })}
-              required
-            />
-            <DateInput
-              label="Date d'expiration"
-              value={batchFormData.dateExpiration || ''}
-              onChange={(value) => setBatchFormData({ ...batchFormData, dateExpiration: value })}
-              required
-            />
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p className="text-sm text-blue-900">
+              Les tickets seront valides jusqu'au 31 décembre {new Date().getFullYear()}.
+            </p>
           </div>
 
           {batchFormData.quantite && batchFormData.tarif !== undefined && (
@@ -770,16 +728,6 @@ export const TicketsTransportTab: React.FC = () => {
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Ticket:</span>
                 <span className="font-mono text-sm">{selectedTicket.numeroTicket}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Circuit:</span>
-                <span className="text-sm">{selectedTicket.circuitNom}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Date voyage:</span>
-                <span className="text-sm">
-                  {new Date(selectedTicket.dateVoyage).toLocaleDateString()}
-                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Tarif:</span>

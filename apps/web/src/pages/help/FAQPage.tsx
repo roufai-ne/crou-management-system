@@ -22,7 +22,7 @@
 import React, { useState } from 'react';
 import { Search, HelpCircle, User, Home, Package, Bus, CreditCard, Settings, Mail, Phone, MapPin } from 'lucide-react';
 import ModernAccordion, { AccordionItem } from '@/components/ui/ModernAccordion';
-import ModernInput from '@/components/ui/ModernInput';
+import { Input } from '@/components/ui/Input';
 import ModernTabs, { Tab } from '@/components/ui/ModernTabs';
 
 export const FAQPage: React.FC = () => {
@@ -516,7 +516,7 @@ export const FAQPage: React.FC = () => {
 
         {/* Recherche */}
         <div className="mb-8">
-          <ModernInput
+          <Input
             placeholder="Rechercher une question..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}

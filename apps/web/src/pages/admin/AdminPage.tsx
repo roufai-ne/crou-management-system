@@ -20,7 +20,8 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { Container, Card, Badge, Button, DataTable, Modal, Input, Select, Tabs } from '@/components/ui';
+import { Container, Card, Badge, Button, DataTable, Modal, Input, Select } from '@/components/ui';
+import ModernTabs, { Tab } from '@/components/ui/ModernTabs';
 import {
   UserGroupIcon,
   ShieldCheckIcon,
@@ -553,7 +554,7 @@ export const AdminPage: React.FC = () => {
     { 
       id: 'users', 
       label: 'Utilisateurs', 
-      icon: <UserGroupIcon className="h-4 w-4" />,
+      icon: UserGroupIcon,
       content: (
         <div className="space-y-6">
           <div className="flex justify-between items-center">
@@ -587,7 +588,7 @@ export const AdminPage: React.FC = () => {
     { 
       id: 'roles', 
       label: 'Rôles', 
-      icon: <ShieldCheckIcon className="h-4 w-4" />,
+      icon: ShieldCheckIcon,
       content: (
         <div className="space-y-6">
           <div className="flex justify-between items-center">
@@ -620,7 +621,7 @@ export const AdminPage: React.FC = () => {
     { 
       id: 'tenants', 
       label: 'Tenants', 
-      icon: <BuildingOfficeIcon className="h-4 w-4" />,
+      icon: BuildingOfficeIcon,
       content: (
         <div className="space-y-6">
           <div className="flex justify-between items-center">
@@ -653,7 +654,7 @@ export const AdminPage: React.FC = () => {
     { 
       id: 'permissions', 
       label: 'Permissions', 
-      icon: <ShieldCheckIcon className="h-4 w-4" />,
+      icon: ShieldCheckIcon,
       content: (
         <div className="space-y-6">
           <div className="flex justify-between items-center">
@@ -686,7 +687,7 @@ export const AdminPage: React.FC = () => {
     { 
       id: 'audit', 
       label: 'Audit', 
-      icon: <DocumentTextIcon className="h-4 w-4" />,
+      icon: DocumentTextIcon,
       content: (
         <div className="space-y-6">
           <div className="flex justify-between items-center">
@@ -732,7 +733,7 @@ export const AdminPage: React.FC = () => {
     { 
       id: 'statistics', 
       label: 'Statistiques', 
-      icon: <ChartBarIcon className="h-4 w-4" />,
+      icon: ChartBarIcon,
       content: (
         <div className="space-y-6">
           <h3 className="text-lg font-semibold">Statistiques Système</h3>
@@ -830,7 +831,7 @@ export const AdminPage: React.FC = () => {
     { 
       id: 'settings', 
       label: 'Configuration', 
-      icon: <CogIcon className="h-4 w-4" />,
+      icon: CogIcon,
       content: (
         <div className="space-y-6">
           <h3 className="text-lg font-semibold">Configuration Système</h3>
@@ -1068,12 +1069,11 @@ export const AdminPage: React.FC = () => {
       )}
 
       {/* Tabs de navigation */}
-      <Tabs
+      <ModernTabs
         tabs={tabs}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
+        defaultTab="users"
         variant="pills"
-        className="space-y-8"
+        animated
       />
 
       {/* Modales */}

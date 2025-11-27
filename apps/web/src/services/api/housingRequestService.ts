@@ -53,6 +53,13 @@ export interface CreateRequestRequest {
   typeChambresPreferees: string[];
   preferenceCites: string[];
   observations?: string;
+  // Nouveaux champs pour règles métier
+  cycle?: 'LICENCE' | 'MASTER' | 'MEDECINE' | 'DOCTORAT';
+  studyYear?: number;
+  bacSeries?: string;
+  cityOfResidence?: string;
+  isScholarshipHolder?: boolean;
+  previousYearRentPaid?: boolean;
 }
 
 export interface RequestFilters {

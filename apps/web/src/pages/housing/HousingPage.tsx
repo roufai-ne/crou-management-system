@@ -46,10 +46,15 @@ import {
 } from '@/hooks/useHousing';
 import { HousingComplex, Room, Resident, MaintenanceRequest, Payment } from '@/services/api/housingService';
 import { ExportButton } from '@/components/reports/ExportButton';
+import { RequestsTab } from '@/components/housing/RequestsTab';
+import { OccupationsTab } from '@/components/housing/OccupationsTab';
+import { CitesTab } from '@/components/housing/CitesTab';
+import { ChambresTab } from '@/components/housing/ChambresTab';
+import { BedsTab } from '@/components/housing/BedsTab';
 
 export const HousingPage: React.FC = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('complexes');
+  const [activeTab, setActiveTab] = useState('beds');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -632,108 +637,35 @@ export const HousingPage: React.FC = () => {
   ];
 
   const tabs = [
-    { 
-      id: 'complexes', 
-      label: 'Cités', 
+    {
+      id: 'beds',
+      label: '🛏️ Lits',
       icon: <HomeModernIcon className="h-4 w-4" />,
-      content: (
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Cités Universitaires</h3>
-            <Button
-              onClick={() => {
-                setModalType('complex');
-                setIsCreateModalOpen(true);
-              }}
-              leftIcon={<PlusIcon className="h-4 w-4" />}
-            >
-              Nouvelle Cité
-            </Button>
-          </div>
-
-          <Card>
-            <Card.Header>
-              <Card.Title>Liste des Cités ({complexes.length})</Card.Title>
-            </Card.Header>
-            <Card.Content>
-              <Table
-                data={complexes}
-                columns={complexColumns}
-                loading={complexesLoading}
-                emptyMessage="Aucune cité trouvée"
-                onRowClick={(item) => {
-                  setSelectedItem(item);
-                  setModalType('complex');
-                  setIsEditModalOpen(true);
-                }}
-              />
-            </Card.Content>
-          </Card>
-        </div>
-      )
+      content: <BedsTab />
     },
-    { 
-      id: 'rooms', 
-      label: 'Chambres', 
+    {
+      id: 'occupations',
+      label: 'Occupations',
+      icon: <UserGroupIcon className="h-4 w-4" />,
+      content: <OccupationsTab />
+    },
+    {
+      id: 'requests',
+      label: 'Demandes',
+      icon: <DocumentArrowDownIcon className="h-4 w-4" />,
+      content: <RequestsTab />
+    },
+    {
+      id: 'rooms',
+      label: 'Chambres',
       icon: <ChartBarIcon className="h-4 w-4" />,
-      content: (
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Chambres</h3>
-            <Button
-              onClick={() => {
-                setModalType('room');
-                setIsCreateModalOpen(true);
-              }}
-              leftIcon={<PlusIcon className="h-4 w-4" />}
-            >
-              Nouvelle Chambre
-            </Button>
-          </div>
-
-          <Card>
-            <Card.Header>
-              <Card.Title>Liste des Chambres ({rooms.length})</Card.Title>
-            </Card.Header>
-            <Card.Content>
-              <Table
-                data={paginatedRooms}
-                columns={roomColumns}
-                loading={roomsLoading}
-                emptyMessage="Aucune chambre trouvée"
-                onRowClick={(item) => {
-                  setSelectedItem(item);
-                  setModalType('room');
-                  setIsEditModalOpen(true);
-                }}
-              />
-              
-              {/* Pagination */}
-              {rooms.length > 0 && (
-                <div className="mt-6 flex justify-center">
-                  <ModernPagination
-                    currentPage={roomsPage}
-                    totalPages={totalRoomsPages}
-                    onPageChange={setRoomsPage}
-                    pageSize={roomsPageSize}
-                    totalItems={rooms.length}
-                    pageSizeOptions={[5, 10, 20, 50]}
-                    onPageSizeChange={(newSize) => {
-                      setRoomsPageSize(newSize);
-                      setRoomsPage(1);
-                    }}
-                    showPageSize
-                    showTotal
-                    showFirstLast
-                    variant="default"
-                    size="md"
-                  />
-                </div>
-              )}
-            </Card.Content>
-          </Card>
-        </div>
-      )
+      content: <ChambresTab />
+    },
+    {
+      id: 'complexes',
+      label: 'Cités',
+      icon: <HomeModernIcon className="h-4 w-4" />,
+      content: <CitesTab />
     },
     { 
       id: 'residents', 
@@ -886,9 +818,9 @@ export const HousingPage: React.FC = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gestion des Logements</h1>
-            <p className="text-lg text-gray-600 mt-2">
-              Cités universitaires et gestion des résidents
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">🛏️ Gestion des Logements</h1>
+            <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">
+              Gestion des lits, occupations et cités universitaires
             </p>
           </div>
           <div className="flex items-center gap-4">
@@ -912,52 +844,65 @@ export const HousingPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Statistiques */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card>
+      {/* Statistiques - BED-CENTERED */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
           <Card.Content>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Cités</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalComplexes}</p>
+                <p className="text-sm font-medium text-blue-700 dark:text-blue-300">🛏️ Total Lits</p>
+                <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">{totalRooms * 2}</p>
+                <p className="text-xs text-blue-600 dark:text-blue-400">Toutes cités</p>
               </div>
-              <HomeModernIcon className="h-8 w-8 text-primary-600" />
+              <div className="text-4xl">🛏️</div>
             </div>
           </Card.Content>
         </Card>
-        <Card>
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
           <Card.Content>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Chambres</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalRooms}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{occupiedRooms} occupées</p>
+                <p className="text-sm font-medium text-green-700 dark:text-green-300">🟢 Disponibles</p>
+                <p className="text-3xl font-bold text-green-900 dark:text-green-100">{(totalRooms * 2) - totalResidents}</p>
+                <p className="text-xs text-green-600 dark:text-green-400">Libres</p>
               </div>
-              <ChartBarIcon className="h-8 w-8 text-primary-600" />
+              <div className="text-4xl">🟢</div>
             </div>
           </Card.Content>
         </Card>
-        <Card>
+        <Card className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20">
           <Card.Content>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Résidents</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalResidents}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{occupancyRate.toFixed(1)}% occupation</p>
+                <p className="text-sm font-medium text-red-700 dark:text-red-300">🔴 Occupés</p>
+                <p className="text-3xl font-bold text-red-900 dark:text-red-100">{totalResidents}</p>
+                <p className="text-xs text-red-600 dark:text-red-400">Attribués</p>
               </div>
-              <UserGroupIcon className="h-8 w-8 text-primary-600" />
+              <div className="text-4xl">🔴</div>
             </div>
           </Card.Content>
         </Card>
-        <Card>
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
           <Card.Content>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Revenus Mensuels</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{monthlyRevenue.toLocaleString()} XOF</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Loyers collectés</p>
+                <p className="text-sm font-medium text-purple-700 dark:text-purple-300">📊 Taux Occupation</p>
+                <p className="text-3xl font-bold text-purple-900 dark:text-purple-100">{occupancyRate.toFixed(1)}%</p>
+                <p className="text-xs text-purple-600 dark:text-purple-400">Des lits</p>
               </div>
-              <CurrencyDollarIcon className="h-8 w-8 text-primary-600" />
+              <div className="text-4xl">📊</div>
+            </div>
+          </Card.Content>
+        </Card>
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20">
+          <Card.Content>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-orange-700 dark:text-orange-300">🏢 Chambres</p>
+                <p className="text-3xl font-bold text-orange-900 dark:text-orange-100">{totalRooms}</p>
+                <p className="text-xs text-orange-600 dark:text-orange-400">{totalComplexes} cités</p>
+              </div>
+              <div className="text-4xl">🏢</div>
             </div>
           </Card.Content>
         </Card>

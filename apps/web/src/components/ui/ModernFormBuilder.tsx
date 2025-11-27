@@ -2,25 +2,25 @@ import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ModernInput } from './ModernInput';
+import { Input } from './Input';
 import { ModernSelect } from './ModernSelect';
 import { ModernCheckbox } from './ModernCheckbox';
 import { ModernTextarea } from './ModernTextarea';
 import { ModernDatePicker } from './ModernDatePicker';
 import { ModernAutocomplete } from './ModernAutocomplete';
-import { ModernButton } from './ModernButton';
+import { Button } from './Button';
 import { cn } from '@/utils/cn';
 
-export type FieldType = 
-  | 'text' 
-  | 'email' 
-  | 'password' 
-  | 'number' 
+export type FieldType =
+  | 'text'
+  | 'email'
+  | 'password'
+  | 'number'
   | 'tel'
-  | 'select' 
-  | 'checkbox' 
+  | 'select'
+  | 'checkbox'
   | 'radio'
-  | 'textarea' 
+  | 'textarea'
   | 'date'
   | 'autocomplete';
 
@@ -41,7 +41,7 @@ export interface FormField {
   // Options pour select/radio
   options?: FieldOption[];
   // Configuration spécifique
-  variant?: 'default' | 'gradient-crou';
+  variant?: 'default' | 'gradient';
   // Validation Zod personnalisée
   validation?: z.ZodTypeAny;
   // Affichage conditionnel
@@ -65,7 +65,7 @@ export interface ModernFormBuilderProps {
   cancelLabel?: string;
   onCancel?: () => void;
   isSubmitting?: boolean;
-  variant?: 'default' | 'gradient-crou';
+  variant?: 'default' | 'gradient';
   className?: string;
 }
 
@@ -147,12 +147,14 @@ export function ModernFormBuilder({
       return null;
     }
 
+    const fieldVariant = field.variant || variant;
+    const modernVariant = fieldVariant === 'gradient' ? 'gradient-crou' : fieldVariant;
+
     const commonProps = {
       label: field.label,
       placeholder: field.placeholder,
       disabled: field.disabled || isSubmitting,
       helperText: field.helperText,
-      variant: field.variant || variant,
       ...field.props,
     };
 
@@ -171,9 +173,10 @@ export function ModernFormBuilder({
             case 'number':
             case 'tel':
               return (
-                <ModernInput
+                <Input
                   {...commonProps}
                   {...fieldProps}
+                  variant={fieldVariant}
                   type={field.type}
                   value={value || ''}
                   onChange={onChange}
@@ -186,6 +189,7 @@ export function ModernFormBuilder({
                 <ModernTextarea
                   {...commonProps}
                   {...fieldProps}
+                  variant={modernVariant}
                   value={value || ''}
                   onChange={onChange}
                   error={error}
@@ -197,6 +201,7 @@ export function ModernFormBuilder({
                 <ModernSelect
                   {...commonProps}
                   {...fieldProps}
+                  variant={modernVariant}
                   options={field.options || []}
                   value={value}
                   onChange={onChange}
@@ -209,6 +214,7 @@ export function ModernFormBuilder({
                 <ModernCheckbox
                   {...commonProps}
                   {...fieldProps}
+                  variant={modernVariant}
                   checked={value || false}
                   onChange={(e) => onChange(e.target.checked)}
                 />
@@ -219,6 +225,7 @@ export function ModernFormBuilder({
                 <ModernDatePicker
                   {...commonProps}
                   {...fieldProps}
+                  variant={modernVariant}
                   value={value}
                   onChange={onChange}
                   error={error}
@@ -230,6 +237,7 @@ export function ModernFormBuilder({
                 <ModernAutocomplete
                   {...commonProps}
                   {...fieldProps}
+                  variant={modernVariant}
                   options={field.options || []}
                   value={value}
                   onChange={onChange}
@@ -287,23 +295,23 @@ export function ModernFormBuilder({
       {/* Actions Footer */}
       <div className="flex items-center justify-end gap-3 pt-6 border-t border-gray-200">
         {onCancel && (
-          <ModernButton
+          <Button
             type="button"
             variant="outline"
             onClick={onCancel}
             disabled={isSubmitting}
           >
             {cancelLabel}
-          </ModernButton>
+          </Button>
         )}
-        <ModernButton
+        <Button
           type="submit"
-          variant="gradient-crou"
+          variant="gradient"
           loading={isSubmitting}
           disabled={isSubmitting}
         >
           {submitLabel}
-        </ModernButton>
+        </Button>
       </div>
     </form>
   );

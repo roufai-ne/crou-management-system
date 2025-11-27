@@ -16,7 +16,12 @@
       "Bash(\"C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe\" -h localhost -U crou_user -d crou_database -c \"SELECT DISTINCT name FROM roles ORDER BY name;\")",
       "Bash(node fix-dark-mode.js:*)",
       "Bash(perl -i -pe:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(\"C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe\" -h localhost -U crou_user -d crou_database -c \"\\d beds\")",
+      "Bash(\"C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe\" -h localhost -U crou_user -d crou_database -c \"\\d housing_occupancies\")",
+      "Bash(\"C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe\" -h localhost -U crou_user -d crou_database -c \"SELECT table_name FROM information_schema.tables WHERE table_schema = ''public'' AND table_name LIKE ''%bed%'' OR table_name LIKE ''%housing%'' ORDER BY table_name;\")",
+      "Bash(npm run migration:run:*)",
+      "Bash(\"C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe\" -h localhost -U crou_user -d crou_database -c \"\\d rooms\")"
     ],
     "deny": [],
     "ask": []

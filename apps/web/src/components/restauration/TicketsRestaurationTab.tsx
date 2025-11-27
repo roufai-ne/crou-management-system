@@ -23,7 +23,7 @@ import {
   Card,
   Badge,
   Button,
-  Table,
+  DataTable,
   Modal,
   Input,
   Select,
@@ -317,8 +317,8 @@ export const TicketsRestaurationTab: React.FC = () => {
       label: 'Type Repas',
       render: (ticket: TicketRepas) => (
         <div>
-          <p className="font-medium">{getTypeRepasLabel(ticket.typeRepas)}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Année {ticket.annee}</p>
+          <p className="font-medium">{ticket.typeRepas ? getTypeRepasLabel(ticket.typeRepas) : '-'}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Année {ticket.annee || '-'}</p>
         </div>
       )
     },
@@ -361,7 +361,7 @@ export const TicketsRestaurationTab: React.FC = () => {
       render: (ticket: TicketRepas) => (
         <div className="text-right">
           <p className="font-medium">
-            {ticket.tarif === 0 ? 'Gratuit' : `${ticket.tarif.toLocaleString()} FCFA`}
+            {ticket.montant === 0 ? 'Gratuit' : `${ticket.montant.toLocaleString()} FCFA`}
           </p>
         </div>
       )
@@ -472,7 +472,7 @@ export const TicketsRestaurationTab: React.FC = () => {
                 <p className="text-2xl font-bold text-purple-600">
                   {tickets
                     ?.filter((t) => t.status === TicketStatus.UTILISE)
-                    .reduce((sum, t) => sum + t.tarif, 0)
+                    .reduce((sum, t) => sum + t.montant, 0)
                     .toLocaleString() || 0}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">FCFA</p>
@@ -484,39 +484,41 @@ export const TicketsRestaurationTab: React.FC = () => {
       </div>
 
       {/* Filtres et actions */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="flex flex-col sm:flex-row gap-4 flex-1">
+      <div className="flex flex-col xl:flex-row gap-4 justify-between items-start xl:items-center">
+        <div className="flex flex-col md:flex-row gap-4 flex-1 w-full xl:w-auto">
           <Input
             placeholder="Rechercher un ticket..."
             value={filters.numeroTicket || ''}
             onChange={(e) => setFilters({ ...filters, numeroTicket: e.target.value })}
             leftIcon={<MagnifyingGlassIcon className="h-4 w-4" />}
-            className="w-full sm:w-80"
+            className="w-full md:flex-1"
           />
-          <Select
-            value={filters.status || ''}
-            onChange={(value) => setFilters({ ...filters, status: value as TicketStatus })}
-            options={[
-              { value: '', label: 'Tous les statuts' },
-              { value: TicketStatus.ACTIF, label: 'Actif' },
-              { value: TicketStatus.UTILISE, label: 'Utilisé' },
-              { value: TicketStatus.EXPIRE, label: 'Expiré' },
-              { value: TicketStatus.ANNULE, label: 'Annulé' }
-            ]}
-            className="w-full sm:w-48"
-          />
-          <Select
-            value={filters.categorie || ''}
-            onChange={(value) => setFilters({ ...filters, categorie: value as CategorieTicket })}
-            options={[
-              { value: '', label: 'Toutes catégories' },
-              { value: CategorieTicket.PAYANT, label: 'Payant' },
-              { value: CategorieTicket.GRATUIT, label: 'Gratuit' }
-            ]}
-            className="w-full sm:w-48"
-          />
+          <div className="flex flex-col md:flex-row gap-4">
+            <Select
+              value={filters.status || ''}
+              onChange={(value) => setFilters({ ...filters, status: value as TicketStatus })}
+              options={[
+                { value: '', label: 'Tous les statuts' },
+                { value: TicketStatus.ACTIF, label: 'Actif' },
+                { value: TicketStatus.UTILISE, label: 'Utilisé' },
+                { value: TicketStatus.EXPIRE, label: 'Expiré' },
+                { value: TicketStatus.ANNULE, label: 'Annulé' }
+              ]}
+              className="w-full md:w-48"
+            />
+            <Select
+              value={filters.categorie || ''}
+              onChange={(value) => setFilters({ ...filters, categorie: value as CategorieTicket })}
+              options={[
+                { value: '', label: 'Toutes catégories' },
+                { value: CategorieTicket.PAYANT, label: 'Payant' },
+                { value: CategorieTicket.GRATUIT, label: 'Gratuit' }
+              ]}
+              className="w-full md:w-48"
+            />
+          </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 justify-end w-full xl:w-auto shrink-0">
           <Button
             variant="outline"
             leftIcon={<QrCodeIcon className="h-4 w-4" />}
@@ -559,7 +561,7 @@ export const TicketsRestaurationTab: React.FC = () => {
           {loading ? (
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">Chargement...</div>
           ) : (
-            <Table data={tickets || []} columns={columns} emptyMessage="Aucun ticket trouvé" />
+            <DataTable data={tickets || []} columns={columns} emptyMessage="Aucun ticket trouvé" />
           )}
         </Card.Content>
       </Card>
@@ -618,7 +620,7 @@ export const TicketsRestaurationTab: React.FC = () => {
           <DateInput
             label="Date d'expiration"
             value={formData.dateExpiration || ''}
-            onChange={(value) => setFormData({ ...formData, dateExpiration: value })}
+            onValueChange={(date) => setFormData({ ...formData, dateExpiration: date ? date.toISOString() : '' })}
             required
           />
 
@@ -713,7 +715,7 @@ export const TicketsRestaurationTab: React.FC = () => {
           <DateInput
             label="Date d'expiration"
             value={batchFormData.dateExpiration || ''}
-            onChange={(value) => setBatchFormData({ ...batchFormData, dateExpiration: value })}
+            onValueChange={(date) => setBatchFormData({ ...batchFormData, dateExpiration: date ? date.toISOString() : '' })}
             required
           />
 
@@ -799,7 +801,9 @@ export const TicketsRestaurationTab: React.FC = () => {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Type Repas:</span>
-                <span className="text-sm">{getTypeRepasLabel(selectedTicket.typeRepas)}</span>
+                <span className="font-medium">
+                  {selectedTicket.typeRepas ? getTypeRepasLabel(selectedTicket.typeRepas) : '-'}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Émission:</span>
@@ -809,8 +813,10 @@ export const TicketsRestaurationTab: React.FC = () => {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Tarif:</span>
-                <span className="text-sm font-medium">
-                  {selectedTicket.tarif === 0 ? 'Gratuit' : `${selectedTicket.tarif} FCFA`}
+                <span className="font-medium">
+                  {selectedTicket.montant === 0
+                    ? 'Gratuit'
+                    : `${selectedTicket.montant.toLocaleString()} FCFA`}
                 </span>
               </div>
               <div className="flex items-center justify-between">

@@ -397,6 +397,171 @@ export const useHousingMetrics = () => {
   };
 };
 
+// Hook pour les demandes de logement
+export const useHousingRequests = () => {
+  const { user } = useAuth();
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState({
+    search: '',
+    status: 'all',
+    priority: 'all',
+    annee: '2024-2025'
+  });
+
+  const loadRequests = useCallback(async () => {
+    if (!user?.tenantId) return;
+
+    setLoading(true);
+    setError(null);
+    try {
+      // TODO: Appel API réel
+      // const response = await housingRequestService.getAll(filters);
+      // setRequests(response.data);
+      setRequests([]);
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors du chargement');
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.tenantId, filters]);
+
+  useEffect(() => {
+    loadRequests();
+  }, [loadRequests]);
+
+  const approveRequest = useCallback(async (id: string) => {
+    // TODO: Appel API
+  }, []);
+
+  const rejectRequest = useCallback(async (id: string, reason: string) => {
+    // TODO: Appel API
+  }, []);
+
+  const assignRoom = useCallback(async (id: string, roomId: string, expirationDate: string) => {
+    // TODO: Appel API
+  }, []);
+
+  const updateFilters = useCallback((newFilters: Partial<typeof filters>) => {
+    setFilters(prev => ({ ...prev, ...newFilters }));
+  }, []);
+
+  return {
+    requests,
+    loading,
+    error,
+    filters,
+    approveRequest,
+    rejectRequest,
+    assignRoom,
+    updateFilters,
+    refresh: loadRequests
+  };
+};
+
+// Hook pour les occupations
+export const useHousingOccupancies = () => {
+  const { user } = useAuth();
+  const [occupancies, setOccupancies] = useState([]);
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState({
+    search: '',
+    status: 'ACTIVE',
+    complex: 'all'
+  });
+
+  const loadOccupancies = useCallback(async () => {
+    if (!user?.tenantId) return;
+
+    setLoading(true);
+    setError(null);
+    try {
+      const { housingOccupancyService } = await import('@/services/api/housingOccupancyService');
+      const response = await housingOccupancyService.getAll({
+        search: filters.search || undefined,
+        status: filters.status !== 'all' ? filters.status : undefined,
+        complexId: filters.complex !== 'all' ? filters.complex : undefined
+      });
+      setOccupancies(response.data);
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors du chargement');
+      console.error('Erreur chargement occupations:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.tenantId, filters]);
+
+  const loadStats = useCallback(async () => {
+    if (!user?.tenantId) return;
+
+    try {
+      const { housingOccupancyService } = await import('@/services/api/housingOccupancyService');
+      const statsData = await housingOccupancyService.getStats();
+      setStats(statsData);
+    } catch (err: any) {
+      console.error('Erreur chargement stats:', err);
+    }
+  }, [user?.tenantId]);
+
+  useEffect(() => {
+    loadOccupancies();
+    loadStats();
+  }, [loadOccupancies, loadStats]);
+
+  const createOccupancy = useCallback(async (data: any) => {
+    try {
+      const { housingOccupancyService } = await import('@/services/api/housingOccupancyService');
+      await housingOccupancyService.create(data);
+      await loadOccupancies();
+      await loadStats();
+    } catch (err: any) {
+      throw new Error(err.message || 'Erreur lors de la création');
+    }
+  }, [loadOccupancies, loadStats]);
+
+  const releaseRoom = useCallback(async (id: string) => {
+    try {
+      const { housingOccupancyService } = await import('@/services/api/housingOccupancyService');
+      await housingOccupancyService.release(id);
+      await loadOccupancies();
+      await loadStats();
+    } catch (err: any) {
+      throw new Error(err.message || 'Erreur lors de la libération');
+    }
+  }, [loadOccupancies, loadStats]);
+
+  const markRentPaid = useCallback(async (id: string) => {
+    try {
+      const { housingOccupancyService } = await import('@/services/api/housingOccupancyService');
+      await housingOccupancyService.markRentPaid(id);
+      await loadOccupancies();
+      await loadStats();
+    } catch (err: any) {
+      throw new Error(err.message || 'Erreur lors du marquage du paiement');
+    }
+  }, [loadOccupancies, loadStats]);
+
+  const updateFilters = useCallback((newFilters: Partial<typeof filters>) => {
+    setFilters(prev => ({ ...prev, ...newFilters }));
+  }, []);
+
+  return {
+    occupancies,
+    stats,
+    loading,
+    error,
+    filters,
+    createOccupancy,
+    releaseRoom,
+    markRentPaid,
+    updateFilters,
+    refresh: loadOccupancies
+  };
+};
+
 // Hook pour les statistiques avancées
 export const useHousingStatistics = () => {
   const { complexes, rooms, residents, maintenanceRequests, payments } = useHousing();

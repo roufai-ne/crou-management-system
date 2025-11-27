@@ -54,6 +54,7 @@ import { ReportsPage } from '@/pages/reports/ReportsPage';
 import { AdminPage } from '@/pages/admin/AdminPage';
 import { RestaurationPage } from '@/pages/restauration/RestaurationPage';
 import { ProfilePage } from '@/pages/profile/ProfilePage';
+import { FAQPage } from '@/pages/help/FAQPage';
 import { StyleTest } from '@/pages/test/StyleTest';
 import { LoginTest } from '@/pages/test/LoginTest';
 import { CSSTest } from '@/pages/test/CSSTest';
@@ -70,12 +71,31 @@ import { useAuth } from '@/stores/auth';
 // Configuration
 import '@/styles/globals.css';
 
+// Lazy loaded components
+const StudentApplicationPortal = React.lazy(() => import('@/pages/housing/StudentApplicationPortal'));
+const StudentRegistrationPage = React.lazy(() => import('@/pages/students/StudentRegistrationPage'));
+const ButtonExamples = React.lazy(() => import('@/pages/examples/ButtonExamples'));
+const InputExamples = React.lazy(() => import('@/pages/examples/InputExamples'));
+const SelectExamples = React.lazy(() => import('@/pages/examples/SelectExamples'));
+const FormControlExamples = React.lazy(() => import('@/pages/examples/FormControlExamples'));
+const TableExamples = React.lazy(() => import('@/pages/examples/TableExamples'));
+const KPIExamples = React.lazy(() => import('@/pages/examples/KPIExamples'));
+const BadgeExamples = React.lazy(() => import('@/pages/examples/BadgeExamples'));
+const CardExamples = React.lazy(() => import('@/pages/examples/CardExamples'));
+const ModalExamples = React.lazy(() => import('@/pages/examples/ModalExamples'));
+const Sprint3Demo = React.lazy(() => import('@/pages/examples/Sprint3Demo'));
+const Sprint4Demo = React.lazy(() => import('@/pages/examples/Sprint4Demo'));
+const Sprint5Demo = React.lazy(() => import('@/pages/examples/Sprint5Demo'));
+const Sprint6Demo = React.lazy(() => import('@/pages/examples/Sprint6Demo'));
+const LazyFAQPage = React.lazy(() => import('@/pages/help/FAQPage'));
+const HomePage = React.lazy(() => import('@/pages/home/HomePage'));
+
 // Client React Query avec configuration optimisée
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
-      cacheTime: 10 * 60 * 1000, // 10 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
       retry: (failureCount, error: any) => {
         // Ne pas retry sur les erreurs 4xx
         if (error?.response?.status >= 400 && error?.response?.status < 500) {
@@ -111,22 +131,23 @@ function App() {
           role: 'admin',
           tenantId: 'niamey',
           tenantType: 'crou',
+          hierarchyLevel: 'crou',
           level: 'crou',
           crouId: 'niamey',
-          permissions: ['all','read','write','admin','dashboard:read','financial:read','stocks:read','housing:read','transport:read','restauration:read','reports:read','admin:read'],
+          permissions: ['all', 'read', 'write', 'admin', 'dashboard:read', 'financial:read', 'stocks:read', 'housing:read', 'transport:read', 'restauration:read', 'reports:read', 'admin:read'],
           lastLoginAt: new Date()
         });
         setTokens('dev-token', 'dev-refresh-token');
         console.log('🔓 Connexion rapide activée pour le développement');
       };
-      
+
       // Exposer une fonction de déconnexion rapide
       (window as any).devLogout = () => {
         const { clearAuth } = useAuth.getState();
         clearAuth();
         console.log('🔒 Déconnexion rapide activée pour le développement');
       };
-      
+
       console.log('🛠️  Mode développement - Utilisez window.devLogin() pour vous connecter rapidement');
     }
   }, []);
@@ -173,6 +194,13 @@ function App() {
                 <Route path="/kpi-comparison" element={<KPIComparison />} />
                 <Route path="/component-showcase" element={<ComponentShowcase />} />
 
+                {/* Inscription étudiant (hors AuthLayout car page pleine largeur) */}
+                <Route path="/register" element={
+                  <React.Suspense fallback={<LoadingScreen />}>
+                    <StudentRegistrationPage />
+                  </React.Suspense>
+                } />
+
                 {/* Routes d'authentification */}
                 <Route path="/auth/*" element={
                   <AuthLayout>
@@ -187,100 +215,76 @@ function App() {
                 <Route path="/*" element={
                   <ProtectedRoute>
                     <MainLayout>
-                      <Routes>
-                        {/* Dashboard - Page d'accueil */}
-                        <Route path="/dashboard" element={<DashboardPage />} />
+                      <React.Suspense fallback={<LoadingScreen />}>
+                        <Routes>
+                          {/* Dashboard - Page d'accueil */}
+                          <Route path="/dashboard" element={<DashboardPage />} />
 
-                        {/* Profil utilisateur */}
-                        <Route path="/profile" element={<ProfilePage />} />
+                          {/* Profil utilisateur */}
+                          <Route path="/profile" element={<ProfilePage />} />
 
-                        {/* Modules principaux */}
-                        <Route path="/financial/*" element={<FinancialPage />} />
-                        <Route path="/stocks/*" element={<StocksPage />} />
-                        <Route path="/procurement/*" element={<ProcurementPage />} />
-                        <Route path="/housing/*" element={<HousingPage />} />
-                        <Route path="/transport/*" element={<TransportPage />} />
-                        <Route path="/restauration/*" element={<RestaurationPage />} />
-                        <Route path="/reports/*" element={<ReportsPage />} />
-                        
-                        {/* Administration (accès limité) */}
-                        <Route 
-                          path="/admin/*" 
-                          element={
-                            <ProtectedRoute requiredPermissions={['admin']}>
-                              <AdminPage />
-                            </ProtectedRoute>
-                          } 
-                        />
-                        
-                        {/* Pages d'exemples (développement) */}
-                        {process.env.NODE_ENV === 'development' && (
-                          <>
-                            <Route path="/examples/buttons" element={
-                              React.lazy(() => import('@/pages/examples/ButtonExamples'))
-                            } />
-                            <Route path="/examples/inputs" element={
-                              React.lazy(() => import('@/pages/examples/InputExamples'))
-                            } />
-                            <Route path="/examples/selects" element={
-                              React.lazy(() => import('@/pages/examples/SelectExamples'))
-                            } />
-                            <Route path="/examples/form-controls" element={
-                              React.lazy(() => import('@/pages/examples/FormControlExamples'))
-                            } />
-                            <Route path="/examples/tables" element={
-                              React.lazy(() => import('@/pages/examples/TableExamples'))
-                            } />
-                            <Route path="/examples/kpis" element={
-                              React.lazy(() => import('@/pages/examples/KPIExamples'))
-                            } />
-                            <Route path="/examples/badges" element={
-                              React.lazy(() => import('@/pages/examples/BadgeExamples'))
-                            } />
-                            <Route path="/examples/cards" element={
-                              React.lazy(() => import('@/pages/examples/CardExamples'))
-                            } />
-                            <Route path="/examples/modals" element={
-                              React.lazy(() => import('@/pages/examples/ModalExamples'))
-                            } />
-                            <Route path="/examples/sprint3" element={
-                              React.lazy(() => import('@/pages/examples/Sprint3Demo'))
-                            } />
-                            <Route path="/examples/sprint4" element={
-                              React.lazy(() => import('@/pages/examples/Sprint4Demo'))
-                            } />
-                            <Route path="/examples/sprint5" element={
-                              React.lazy(() => import('@/pages/examples/Sprint5Demo'))
-                            } />
-                            <Route path="/examples/sprint6" element={
-                              React.lazy(() => import('@/pages/examples/Sprint6Demo'))
-                            } />
-                            <Route path="/help" element={
-                              React.lazy(() => import('@/pages/help/FAQPage'))
-                            } />
-                            <Route path="/home" element={
-                              React.lazy(() => import('@/pages/home/HomePage'))
-                            } />
-                          </>
-                        )}
-                        
-                        {/* Redirections */}
-                        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                        <Route path="*" element={
-                          <div className="flex items-center justify-center min-h-screen">
-                            <div className="text-center">
-                              <h1 className="text-4xl font-bold text-gray-900 mb-4">404</h1>
-                              <p className="text-gray-600 mb-6">Page non trouvée</p>
-                              <button 
-                                onClick={() => window.history.back()}
-                                className="btn-primary"
-                              >
-                                Retour
-                              </button>
+                          {/* Aide et support */}
+                          <Route path="/faq" element={<FAQPage />} />
+
+                          {/* Modules principaux */}
+                          <Route path="/financial/*" element={<FinancialPage />} />
+                          <Route path="/stocks/*" element={<StocksPage />} />
+                          <Route path="/procurement/*" element={<ProcurementPage />} />
+                          <Route path="/housing/*" element={<HousingPage />} />
+                          <Route path="/housing/apply" element={<StudentApplicationPortal />} />
+                          <Route path="/transport/*" element={<TransportPage />} />
+                          <Route path="/restauration/*" element={<RestaurationPage />} />
+                          <Route path="/reports/*" element={<ReportsPage />} />
+
+                          {/* Administration (accès limité) */}
+                          <Route
+                            path="/admin/*"
+                            element={
+                              <ProtectedRoute requiredPermissions={['admin']}>
+                                <AdminPage />
+                              </ProtectedRoute>
+                            }
+                          />
+
+                          {/* Pages d'exemples (développement) */}
+                          {process.env.NODE_ENV === 'development' && (
+                            <>
+                              <Route path="/examples/buttons" element={<ButtonExamples />} />
+                              <Route path="/examples/inputs" element={<InputExamples />} />
+                              <Route path="/examples/selects" element={<SelectExamples />} />
+                              <Route path="/examples/form-controls" element={<FormControlExamples />} />
+                              <Route path="/examples/tables" element={<TableExamples />} />
+                              <Route path="/examples/kpis" element={<KPIExamples />} />
+                              <Route path="/examples/badges" element={<BadgeExamples />} />
+                              <Route path="/examples/cards" element={<CardExamples />} />
+                              <Route path="/examples/modals" element={<ModalExamples />} />
+                              <Route path="/examples/sprint3" element={<Sprint3Demo />} />
+                              <Route path="/examples/sprint4" element={<Sprint4Demo />} />
+                              <Route path="/examples/sprint5" element={<Sprint5Demo />} />
+                              <Route path="/examples/sprint6" element={<Sprint6Demo />} />
+                              <Route path="/help" element={<LazyFAQPage />} />
+                              <Route path="/home" element={<HomePage />} />
+                            </>
+                          )}
+
+                          {/* Redirections */}
+                          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                          <Route path="*" element={
+                            <div className="flex items-center justify-center min-h-screen">
+                              <div className="text-center">
+                                <h1 className="text-4xl font-bold text-gray-900 mb-4">404</h1>
+                                <p className="text-gray-600 mb-6">Page non trouvée</p>
+                                <button
+                                  onClick={() => window.history.back()}
+                                  className="btn-primary"
+                                >
+                                  Retour
+                                </button>
+                              </div>
                             </div>
-                          </div>
-                        } />
-                      </Routes>
+                          } />
+                        </Routes>
+                      </React.Suspense>
                     </MainLayout>
                   </ProtectedRoute>
                 } />
@@ -320,7 +324,7 @@ function App() {
                 </React.Suspense>
               )}
             </div>
-            </Router>
+          </Router>
         </QueryClientProvider>
       </ThemeProvider>
     </ErrorBoundary>

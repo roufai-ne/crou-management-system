@@ -96,7 +96,7 @@ const Spinner: React.FC<{ size?: 'xs' | 'sm' | 'md' | 'lg' }> = ({ size = 'md' }
 };
 
 // Types pour les variantes
-type ButtonVariant = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'outline' | 'ghost';
+type ButtonVariant = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'outline' | 'ghost' | 'gradient';
 type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 // Fonction pour générer les classes CSS du bouton
@@ -120,19 +120,25 @@ const buttonVariants = (props: {
   // Classes de variantes
   const variantClasses = {
     primary: [
-      'bg-primary-600 text-white shadow-sm',
-      'hover:bg-primary-700 hover:shadow-md',
+      'bg-primary-600 text-white shadow-md',
+      'hover:bg-primary-700 hover:shadow-lg hover:-translate-y-0.5',
       'focus:ring-primary-500',
-      'active:bg-primary-800',
+      'active:bg-primary-800 active:translate-y-0 active:shadow-md',
       'dark:bg-primary-600 dark:hover:bg-primary-700'
     ],
+    gradient: [
+      'bg-gradient-to-r from-primary-600 to-indigo-600 text-white shadow-md',
+      'hover:from-primary-700 hover:to-indigo-700 hover:shadow-lg hover:-translate-y-0.5',
+      'focus:ring-primary-500',
+      'active:translate-y-0 active:shadow-md'
+    ],
     secondary: [
-      'bg-white text-gray-700 border border-gray-300 shadow-sm',
-      'hover:bg-gray-50 hover:text-gray-900 hover:border-gray-400',
+      'bg-white text-gray-700 border border-gray-200 shadow-sm',
+      'hover:bg-gray-50 hover:text-gray-900 hover:border-gray-300',
       'focus:ring-primary-500',
       'active:bg-gray-100',
-      'dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600',
-      'dark:hover:bg-gray-600 dark:hover:text-gray-100 dark:hover:border-gray-500'
+      'dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700',
+      'dark:hover:bg-gray-700 dark:hover:text-gray-100'
     ],
     success: [
       'bg-success-600 text-white shadow-sm',
@@ -156,29 +162,29 @@ const buttonVariants = (props: {
       'dark:bg-warning-500 dark:hover:bg-warning-600'
     ],
     outline: [
-      'bg-transparent text-gray-700 border border-gray-300',
-      'hover:bg-gray-50 hover:text-gray-900 hover:border-gray-400',
+      'bg-transparent text-primary-700 border-2 border-primary-100',
+      'hover:bg-primary-50 hover:border-primary-200',
       'focus:ring-primary-500',
-      'active:bg-gray-100',
-      'dark:text-gray-300 dark:border-gray-600',
-      'dark:hover:bg-gray-800 dark:hover:text-gray-100 dark:hover:border-gray-500'
+      'active:bg-primary-100',
+      'dark:text-primary-400 dark:border-primary-900/50',
+      'dark:hover:bg-primary-900/20 dark:hover:border-primary-800'
     ],
     ghost: [
-      'bg-transparent text-gray-700',
+      'bg-transparent text-gray-600',
       'hover:bg-gray-100 hover:text-gray-900',
       'focus:ring-primary-500',
       'active:bg-gray-200',
-      'dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100'
+      'dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100'
     ]
   };
 
   // Classes de tailles
   const sizeClasses = {
-    xs: iconOnly ? 'h-7 w-7' : 'h-7 px-2 text-xs rounded gap-1',
-    sm: iconOnly ? 'h-8 w-8' : 'h-8 px-3 text-sm rounded-md gap-1.5',
-    md: iconOnly ? 'h-10 w-10' : 'h-10 px-4 text-sm rounded-md gap-2',
-    lg: iconOnly ? 'h-11 w-11' : 'h-11 px-6 text-base rounded-md gap-2',
-    xl: iconOnly ? 'h-12 w-12' : 'h-12 px-8 text-base rounded-lg gap-2.5'
+    xs: iconOnly ? 'h-8 w-8' : 'h-8 px-3 text-xs rounded-lg gap-1.5',
+    sm: iconOnly ? 'h-9 w-9' : 'h-9 px-4 text-sm rounded-lg gap-2',
+    md: iconOnly ? 'h-10 w-10' : 'h-10 px-5 text-sm rounded-xl gap-2',
+    lg: iconOnly ? 'h-12 w-12' : 'h-12 px-6 text-base rounded-xl gap-2.5',
+    xl: iconOnly ? 'h-14 w-14' : 'h-14 px-8 text-lg rounded-2xl gap-3'
   };
 
   // Classes conditionnelles

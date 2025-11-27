@@ -212,7 +212,9 @@ export enum CategorieTicket {
   ETUDIANT_BOURSIER = 'etudiant_boursier',
   ETUDIANT_NON_BOURSIER = 'etudiant_non_boursier',
   PERSONNEL = 'personnel',
-  INVITE = 'invite'
+  INVITE = 'invite',
+  PAYANT = 'payant',
+  GRATUIT = 'gratuit'
 }
 
 export interface TicketRepas {
@@ -233,6 +235,9 @@ export interface TicketRepas {
   repasId?: string;
   status: TicketStatus;
   motifAnnulation?: string;
+  qrCode?: string;
+  typeRepas?: TypeRepas;
+  annee?: number;
   createdBy: string;
   updatedBy?: string;
   createdAt: Date;
@@ -588,7 +593,7 @@ export const restaurationService = {
     return response.data.data;
   },
 
-  async createTicketsBatch(data: CreateTicketsBatchRequest): Promise<{ tickets: TicketRepas[]; total: number }> {
+  async createTicketsBatch(data: CreateTicketsBatchRequest): Promise<{ tickets: TicketRepas[]; total: number; montantTotal: number }> {
     const response = await apiClient.post('/restauration/tickets/batch', data);
     return response.data.data;
   },

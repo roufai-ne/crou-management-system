@@ -185,6 +185,9 @@ export class Room {
   @OneToMany(() => HousingMaintenance, maintenance => maintenance.room, { cascade: true })
   maintenances: HousingMaintenance[];
 
+  @OneToMany('Bed', 'room', { cascade: true })
+  beds: any[];
+
   // Méthodes de calcul
   /**
    * Calculer le taux d'occupation

@@ -13,6 +13,7 @@
  * - PUT    /api/housing/:id      - Modifier un logement
  * - DELETE /api/housing/:id      - Supprimer un logement
  * - GET    /api/housing/:id/stats - Statistiques d'un logement
+ * - /api/housing/occupancies/*  - Routes pour les occupations
  *
  * AUTEUR: Équipe CROU
  * DATE: Décembre 2024
@@ -20,8 +21,16 @@
 
 import { Router } from 'express';
 import housingController from './housing.controller';
+import occupancyController from './occupancy.controller';
+import bedController from './bed.controller';
 
 const router: Router = Router();
+
+// Routes pour les lits (CENTRAL - tout tourne autour des lits)
+router.use('/beds', bedController);
+
+// Routes pour les occupations
+router.use('/occupancies', occupancyController);
 
 // Toutes les routes du contrôleur housing
 router.use('/', housingController);

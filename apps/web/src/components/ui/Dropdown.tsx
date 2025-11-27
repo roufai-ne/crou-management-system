@@ -13,18 +13,18 @@ const dropdownVariants = (props: {
   variant?: 'default' | 'ghost';
 }) => {
   const baseClasses = 'z-50 min-w-32 overflow-hidden rounded-md border bg-white shadow-md';
-  
+
   const sizeClasses = {
     sm: 'text-sm',
     md: 'text-base',
     lg: 'text-lg'
   };
-  
+
   const variantClasses = {
     'default': 'border-gray-200',
     ghost: 'border-transparent shadow-lg'
   };
-  
+
   return cn(
     baseClasses,
     sizeClasses[props.size || 'md'],
@@ -39,20 +39,20 @@ const dropdownItemVariants = (props: {
   variant?: 'default' | 'destructive';
 }) => {
   const baseClasses = 'relative flex w-full cursor-pointer select-none items-center gap-2 px-2 py-1.5 text-sm outline-none';
-  
+
   if (props.isDisabled) {
     return cn(baseClasses, 'cursor-not-allowed opacity-50');
   }
-  
+
   if (props.isSelected) {
     return cn(baseClasses, 'bg-primary-100 text-primary-900');
   }
-  
+
   const variantClasses = {
     'default': 'hover:bg-gray-100 focus:bg-gray-100',
     destructive: 'text-red-600 hover:bg-red-50 focus:bg-red-50'
   };
-  
+
   return cn(
     baseClasses,
     variantClasses[props.variant || 'default']
@@ -71,7 +71,7 @@ export interface DropdownItem {
 }
 
 // Interface des props
-interface DropdownProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onSelect'> {
+export interface DropdownProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onSelect'> {
   trigger: React.ReactNode;
   items: DropdownItem[];
   selectedId?: string;
@@ -130,13 +130,13 @@ export const Dropdown: React.FC<DropdownProps> = ({
           break;
         case 'ArrowDown':
           event.preventDefault();
-          setFocusedIndex(prev => 
+          setFocusedIndex(prev =>
             prev < items.length - 1 ? prev + 1 : 0
           );
           break;
         case 'ArrowUp':
           event.preventDefault();
-          setFocusedIndex(prev => 
+          setFocusedIndex(prev =>
             prev > 0 ? prev - 1 : items.length - 1
           );
           break;

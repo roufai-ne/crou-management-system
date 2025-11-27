@@ -3,11 +3,11 @@ import { ModernChart } from '@/components/ui/ModernChart';
 import { ModernStatsCard } from '@/components/ui/ModernStatsCard';
 import { ModernProgressRing } from '@/components/ui/ModernProgressRing';
 import { ModernTimeline, TimelineEvent } from '@/components/ui/ModernTimeline';
-import { ModernBadge } from '@/components/ui/ModernBadge';
-import { 
-  DollarSign, 
-  Users, 
-  Home, 
+import { Badge } from '@/components/ui/Badge';
+import {
+  DollarSign,
+  Users,
+  Home,
   TrendingUp,
   CheckCircle,
   AlertCircle,
@@ -150,7 +150,7 @@ export default function Sprint5Demo() {
           <h1 className="text-3xl font-bold text-gray-900">
             Sprint 5: Data Visualization & Charts
           </h1>
-          <ModernBadge variant="success">100% Complete</ModernBadge>
+          <Badge variant="success">100% Complete</Badge>
         </div>
         <p className="text-gray-600">
           Composants de visualisation de données : graphiques, statistiques, progression, timeline
@@ -207,7 +207,7 @@ export default function Sprint5Demo() {
           {/* Code Example */}
           <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
             <pre className="text-sm text-gray-800 overflow-x-auto">
-{`<ModernStatsCard
+              {`<ModernStatsCard
   title="Revenus Totaux"
   value="15.2M FCFA"
   change={12.5}
@@ -276,7 +276,7 @@ export default function Sprint5Demo() {
           {/* Code Example */}
           <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
             <pre className="text-sm text-gray-800 overflow-x-auto">
-{`<ModernChart
+              {`<ModernChart
   type="line"
   labels={['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun']}
   datasets={[
@@ -358,7 +358,7 @@ export default function Sprint5Demo() {
           {/* Code Example */}
           <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
             <pre className="text-sm text-gray-800 overflow-x-auto">
-{`<ModernProgressRing
+              {`<ModernProgressRing
   percentage={90}
   label="Occupation"
   variant="gradient-crou"
@@ -398,7 +398,7 @@ export default function Sprint5Demo() {
           {/* Code Example */}
           <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
             <pre className="text-sm text-gray-800 overflow-x-auto">
-{`const events: TimelineEvent[] = [
+              {`const events: TimelineEvent[] = [
   {
     id: 1,
     title: 'Nouveau paiement reçu',

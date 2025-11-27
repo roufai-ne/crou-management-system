@@ -35,7 +35,9 @@ import {
   Tabs,
   TabsList,
   TabsTrigger,
-  TabsContent
+  TabsContent,
+  Textarea,
+  buttonVariants
 } from '@/components/ui';
 import {
   CheckCircleIcon,
@@ -53,6 +55,16 @@ import { useAuth } from '@/stores/auth';
 export const StudentApplicationPortal: React.FC = () => {
   const { user } = useAuth();
 
+  if (user?.role !== 'Etudiant' && user?.role !== 'Utilisateur') {
+    return (
+      <Container className="py-6">
+        <Alert variant="error">
+          Accès refusé. Cette page est réservée aux étudiants.
+        </Alert>
+      </Container>
+    );
+  }
+
   // États Stepper
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
@@ -67,7 +79,13 @@ export const StudentApplicationPortal: React.FC = () => {
     type: 'NOUVELLE',
     typeChambresPreferees: [],
     preferenceCites: [],
-    observations: ''
+    observations: '',
+    cycle: 'LICENCE',
+    studyYear: 1,
+    bacSeries: '',
+    cityOfResidence: '',
+    isScholarshipHolder: false,
+    previousYearRentPaid: false
   });
   const [documents, setDocuments] = useState<DocumentUpload[]>([]);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
@@ -231,14 +249,68 @@ export const StudentApplicationPortal: React.FC = () => {
     try {
       setLoading(true);
       // Simuler validation (API backend le fera automatiquement lors de la soumission)
+      // Règles métier
+      const maxYears = {
+        'LICENCE': 3,
+        'MASTER': 2,
+        'MEDECINE': 8,
+        'DOCTORAT': 3
+      };
+
+      const currentMaxYears = maxYears[formData.cycle || 'LICENCE'];
+      const hasNotExceededMaxYears = (formData.studyYear || 1) <= currentMaxYears;
+
+      // Calcul du score de priorité
+      let score = 0;
+      const reasons: string[] = [];
+
+      if (formData.type === 'NOUVELLE') {
+        // Règle: Priorité aux BAC scientifiques (C, D, E)
+        if (['C', 'D', 'E'].includes(formData.bacSeries?.toUpperCase() || '')) {
+          score += 50;
+        } else {
+          score += 20;
+        }
+
+        // Règle: Provenance (les non résidents de la ville sont prioritaires)
+        // On suppose ici que l'université est à Niamey pour l'exemple
+        if (formData.cityOfResidence?.toLowerCase() !== 'niamey') {
+          score += 40;
+        }
+
+        // Règle: Etre boursier
+        if (formData.isScholarshipHolder) {
+          score += 30;
+        } else {
+          reasons.push("La bourse est requise pour une nouvelle attribution");
+        }
+
+      } else {
+        // Renouvellement
+        if (hasNotExceededMaxYears) {
+          score += 50;
+        } else {
+          reasons.push(`Durée d'études dépassée pour le cycle ${formData.cycle} (Max: ${currentMaxYears} ans)`);
+        }
+
+        // Règle: Avoir payé le loyer de l'année précédente
+        if (formData.previousYearRentPaid) {
+          score += 50;
+        } else {
+          reasons.push("Le paiement du loyer de l'année précédente est requis");
+        }
+      }
+
+      const isEligible = reasons.length === 0;
+
       setEligibility({
-        isEligible: true,
-        score: 85,
-        reasons: [],
+        isEligible,
+        score,
+        reasons,
         checks: {
-          hasRentPaid: formData.type === 'RENOUVELLEMENT',
-          hasNotExceededMaxYears: true,
-          isBoursier: formData.type === 'NOUVELLE',
+          hasRentPaid: formData.type === 'RENOUVELLEMENT' ? formData.previousYearRentPaid : true,
+          hasNotExceededMaxYears,
+          isBoursier: formData.type === 'NOUVELLE' ? formData.isScholarshipHolder : true,
           hasDocuments: true
         }
       });
@@ -278,7 +350,7 @@ export const StudentApplicationPortal: React.FC = () => {
 
       // Basculer sur onglet suivi
       setActiveTab('tracking');
-      
+
       // Reset
       setCurrentStep(1);
       setCompletedSteps([]);
@@ -344,13 +416,12 @@ export const StudentApplicationPortal: React.FC = () => {
                 <div className="flex items-center justify-between mb-2">
                   {[1, 2, 3, 4, 5].map(step => (
                     <div key={step} className="flex items-center">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        completedSteps.includes(step)
-                          ? 'bg-green-500 text-white'
-                          : currentStep === step
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${completedSteps.includes(step)
+                        ? 'bg-green-500 text-white'
+                        : currentStep === step
                           ? 'bg-blue-500 text-white'
                           : 'bg-gray-300 text-gray-600'
-                      }`}>
+                        }`}>
                         {completedSteps.includes(step) ? (
                           <CheckCircleIcon className="h-6 w-6" />
                         ) : (
@@ -358,9 +429,8 @@ export const StudentApplicationPortal: React.FC = () => {
                         )}
                       </div>
                       {step < 5 && (
-                        <div className={`w-24 h-1 ${
-                          completedSteps.includes(step) ? 'bg-green-500' : 'bg-gray-300'
-                        }`} />
+                        <div className={`w-24 h-1 ${completedSteps.includes(step) ? 'bg-green-500' : 'bg-gray-300'
+                          }`} />
                       )}
                     </div>
                   ))}
@@ -376,7 +446,7 @@ export const StudentApplicationPortal: React.FC = () => {
             </CardHeader>
 
             <CardBody>
-              {error && <Alert variant="danger" className="mb-4">{error}</Alert>}
+              {error && <Alert variant="error" className="mb-4">{error}</Alert>}
 
               {/* Étape 1: Sélection campagne */}
               {currentStep === 1 && (
@@ -415,7 +485,7 @@ export const StudentApplicationPortal: React.FC = () => {
               {currentStep === 2 && (
                 <div className="space-y-4">
                   <h2 className="text-xl font-semibold mb-4">Vos préférences</h2>
-                  
+
                   <RadioGroup
                     label="Type de demande"
                     name="type"
@@ -427,12 +497,78 @@ export const StudentApplicationPortal: React.FC = () => {
                     ]}
                   />
 
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Select
+                      label="Cycle d'études"
+                      value={formData.cycle}
+                      onChange={(value) => setFormData({ ...formData, cycle: value as any })}
+                      options={[
+                        { value: 'LICENCE', label: 'Licence (Max 3 ans)' },
+                        { value: 'MASTER', label: 'Master (Max 2 ans)' },
+                        { value: 'MEDECINE', label: 'Médecine (Max 8 ans)' },
+                        { value: 'DOCTORAT', label: 'Doctorat (Max 3 ans)' }
+                      ]}
+                    />
+                    <Input
+                      label="Année d'étude actuelle"
+                      type="number"
+                      min={1}
+                      max={8}
+                      value={formData.studyYear}
+                      onChange={(e) => setFormData({ ...formData, studyYear: parseInt(e.target.value) })}
+                    />
+                  </div>
+
+                  {formData.type === 'NOUVELLE' && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+                      <Input
+                        label="Série du BAC"
+                        placeholder="Ex: C, D, E, A..."
+                        value={formData.bacSeries}
+                        onChange={(e) => setFormData({ ...formData, bacSeries: e.target.value })}
+                        helperText="Priorité aux séries scientifiques (C, D, E)"
+                      />
+                      <Input
+                        label="Ville de résidence des parents"
+                        placeholder="Ex: Zinder, Maradi..."
+                        value={formData.cityOfResidence}
+                        onChange={(e) => setFormData({ ...formData, cityOfResidence: e.target.value })}
+                        helperText="Priorité aux non-résidents de la ville universitaire"
+                      />
+                      <div className="col-span-2">
+                        <label className="flex items-center space-x-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="form-checkbox h-5 w-5 text-blue-600 rounded"
+                            checked={formData.isScholarshipHolder}
+                            onChange={(e) => setFormData({ ...formData, isScholarshipHolder: e.target.checked })}
+                          />
+                          <span className="text-gray-700">Je certifie être boursier (Attestation requise)</span>
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
+                  {formData.type === 'RENOUVELLEMENT' && (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="form-checkbox h-5 w-5 text-blue-600 rounded"
+                          checked={formData.previousYearRentPaid}
+                          onChange={(e) => setFormData({ ...formData, previousYearRentPaid: e.target.checked })}
+                        />
+                        <span className="text-gray-700">Je certifie avoir payé l'intégralité de mon loyer l'année précédente</span>
+                      </label>
+                    </div>
+                  )}
+
                   <Select
                     label="Type de chambres préférées (plusieurs choix possibles)"
                     multiple
                     value={formData.typeChambresPreferees}
-                    onChange={(e) => {
-                      const options = Array.from(e.target.selectedOptions, option => option.value);
+                    onChange={(value) => {
+                      const options = Array.isArray(value) ? value.map(String) : [String(value)];
                       setFormData({ ...formData, typeChambresPreferees: options });
                     }}
                     options={[
@@ -458,12 +594,11 @@ export const StudentApplicationPortal: React.FC = () => {
                     </div>
                   )}
 
-                  <Input
+                  <Textarea
                     label="Observations (optionnel)"
                     placeholder="Précisions ou demandes particulières..."
                     value={formData.observations || ''}
                     onChange={(e) => setFormData({ ...formData, observations: e.target.value })}
-                    multiline
                     rows={3}
                   />
 
@@ -494,13 +629,13 @@ export const StudentApplicationPortal: React.FC = () => {
                   <div className="space-y-3">
                     {(formData.type === 'RENOUVELLEMENT'
                       ? [
-                          { type: 'rentReceipt', label: 'Quittance de loyer' },
-                          { type: 'enrollmentReceipt', label: 'Quittance d\'inscription' }
-                        ]
+                        { type: 'rentReceipt', label: 'Quittance de loyer' },
+                        { type: 'enrollmentReceipt', label: 'Quittance d\'inscription' }
+                      ]
                       : [
-                          { type: 'scholarshipProof', label: 'Attestation de bourse' },
-                          { type: 'enrollmentReceipt', label: 'Quittance d\'inscription' }
-                        ]
+                        { type: 'scholarshipProof', label: 'Attestation de bourse' },
+                        { type: 'enrollmentReceipt', label: 'Quittance d\'inscription' }
+                      ]
                     ).map(doc => {
                       const uploaded = documents.find(d => d.docType === doc.type);
                       const progress = uploadProgress[doc.type];
@@ -534,9 +669,9 @@ export const StudentApplicationPortal: React.FC = () => {
                                         if (file) handleUploadDocument(doc.type, file);
                                       }}
                                     />
-                                    <Button as="span" size="sm">
+                                    <div className={buttonVariants({ size: 'sm', variant: 'primary' })}>
                                       Choisir fichier
-                                    </Button>
+                                    </div>
                                   </label>
                                 )}
                               </div>
@@ -603,7 +738,7 @@ export const StudentApplicationPortal: React.FC = () => {
                         </>
                       ) : (
                         <>
-                          <Alert variant="danger">
+                          <Alert variant="error">
                             <XCircleIcon className="h-6 w-6" />
                             <span className="ml-2">Vous n'êtes pas éligible</span>
                           </Alert>
@@ -727,7 +862,7 @@ export const StudentApplicationPortal: React.FC = () => {
                         )}
 
                         {request.motifRejet && (
-                          <Alert variant="danger" className="mt-4">
+                          <Alert variant="error" className="mt-4">
                             Motif de rejet: {request.motifRejet}
                           </Alert>
                         )}
@@ -740,7 +875,7 @@ export const StudentApplicationPortal: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </Container>
+    </Container >
   );
 };
 

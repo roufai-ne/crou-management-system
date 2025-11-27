@@ -3,7 +3,7 @@ import { ModernDatePicker } from '@/components/ui/ModernDatePicker';
 import { ModernFileUpload } from '@/components/ui/ModernFileUpload';
 import { ModernAutocomplete } from '@/components/ui/ModernAutocomplete';
 import { ModernFormBuilder, FormSection } from '@/components/ui/ModernFormBuilder';
-import { ModernBadge } from '@/components/ui/ModernBadge';
+import { Badge } from '@/components/ui/Badge';
 import { Calendar, Upload, Search, FileEdit } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -30,7 +30,7 @@ export default function Sprint4Demo() {
   // Simulation recherche asynchrone
   const handleAsyncSearch = async (query: string) => {
     await new Promise(resolve => setTimeout(resolve, 800));
-    
+
     const mockResults = [
       { value: 'niamey', label: 'Université de Niamey', description: '1,234 étudiants' },
       { value: 'maradi', label: 'Université de Maradi', description: '856 étudiants' },
@@ -38,7 +38,7 @@ export default function Sprint4Demo() {
       { value: 'tahoua', label: 'Université de Tahoua', description: '423 étudiants' },
     ];
 
-    return mockResults.filter(r => 
+    return mockResults.filter(r =>
       r.label.toLowerCase().includes(query.toLowerCase())
     );
   };
@@ -158,7 +158,7 @@ export default function Sprint4Demo() {
           <h1 className="text-3xl font-bold text-gray-900">
             Sprint 4: Formulaires Avancés & Validation
           </h1>
-          <ModernBadge variant="success">100% Complete</ModernBadge>
+          <Badge variant="success">100% Complete</Badge>
         </div>
         <p className="text-gray-600">
           Composants pour la saisie de données complexes : dates, fichiers, recherche, formulaires dynamiques
@@ -218,7 +218,7 @@ export default function Sprint4Demo() {
           {/* Code Example */}
           <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
             <pre className="text-sm text-gray-800 overflow-x-auto">
-{`<ModernDatePicker
+              {`<ModernDatePicker
   label="Date de Naissance"
   value={selectedDate}
   onChange={setSelectedDate}
@@ -280,7 +280,7 @@ export default function Sprint4Demo() {
           {/* Code Example */}
           <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
             <pre className="text-sm text-gray-800 overflow-x-auto">
-{`<ModernFileUpload
+              {`<ModernFileUpload
   label="Photos d'Identité"
   value={files}
   onChange={setFiles}
@@ -341,7 +341,7 @@ export default function Sprint4Demo() {
           {/* Code Example */}
           <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
             <pre className="text-sm text-gray-800 overflow-x-auto">
-{`const handleAsyncSearch = async (query: string) => {
+              {`const handleAsyncSearch = async (query: string) => {
   const response = await fetch(\`/api/search?q=\${query}\`);
   return response.json();
 };
@@ -372,13 +372,13 @@ export default function Sprint4Demo() {
             sections={formSections}
             onSubmit={handleFormSubmit}
             onCancel={() => toast('Formulaire annulé')}
-            variant="gradient-crou"
+            variant="gradient"
           />
 
           {/* Code Example */}
           <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
             <pre className="text-sm text-gray-800 overflow-x-auto">
-{`const formSections: FormSection[] = [
+              {`const formSections: FormSection[] = [
   {
     title: 'Informations Personnelles',
     columns: 2,

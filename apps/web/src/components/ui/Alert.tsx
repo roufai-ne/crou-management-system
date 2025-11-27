@@ -19,20 +19,20 @@ const alertVariants = (props: {
   size?: 'sm' | 'md' | 'lg';
 }) => {
   const baseClasses = 'relative flex items-start gap-3 p-4 rounded-lg border transition-all duration-200';
-  
+
   const variantClasses = {
     info: 'bg-blue-50 border-blue-200 text-blue-800',
     success: 'bg-green-50 border-green-200 text-green-800',
     warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
     error: 'bg-red-50 border-red-200 text-red-800'
   };
-  
+
   const sizeClasses = {
     sm: 'text-sm',
     md: 'text-base',
     lg: 'text-lg'
   };
-  
+
   return cn(
     baseClasses,
     variantClasses[props.variant || 'info'],
@@ -41,7 +41,7 @@ const alertVariants = (props: {
 };
 
 // Interface des props
-interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'info' | 'success' | 'warning' | 'error';
   size?: 'sm' | 'md' | 'lg';
   title?: string;
@@ -95,7 +95,7 @@ export const Alert: React.FC<AlertProps> = ({
           {displayIcon}
         </div>
       )}
-      
+
       <div className="flex-1 min-w-0">
         {title && (
           <h3 className="font-medium mb-1">

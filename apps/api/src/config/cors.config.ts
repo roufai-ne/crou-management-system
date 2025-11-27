@@ -44,7 +44,11 @@ export const corsConfig: CorsOptions = {
 
       // Production
       'https://crou.niamey.gov.ne',
-      'https://admin.crou.niamey.gov.ne'
+      'https://admin.crou.niamey.gov.ne',
+      'https://crou.mesrit.com',
+      'http://crou.mesrit.com',
+      'https://www.crou.mesrit.com',
+      'http://www.crou.mesrit.com'
     ];
 
     // Lire les origines depuis les variables d'environnement

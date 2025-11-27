@@ -1,10 +1,10 @@
 import React from 'react';
-import { 
-  Plus, 
-  Save, 
-  Trash2, 
-  Download, 
-  Upload, 
+import {
+  Plus,
+  Save,
+  Trash2,
+  Download,
+  Upload,
   Search,
   Check,
   X,
@@ -12,10 +12,11 @@ import {
   Info,
   Bell,
   Settings,
-  ChevronRight
+  ChevronRight,
+  Mail
 } from 'lucide-react';
-import { ModernButton, ModernIconButton, ModernButtonGroup } from '@/components/ui/ModernButton';
-import { ModernBadge, ModernBadgeGroup, StatusBadge, CounterBadge } from '@/components/ui/ModernBadge';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
 
 /**
  * ComponentShowcase - Démonstration des composants Button et Badge
@@ -25,7 +26,7 @@ import { ModernBadge, ModernBadgeGroup, StatusBadge, CounterBadge } from '@/comp
  */
 const ComponentShowcase: React.FC = () => {
   const [loading, setLoading] = React.useState(false);
-  
+
   const handleClick = () => {
     setLoading(true);
     setTimeout(() => setLoading(false), 2000);
@@ -57,12 +58,12 @@ const ComponentShowcase: React.FC = () => {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">Variants</h3>
             <div className="flex flex-wrap gap-3">
-              <ModernButton variant="primary">Primary</ModernButton>
-              <ModernButton variant="accent">Accent</ModernButton>
-              <ModernButton variant="gradient-crou">Gradient CROU</ModernButton>
-              <ModernButton variant="outline">Outline</ModernButton>
-              <ModernButton variant="ghost">Ghost</ModernButton>
-              <ModernButton variant="danger">Danger</ModernButton>
+              <Button variant="primary">Primary</Button>
+              <Button variant="warning">Accent</Button>
+              <Button variant="gradient">Gradient CROU</Button>
+              <Button variant="outline">Outline</Button>
+              <Button variant="ghost">Ghost</Button>
+              <Button variant="danger">Danger</Button>
             </div>
           </div>
 
@@ -70,9 +71,9 @@ const ComponentShowcase: React.FC = () => {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">Tailles</h3>
             <div className="flex flex-wrap items-center gap-3">
-              <ModernButton variant="gradient-crou" size="sm">Small</ModernButton>
-              <ModernButton variant="gradient-crou" size="md">Medium</ModernButton>
-              <ModernButton variant="gradient-crou" size="lg">Large</ModernButton>
+              <Button variant="gradient" size="sm">Small</Button>
+              <Button variant="gradient" size="md">Medium</Button>
+              <Button variant="gradient" size="lg">Large</Button>
             </div>
           </div>
 
@@ -80,24 +81,24 @@ const ComponentShowcase: React.FC = () => {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">Avec Icônes</h3>
             <div className="flex flex-wrap gap-3">
-              <ModernButton variant="gradient-crou" icon={Plus} iconPosition="left">
+              <Button variant="gradient" leftIcon={<Plus className="w-4 h-4" />}>
                 Ajouter
-              </ModernButton>
-              <ModernButton variant="primary" icon={Save} iconPosition="left">
+              </Button>
+              <Button variant="primary" leftIcon={<Save className="w-4 h-4" />}>
                 Sauvegarder
-              </ModernButton>
-              <ModernButton variant="accent" icon={Download} iconPosition="left">
+              </Button>
+              <Button variant="warning" leftIcon={<Download className="w-4 h-4" />}>
                 Télécharger
-              </ModernButton>
-              <ModernButton variant="outline" icon={Search} iconPosition="left">
+              </Button>
+              <Button variant="outline" leftIcon={<Search className="w-4 h-4" />}>
                 Rechercher
-              </ModernButton>
-              <ModernButton variant="danger" icon={Trash2} iconPosition="left">
+              </Button>
+              <Button variant="danger" leftIcon={<Trash2 className="w-4 h-4" />}>
                 Supprimer
-              </ModernButton>
-              <ModernButton variant="ghost" icon={ChevronRight} iconPosition="right">
+              </Button>
+              <Button variant="ghost" rightIcon={<ChevronRight className="w-4 h-4" />}>
                 Suivant
-              </ModernButton>
+              </Button>
             </div>
           </div>
 
@@ -105,12 +106,12 @@ const ComponentShowcase: React.FC = () => {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">État de Chargement</h3>
             <div className="flex flex-wrap gap-3">
-              <ModernButton variant="gradient-crou" loading={loading} onClick={handleClick}>
+              <Button variant="gradient" loading={loading} onClick={handleClick}>
                 {loading ? 'Chargement...' : 'Cliquer pour charger'}
-              </ModernButton>
-              <ModernButton variant="primary" loading>
+              </Button>
+              <Button variant="primary" loading>
                 Sauvegarde en cours...
-              </ModernButton>
+              </Button>
             </div>
           </div>
 
@@ -118,11 +119,11 @@ const ComponentShowcase: React.FC = () => {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">Boutons Icône</h3>
             <div className="flex flex-wrap items-center gap-3">
-              <ModernIconButton icon={Plus} variant="gradient-crou" aria-label="Ajouter" />
-              <ModernIconButton icon={Settings} variant="primary" aria-label="Paramètres" />
-              <ModernIconButton icon={Bell} variant="accent" aria-label="Notifications" />
-              <ModernIconButton icon={Search} variant="outline" aria-label="Rechercher" />
-              <ModernIconButton icon={Trash2} variant="danger" size="sm" aria-label="Supprimer" />
+              <Button iconOnly variant="gradient" aria-label="Ajouter"><Plus className="w-5 h-5" /></Button>
+              <Button iconOnly variant="primary" aria-label="Paramètres"><Settings className="w-5 h-5" /></Button>
+              <Button iconOnly variant="warning" aria-label="Notifications"><Bell className="w-5 h-5" /></Button>
+              <Button iconOnly variant="outline" aria-label="Rechercher"><Search className="w-5 h-5" /></Button>
+              <Button iconOnly variant="danger" size="sm" aria-label="Supprimer"><Trash2 className="w-4 h-4" /></Button>
             </div>
           </div>
 
@@ -130,27 +131,27 @@ const ComponentShowcase: React.FC = () => {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">Groupes de Boutons</h3>
             <div className="space-y-3">
-              <ModernButtonGroup>
-                <ModernButton variant="outline">Jour</ModernButton>
-                <ModernButton variant="outline">Semaine</ModernButton>
-                <ModernButton variant="gradient-crou">Mois</ModernButton>
-                <ModernButton variant="outline">Année</ModernButton>
-              </ModernButtonGroup>
-              
-              <ModernButtonGroup orientation="vertical">
-                <ModernButton variant="outline" icon={Download}>Export PDF</ModernButton>
-                <ModernButton variant="outline" icon={Download}>Export Excel</ModernButton>
-                <ModernButton variant="outline" icon={Download}>Export CSV</ModernButton>
-              </ModernButtonGroup>
+              <div className="flex flex-wrap gap-2">
+                <Button variant="outline">Jour</Button>
+                <Button variant="outline">Semaine</Button>
+                <Button variant="gradient">Mois</Button>
+                <Button variant="outline">Année</Button>
+              </div>
+
+              <div className="flex flex-col gap-2 w-48">
+                <Button variant="outline" leftIcon={<Download className="w-4 h-4" />}>Export PDF</Button>
+                <Button variant="outline" leftIcon={<Download className="w-4 h-4" />}>Export Excel</Button>
+                <Button variant="outline" leftIcon={<Download className="w-4 h-4" />}>Export CSV</Button>
+              </div>
             </div>
           </div>
 
           {/* Full Width */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">Largeur Pleine</h3>
-            <ModernButton variant="gradient-crou" icon={Upload} fullWidth>
+            <Button variant="gradient" leftIcon={<Upload className="w-4 h-4" />} fullWidth>
               Téléverser un fichier
-            </ModernButton>
+            </Button>
           </div>
         </section>
 
@@ -166,98 +167,98 @@ const ComponentShowcase: React.FC = () => {
           {/* Badge Variants */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">Variants</h3>
-            <ModernBadgeGroup>
-              <ModernBadge variant="primary">Primary</ModernBadge>
-              <ModernBadge variant="accent">Accent</ModernBadge>
-              <ModernBadge variant="gradient-crou">Gradient CROU</ModernBadge>
-              <ModernBadge variant="success">Success</ModernBadge>
-              <ModernBadge variant="warning">Warning</ModernBadge>
-              <ModernBadge variant="danger">Danger</ModernBadge>
-              <ModernBadge variant="info">Info</ModernBadge>
-              <ModernBadge variant="neutral">Neutral</ModernBadge>
-            </ModernBadgeGroup>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="primary">Primary</Badge>
+              <Badge variant="accent">Accent</Badge>
+              <Badge variant="gradient">Gradient CROU</Badge>
+              <Badge variant="success">Success</Badge>
+              <Badge variant="warning">Warning</Badge>
+              <Badge variant="danger">Danger</Badge>
+              <Badge variant="info">Info</Badge>
+              <Badge variant="neutral">Neutral</Badge>
+            </div>
           </div>
 
           {/* Badge Sizes */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">Tailles</h3>
-            <ModernBadgeGroup>
-              <ModernBadge variant="gradient-crou" size="sm">Small</ModernBadge>
-              <ModernBadge variant="gradient-crou" size="md">Medium</ModernBadge>
-              <ModernBadge variant="gradient-crou" size="lg">Large</ModernBadge>
-            </ModernBadgeGroup>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="gradient" size="sm">Small</Badge>
+              <Badge variant="gradient" size="md">Medium</Badge>
+              <Badge variant="gradient" size="lg">Large</Badge>
+            </div>
           </div>
 
           {/* Badges with Glow */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">Avec Effet Glow</h3>
-            <ModernBadgeGroup>
-              <ModernBadge variant="primary" glow>Primary Glow</ModernBadge>
-              <ModernBadge variant="accent" glow>Accent Glow</ModernBadge>
-              <ModernBadge variant="gradient-crou" glow>CROU Glow</ModernBadge>
-              <ModernBadge variant="success" glow>Success Glow</ModernBadge>
-              <ModernBadge variant="danger" glow>Danger Glow</ModernBadge>
-            </ModernBadgeGroup>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="primary" glow>Primary Glow</Badge>
+              <Badge variant="accent" glow>Accent Glow</Badge>
+              <Badge variant="gradient" glow>CROU Glow</Badge>
+              <Badge variant="success" glow>Success Glow</Badge>
+              <Badge variant="danger" glow>Danger Glow</Badge>
+            </div>
           </div>
 
           {/* Outline Badges */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">Style Outline</h3>
-            <ModernBadgeGroup>
-              <ModernBadge variant="primary" outline>Primary</ModernBadge>
-              <ModernBadge variant="accent" outline>Accent</ModernBadge>
-              <ModernBadge variant="gradient-crou" outline>CROU</ModernBadge>
-              <ModernBadge variant="success" outline>Success</ModernBadge>
-              <ModernBadge variant="danger" outline>Danger</ModernBadge>
-            </ModernBadgeGroup>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="primary" outline>Primary</Badge>
+              <Badge variant="accent" outline>Accent</Badge>
+              <Badge variant="gradient" outline>CROU</Badge>
+              <Badge variant="success" outline>Success</Badge>
+              <Badge variant="danger" outline>Danger</Badge>
+            </div>
           </div>
 
           {/* Badges with Icons */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">Avec Icônes</h3>
-            <ModernBadgeGroup>
-              <ModernBadge variant="success" icon={Check}>Validé</ModernBadge>
-              <ModernBadge variant="danger" icon={X}>Rejeté</ModernBadge>
-              <ModernBadge variant="warning" icon={AlertCircle}>Attention</ModernBadge>
-              <ModernBadge variant="info" icon={Info}>Information</ModernBadge>
-              <ModernBadge variant="gradient-crou" icon={ChevronRight} iconPosition="right">
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="success" icon={Check}>Validé</Badge>
+              <Badge variant="danger" icon={X}>Rejeté</Badge>
+              <Badge variant="warning" icon={AlertCircle}>Attention</Badge>
+              <Badge variant="info" icon={Info}>Information</Badge>
+              <Badge variant="gradient" icon={ChevronRight} iconPosition="right">
                 Continuer
-              </ModernBadge>
-            </ModernBadgeGroup>
+              </Badge>
+            </div>
           </div>
 
           {/* Badges with Dot */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">Avec Point Indicateur</h3>
-            <ModernBadgeGroup>
-              <ModernBadge variant="success" dot>En ligne</ModernBadge>
-              <ModernBadge variant="warning" dot>Occupé</ModernBadge>
-              <ModernBadge variant="danger" dot>Hors ligne</ModernBadge>
-              <ModernBadge variant="gradient-crou" dot glow>Actif</ModernBadge>
-            </ModernBadgeGroup>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="success" dot>En ligne</Badge>
+              <Badge variant="warning" dot>Occupé</Badge>
+              <Badge variant="danger" dot>Hors ligne</Badge>
+              <Badge variant="gradient" dot glow>Actif</Badge>
+            </div>
           </div>
 
           {/* Status Badges */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">Badges de Statut (Preset)</h3>
-            <ModernBadgeGroup>
-              <StatusBadge status="pending" />
-              <StatusBadge status="processing" />
-              <StatusBadge status="approved" />
-              <StatusBadge status="rejected" />
-              <StatusBadge status="completed" glow />
-            </ModernBadgeGroup>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="warning" dot>En attente</Badge>
+              <Badge variant="info" dot>En cours</Badge>
+              <Badge variant="success" dot>Approuvé</Badge>
+              <Badge variant="danger" dot>Rejeté</Badge>
+              <Badge variant="gradient" dot glow>Terminé</Badge>
+            </div>
           </div>
 
           {/* Counter Badges */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">Badges Compteur</h3>
-            <ModernBadgeGroup>
-              <CounterBadge count={3} variant="danger" />
-              <CounterBadge count={12} variant="primary" />
-              <CounterBadge count={99} variant="accent" />
-              <CounterBadge count={150} variant="gradient-crou" max={99} />
-            </ModernBadgeGroup>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="danger" size="sm" rounded>3</Badge>
+              <Badge variant="primary" size="sm" rounded>12</Badge>
+              <Badge variant="accent" size="sm" rounded>99</Badge>
+              <Badge variant="gradient" size="sm" rounded>99+</Badge>
+            </div>
           </div>
         </section>
 
@@ -277,25 +278,25 @@ const ComponentShowcase: React.FC = () => {
                 <h3 className="text-lg font-semibold text-gray-900">Demande d'Hébergement #12345</h3>
                 <p className="text-sm text-gray-600 mt-1">Étudiant: Amadou Diallo • Chambre: B204</p>
               </div>
-              <StatusBadge status="pending" />
+              <Badge variant="warning" dot>En attente</Badge>
             </div>
-            
-            <ModernBadgeGroup spacing="tight">
-              <ModernBadge variant="gradient-crou" size="sm">Prioritaire</ModernBadge>
-              <ModernBadge variant="info" size="sm">1ère année</ModernBadge>
-              <ModernBadge variant="neutral" size="sm">CROU Niamey</ModernBadge>
-            </ModernBadgeGroup>
+
+            <div className="flex flex-wrap gap-1">
+              <Badge variant="gradient" size="sm">Prioritaire</Badge>
+              <Badge variant="info" size="sm">1ère année</Badge>
+              <Badge variant="neutral" size="sm">CROU Niamey</Badge>
+            </div>
 
             <div className="flex gap-2 pt-2">
-              <ModernButton variant="gradient-crou" size="sm" icon={Check}>
+              <Button variant="gradient" size="sm" leftIcon={<Check className="w-3 h-3" />}>
                 Approuver
-              </ModernButton>
-              <ModernButton variant="outline" size="sm" icon={X}>
+              </Button>
+              <Button variant="outline" size="sm" leftIcon={<X className="w-3 h-3" />}>
                 Rejeter
-              </ModernButton>
-              <ModernButton variant="ghost" size="sm" icon={Info}>
+              </Button>
+              <Button variant="ghost" size="sm" leftIcon={<Info className="w-3 h-3" />}>
                 Détails
-              </ModernButton>
+              </Button>
             </div>
           </div>
 
@@ -306,22 +307,22 @@ const ComponentShowcase: React.FC = () => {
                 <h3 className="text-lg font-semibold text-gray-900">Ticket Restauration #98765</h3>
                 <p className="text-sm text-gray-600 mt-1">Type: Déjeuner • Restaurant: RU Niamey</p>
               </div>
-              <StatusBadge status="completed" glow />
+              <Badge variant="gradient" dot glow>Terminé</Badge>
             </div>
-            
+
             <div className="flex items-center gap-4">
-              <ModernBadge variant="success" icon={Check}>Validé</ModernBadge>
-              <ModernBadge variant="gradient-crou" outline>250 FCFA</ModernBadge>
-              <ModernBadge variant="neutral" size="sm">Subvention 80%</ModernBadge>
+              <Badge variant="success" icon={Check}>Validé</Badge>
+              <Badge variant="gradient" outline>250 FCFA</Badge>
+              <Badge variant="neutral" size="sm">Subvention 80%</Badge>
             </div>
 
             <div className="flex gap-2 pt-2">
-              <ModernButton variant="outline" size="sm" icon={Download}>
+              <Button variant="outline" size="sm" leftIcon={<Download className="w-3 h-3" />}>
                 Télécharger PDF
-              </ModernButton>
-              <ModernButton variant="ghost" size="sm" icon={Info}>
+              </Button>
+              <Button variant="ghost" size="sm" leftIcon={<Info className="w-3 h-3" />}>
                 Historique
-              </ModernButton>
+              </Button>
             </div>
           </div>
 
@@ -329,27 +330,27 @@ const ComponentShowcase: React.FC = () => {
           <div className="border-2 border-gray-200 rounded-xl p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900">Centre de Notifications</h3>
-              <ModernIconButton icon={Bell} variant="gradient-crou" aria-label="Notifications" />
+              <Button iconOnly variant="gradient" aria-label="Notifications"><Bell className="w-5 h-5" /></Button>
             </div>
-            
+
             <div className="space-y-3">
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <CounterBadge count={5} variant="danger" />
+                <Badge variant="danger" size="sm" rounded>5</Badge>
                 <span className="text-sm text-gray-700">Demandes en attente de validation</span>
               </div>
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <CounterBadge count={12} variant="primary" />
+                <Badge variant="primary" size="sm" rounded>12</Badge>
                 <span className="text-sm text-gray-700">Nouveaux tickets de transport</span>
               </div>
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <CounterBadge count={3} variant="accent" />
+                <Badge variant="accent" size="sm" rounded>3</Badge>
                 <span className="text-sm text-gray-700">Rapports à approuver</span>
               </div>
             </div>
 
-            <ModernButton variant="gradient-crou" icon={Check} fullWidth>
+            <Button variant="gradient" leftIcon={<Check className="w-4 h-4" />} fullWidth>
               Tout marquer comme lu
-            </ModernButton>
+            </Button>
           </div>
         </section>
 

@@ -30,12 +30,23 @@ import { ModernCROUDashboard } from '@/components/dashboard/ModernCROUDashboard'
 
 
 // Composant principal DashboardPage
+const StudentApplicationPortal = React.lazy(() => import('@/pages/housing/StudentApplicationPortal'));
+
 export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
 
   // Afficher un écran de chargement si l'utilisateur n'est pas encore chargé
   if (!user) {
     return <LoadingScreen />;
+  }
+
+  // Si c'est un étudiant, afficher directement le portail de demande
+  if (user.role === 'Etudiant') {
+    return (
+      <React.Suspense fallback={<LoadingScreen />}>
+        <StudentApplicationPortal />
+      </React.Suspense>
+    );
   }
 
   return (

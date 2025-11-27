@@ -31,6 +31,7 @@ export type UserRole =
   | 'Gestionnaire Transport'
   | 'Comptable'
   | 'Utilisateur'
+  | 'Etudiant'
   // Types legacy pour compatibilité
   | 'admin'
   | 'manager'

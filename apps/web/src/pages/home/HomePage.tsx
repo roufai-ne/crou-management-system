@@ -23,7 +23,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Home, Package, Bus, CreditCard, Users, Building, CheckCircle, ArrowRight } from 'lucide-react';
 import ModernCarousel, { CarouselItem } from '@/components/ui/ModernCarousel';
-import ModernButton from '@/components/ui/ModernButton';
+import { Button } from '@/components/ui/Button';
 
 export const HomePage: React.FC = () => {
   // Carousel items - Services du CROU
@@ -137,14 +137,14 @@ export const HomePage: React.FC = () => {
               </div>
             </div>
             <Link to="/register">
-              <ModernButton
+              <Button
                 variant="outline"
                 size="lg"
                 className="border-2 border-white text-white hover:bg-white hover:text-purple-600"
+                rightIcon={<ArrowRight className="w-5 h-5" />}
               >
                 Commencer maintenant
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </ModernButton>
+              </Button>
             </Link>
           </div>
         </div>
@@ -376,21 +376,21 @@ export const HomePage: React.FC = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/register">
-              <ModernButton
-                variant="gradient-crou"
+              <Button
+                variant="gradient"
                 size="lg"
+                rightIcon={<ArrowRight className="w-5 h-5" />}
               >
                 S'inscrire maintenant
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </ModernButton>
+              </Button>
             </Link>
             <Link to="/help">
-              <ModernButton
+              <Button
                 variant="outline"
                 size="lg"
               >
                 En savoir plus
-              </ModernButton>
+              </Button>
             </Link>
           </div>
         </div>

@@ -21,7 +21,8 @@
  */
 
 import React, { useState } from 'react';
-import { Container, Tabs } from '@/components/ui';
+import { Container } from '@/components/ui';
+import ModernTabs, { Tab } from '@/components/ui/ModernTabs';
 import {
   ChartBarIcon,
   BuildingStorefrontIcon,
@@ -46,37 +47,37 @@ export const RestaurationPage: React.FC = () => {
     {
       id: 'dashboard',
       label: 'Dashboard',
-      icon: <ChartBarIcon className="h-4 w-4" />,
+      icon: ChartBarIcon,
       content: <DashboardTab />
     },
     {
       id: 'restaurants',
       label: 'Restaurants',
-      icon: <BuildingStorefrontIcon className="h-4 w-4" />,
+      icon: BuildingStorefrontIcon,
       content: <RestaurantsTab />
     },
     {
       id: 'menus',
       label: 'Menus',
-      icon: <DocumentTextIcon className="h-4 w-4" />,
+      icon: DocumentTextIcon,
       content: <MenusTab />
     },
     {
       id: 'tickets',
       label: 'Tickets Repas',
-      icon: <TicketIcon className="h-4 w-4" />,
+      icon: TicketIcon,
       content: <TicketsRestaurationTab />
     },
     {
       id: 'repas',
       label: 'Services Repas',
-      icon: <CakeIcon className="h-4 w-4" />,
+      icon: CakeIcon,
       content: <RepasTab />
     },
     {
       id: 'denrees',
       label: 'Denrées',
-      icon: <CubeIcon className="h-4 w-4" />,
+      icon: CubeIcon,
       content: <DenreesTab />
     }
   ];
@@ -96,12 +97,11 @@ export const RestaurationPage: React.FC = () => {
       </div>
 
       {/* Tabs de navigation */}
-      <Tabs
+      <ModernTabs
         tabs={tabs}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
+        defaultTab="dashboard"
         variant="pills"
-        className="space-y-8"
+        animated
       />
     </Container>
   );

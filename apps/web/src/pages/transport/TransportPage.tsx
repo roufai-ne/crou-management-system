@@ -20,7 +20,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Container, Card, Badge, Button, Table, Modal, Input, Select, DateInput, Tabs } from '@/components/ui';
+import { Container, Card, Badge, Button, Table, Modal, Input, Select, DateInput } from '@/components/ui';
+import ModernTabs, { Tab } from '@/components/ui/ModernTabs';
 import {
   PlusIcon,
   MagnifyingGlassIcon,
@@ -49,6 +50,11 @@ import {
 import { Vehicle, Driver, Route, ScheduledTrip, MaintenanceRecord } from '@/services/api/transportService';
 import { ExportButton } from '@/components/reports/ExportButton';
 import { TicketsTransportTab } from '@/components/transport/TicketsTransportTab';
+import { CircuitsTab } from '@/components/transport/CircuitsTab';
+import { ChauffeursTab } from '@/components/transport/ChauffeursTab';
+import { MaintenanceTab } from '@/components/transport/MaintenanceTab';
+import { TrajetsTab } from '@/components/transport/TrajetsTab';
+import { VehiclesTab } from '@/components/transport/VehiclesTab';
 
 export const TransportPage: React.FC = () => {
   const { user } = useAuth();
@@ -623,208 +629,38 @@ export const TransportPage: React.FC = () => {
     {
       id: 'tickets',
       label: 'Tickets Transport',
-      icon: <TicketIcon className="h-4 w-4" />,
+      icon: TicketIcon,
       content: <TicketsTransportTab />
     },
     {
       id: 'vehicles',
       label: 'Véhicules',
-      icon: <TruckIcon className="h-4 w-4" />,
-      content: (
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Parc de Véhicules</h3>
-            <Button
-              onClick={() => {
-                setModalType('vehicle');
-                setIsCreateModalOpen(true);
-              }}
-              leftIcon={<PlusIcon className="h-4 w-4" />}
-            >
-              Nouveau Véhicule
-            </Button>
-          </div>
-
-          <Card>
-            <Card.Header>
-              <Card.Title>Liste des Véhicules ({vehicles.length})</Card.Title>
-            </Card.Header>
-            <Card.Content>
-              <Table
-                data={vehicles}
-                columns={vehicleColumns}
-                loading={vehiclesLoading}
-                emptyMessage="Aucun véhicule trouvé"
-                onRowClick={(item) => {
-                  setSelectedItem(item);
-                  setModalType('vehicle');
-                  setIsEditModalOpen(true);
-                }}
-              />
-            </Card.Content>
-          </Card>
-        </div>
-      )
+      icon: TruckIcon,
+      content: <VehiclesTab />
     },
-    { 
-      id: 'drivers', 
-      label: 'Chauffeurs', 
-      icon: <UserGroupIcon className="h-4 w-4" />,
-      content: (
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Chauffeurs</h3>
-            <Button
-              onClick={() => {
-                setModalType('driver');
-                setIsCreateModalOpen(true);
-              }}
-              leftIcon={<PlusIcon className="h-4 w-4" />}
-            >
-              Nouveau Chauffeur
-            </Button>
-          </div>
-
-          <Card>
-            <Card.Header>
-              <Card.Title>Liste des Chauffeurs ({drivers.length})</Card.Title>
-            </Card.Header>
-            <Card.Content>
-              <Table
-                data={drivers}
-                columns={driverColumns}
-                loading={driversLoading}
-                emptyMessage="Aucun chauffeur trouvé"
-                onRowClick={(item) => {
-                  setSelectedItem(item);
-                  setModalType('driver');
-                  setIsEditModalOpen(true);
-                }}
-              />
-            </Card.Content>
-          </Card>
-        </div>
-      )
+    {
+      id: 'chauffeurs',
+      label: 'Chauffeurs',
+      icon: UserGroupIcon,
+      content: <ChauffeursTab />
     },
-    { 
-      id: 'routes', 
-      label: 'Routes', 
-      icon: <MapIcon className="h-4 w-4" />,
-      content: (
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Routes</h3>
-            <Button
-              onClick={() => {
-                setModalType('route');
-                setIsCreateModalOpen(true);
-              }}
-              leftIcon={<PlusIcon className="h-4 w-4" />}
-            >
-              Nouvelle Route
-            </Button>
-          </div>
-
-          <Card>
-            <Card.Header>
-              <Card.Title>Liste des Routes ({routes.length})</Card.Title>
-            </Card.Header>
-            <Card.Content>
-              <Table
-                data={routes}
-                columns={routeColumns}
-                loading={routesLoading}
-                emptyMessage="Aucune route trouvée"
-                onRowClick={(item) => {
-                  setSelectedItem(item);
-                  setModalType('route');
-                  setIsEditModalOpen(true);
-                }}
-              />
-            </Card.Content>
-          </Card>
-        </div>
-      )
+    {
+      id: 'circuits',
+      label: 'Circuits',
+      icon: MapIcon,
+      content: <CircuitsTab />
     },
-    { 
-      id: 'trips', 
-      label: 'Trajets', 
-      icon: <ClockIcon className="h-4 w-4" />,
-      content: (
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Trajets Programmés</h3>
-            <Button
-              onClick={() => {
-                setModalType('trip');
-                setIsCreateModalOpen(true);
-              }}
-              leftIcon={<PlusIcon className="h-4 w-4" />}
-            >
-              Nouveau Trajet
-            </Button>
-          </div>
-
-          <Card>
-            <Card.Header>
-              <Card.Title>Liste des Trajets ({scheduledTrips.length})</Card.Title>
-            </Card.Header>
-            <Card.Content>
-              <Table
-                data={scheduledTrips}
-                columns={tripColumns}
-                loading={tripsLoading}
-                emptyMessage="Aucun trajet trouvé"
-                onRowClick={(item) => {
-                  setSelectedItem(item);
-                  setModalType('trip');
-                  setIsEditModalOpen(true);
-                }}
-              />
-            </Card.Content>
-          </Card>
-        </div>
-      )
+    {
+      id: 'trips',
+      label: 'Trajets',
+      icon: ClockIcon,
+      content: <TrajetsTab />
     },
-    { 
-      id: 'maintenance', 
-      label: 'Maintenance', 
-      icon: <WrenchScrewdriverIcon className="h-4 w-4" />,
-      content: (
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Maintenance</h3>
-            <Button
-              onClick={() => {
-                setModalType('maintenance');
-                setIsCreateModalOpen(true);
-              }}
-              leftIcon={<PlusIcon className="h-4 w-4" />}
-            >
-              Nouvelle Maintenance
-            </Button>
-          </div>
-
-          <Card>
-            <Card.Header>
-              <Card.Title>Liste des Maintenances ({maintenanceRecords.length})</Card.Title>
-            </Card.Header>
-            <Card.Content>
-              <Table
-                data={maintenanceRecords}
-                columns={maintenanceColumns}
-                loading={maintenanceLoading}
-                emptyMessage="Aucune maintenance trouvée"
-                onRowClick={(item) => {
-                  setSelectedItem(item);
-                  setModalType('maintenance');
-                  setIsEditModalOpen(true);
-                }}
-              />
-            </Card.Content>
-          </Card>
-        </div>
-      )
+    {
+      id: 'maintenance',
+      label: 'Maintenance',
+      icon: WrenchScrewdriverIcon,
+      content: <MaintenanceTab />
     }
   ];
 
@@ -913,12 +749,11 @@ export const TransportPage: React.FC = () => {
       </div>
 
       {/* Tabs de navigation */}
-      <Tabs
+      <ModernTabs
         tabs={tabs}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
+        defaultTab="tickets"
         variant="pills"
-        className="space-y-8"
+        animated
       />
 
       {/* Modales */}
