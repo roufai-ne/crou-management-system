@@ -78,7 +78,7 @@ export class Bed {
   @IsString()
   notes: string; // Notes internes
 
-  @Column({ type: 'boolean', default: true })
+  @Column({ name: 'is_active', type: 'boolean', default: true })
   @IsBoolean()
   isActive: boolean; // Lit actif
 

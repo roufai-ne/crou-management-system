@@ -291,6 +291,178 @@ router.get('/metrics',
 );
 
 /**
+ * GET /api/housing/complexes
+ * Liste des cités universitaires (alias pour GET /api/housing)
+ */
+router.get('/complexes',
+  authenticateJWT,
+  checkPermissions(['housing:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
+  auditMiddleware({ enabled: true }),
+  async (req: Request, res: Response) => {
+    try {
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
+      const hasExtendedAccess = TenantIsolationUtils.hasExtendedAccess(req);
+
+      const statusParam = req.query.status as string;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const offset = (page - 1) * limit;
+
+      const housingRepository = AppDataSource.getRepository(Housing);
+      const queryBuilder = housingRepository.createQueryBuilder('housing')
+        .leftJoinAndSelect('housing.tenant', 'tenant')
+        .select([
+          'housing.id',
+          'housing.code',
+          'housing.nom',
+          'housing.type',
+          'housing.category',
+          'housing.status',
+          'housing.adresse',
+          'housing.nombreChambres',
+          'housing.capaciteTotale',
+          'housing.occupationActuelle',
+          'housing.tauxOccupation',
+          'tenant.id',
+          'tenant.name'
+        ]);
+
+      // Filter by tenant
+      if (!hasExtendedAccess && tenantContext) {
+        queryBuilder.where('housing.tenantId = :tenantId', { tenantId: tenantContext.tenantId });
+      }
+
+      // Filter by status
+      if (statusParam && statusParam !== 'all') {
+        queryBuilder.andWhere('housing.status = :status', { status: statusParam });
+      }
+
+      queryBuilder
+        .orderBy('housing.nom', 'ASC')
+        .skip(offset)
+        .take(limit);
+
+      const [complexes, total] = await queryBuilder.getManyAndCount();
+
+      res.json({
+        success: true,
+        data: {
+          complexes,
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit)
+        }
+      });
+    } catch (error) {
+      logger.error('Erreur récupération complexes:', error);
+      res.status(500).json({
+        error: 'Erreur serveur',
+        message: 'Erreur lors de la récupération des cités',
+        statusCode: 500
+      });
+    }
+  }
+);
+
+/**
+ * GET /api/housing/residents
+ * Liste des résidents (occupations actives)
+ */
+router.get('/residents',
+  authenticateJWT,
+  checkPermissions(['housing:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
+  auditMiddleware({ enabled: true }),
+  async (req: Request, res: Response) => {
+    try {
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
+      const hasExtendedAccess = TenantIsolationUtils.hasExtendedAccess(req);
+
+      const complexId = req.query.complexId as string;
+      const status = req.query.status as string;
+      const paymentStatus = req.query.paymentStatus as string;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const offset = (page - 1) * limit;
+
+      const occupancyRepository = AppDataSource.getRepository(HousingOccupancy);
+      const queryBuilder = occupancyRepository.createQueryBuilder('occupancy')
+        .leftJoinAndSelect('occupancy.student', 'student')
+        .leftJoinAndSelect('occupancy.bed', 'bed')
+        .leftJoinAndSelect('occupancy.room', 'room')
+        .leftJoinAndSelect('occupancy.housing', 'housing')
+        .select([
+          'occupancy.id',
+          'occupancy.startDate',
+          'occupancy.endDate',
+          'occupancy.status',
+          'occupancy.monthlyRent',
+          'occupancy.isRentPaid',
+          'student.id',
+          'student.matricule',
+          'student.nom',
+          'student.prenom',
+          'student.email',
+          'bed.id',
+          'bed.number',
+          'room.id',
+          'room.numero',
+          'housing.id',
+          'housing.nom'
+        ]);
+
+      // Filter by tenant
+      if (!hasExtendedAccess && tenantContext) {
+        queryBuilder.where('occupancy.tenantId = :tenantId', { tenantId: tenantContext.tenantId });
+      }
+
+      // Filter by complex
+      if (complexId && complexId !== 'all') {
+        queryBuilder.andWhere('occupancy.housingId = :housingId', { housingId: complexId });
+      }
+
+      // Filter by status
+      if (status && status !== 'all') {
+        queryBuilder.andWhere('occupancy.status = :status', { status });
+      }
+
+      // Filter by payment status
+      if (paymentStatus && paymentStatus !== 'all') {
+        const isPaid = paymentStatus === 'paid';
+        queryBuilder.andWhere('occupancy.isRentPaid = :isPaid', { isPaid });
+      }
+
+      queryBuilder
+        .orderBy('student.nom', 'ASC')
+        .skip(offset)
+        .take(limit);
+
+      const [residents, total] = await queryBuilder.getManyAndCount();
+
+      res.json({
+        success: true,
+        data: {
+          residents,
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit)
+        }
+      });
+    } catch (error) {
+      logger.error('Erreur récupération résidents:', error);
+      res.status(500).json({
+        error: 'Erreur serveur',
+        message: 'Erreur lors de la récupération des résidents',
+        statusCode: 500
+      });
+    }
+  }
+);
+
+/**
  * GET /api/housing/maintenance
  * Liste des demandes de maintenance
  */
@@ -377,7 +549,6 @@ router.get('/:id',
       const queryBuilder = housingRepository.createQueryBuilder('housing')
         .leftJoinAndSelect('housing.tenant', 'tenant')
         .leftJoinAndSelect('housing.rooms', 'rooms')
-        .leftJoinAndSelect('housing.occupancies', 'occupancies')
         .where('housing.id = :housingId', { housingId });
 
       // Si pas d'accès étendu, vérifier le tenant
@@ -621,7 +792,6 @@ router.delete('/:id',
 
       const housingRepository = AppDataSource.getRepository(Housing);
       const queryBuilder = housingRepository.createQueryBuilder('housing')
-        .leftJoinAndSelect('housing.occupancies', 'occupancies')
         .where('housing.id = :housingId', { housingId });
 
       // Si pas d'accès étendu, vérifier le tenant
@@ -640,10 +810,16 @@ router.delete('/:id',
         });
       }
 
-      // Vérifier s'il y a des occupations actives
-      const hasActiveOccupancies = housing.occupancies?.some(
-        occ => occ.status === OccupancyStatus.ACTIVE
-      );
+      // Vérifier s'il y a des occupations actives avec une query COUNT
+      const occupancyRepository = AppDataSource.getRepository(HousingOccupancy);
+      const activeOccupanciesCount = await occupancyRepository.count({
+        where: {
+          housingId: housingId,
+          status: OccupancyStatus.ACTIVE
+        }
+      });
+
+      const hasActiveOccupancies = activeOccupanciesCount > 0;
 
       if (hasActiveOccupancies) {
         return res.status(400).json({
@@ -706,8 +882,7 @@ router.get('/:id/stats',
         where: {
           id: housingId,
           tenantId: tenantContext!.tenantId
-        },
-        relations: ['rooms', 'occupancies', 'maintenances']
+        }
       });
 
       if (!housing) {
@@ -716,31 +891,38 @@ router.get('/:id/stats',
         });
       }
 
+      // Calculer les statistiques avec des queries COUNT
+      const occupancyRepository = AppDataSource.getRepository(HousingOccupancy);
+
+      const [totalOccupancies, activeOccupancies, terminatedOccupancies] = await Promise.all([
+        occupancyRepository.count({ where: { housingId } }),
+        occupancyRepository.count({ where: { housingId, status: OccupancyStatus.ACTIVE } }),
+        occupancyRepository.count({ where: { housingId, status: OccupancyStatus.ENDED } })
+      ]);
+
       // Calculer les statistiques
       const stats = {
         capacite: {
           nombreChambres: housing.nombreChambres,
           capaciteTotale: housing.capaciteTotale,
-          occupationActuelle: housing.occupationActuelle,
-          tauxOccupation: housing.tauxOccupation,
-          chambresDisponibles: housing.calculateAvailableRooms(),
-          litsDisponibles: housing.calculateAvailableBeds()
+          occupationActuelle: housing.occupationActuelle || activeOccupancies,
+          tauxOccupation: housing.tauxOccupation || 0
         },
         occupations: {
-          total: housing.occupancies?.length || 0,
-          actives: housing.occupancies?.filter(o => o.status === OccupancyStatus.ACTIVE).length || 0,
-          terminees: housing.occupancies?.filter(o => o.status === OccupancyStatus.TERMINATED).length || 0,
-          suspendues: housing.occupancies?.filter(o => o.status === OccupancyStatus.SUSPENDED).length || 0
+          total: totalOccupancies,
+          actives: activeOccupancies,
+          terminees: terminatedOccupancies,
+          suspendues: 0
         },
         maintenance: {
-          total: housing.maintenances?.length || 0,
-          enCours: housing.maintenances?.filter(m => m.status === MaintenanceStatus.IN_PROGRESS).length || 0,
-          programmees: housing.maintenances?.filter(m => m.status === MaintenanceStatus.PLANNED).length || 0
+          total: 0,
+          enCours: 0,
+          programmees: 0
         },
         financier: {
           loyerMensuel: housing.loyerMensuel,
           revenuMensuelPotentiel: housing.loyerMensuel ? housing.loyerMensuel * housing.capaciteTotale : 0,
-          revenuMensuelActuel: housing.loyerMensuel ? housing.loyerMensuel * housing.occupationActuelle : 0
+          revenuMensuelActuel: housing.loyerMensuel ? housing.loyerMensuel * activeOccupancies : 0
         }
       };
 
@@ -779,8 +961,20 @@ router.get('/rooms',
 
       const roomRepository = AppDataSource.getRepository(Room);
       const queryBuilder = roomRepository.createQueryBuilder('room')
-        .leftJoinAndSelect('room.housing', 'housing')
-        .where('housing.tenantId = :tenantId', { tenantId: tenantContext!.tenantId });
+        .leftJoin('room.housing', 'housing')
+        .where('housing.tenantId = :tenantId', { tenantId: tenantContext!.tenantId })
+        .select([
+          'room.id',
+          'room.numero',
+          'room.type',
+          'room.capacite',
+          'room.status',
+          'room.description',
+          'room.occupationActuelle',
+          'room.isAvailable',
+          'housing.id',
+          'housing.nom'
+        ]);
 
       // Appliquer les filtres (ignorer "all")
       if (complexId && complexId !== 'all') {

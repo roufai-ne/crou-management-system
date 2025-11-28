@@ -21,54 +21,7 @@
 
 import { AppDataSource } from '../config/datasource';
 import { Tenant } from '../entities/Tenant.entity';
-import { Student } from '../entities/Student.entity';
-import { HousingRequest } from '../entities/HousingRequest.entity';
-import { HousingOccupancy } from '../entities/HousingOccupancy.entity';
 import { Bed, BedStatus } from '../entities/Bed.entity';
-
-interface SeedComplexData {
-  nom: string;
-  adresse: string;
-  ville: string;
-  nombreBatiments: number;
-  chambresParBatiment: number;
-  litsParChambre: number;
-}
-
-const COMPLEXES: SeedComplexData[] = [
-  {
-    nom: 'Cité Universitaire Aéroport',
-    adresse: 'Route de l\'Aéroport',
-    ville: 'Niamey',
-    nombreBatiments: 5,
-    chambresParBatiment: 40,
-    litsParChambre: 2
-  },
-  {
-    nom: 'Cité Universitaire Yantala',
-    adresse: 'Quartier Yantala',
-    ville: 'Niamey',
-    nombreBatiments: 4,
-    chambresParBatiment: 30,
-    litsParChambre: 3
-  },
-  {
-    nom: 'Cité Universitaire Kennedy',
-    adresse: 'Boulevard Kennedy',
-    ville: 'Niamey',
-    nombreBatiments: 3,
-    chambresParBatiment: 50,
-    litsParChambre: 2
-  },
-  {
-    nom: 'Cité Universitaire Terminus',
-    adresse: 'Quartier Terminus',
-    ville: 'Niamey',
-    nombreBatiments: 6,
-    chambresParBatiment: 35,
-    litsParChambre: 4
-  }
-];
 
 const PRENOMS_MASCULINS = [
   'Abdoulaye', 'Moussa', 'Ibrahim', 'Amadou', 'Ousmane', 'Mamadou', 'Ali', 'Issoufou',
@@ -163,13 +116,22 @@ export async function seedHousing() {
       return;
     }
 
-    console.log(`📍 Tenant: ${tenant.nom}\n`);
+    console.log(`📍 Tenant: ${tenant.name}\n`);
+
+    // Nettoyer les données existantes du seeder
+    console.log('🧹 Nettoyage des données existantes du seeder...');
+
+    await AppDataSource.query(`DELETE FROM housing_occupancies WHERE "createdBy" = 'seeder'`);
+    await AppDataSource.query(`DELETE FROM housing_requests WHERE "createdBy" = 'seeder'`);
+    await AppDataSource.query(`DELETE FROM beds WHERE created_by = 'seeder'`);
+    await AppDataSource.query(`DELETE FROM students WHERE "createdBy" = 'seeder'`);
+    await AppDataSource.query(`DELETE FROM rooms WHERE "createdBy" = 'seeder'`);
+    await AppDataSource.query(`DELETE FROM housings WHERE "createdBy" = 'seeder'`);
+
+    console.log('✅ Nettoyage terminé\n');
 
     // Repositories
-    const studentRepo = AppDataSource.getRepository(Student);
     const bedRepo = AppDataSource.getRepository(Bed);
-    const requestRepo = AppDataSource.getRepository(HousingRequest);
-    const occupancyRepo = AppDataSource.getRepository(HousingOccupancy);
 
     // Variables de comptage
     let totalEtudiants = 0;
@@ -235,31 +197,63 @@ export async function seedHousing() {
     // ========================================
     console.log('🛏️  Génération des lits pour les chambres existantes...');
 
-    // Récupérer toutes les chambres
-    const rooms = await AppDataSource.query(`
-      SELECT id, numero, capacite FROM rooms WHERE tenant_id = $1 ORDER BY numero
+    // Récupérer toutes les chambres via leur housing
+    let rooms = await AppDataSource.query(`
+      SELECT r.id, r.numero, r.capacite
+      FROM rooms r
+      INNER JOIN housings h ON r.housing_id = h.id
+      WHERE h.tenant_id = $1
+      ORDER BY r.numero
     `, [tenant.id]);
 
     if (rooms.length === 0) {
-      console.log('⚠️  Aucune chambre trouvée. Création de chambres de test...');
+      console.log('⚠️  Aucune chambre trouvée. Création d\'une cité et de chambres de test...');
 
-      // Créer quelques chambres de test si aucune n'existe
+      // Créer une cité universitaire de test
+      const housingResult = await AppDataSource.query(`
+        INSERT INTO housings (
+          id, tenant_id, code, nom, type, category, status, adresse,
+          "nombreChambres", "capaciteTotale", "createdBy", "createdAt", "updatedAt"
+        )
+        VALUES (
+          uuid_generate_v4(), $1, 'CITE_TEST', 'Cité Universitaire de Test',
+          'cite_universitaire', 'standard', 'actif', 'Niamey, Niger',
+          50, 150, 'seeder', NOW(), NOW()
+        )
+        RETURNING id
+      `, [tenant.id]);
+
+      const housingId = housingResult[0].id;
+
+      // Créer quelques chambres de test
       for (let i = 1; i <= 50; i++) {
         const numero = `${100 + i}`;
         const capacite = [2, 3, 4][Math.floor(Math.random() * 3)];
+        const typeMap: { [key: number]: string } = { 2: 'double', 3: 'triple', 4: 'quadruple' };
+        const type = typeMap[capacite];
 
         await AppDataSource.query(`
-          INSERT INTO rooms (id, tenant_id, numero, capacite, status, "createdBy", "createdAt", "updatedAt")
-          VALUES (uuid_generate_v4(), $1, $2, $3, 'disponible', 'seeder', NOW(), NOW())
-        `, [tenant.id, numero, capacite]);
+          INSERT INTO rooms (
+            id, housing_id, numero, type, capacite, status,
+            "createdBy", "createdAt", "updatedAt"
+          )
+          VALUES (
+            uuid_generate_v4(), $1, $2, $3, $4, 'disponible',
+            'seeder', NOW(), NOW()
+          )
+        `, [housingId, numero, type, capacite]);
       }
 
       // Re-récupérer les chambres
-      const newRooms = await AppDataSource.query(`
-        SELECT id, numero, capacite FROM rooms WHERE tenant_id = $1 ORDER BY numero
+      rooms = await AppDataSource.query(`
+        SELECT r.id, r.numero, r.capacite
+        FROM rooms r
+        INNER JOIN housings h ON r.housing_id = h.id
+        WHERE h.tenant_id = $1
+        ORDER BY r.numero
       `, [tenant.id]);
 
-      console.log(`✅ ${newRooms.length} chambres de test créées\n`);
+      console.log(`✅ ${rooms.length} chambres de test créées\n`);
     }
 
     // Générer les lits pour chaque chambre
@@ -371,10 +365,16 @@ export async function seedHousing() {
 
     const demandesApprouvees = demandes.filter(d => d.status === 'approved');
     const litsDisponibles = [...allBeds]; // Copie pour manipulation
-    const occupations: HousingOccupancy[] = [];
 
     // Attribuer des lits à 80% des demandes approuvées
     const nombreOccupations = Math.floor(demandesApprouvees.length * 0.8);
+
+    // Récupérer le housing_id (on utilise le premier housing trouvé)
+    const housingIdResult = await AppDataSource.query(`
+      SELECT h.id FROM housings h WHERE h.tenant_id = $1 LIMIT 1
+    `, [tenant.id]);
+
+    const housingId = housingIdResult[0]?.id;
 
     for (let i = 0; i < nombreOccupations && litsDisponibles.length > 0; i++) {
       const demande = demandesApprouvees[i];
@@ -388,29 +388,40 @@ export async function seedHousing() {
       const dateFin = new Date(dateDebut);
       dateFin.setMonth(dateFin.getMonth() + 10); // 10 mois d'occupation
 
-      const occupation = occupancyRepo.create({
-        tenantId: tenant.id,
-        studentId: demande.studentId,
-        bedId: lit.id,
-        roomId: lit.roomId,
-        housingRequestId: demande.id,
-        startDate: dateDebut,
-        endDate: dateFin,
-        status: 'active',
-        monthlyRent: [15000, 20000, 25000, 30000][Math.floor(Math.random() * 4)],
-        isRentPaid: Math.random() > 0.3, // 70% ont payé
-        createdBy: 'seeder'
-      });
+      // Utiliser une requête SQL directe pour éviter les problèmes de colonnes
+      await AppDataSource.query(`
+        INSERT INTO housing_occupancies (
+          id, tenant_id, student_id, bed_id, room_id, housing_id, housing_request_id,
+          "dateDebut", "dateFin", status, "loyerMensuel",
+          "anneeUniversitaire", "createdBy", "createdAt", "updatedAt"
+        )
+        VALUES (
+          uuid_generate_v4(), $1, $2, $3, $4, $5, $6,
+          $7, $8, $9, $10,
+          $11, $12, NOW(), NOW()
+        )
+      `, [
+        tenant.id,
+        demande.studentId,
+        lit.id,
+        lit.roomId,
+        housingId,
+        demande.id,
+        dateDebut,
+        dateFin,
+        'active',
+        [15000, 20000, 25000, 30000][Math.floor(Math.random() * 4)],
+        '2024-2025',
+        'seeder'
+      ]);
 
-      occupations.push(occupation);
+      totalOccupations++;
 
       // Marquer le lit comme occupé
       lit.status = BedStatus.OCCUPIED;
     }
 
-    await occupancyRepo.save(occupations);
     await bedRepo.save(allBeds); // Mettre à jour les statuts des lits
-    totalOccupations = occupations.length;
 
     console.log(`✅ ${totalOccupations} occupations créées\n`);
 

@@ -92,10 +92,7 @@ export class BedService {
     const query = this.bedRepository
       .createQueryBuilder('bed')
       .leftJoinAndSelect('bed.room', 'room')
-      .leftJoinAndSelect('room.housing', 'housing')
-      .leftJoinAndSelect('bed.occupancies', 'occupancies', 'occupancies.status = :activeStatus', {
-        activeStatus: 'active'
-      });
+      .leftJoinAndSelect('room.housing', 'housing');
 
     // Filtres
     if (filters?.roomId) {
