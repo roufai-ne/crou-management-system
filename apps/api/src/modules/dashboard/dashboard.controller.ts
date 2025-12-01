@@ -18,7 +18,9 @@
  * DATE: Décembre 2024
  */
 
-import { Request, Response } from 'express';
+import { Response } from 'express';
+import { TypedRequest } from '@/shared/types/express.types';
+import { TenantIsolationUtils } from '@/shared/utils/tenant-isolation.utils';
 import { DashboardService } from './dashboard.service';
 
 export class DashboardController {
@@ -26,23 +28,22 @@ export class DashboardController {
    * GET /api/dashboard/kpis/global
    * KPIs globaux du système
    */
-  static async getGlobalKPIs(req: Request, res: Response) {
+  static async getGlobalKPIs(req: TypedRequest, res: Response) {
     try {
       const { startDate, endDate } = req.query;
-      const tenantId = (req as any).user?.tenantId;
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
+      const hasExtendedAccess = TenantIsolationUtils.hasExtendedAccess(req);
+      const targetTenantId = req.query.tenantId as string;
 
-      if (!tenantId) {
-        return res.status(401).json({
-          success: false,
-          error: 'Tenant ID manquant'
-        });
-      }
+      const effectiveTenantId = hasExtendedAccess && targetTenantId 
+        ? targetTenantId 
+        : tenantContext.tenantId;
 
       const parsedStartDate = startDate ? new Date(startDate as string) : undefined;
       const parsedEndDate = endDate ? new Date(endDate as string) : undefined;
 
       const globalKPIs = await DashboardService.getGlobalKPIs(
-        tenantId,
+        effectiveTenantId,
         parsedStartDate,
         parsedEndDate
       );
@@ -64,23 +65,22 @@ export class DashboardController {
    * GET /api/dashboard/kpis/modules
    * KPIs par module
    */
-  static async getModuleKPIs(req: Request, res: Response) {
+  static async getModuleKPIs(req: TypedRequest, res: Response) {
     try {
       const { startDate, endDate } = req.query;
-      const tenantId = (req as any).user?.tenantId;
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
+      const hasExtendedAccess = TenantIsolationUtils.hasExtendedAccess(req);
+      const targetTenantId = req.query.tenantId as string;
 
-      if (!tenantId) {
-        return res.status(401).json({
-          success: false,
-          error: 'Tenant ID manquant'
-        });
-      }
+      const effectiveTenantId = hasExtendedAccess && targetTenantId 
+        ? targetTenantId 
+        : tenantContext.tenantId;
 
       const parsedStartDate = startDate ? new Date(startDate as string) : undefined;
       const parsedEndDate = endDate ? new Date(endDate as string) : undefined;
 
       const moduleKPIs = await DashboardService.getModuleKPIs(
-        tenantId,
+        effectiveTenantId,
         parsedStartDate,
         parsedEndDate
       );
@@ -102,7 +102,7 @@ export class DashboardController {
    * GET /api/dashboard/evolution
    * Évolution temporelle des indicateurs
    */
-  static async getEvolutionData(req: Request, res: Response) {
+  static async getEvolutionData(req: TypedRequest, res: Response) {
     try {
       const { startDate, endDate, groupBy = 'month' } = req.query;
       
@@ -130,7 +130,7 @@ export class DashboardController {
    * GET /api/dashboard/expenses
    * Répartition des dépenses par catégorie
    */
-  static async getExpenseBreakdown(req: Request, res: Response) {
+  static async getExpenseBreakdown(req: TypedRequest, res: Response) {
     try {
       const { startDate, endDate } = req.query;
       
@@ -166,20 +166,19 @@ export class DashboardController {
    * GET /api/dashboard/alerts
    * Alertes récentes
    */
-  static async getAlerts(req: Request, res: Response) {
+  static async getAlerts(req: TypedRequest, res: Response) {
     try {
       const { limit = 50 } = req.query;
-      const tenantId = (req as any).user?.tenantId;
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
+      const hasExtendedAccess = TenantIsolationUtils.hasExtendedAccess(req);
+      const targetTenantId = req.query.tenantId as string;
 
-      if (!tenantId) {
-        return res.status(401).json({
-          success: false,
-          error: 'Tenant ID manquant'
-        });
-      }
+      const effectiveTenantId = hasExtendedAccess && targetTenantId 
+        ? targetTenantId 
+        : tenantContext.tenantId;
 
       const alerts = await DashboardService.getRecentAlerts(
-        tenantId,
+        effectiveTenantId,
         Number(limit)
       );
 
@@ -200,20 +199,19 @@ export class DashboardController {
    * GET /api/dashboard/activities
    * Activités récentes
    */
-  static async getRecentActivities(req: Request, res: Response) {
+  static async getRecentActivities(req: TypedRequest, res: Response) {
     try {
       const { limit = 100 } = req.query;
-      const tenantId = (req as any).user?.tenantId;
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
+      const hasExtendedAccess = TenantIsolationUtils.hasExtendedAccess(req);
+      const targetTenantId = req.query.tenantId as string;
 
-      if (!tenantId) {
-        return res.status(401).json({
-          success: false,
-          error: 'Tenant ID manquant'
-        });
-      }
+      const effectiveTenantId = hasExtendedAccess && targetTenantId 
+        ? targetTenantId 
+        : tenantContext.tenantId;
 
       const activities = await DashboardService.getRecentActivities(
-        tenantId,
+        effectiveTenantId,
         Number(limit)
       );
 
@@ -234,17 +232,10 @@ export class DashboardController {
    * POST /api/dashboard/alerts/:alertId/acknowledge
    * Marquer une alerte comme lue
    */
-  static async acknowledgeAlert(req: Request, res: Response) {
+  static async acknowledgeAlert(req: TypedRequest, res: Response) {
     try {
       const { alertId } = req.params;
-      const userId = (req as any).user?.userId;
-
-      if (!userId) {
-        return res.status(401).json({
-          success: false,
-          error: 'User ID manquant'
-        });
-      }
+      const userId = req.user?.userId;
 
       const result = await DashboardService.acknowledgeAlert(alertId, userId);
 
@@ -262,29 +253,28 @@ export class DashboardController {
    * GET /api/dashboard/data
    * Données agrégées complètes du dashboard
    */
-  static async getData(req: Request, res: Response) {
+  static async getData(req: TypedRequest, res: Response) {
     try {
       const { level, startDate, endDate } = req.query;
-      const tenantId = req.query.tenantId as string || (req as any).user?.tenantId;
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
+      const hasExtendedAccess = TenantIsolationUtils.hasExtendedAccess(req);
+      const targetTenantId = req.query.tenantId as string;
 
-      if (!tenantId) {
-        return res.status(401).json({
-          success: false,
-          error: 'Tenant ID manquant'
-        });
-      }
+      const effectiveTenantId = hasExtendedAccess && targetTenantId 
+        ? targetTenantId 
+        : tenantContext.tenantId;
 
       const parsedStartDate = startDate ? new Date(startDate as string) : undefined;
       const parsedEndDate = endDate ? new Date(endDate as string) : undefined;
 
       // Agréger toutes les données du dashboard
       const [globalKPIs, moduleKPIs, evolution, expenses, alerts, activities] = await Promise.all([
-        DashboardService.getGlobalKPIs(tenantId, parsedStartDate, parsedEndDate),
-        DashboardService.getModuleKPIs(tenantId, parsedStartDate, parsedEndDate),
-        DashboardService.getEvolutionData(tenantId, parsedStartDate, parsedEndDate),
-        DashboardService.getExpenseBreakdown(tenantId, parsedStartDate, parsedEndDate),
-        DashboardService.getAlerts(tenantId, 10),
-        DashboardService.getRecentActivities(tenantId, 10)
+        DashboardService.getGlobalKPIs(effectiveTenantId, parsedStartDate, parsedEndDate),
+        DashboardService.getModuleKPIs(effectiveTenantId, parsedStartDate, parsedEndDate),
+        DashboardService.getEvolutionData(effectiveTenantId, parsedStartDate, parsedEndDate),
+        DashboardService.getExpenseBreakdown(effectiveTenantId, parsedStartDate, parsedEndDate),
+        DashboardService.getAlerts(effectiveTenantId, 10),
+        DashboardService.getRecentActivities(effectiveTenantId, 10)
       ]);
 
       res.json({

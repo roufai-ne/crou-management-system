@@ -76,9 +76,29 @@ export class ApiClient {
           config.headers.Authorization = `Bearer ${token}`;
         }
 
+        // Ajouter le tenantId si disponible dans le store
+        try {
+          const tenantFilterState = localStorage.getItem('tenant-filter-storage');
+          if (tenantFilterState) {
+            const parsed = JSON.parse(tenantFilterState);
+            const tenantId = parsed?.state?.selectedTenantId;
+            
+            // Si un tenant est sélectionné ET ce n'est pas "all", l'ajouter aux params
+            if (tenantId && tenantId !== 'all') {
+              config.params = {
+                ...config.params,
+                tenantId: tenantId
+              };
+            }
+          }
+        } catch (error) {
+          // Ignorer les erreurs de lecture du store
+          console.debug('Tenant filter not available:', error);
+        }
+
         // Log des requêtes en développement
         if (import.meta.env.DEV) {
-          console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`);
+          console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`, config.params);
         }
 
         return config;

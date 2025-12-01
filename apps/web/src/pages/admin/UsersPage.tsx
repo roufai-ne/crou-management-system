@@ -45,6 +45,8 @@ import { CROUSelector } from '@/components/ui/CROUSelector';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Toast } from '@/components/ui/Toast';
+import { useTenantFilter } from '@/stores/tenantFilter';
+import { useTenantFilterEffect } from '@/hooks/useTenantFilterEffect';
 import { adminService, type User as ApiUser, CreateUserRequest, UpdateUserRequest } from '@/services/api/adminService';
 import { UserCreateModal, UserEditModal, UserDetailsModal } from '@/components/admin/UserModals';
 import { exportUsersToPDF } from '@/utils/pdfExport';
@@ -96,6 +98,7 @@ const lockedOptions = [
 ];
 
 export const UsersPage: React.FC = () => {
+  const { selectedTenantId } = useTenantFilter();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
@@ -172,6 +175,11 @@ export const UsersPage: React.FC = () => {
       setLoading(false);
     }
   };
+
+  // Recharger quand le tenant change
+  useTenantFilterEffect(() => {
+    loadUsers();
+  });
 
   useEffect(() => {
     loadUsers();

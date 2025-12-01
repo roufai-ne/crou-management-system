@@ -21,11 +21,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/stores/auth';
 import { useStocks } from '@/stores/stocks';
+import { useTenantFilter } from '@/stores/tenantFilter';
 import { StockItem, StockMovement, StockAlert, StocksMetrics } from '@/services/api/stocksService';
 
 // Hook pour les articles de stock
 export const useStockItems = () => {
   const { user } = useAuth();
+  const { selectedTenantId } = useTenantFilter();
   const {
     items,
     itemsLoading,
@@ -48,7 +50,7 @@ export const useStockItems = () => {
     if (user?.tenantId) {
       loadItems(user.tenantId, filters);
     }
-  }, [user?.tenantId, filters, loadItems]);
+  }, [user?.tenantId, selectedTenantId, filters, loadItems]);
 
   // Fonctions de gestion
   const handleCreateItem = useCallback(async (data: any) => {
@@ -99,6 +101,7 @@ export const useStockItems = () => {
 // Hook pour les mouvements de stock
 export const useStockMovements = () => {
   const { user } = useAuth();
+  const { selectedTenantId } = useTenantFilter();
   const {
     movements,
     movementsLoading,
@@ -118,7 +121,7 @@ export const useStockMovements = () => {
     if (user?.tenantId) {
       loadMovements(user.tenantId, filters);
     }
-  }, [user?.tenantId, filters, loadMovements]);
+  }, [user?.tenantId, selectedTenantId, filters, loadMovements]);
 
   // Fonctions de gestion
   const handleCreateMovement = useCallback(async (data: any) => {
@@ -154,6 +157,7 @@ export const useStockMovements = () => {
 // Hook pour les alertes de stock
 export const useStockAlerts = () => {
   const { user } = useAuth();
+  const { selectedTenantId } = useTenantFilter();
   const {
     alerts,
     alertsLoading,
@@ -168,7 +172,7 @@ export const useStockAlerts = () => {
     if (user?.tenantId) {
       loadAlerts(user.tenantId);
     }
-  }, [user?.tenantId, loadAlerts]);
+  }, [user?.tenantId, selectedTenantId, loadAlerts]);
 
   // Fonctions de gestion
   const handleMarkAsRead = useCallback(async (alertId: string) => {
@@ -196,6 +200,7 @@ export const useStockAlerts = () => {
 // Hook pour les métriques de stock
 export const useStocksMetrics = () => {
   const { user } = useAuth();
+  const { selectedTenantId } = useTenantFilter();
   const {
     metrics,
     metricsLoading,
@@ -208,7 +213,7 @@ export const useStocksMetrics = () => {
     if (user?.tenantId) {
       loadMetrics(user.tenantId);
     }
-  }, [user?.tenantId, loadMetrics]);
+  }, [user?.tenantId, selectedTenantId, loadMetrics]);
 
   return {
     metrics,
@@ -221,6 +226,7 @@ export const useStocksMetrics = () => {
 // Hook pour les fournisseurs
 export const useSuppliers = () => {
   const { user } = useAuth();
+  const { selectedTenantId } = useTenantFilter();
   const { 
     suppliers, 
     suppliersLoading, 
@@ -234,7 +240,7 @@ export const useSuppliers = () => {
     if (user?.tenantId) {
       loadSuppliers(user.tenantId);
     }
-  }, [user?.tenantId, loadSuppliers]);
+  }, [user?.tenantId, selectedTenantId, loadSuppliers]);
 
   // Fonctions de gestion
   const handleCreateSupplier = useCallback(async (data: any) => {

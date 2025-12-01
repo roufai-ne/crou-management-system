@@ -22,12 +22,10 @@ import {
   Card,
   Badge,
   Button,
-  DataTable,
+  Table,
   Modal,
   Input,
-  Select,
-  Textarea,
-  useConfirmDialog
+  Select
 } from '@/components/ui';
 import {
   PlusIcon,
@@ -36,71 +34,51 @@ import {
   HomeModernIcon,
   CheckCircleIcon,
   XCircleIcon,
-  ChartBarIcon
+  ChartBarIcon,
+  ArrowRightIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/stores/auth';
-import toast from 'react-hot-toast';
+import { useHousingComplexes } from '@/hooks/useHousing';
+import { HousingComplex, CreateHousingComplexRequest, UpdateHousingComplexRequest } from '@/services/api/housingService';
+import { Toast } from '@/components/ui/Toast';
 
-// Types
-interface HousingComplex {
-  id: string;
-  name: string;
-  code: string;
-  address: string;
-  city: string;
-  postalCode?: string;
-  totalRooms: number;
-  occupiedRooms: number;
-  availableRooms: number;
-  capacity: number;
-  status: 'active' | 'inactive' | 'maintenance';
-  description?: string;
-  managerName?: string;
-  managerPhone?: string;
-  facilities?: string[];
+interface CitesTabProps {
+  onNavigateToRooms?: (complexId: string, complexName: string) => void;
 }
 
 interface CiteFormData {
   name: string;
-  code: string;
   address: string;
-  city: string;
-  postalCode: string;
   totalRooms: number;
-  capacity: number;
+  monthlyRent: number;
   status: 'active' | 'inactive' | 'maintenance';
   description: string;
-  managerName: string;
-  managerPhone: string;
 }
 
-export const CitesTab: React.FC = () => {
+export const CitesTab: React.FC<CitesTabProps> = ({ onNavigateToRooms }) => {
   const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCite, setEditingCite] = useState<HousingComplex | null>(null);
   const [formData, setFormData] = useState<CiteFormData>({
     name: '',
-    code: '',
     address: '',
-    city: 'Niamey',
-    postalCode: '',
     totalRooms: 0,
-    capacity: 0,
+    monthlyRent: 15000,
     status: 'active',
-    description: '',
-    managerName: '',
-    managerPhone: ''
+    description: ''
   });
 
-  // États de données (à remplacer par hooks réels)
-  const [cites, setCites] = useState<HousingComplex[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [filters, setFilters] = useState({
-    search: '',
-    status: 'all'
-  });
-
-  const { ConfirmDialog, confirm } = useConfirmDialog();
+  // Utiliser le hook réel
+  const {
+    complexes: cites,
+    loading,
+    error,
+    filters,
+    createComplex,
+    updateComplex,
+    deleteComplex,
+    updateFilters
+  } = useHousingComplexes();
 
   /**
    * Ouvrir modal création
@@ -130,16 +108,11 @@ export const CitesTab: React.FC = () => {
     setEditingCite(cite);
     setFormData({
       name: cite.name || '',
-      code: cite.code || '',
       address: cite.address || '',
-      city: cite.city || 'Niamey',
-      postalCode: cite.postalCode || '',
       totalRooms: cite.totalRooms || 0,
-      capacity: cite.capacity || 0,
+      monthlyRent: cite.monthlyRent || 15000,
       status: cite.status || 'active',
-      description: cite.description || '',
-      managerName: cite.managerName || '',
-      managerPhone: cite.managerPhone || ''
+      description: cite.description || ''
     });
     setIsModalOpen(true);
   };
@@ -150,37 +123,32 @@ export const CitesTab: React.FC = () => {
   const handleSave = async () => {
     // Validation
     if (!formData.name.trim()) {
-      toast.error('Le nom de la cité est obligatoire');
+      Toast.error('Le nom de la cité est obligatoire');
       return;
     }
 
     if (!formData.address.trim()) {
-      toast.error('L\'adresse est obligatoire');
+      Toast.error('L\'adresse est obligatoire');
       return;
     }
 
     if (formData.totalRooms <= 0) {
-      toast.error('Le nombre de chambres doit être supérieur à 0');
-      return;
-    }
-
-    if (formData.capacity <= 0) {
-      toast.error('La capacité doit être supérieure à 0');
+      Toast.error('Le nombre de chambres doit être supérieur à 0');
       return;
     }
 
     try {
       if (editingCite) {
-        // TODO: Appel API update
-        toast.success('Cité modifiée avec succès');
+        await updateComplex(editingCite.id, formData as UpdateHousingComplexRequest);
+        Toast.success('Cité modifiée avec succès');
       } else {
-        // TODO: Appel API create
-        toast.success('Cité créée avec succès');
+        await createComplex(formData as CreateHousingComplexRequest);
+        Toast.success('Cité créée avec succès');
       }
       setIsModalOpen(false);
-      // Refresh liste
+      resetForm();
     } catch (error: any) {
-      toast.error(error.message || 'Erreur lors de la sauvegarde');
+      Toast.error(error.message || 'Erreur lors de la sauvegarde');
     }
   };
 
@@ -189,26 +157,19 @@ export const CitesTab: React.FC = () => {
    */
   const handleDelete = async (cite: HousingComplex) => {
     if (cite.occupiedRooms > 0) {
-      toast.error('Impossible de supprimer une cité avec des chambres occupées');
+      Toast.error('Impossible de supprimer une cité avec des chambres occupées');
       return;
     }
 
-    const confirmed = await confirm({
-      title: 'Supprimer cette cité ?',
-      message: `Êtes-vous sûr de vouloir supprimer la cité "${cite.name}" ?`,
-      variant: 'danger',
-      confirmText: 'Supprimer',
-      cancelText: 'Annuler'
-    });
-
-    if (!confirmed) return;
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer la cité "${cite.name}" ?`)) {
+      return;
+    }
 
     try {
-      // TODO: Appel API
-      toast.success('Cité supprimée avec succès');
-      // Refresh liste
+      await deleteComplex(cite.id);
+      Toast.success('Cité supprimée avec succès');
     } catch (error: any) {
-      toast.error(error.message || 'Erreur lors de la suppression');
+      Toast.error(error.message || 'Erreur lors de la suppression');
     }
   };
 
@@ -219,12 +180,27 @@ export const CitesTab: React.FC = () => {
     const newStatus = cite.status === 'active' ? 'inactive' : 'active';
 
     try {
-      // TODO: Appel API
-      toast.success(newStatus === 'active' ? 'Cité activée' : 'Cité désactivée');
-      // Refresh liste
+      await updateComplex(cite.id, { status: newStatus } as UpdateHousingComplexRequest);
+      Toast.success(newStatus === 'active' ? 'Cité activée' : 'Cité désactivée');
     } catch (error: any) {
-      toast.error(error.message || 'Erreur lors de la modification');
+      Toast.error(error.message || 'Erreur lors de la mise à jour');
     }
+  };
+
+  /**
+   * Reset formulaire
+   */
+  const resetForm = () => {
+    setEditingCite(null);
+    setFormData({
+      name: '',
+      address: '',
+      totalRooms: 0,
+      monthlyRent: 15000,
+      status: 'active',
+      description: ''
+    });
+    setIsModalOpen(true);
   };
 
   /**
@@ -262,18 +238,8 @@ export const CitesTab: React.FC = () => {
           </div>
           <div>
             <p className="font-medium text-lg">{cite.name}</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 font-mono">{cite.code}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{cite.address}</p>
           </div>
-        </div>
-      )
-    },
-    {
-      key: 'location',
-      label: 'Localisation',
-      render: (cite: HousingComplex) => (
-        <div>
-          <p className="font-medium">{cite.address}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{cite.city}</p>
         </div>
       )
     },
@@ -284,9 +250,6 @@ export const CitesTab: React.FC = () => {
         <div className="text-center">
           <p className="text-2xl font-bold text-blue-600">{cite.totalRooms}</p>
           <p className="text-xs text-gray-500 dark:text-gray-400">chambres</p>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Capacité: {cite.capacity} étudiants
-          </p>
         </div>
       )
     },
@@ -314,32 +277,34 @@ export const CitesTab: React.FC = () => {
       }
     },
     {
+      key: 'rent',
+      label: 'Loyer mensuel',
+      render: (cite: HousingComplex) => (
+        <div className="text-right">
+          <p className="font-bold text-lg">{cite.monthlyRent.toLocaleString()} XOF</p>
+        </div>
+      )
+    },
+    {
       key: 'status',
       label: 'Statut',
       render: (cite: HousingComplex) => getStatusBadge(cite.status)
     },
     {
-      key: 'manager',
-      label: 'Gestionnaire',
-      render: (cite: HousingComplex) => {
-        if (!cite.managerName) {
-          return <span className="text-sm text-gray-400">Non assigné</span>;
-        }
-        return (
-          <div>
-            <p className="font-medium text-sm">{cite.managerName}</p>
-            {cite.managerPhone && (
-              <p className="text-xs text-gray-500 dark:text-gray-400">{cite.managerPhone}</p>
-            )}
-          </div>
-        );
-      }
-    },
-    {
       key: 'actions',
       label: 'Actions',
       render: (cite: HousingComplex) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {onNavigateToRooms && (
+            <Button
+              size="sm"
+              variant="primary"
+              leftIcon={<ArrowRightIcon className="h-4 w-4" />}
+              onClick={() => onNavigateToRooms(cite.id, cite.name)}
+            >
+              Voir chambres
+            </Button>
+          )}
           <Button
             size="sm"
             variant="outline"
@@ -387,13 +352,13 @@ export const CitesTab: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Statistiques rapides */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <Card.Content className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Total Cités</p>
-                <p className="text-2xl font-bold text-blue-600">{stats.total}</p>
+                <p className="text-2xl font-bold text-blue-600">{cites.length}</p>
               </div>
               <HomeModernIcon className="h-8 w-8 text-blue-600" />
             </div>
@@ -405,7 +370,9 @@ export const CitesTab: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Cités Actives</p>
-                <p className="text-2xl font-bold text-green-600">{stats.active}</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {cites.filter(c => c.status === 'active').length}
+                </p>
               </div>
               <CheckCircleIcon className="h-8 w-8 text-green-600" />
             </div>
@@ -417,23 +384,11 @@ export const CitesTab: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Total Chambres</p>
-                <p className="text-2xl font-bold text-purple-600">{stats.totalRooms}</p>
-                <p className="text-xs text-gray-500 mt-1">{stats.occupiedRooms} occupées</p>
+                <p className="text-2xl font-bold text-purple-600">
+                  {cites.reduce((sum, c) => sum + c.totalRooms, 0)}
+                </p>
               </div>
               <ChartBarIcon className="h-8 w-8 text-purple-600" />
-            </div>
-          </Card.Content>
-        </Card>
-
-        <Card>
-          <Card.Content className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Taux Occupation</p>
-                <p className="text-2xl font-bold text-orange-600">{globalOccupancyRate}%</p>
-                <p className="text-xs text-gray-500 mt-1">Capacité: {stats.totalCapacity}</p>
-              </div>
-              <ChartBarIcon className="h-8 w-8 text-orange-600" />
             </div>
           </Card.Content>
         </Card>
@@ -445,12 +400,12 @@ export const CitesTab: React.FC = () => {
           <Input
             placeholder="Rechercher une cité..."
             value={filters.search}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+            onChange={(e) => updateFilters({ search: e.target.value })}
             className="w-full md:flex-1"
           />
           <Select
             value={filters.status}
-            onChange={(value) => setFilters({ ...filters, status: value })}
+            onChange={(value) => updateFilters({ status: value })}
             options={[
               { value: 'all', label: 'Tous les statuts' },
               { value: 'active', label: 'Actives' },
@@ -476,8 +431,10 @@ export const CitesTab: React.FC = () => {
         <Card.Content>
           {loading ? (
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">Chargement...</div>
+          ) : error ? (
+            <div className="text-center py-8 text-red-500">{error}</div>
           ) : (
-            <DataTable data={cites} columns={columns} emptyMessage="Aucune cité trouvée" />
+            <Table data={cites} columns={columns} emptyMessage="Aucune cité trouvée" />
           )}
         </Card.Content>
       </Card>
@@ -485,32 +442,22 @@ export const CitesTab: React.FC = () => {
       {/* Modal Création/Édition */}
       <Modal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => { setIsModalOpen(false); resetForm(); }}
         title={editingCite ? 'Modifier la Cité' : 'Nouvelle Cité'}
         size="lg"
       >
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Nom de la Cité"
-              placeholder="Ex: Cité Universitaire A"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              required
-            />
-
-            <Input
-              label="Code"
-              placeholder="Ex: CU-A"
-              value={formData.code}
-              onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-              required
-            />
-          </div>
+          <Input
+            label="Nom de la Cité"
+            placeholder="Ex: Cité Universitaire Nord"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            required
+          />
 
           <Input
             label="Adresse"
-            placeholder="Ex: Avenue de la République"
+            placeholder="Ex: Avenue de la République, Niamey"
             value={formData.address}
             onChange={(e) => setFormData({ ...formData, address: e.target.value })}
             required
@@ -518,77 +465,44 @@ export const CitesTab: React.FC = () => {
 
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Ville"
-              placeholder="Niamey"
-              value={formData.city}
-              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-              required
-            />
-
-            <Input
-              label="Code Postal"
-              placeholder="Ex: 8000"
-              value={formData.postalCode}
-              onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
-            />
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
-            <Input
-              label="Nombre de Chambres"
+              label="Nombre de chambres"
               type="number"
-              min="0"
+              min={0}
+              placeholder="Ex: 50"
               value={formData.totalRooms}
               onChange={(e) => setFormData({ ...formData, totalRooms: parseInt(e.target.value) || 0 })}
               required
             />
 
             <Input
-              label="Capacité Totale"
+              label="Loyer mensuel (XOF)"
               type="number"
-              min="0"
-              placeholder="Ex: 100 étudiants"
-              value={formData.capacity}
-              onChange={(e) => setFormData({ ...formData, capacity: parseInt(e.target.value) || 0 })}
-              required
-            />
-
-            <Select
-              label="Statut"
-              value={formData.status}
-              onChange={(value: any) => setFormData({ ...formData, status: value })}
-              options={[
-                { value: 'active', label: 'Active' },
-                { value: 'inactive', label: 'Inactive' },
-                { value: 'maintenance', label: 'Maintenance' }
-              ]}
+              min={0}
+              placeholder="Ex: 15000"
+              value={formData.monthlyRent}
+              onChange={(e) => setFormData({ ...formData, monthlyRent: parseInt(e.target.value) || 0 })}
               required
             />
           </div>
 
-          <Textarea
-            label="Description"
-            placeholder="Ex: Cité moderne avec équipements récents..."
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            rows={3}
+          <Select
+            label="Statut"
+            value={formData.status}
+            onChange={(value) => setFormData({ ...formData, status: value as 'active' | 'inactive' | 'maintenance' })}
+            options={[
+              { value: 'active', label: 'Active' },
+              { value: 'inactive', label: 'Inactive' },
+              { value: 'maintenance', label: 'En maintenance' }
+            ]}
+            required
           />
 
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Nom du Gestionnaire"
-              placeholder="Ex: Amadou Diallo"
-              value={formData.managerName}
-              onChange={(e) => setFormData({ ...formData, managerName: e.target.value })}
-            />
-
-            <Input
-              label="Téléphone Gestionnaire"
-              placeholder="Ex: +227 90 00 00 00"
-              value={formData.managerPhone}
-              onChange={(e) => setFormData({ ...formData, managerPhone: e.target.value })}
-            />
-          </div>
+          <Input
+            label="Description (optionnel)"
+            placeholder="Ex: Cité moderne avec WiFi et climatisation"
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          />
 
           <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-900 dark:text-blue-400">
@@ -606,9 +520,6 @@ export const CitesTab: React.FC = () => {
           </div>
         </div>
       </Modal>
-
-      {/* ConfirmDialog */}
-      <ConfirmDialog />
     </div>
   );
 };

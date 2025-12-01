@@ -15,15 +15,21 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Menu, Bell, User, LogOut, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/stores/auth';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { TenantSelector } from '@/components/common/TenantSelector';
 
 interface HeaderProps {
   onMenuClick: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
-  const { user, logout, hasPermission } = useAuth();
+  const { user, logout, hasPermission, hasExtendedAccess } = useAuth();
   const navigate = useNavigate();
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+
+  // Debug: vérifier l'accès étendu
+  React.useEffect(() => {
+    console.log('🔐 Header - user:', user?.role, 'hasExtendedAccess:', hasExtendedAccess());
+  }, [user, hasExtendedAccess]);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-white via-indigo-50/30 to-white dark:from-gray-900 dark:via-indigo-900/10 dark:to-gray-900 border-b border-indigo-100 dark:border-indigo-900/20 transition-all duration-300 backdrop-blur-xl">
@@ -57,27 +63,15 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
                   CROU Niger
                 </h1>
                 <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium -mt-0.5">
-                  {user?.level === 'ministere' ? 'Vue Ministère' : `CROU ${user?.crouId || 'Local'}`}
+                  {user?.level === 'ministere' ? 'Vue Ministère' : user?.tenant?.name || 'CROU'}
                 </p>
               </div>
             </Link>
 
-            {/* Sélecteur de vue - Style Breadcrumb Premium */}
-            {(user?.level === 'ministere' || hasPermission('all')) && (
+            {/* Sélecteur de CROU pour admins ministériels */}
+            {hasExtendedAccess() && (
               <div className="hidden md:block ml-2 border-l border-indigo-100 dark:border-indigo-800/50 pl-6">
-                <div className="relative group">
-                  <select
-                    className="appearance-none pl-9 pr-8 py-1.5 text-xs font-semibold bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-xl text-indigo-700 dark:text-indigo-300 hover:border-indigo-400 dark:hover:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all cursor-pointer shadow-sm hover:shadow-md"
-                    defaultValue="ministere"
-                  >
-                    <option value="ministere">Vue Ministère</option>
-                    <option value="crou">Vue CROU Locale</option>
-                  </select>
-                  <div className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-indigo-500 dark:text-indigo-400">
-                    <span className="text-xs">🏛️</span>
-                  </div>
-                  <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-indigo-400 group-hover:text-indigo-600 transition-colors pointer-events-none" />
-                </div>
+                <TenantSelector />
               </div>
             )}
           </div>

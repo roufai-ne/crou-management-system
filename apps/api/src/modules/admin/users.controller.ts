@@ -35,6 +35,7 @@ import { Role } from '../../../../../packages/database/src/entities/Role.entity'
 import { Tenant } from '../../../../../packages/database/src/entities/Tenant.entity';
 import { AuditService } from '@/shared/services/audit.service';
 import { AuditAction } from '../../../../../packages/database/src/entities/AuditLog.entity';
+import { TenantHierarchyService } from '@/modules/tenants/tenant-hierarchy.service';
 import { logger } from '@/shared/utils/logger';
 import { RoleHierarchyUtils } from '../../../../../packages/shared/src/constants/roleHierarchy';
 
@@ -113,23 +114,36 @@ router.get('/',
       // Filtrage hiérarchique basé sur le rôle et le tenant
       const isMinisterialUser = tenantContext?.tenantType === 'ministere';
       const userFromRequest = req.user;
-      // Le champ role est maintenant une string directement dans req.user
       const userRole = userFromRequest?.role || '';
 
+      // Obtenir le scope d'accès pour ce tenant
+      const tenantHierarchyService = new TenantHierarchyService(AppDataSource);
+      const accessScope = await tenantHierarchyService.getAccessScope(tenantContext.tenantId);
+
       // Super Admin: peut voir tous les utilisateurs
-      // Admin Ministère: peut voir tous les utilisateurs de tous les CROUs
-      // Directeur CROU: peut voir uniquement les utilisateurs de son CROU
+      // Admin Ministère: peut voir tous les utilisateurs de tous les CROUs dans son scope
+      // Directeur CROU: peut voir uniquement les utilisateurs de son CROU et ses descendants
       // Gestionnaires: peuvent voir uniquement les utilisateurs de leur CROU (limité)
 
       if (userRole === 'Super Admin') {
         // Pas de restriction, peut voir tous les utilisateurs
-      } else if (userRole === 'Admin Ministère') {
-        // Peut voir tous les utilisateurs mais pas créer/modifier Super Admins
-        // Pas de filtre tenantId, voit tout
+      } else if (userRole === 'Admin Ministère' || hasExtendedAccess) {
+        // Utilise le scope d'accès pour filtrer
+        // Si un tenantId spécifique est demandé, vérifier qu'il est dans le scope
+        if (filters.tenantId && !accessScope.accessibleTenants.includes(filters.tenantId)) {
+          return res.status(403).json({
+            error: 'Accès interdit',
+            message: 'Vous n\'avez pas accès à ce tenant'
+          });
+        }
       } else if (userRole === 'Directeur CROU') {
-        // Peut voir uniquement les utilisateurs de son CROU
-        if (tenantContext) {
-          filters.tenantId = tenantContext.tenantId;
+        // Peut voir uniquement les utilisateurs de son CROU et ses descendants
+        filters.tenantId = filters.tenantId || tenantContext.tenantId;
+        if (filters.tenantId && !accessScope.accessibleTenants.includes(filters.tenantId)) {
+          return res.status(403).json({
+            error: 'Accès interdit',
+            message: 'Vous n\'avez pas accès à ce tenant'
+          });
         }
       } else {
         // Gestionnaires et autres: peuvent voir uniquement leur CROU

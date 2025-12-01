@@ -182,8 +182,8 @@ const AccessDeniedScreen: React.FC<AccessDeniedScreenProps> = ({
           <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
             <p><span className="font-medium">Rôle:</span> {user.role.replace('_', ' ')}</p>
             <p><span className="font-medium">Niveau:</span> {user.level === 'ministere' ? 'Ministère' : 'CROU'}</p>
-            {user.crouId && (
-              <p><span className="font-medium">CROU:</span> {user.crouId}</p>
+            {user.tenant && (
+              <p><span className="font-medium">CROU:</span> {user.tenant.name}</p>
             )}
           </div>
         </div>

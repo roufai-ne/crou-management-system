@@ -51,6 +51,7 @@ import { Tabs } from '@/components/ui/Tabs';
 import { CROUSelector } from '@/components/ui/CROUSelector';
 import { DateInput } from '@/components/ui/DateInput';
 import { adminService, type AuditLog as ApiAuditLog } from '@/services/api/adminService';
+import { useTenantFilterEffect } from '@/hooks/useTenantFilterEffect';
 import { Toast } from '@/components/ui/Toast';
 import { exportAuditLogsToPDF } from '@/utils/pdfExport';
 
@@ -378,6 +379,9 @@ export const AuditPage: React.FC = () => {
   useEffect(() => {
     loadAuditLogs();
   }, [currentPage, filters]);
+
+  // Recharger les données quand le tenant change
+  useTenantFilterEffect(loadAuditLogs);
 
   // Colonnes du tableau
   const columns: TableColumn<AuditLog>[] = [

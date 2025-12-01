@@ -44,6 +44,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 import { cn } from '@/utils/cn';
 import { Card } from '@/components/ui/Card';
 import { adminService, type UserRole as ApiRole } from '@/services/api/adminService';
+import { useTenantFilterEffect } from '@/hooks/useTenantFilterEffect';
 import { RoleCreateModal, RoleEditModal } from '@/components/admin/RoleModals';
 
 // Types pour les rôles et permissions
@@ -163,6 +164,9 @@ export const RolesPage: React.FC = () => {
   useEffect(() => {
     loadRoles();
   }, []);
+
+  // Recharger les données quand le tenant change
+  useTenantFilterEffect(loadRoles);
 
   // Filtrer les rôles
   const filteredRoles = roles.filter(role => {

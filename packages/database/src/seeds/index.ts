@@ -27,6 +27,7 @@ import { seedTenants } from './001-tenants.seed';
 import { seedRolesAndPermissions } from './002-roles-permissions.seed';
 import { seedUsers } from './003-users.seed';
 import { seedTestData } from './004-test-data.seed';
+import { seedHousingData } from './005-housing-data.seed';
 
 /**
  * Exécute tous les seeds dans l'ordre
@@ -42,23 +43,28 @@ export const runAllSeeds = async (dataSource: DataSource): Promise<void> => {
 
   try {
     // 1. Seeds des Tenants
-    console.log('📦 Étape 1/4: Création des organisations...');
+    console.log('📦 Étape 1/5: Création des organisations...');
     await seedTenants(dataSource);
     console.log('');
 
     // 2. Seeds des Rôles et Permissions
-    console.log('🔐 Étape 2/4: Création des rôles et permissions...');
+    console.log('🔐 Étape 2/5: Création des rôles et permissions...');
     await seedRolesAndPermissions(dataSource);
     console.log('');
 
     // 3. Seeds des Utilisateurs
-    console.log('👥 Étape 3/4: Création des utilisateurs...');
+    console.log('👥 Étape 3/5: Création des utilisateurs...');
     await seedUsers(dataSource);
     console.log('');
 
     // 4. Seeds des données de test (optionnel, dev uniquement)
-    console.log('🧪 Étape 4/4: Création des données de test (dev uniquement)...');
+    console.log('🧪 Étape 4/5: Création des données de test (dev uniquement)...');
     await seedTestData(dataSource);
+    console.log('');
+
+    // 5. Seeds du module logement
+    console.log('🏠 Étape 5/5: Création des données de logement...');
+    await seedHousingData(dataSource);
     console.log('');
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);

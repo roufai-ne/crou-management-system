@@ -202,7 +202,7 @@ export const CROUDashboard: React.FC = () => {
       content: (
         <Grid cols={1} gap={6}>
           {/* KPIs Principaux */}
-          <Section title={`Performance ${user?.crouId?.toUpperCase() || 'CROU'}`} variant="elevated">
+          <Section title={`Performance ${user?.tenant?.name || 'CROU'}`} variant="elevated">
             <KPIGrid
               data={[
                 {
@@ -600,7 +600,7 @@ export const CROUDashboard: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-              CROU {user?.crouId?.toUpperCase() || 'Local'}
+              CROU {user?.tenant?.name || 'Local'}
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
               Tableau de bord opérationnel • {new Date().toLocaleDateString('fr-FR')}

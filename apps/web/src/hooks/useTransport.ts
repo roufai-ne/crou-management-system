@@ -20,6 +20,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/stores/auth';
+import { useTenantFilter } from '@/stores/tenantFilter';
 import { 
   useTransport, 
   useTransportVehicles, 
@@ -34,6 +35,7 @@ import { Vehicle, Driver, Route, ScheduledTrip, MaintenanceRecord, TransportMetr
 // Hook pour les véhicules
 export const useTransportVehicles = () => {
   const { user } = useAuth();
+  const { selectedTenantId } = useTenantFilter();
   const { 
     vehicles, 
     loading, 
@@ -57,7 +59,7 @@ export const useTransportVehicles = () => {
     if (user?.tenantId) {
       loadVehicles(user.tenantId, filters);
     }
-  }, [user?.tenantId, filters, loadVehicles]);
+  }, [user?.tenantId, selectedTenantId, filters, loadVehicles]);
 
   // Fonctions de gestion
   const handleCreateVehicle = useCallback(async (data: any) => {
@@ -109,6 +111,7 @@ export const useTransportVehicles = () => {
 // Hook pour les chauffeurs
 export const useTransportDrivers = () => {
   const { user } = useAuth();
+  const { selectedTenantId } = useTenantFilter();
   const { 
     drivers, 
     loading, 
@@ -132,7 +135,7 @@ export const useTransportDrivers = () => {
     if (user?.tenantId) {
       loadDrivers(user.tenantId, filters);
     }
-  }, [user?.tenantId, filters, loadDrivers]);
+  }, [user?.tenantId, selectedTenantId, filters, loadDrivers]);
 
   // Fonctions de gestion
   const handleCreateDriver = useCallback(async (data: any) => {
@@ -184,6 +187,7 @@ export const useTransportDrivers = () => {
 // Hook pour les routes
 export const useTransportRoutes = () => {
   const { user } = useAuth();
+  const { selectedTenantId } = useTenantFilter();
   const { 
     routes, 
     loading, 
@@ -207,7 +211,7 @@ export const useTransportRoutes = () => {
     if (user?.tenantId) {
       loadRoutes(user.tenantId, filters);
     }
-  }, [user?.tenantId, filters, loadRoutes]);
+  }, [user?.tenantId, selectedTenantId, filters, loadRoutes]);
 
   // Fonctions de gestion
   const handleCreateRoute = useCallback(async (data: any) => {
@@ -259,6 +263,7 @@ export const useTransportRoutes = () => {
 // Hook pour les trajets programmés
 export const useTransportTrips = () => {
   const { user } = useAuth();
+  const { selectedTenantId } = useTenantFilter();
   const { 
     scheduledTrips, 
     loading, 
@@ -282,7 +287,7 @@ export const useTransportTrips = () => {
     if (user?.tenantId) {
       loadScheduledTrips(user.tenantId, filters);
     }
-  }, [user?.tenantId, filters, loadScheduledTrips]);
+  }, [user?.tenantId, selectedTenantId, filters, loadScheduledTrips]);
 
   // Fonctions de gestion
   const handleCreateScheduledTrip = useCallback(async (data: any) => {
@@ -334,6 +339,7 @@ export const useTransportTrips = () => {
 // Hook pour la maintenance
 export const useTransportMaintenance = () => {
   const { user } = useAuth();
+  const { selectedTenantId } = useTenantFilter();
   const { 
     maintenanceRecords, 
     loading, 
@@ -355,7 +361,7 @@ export const useTransportMaintenance = () => {
     if (user?.tenantId) {
       loadMaintenanceRecords(user.tenantId, filters);
     }
-  }, [user?.tenantId, filters, loadMaintenanceRecords]);
+  }, [user?.tenantId, selectedTenantId, filters, loadMaintenanceRecords]);
 
   // Fonctions de gestion
   const handleCreateMaintenanceRecord = useCallback(async (data: any) => {

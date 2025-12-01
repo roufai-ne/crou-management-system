@@ -44,6 +44,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Badge } from '@/components/ui/Badge';
 import { Tabs } from '@/components/ui/Tabs';
 import { adminService, type Tenant as ApiTenant } from '@/services/api/adminService';
+import { useTenantFilterEffect } from '@/hooks/useTenantFilterEffect';
 import { Toast } from '@/components/ui/Toast';
 
 // Types pour les tenants
@@ -302,6 +303,9 @@ export const TenantsPage: React.FC = () => {
   useEffect(() => {
     loadTenants();
   }, []);
+
+  // Recharger les données quand le tenant change
+  useTenantFilterEffect(loadTenants);
 
   // Colonnes du tableau
   const columns: TableColumn<Tenant>[] = [

@@ -30,6 +30,7 @@ import { Router } from 'express';
 import { FinancialController, budgetValidators, transactionValidators } from './financial.controller';
 import { authenticateJWT } from '@/shared/middlewares/auth.middleware';
 import { checkPermissions } from '@/shared/middlewares/permissions.middleware';
+import { injectTenantIdMiddleware } from '@/shared/middlewares/tenant-isolation.middleware';
 import rateLimit from 'express-rate-limit';
 
 const router: Router = Router();
@@ -60,6 +61,7 @@ router.use(financialLimiter);
  */
 router.get('/budgets',
   checkPermissions(['financial:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   FinancialController.getBudgets
 );
 
@@ -70,6 +72,7 @@ router.get('/budgets',
  */
 router.post('/budgets',
   checkPermissions(['financial:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   budgetValidators.create,
   FinancialController.createBudget
 );
@@ -81,6 +84,7 @@ router.post('/budgets',
  */
 router.get('/budgets/:id',
   checkPermissions(['financial:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   budgetValidators.update, // Utilise les validateurs d'update pour l'ID
   FinancialController.getBudget
 );
@@ -92,6 +96,7 @@ router.get('/budgets/:id',
  */
 router.put('/budgets/:id',
   checkPermissions(['financial:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   budgetValidators.update,
   FinancialController.updateBudget
 );
@@ -103,6 +108,7 @@ router.put('/budgets/:id',
  */
 router.delete('/budgets/:id',
   checkPermissions(['financial:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   budgetValidators.update,
   FinancialController.deleteBudget
 );
@@ -140,6 +146,7 @@ router.post('/budgets/:id/submit',
  */
 router.get('/transactions',
   checkPermissions(['financial:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   FinancialController.getTransactions
 );
 
@@ -150,6 +157,7 @@ router.get('/transactions',
  */
 router.post('/transactions',
   checkPermissions(['financial:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   transactionValidators.create,
   FinancialController.createTransaction
 );
@@ -239,6 +247,7 @@ router.put('/categories/:id',
  */
 router.get('/reports',
   checkPermissions(['financial:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   FinancialController.getReports
 );
 
@@ -307,6 +316,7 @@ router.get('/validations/history',
  */
 router.get('/dashboard/kpis',
   checkPermissions(['financial:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   FinancialController.getFinancialKPIs
 );
 

@@ -12,6 +12,7 @@
 import { Response } from 'express';
 import { body, param } from 'express-validator';
 import { TypedRequest } from '../../shared/types/express.types';
+import { TenantIsolationUtils } from '@/shared/utils/tenant-isolation.utils';
 import { StocksService, StockFilters, CreateStockDTO, UpdateStockDTO, CreateMovementDTO } from './stocks.service';
 import { logger } from '@/shared/utils/logger';
 
@@ -38,10 +39,14 @@ export const stockValidators = {
 export class StocksController {
   static async getStocks(req: TypedRequest, res: Response) {
     try {
-      const tenantId = req.user?.tenantId;
-      if (!tenantId) {
-        return res.status(401).json({ success: false, error: 'Tenant ID manquant' });
-      }
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
+      const hasExtendedAccess = TenantIsolationUtils.hasExtendedAccess(req);
+      const targetTenantId = req.query.tenantId as string;
+
+      // Déterminer le tenant effectif à utiliser
+      const effectiveTenantId = hasExtendedAccess && targetTenantId 
+        ? targetTenantId 
+        : tenantContext.tenantId;
 
       // Filtrer les valeurs "all" qui ne sont pas des valeurs enum valides
       const category = req.query.category as string;
@@ -57,7 +62,7 @@ export class StocksController {
         outOfStock: req.query.outOfStock === 'true'
       };
 
-      const result = await StocksService.getStocks(tenantId, filters);
+      const result = await StocksService.getStocks(effectiveTenantId, filters);
       res.json({ success: true, data: result });
     } catch (error: any) {
       logger.error('Erreur getStocks:', error);
@@ -72,14 +77,14 @@ export class StocksController {
 
   static async createStock(req: TypedRequest, res: Response) {
     try {
-      const tenantId = req.user?.tenantId;
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
       const userId = req.user?.userId;
-      if (!tenantId || !userId) {
+      if (!userId) {
         return res.status(401).json({ success: false, error: 'Authentification manquante' });
       }
 
       const data: CreateStockDTO = req.body;
-      const stock = await StocksService.createStock(tenantId, userId, data);
+      const stock = await StocksService.createStock(tenantContext.tenantId, userId, data);
       res.json({ success: true, data: { stock } });
     } catch (error: any) {
       logger.error('Erreur createStock:', error);

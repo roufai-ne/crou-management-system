@@ -31,6 +31,7 @@ import { User } from '../../../../../packages/database/src/entities/User.entity'
 import { MoreThan } from 'typeorm';
 import { AuditService } from '@/shared/services/audit.service';
 import { AuditAction } from '../../../../../packages/database/src/entities/AuditLog.entity';
+import { TenantHierarchyService } from '@/modules/tenants/tenant-hierarchy.service';
 import { logger } from '@/shared/utils/logger';
 
 const router: Router = Router();
@@ -173,6 +174,18 @@ router.get('/:id',
   async (req: Request, res: Response) => {
     try {
       const tenantId = req.params.id;
+      const userId = (req as any).user?.id;
+      const userTenantId = (req as any).user?.tenantId;
+
+      // Valider l'accès hiérarchique au tenant demandé
+      const tenantHierarchyService = new TenantHierarchyService();
+      const canAccess = await tenantHierarchyService.canAccessTenant(userId, userTenantId, tenantId);
+      if (!canAccess) {
+        return res.status(403).json({
+          error: 'Accès interdit',
+          message: 'Vous n\'avez pas les droits pour accéder à ce tenant'
+        });
+      }
 
       const tenantRepository = AppDataSource.getRepository(Tenant);
       const tenant = await tenantRepository.findOne({
@@ -335,6 +348,18 @@ router.put('/:id',
     try {
       const tenantId = req.params.id;
       const updateData: Partial<TenantCreateData> = req.body;
+      const userId = (req as any).user?.id;
+      const userTenantId = (req as any).user?.tenantId;
+
+      // Valider l'accès hiérarchique au tenant demandé
+      const tenantHierarchyService = new TenantHierarchyService();
+      const canAccess = await tenantHierarchyService.canAccessTenant(userId, userTenantId, tenantId);
+      if (!canAccess) {
+        return res.status(403).json({
+          error: 'Accès interdit',
+          message: 'Vous n\'avez pas les droits pour modifier ce tenant'
+        });
+      }
 
       const tenantRepository = AppDataSource.getRepository(Tenant);
       const existingTenant = await tenantRepository.findOne({

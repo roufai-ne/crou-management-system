@@ -531,6 +531,96 @@ router.get('/payments',
 );
 
 /**
+ * GET /api/housing/rooms
+ * Liste des chambres avec filtres
+ * NOTE: Must be BEFORE /:id route to avoid matching /rooms as an ID
+ */
+router.get('/rooms',
+  authenticateJWT,
+  checkPermissions(['housing:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
+  async (req: Request, res: Response) => {
+    try {
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
+
+      // Filtrer les valeurs "all" (même pattern que stocks)
+      const complexId = req.query.complexId as string;
+      const type = req.query.type as string;
+      const status = req.query.status as string;
+
+      const roomRepository = AppDataSource.getRepository(Room);
+      const queryBuilder = roomRepository.createQueryBuilder('room')
+        .leftJoin('room.housing', 'housing')
+        .where('housing.tenantId = :tenantId', { tenantId: tenantContext!.tenantId })
+        .select([
+          'room.id',
+          'room.numero',
+          'room.type',
+          'room.capacite',
+          'room.status',
+          'housing.id',
+          'housing.nom'
+        ]);
+
+      // Appliquer les filtres (ignorer "all")
+      if (complexId && complexId !== 'all') {
+        queryBuilder.andWhere('room.housingId = :housingId', { housingId: complexId });
+      }
+
+      if (type && type !== 'all') {
+        queryBuilder.andWhere('room.type = :type', { type });
+      }
+
+      if (status && status !== 'all') {
+        queryBuilder.andWhere('room.status = :status', { status });
+      }
+
+      // Recherche textuelle
+      if (req.query.search) {
+        queryBuilder.andWhere(
+          'room.numero ILIKE :search',
+          { search: `%${req.query.search}%` }
+        );
+      }
+
+      // Pagination
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const offset = (page - 1) * limit;
+
+      queryBuilder
+        .orderBy('room.numero', 'ASC')
+        .skip(offset)
+        .take(limit);
+
+      const [rooms, total] = await queryBuilder.getManyAndCount();
+
+      res.json({
+        success: true,
+        data: {
+          rooms,
+          total,
+          pagination: {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit)
+          }
+        }
+      });
+
+    } catch (error) {
+      logger.error('Erreur récupération chambres:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erreur serveur',
+        message: error.message || 'Erreur lors de la récupération des chambres'
+      });
+    }
+  }
+);
+
+/**
  * GET /api/housing/:id
  * Détail d'un logement
  */
@@ -936,99 +1026,6 @@ router.get('/:id/stats',
       res.status(500).json({
         error: 'Erreur serveur',
         message: 'Erreur lors de la récupération des statistiques'
-      });
-    }
-  }
-);
-
-/**
- * GET /api/housing/rooms
- * Liste des chambres avec filtres (endpoint stub)
- * TODO: Implémenter la logique complète de gestion des chambres
- */
-router.get('/rooms',
-  authenticateJWT,
-  checkPermissions(['housing:read']),
-  injectTenantIdMiddleware({ strictMode: false }),
-  async (req: Request, res: Response) => {
-    try {
-      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
-
-      // Filtrer les valeurs "all" (même pattern que stocks)
-      const complexId = req.query.complexId as string;
-      const type = req.query.type as string;
-      const status = req.query.status as string;
-
-      const roomRepository = AppDataSource.getRepository(Room);
-      const queryBuilder = roomRepository.createQueryBuilder('room')
-        .leftJoin('room.housing', 'housing')
-        .where('housing.tenantId = :tenantId', { tenantId: tenantContext!.tenantId })
-        .select([
-          'room.id',
-          'room.numero',
-          'room.type',
-          'room.capacite',
-          'room.status',
-          'room.description',
-          'room.occupationActuelle',
-          'room.isAvailable',
-          'housing.id',
-          'housing.nom'
-        ]);
-
-      // Appliquer les filtres (ignorer "all")
-      if (complexId && complexId !== 'all') {
-        queryBuilder.andWhere('room.housingId = :housingId', { housingId: complexId });
-      }
-
-      if (type && type !== 'all') {
-        queryBuilder.andWhere('room.type = :type', { type });
-      }
-
-      if (status && status !== 'all') {
-        queryBuilder.andWhere('room.status = :status', { status });
-      }
-
-      // Recherche textuelle
-      if (req.query.search) {
-        queryBuilder.andWhere(
-          '(room.numero ILIKE :search OR room.description ILIKE :search)',
-          { search: `%${req.query.search}%` }
-        );
-      }
-
-      // Pagination
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
-      const offset = (page - 1) * limit;
-
-      queryBuilder
-        .orderBy('room.numero', 'ASC')
-        .skip(offset)
-        .take(limit);
-
-      const [rooms, total] = await queryBuilder.getManyAndCount();
-
-      res.json({
-        success: true,
-        data: {
-          rooms,
-          total,
-          pagination: {
-            page,
-            limit,
-            total,
-            totalPages: Math.ceil(total / limit)
-          }
-        }
-      });
-
-    } catch (error) {
-      logger.error('Erreur récupération chambres:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Erreur serveur',
-        message: error.message || 'Erreur lors de la récupération des chambres'
       });
     }
   }

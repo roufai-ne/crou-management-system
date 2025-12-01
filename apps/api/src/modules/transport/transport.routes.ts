@@ -80,6 +80,7 @@ import { TransportMetricsController } from './transport-metrics.controller';
 import { TicketTransportController } from './ticket-transport.controller';
 import { authenticateJWT } from '@/shared/middlewares/auth.middleware';
 import { checkPermissions } from '@/shared/middlewares/permissions.middleware';
+import { injectTenantIdMiddleware } from '@/shared/middlewares/tenant-isolation.middleware';
 import rateLimit from 'express-rate-limit';
 
 const router: Router = Router();
@@ -110,6 +111,7 @@ router.use(transportLimiter);
  */
 router.get('/vehicles',
   checkPermissions(['transport:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   TransportController.getVehicles
 );
 
@@ -120,6 +122,7 @@ router.get('/vehicles',
  */
 router.post('/vehicles',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   vehicleValidators.create,
   TransportController.createVehicle
 );
@@ -131,6 +134,7 @@ router.post('/vehicles',
  */
 router.get('/vehicles/:id',
   checkPermissions(['transport:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   vehicleValidators.update, // Utilise les validateurs d'update pour l'ID
   TransportController.getVehicle
 );
@@ -142,6 +146,7 @@ router.get('/vehicles/:id',
  */
 router.put('/vehicles/:id',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   vehicleValidators.update,
   TransportController.updateVehicle
 );
@@ -153,6 +158,7 @@ router.put('/vehicles/:id',
  */
 router.delete('/vehicles/:id',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   vehicleValidators.update,
   TransportController.deleteVehicle
 );
@@ -168,6 +174,7 @@ router.delete('/vehicles/:id',
  */
 router.get('/usages',
   checkPermissions(['transport:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   TransportController.getUsages
 );
 
@@ -178,6 +185,7 @@ router.get('/usages',
  */
 router.post('/usages',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   usageValidators.create,
   TransportController.createUsage
 );
@@ -189,6 +197,7 @@ router.post('/usages',
  */
 router.get('/usages/:id',
   checkPermissions(['transport:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   TransportController.getUsage
 );
 
@@ -199,6 +208,7 @@ router.get('/usages/:id',
  */
 router.put('/usages/:id',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   usageValidators.update,
   TransportController.updateUsage
 );
@@ -210,6 +220,7 @@ router.put('/usages/:id',
  */
 router.delete('/usages/:id',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   TransportController.deleteUsage
 );
 
@@ -224,6 +235,7 @@ router.delete('/usages/:id',
  */
 router.get('/maintenances',
   checkPermissions(['transport:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   TransportController.getMaintenances
 );
 
@@ -234,6 +246,7 @@ router.get('/maintenances',
  */
 router.post('/maintenances',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   maintenanceValidators.create,
   TransportController.createMaintenance
 );
@@ -245,6 +258,7 @@ router.post('/maintenances',
  */
 router.get('/maintenances/:id',
   checkPermissions(['transport:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   TransportController.getMaintenance
 );
 
@@ -255,6 +269,7 @@ router.get('/maintenances/:id',
  */
 router.put('/maintenances/:id',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   maintenanceValidators.update,
   TransportController.updateMaintenance
 );
@@ -266,6 +281,7 @@ router.put('/maintenances/:id',
  */
 router.delete('/maintenances/:id',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   TransportController.deleteMaintenance
 );
 

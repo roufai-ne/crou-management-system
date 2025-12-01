@@ -10,9 +10,11 @@
  * DATE: Décembre 2024
  */
 
-import { Request, Response } from 'express';
+import { Response } from 'express';
+import { TypedRequest } from '@/shared/types/express.types';
 import { body, query, param, validationResult } from 'express-validator';
 import { logger } from '@/shared/utils/logger';
+import { TenantIsolationUtils } from '@/shared/utils/tenant-isolation.utils';
 import { TransactionService, CreateTransactionDTO, UpdateTransactionDTO, TransactionFilters } from './transaction.service';
 import { FinancialService, CreateBudgetDTO, UpdateBudgetDTO, BudgetFilters } from './financial.service';
 import { TransactionType, TransactionStatus, TransactionCategory } from '../../../../../packages/database/src/entities/Transaction.entity';
@@ -52,15 +54,16 @@ export class FinancialController {
    * GET /api/financial/budgets
    * Liste des budgets avec filtres
    */
-  static async getBudgets(req: Request, res: Response) {
+  static async getBudgets(req: TypedRequest, res: Response) {
     try {
-      const tenantId = (req as any).user?.tenantId;
-      if (!tenantId) {
-        return res.status(401).json({
-          success: false,
-          error: 'Tenant ID manquant'
-        });
-      }
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
+      const hasExtendedAccess = TenantIsolationUtils.hasExtendedAccess(req);
+      const targetTenantId = req.query.tenantId as string;
+
+      // Déterminer le tenant effectif à utiliser
+      const effectiveTenantId = hasExtendedAccess && targetTenantId 
+        ? targetTenantId 
+        : tenantContext.tenantId;
 
       const { page = 1, limit = 10, status, year, type, search } = req.query;
 
@@ -73,7 +76,7 @@ export class FinancialController {
       };
 
       // Récupérer les budgets
-      const { budgets, total } = await FinancialService.getBudgets(tenantId, filters);
+      const { budgets, total } = await FinancialService.getBudgets(effectiveTenantId, filters);
 
       // Pagination
       const startIndex = (Number(page) - 1) * Number(limit);
@@ -106,12 +109,12 @@ export class FinancialController {
    * POST /api/financial/budgets
    * Créer un nouveau budget
    */
-  static async createBudget(req: Request, res: Response) {
+  static async createBudget(req: TypedRequest, res: Response) {
     try {
-      const tenantId = (req as any).user?.tenantId;
-      const userId = (req as any).user?.userId;
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
+      const userId = req.user?.userId;
 
-      if (!tenantId || !userId) {
+      if (!userId) {
         return res.status(401).json({
           success: false,
           error: 'Authentification manquante'
@@ -137,7 +140,7 @@ export class FinancialController {
         crouId
       };
 
-      const newBudget = await FinancialService.createBudget(tenantId, userId, budgetData);
+      const newBudget = await FinancialService.createBudget(tenantContext.tenantId, userId, budgetData);
 
       res.status(201).json({
         success: true,
@@ -158,19 +161,20 @@ export class FinancialController {
    * GET /api/financial/budgets/:id
    * Détails d'un budget
    */
-  static async getBudget(req: Request, res: Response) {
+  static async getBudget(req: TypedRequest, res: Response) {
     try {
-      const tenantId = (req as any).user?.tenantId;
-      if (!tenantId) {
-        return res.status(401).json({
-          success: false,
-          error: 'Tenant ID manquant'
-        });
-      }
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
+      const hasExtendedAccess = TenantIsolationUtils.hasExtendedAccess(req);
+      const targetTenantId = req.query.tenantId as string;
+
+      // Déterminer le tenant effectif à utiliser
+      const effectiveTenantId = hasExtendedAccess && targetTenantId 
+        ? targetTenantId 
+        : tenantContext.tenantId;
 
       const { id } = req.params;
 
-      const budget = await FinancialService.getBudgetById(id, tenantId);
+      const budget = await FinancialService.getBudgetById(id, effectiveTenantId);
 
       res.json({
         success: true,
@@ -190,12 +194,12 @@ export class FinancialController {
    * PUT /api/financial/budgets/:id
    * Modifier un budget
    */
-  static async updateBudget(req: Request, res: Response) {
+  static async updateBudget(req: TypedRequest, res: Response) {
     try {
-      const tenantId = (req as any).user?.tenantId;
-      const userId = (req as any).user?.userId;
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
+      const userId = req.user?.userId;
 
-      if (!tenantId || !userId) {
+      if (!userId) {
         return res.status(401).json({
           success: false,
           error: 'Authentification manquante'
@@ -214,7 +218,7 @@ export class FinancialController {
       const { id } = req.params;
       const updateData: UpdateBudgetDTO = req.body;
 
-      const updatedBudget = await FinancialService.updateBudget(id, tenantId, userId, updateData);
+      const updatedBudget = await FinancialService.updateBudget(id, tenantContext.tenantId, userId, updateData);
 
       res.json({
         success: true,
@@ -235,19 +239,13 @@ export class FinancialController {
    * DELETE /api/financial/budgets/:id
    * Supprimer un budget
    */
-  static async deleteBudget(req: Request, res: Response) {
+  static async deleteBudget(req: TypedRequest, res: Response) {
     try {
-      const tenantId = (req as any).user?.tenantId;
-      if (!tenantId) {
-        return res.status(401).json({
-          success: false,
-          error: 'Tenant ID manquant'
-        });
-      }
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
 
       const { id } = req.params;
 
-      await FinancialService.deleteBudget(id, tenantId);
+      await FinancialService.deleteBudget(id, tenantContext.tenantId);
 
       logger.info('Budget supprimé:', {
         budgetId: id,

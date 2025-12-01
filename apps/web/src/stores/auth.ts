@@ -111,6 +111,7 @@ export interface AuthState {
   hasPermission: (permission: string) => boolean;
   hasAnyPermission: (permissions: string[]) => boolean;
   hasRole: (role: string) => boolean;
+  hasExtendedAccess: () => boolean;
 
   // Actions de hiérarchie (NEW - support 3 niveaux)
   getHierarchyLevel: () => HierarchyLevel | null;
@@ -218,7 +219,7 @@ export const useAuth = create<AuthState>()(
         if (user?.role === 'Super Admin') {
           return true;
         }
-        return user?.permissions.includes(permission) || false;
+        return user?.permissions?.includes(permission) || false;
       },
 
       hasAnyPermission: (permissions: string[]) => {
@@ -227,12 +228,18 @@ export const useAuth = create<AuthState>()(
         if (user?.role === 'Super Admin') {
           return true;
         }
-        return permissions.some(permission => user?.permissions.includes(permission)) || false;
+        return permissions.some(permission => user?.permissions?.includes(permission)) || false;
       },
 
       hasRole: (role: string) => {
         const { user } = get();
         return user?.role === role;
+      },
+
+      hasExtendedAccess: () => {
+        const { user } = get();
+        // Super Admin et Admin Ministère ont accès étendu
+        return user?.role === 'Super Admin' || user?.role === 'Admin Ministère' || user?.hierarchyLevel === 'ministry';
       },
 
       // Méthode pour nettoyer le store sans appeler l'API

@@ -250,19 +250,8 @@ export const ModernCROUDashboard: React.FC = () => {
     { id: 'transport', label: 'Transport', icon: Truck, permission: 'transport:read' }
   ];
 
-  // Configuration des tabs pour ModernTabs
-  const dashboardTabs: Tab[] = allTabs
-    .filter(tab => !tab.permission || hasPermission(tab.permission))
-    .map(tab => ({
-      id: tab.id,
-      label: tab.label,
-      icon: tab.icon,
-      badge: tab.id === 'overview' && totalAlerts > 0 ? totalAlerts.toString() : undefined,
-      content: renderTabContent(tab.id),
-    }));
-
   // Fonction pour rendre le contenu de chaque onglet
-  function renderTabContent(tabId: string) {
+  const renderTabContent = (tabId: string) => {
     switch (tabId) {
       case 'overview':
         return <OverviewContent />;
@@ -277,7 +266,7 @@ export const ModernCROUDashboard: React.FC = () => {
       default:
         return null;
     }
-  }
+  };
 
   // Composant Vue d'ensemble
   const OverviewContent = () => (
@@ -478,13 +467,24 @@ export const ModernCROUDashboard: React.FC = () => {
     </div>
   );
 
+  // Configuration des tabs pour ModernTabs (après la définition de tous les composants)
+  const dashboardTabs: Tab[] = allTabs
+    .filter(tab => !tab.permission || hasPermission(tab.permission))
+    .map(tab => ({
+      id: tab.id,
+      label: tab.label,
+      icon: tab.icon,
+      badge: tab.id === 'overview' && totalAlerts > 0 ? totalAlerts.toString() : undefined,
+      content: renderTabContent(tab.id),
+    }));
+
   return (
     <div className="space-y-8">
       {/* Header avec titre et actions */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Dashboard CROU {user?.crouId || 'Local'}
+            Dashboard {user?.tenant?.name || 'CROU'}
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">
             Vue d'ensemble des opérations et performances

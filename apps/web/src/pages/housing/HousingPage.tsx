@@ -54,7 +54,11 @@ import { BedsTab } from '@/components/housing/BedsTab';
 
 export const HousingPage: React.FC = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('beds');
+  const [activeTab, setActiveTab] = useState('complexes');
+  const [selectedComplexId, setSelectedComplexId] = useState<string | undefined>();
+  const [selectedComplexName, setSelectedComplexName] = useState<string | undefined>();
+  const [selectedRoomId, setSelectedRoomId] = useState<string | undefined>();
+  const [selectedRoomNumber, setSelectedRoomNumber] = useState<string | undefined>();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -638,10 +642,39 @@ export const HousingPage: React.FC = () => {
 
   const tabs = [
     {
-      id: 'beds',
-      label: '🛏️ Lits',
+      id: 'complexes',
+      label: 'Cités',
       icon: <HomeModernIcon className="h-4 w-4" />,
-      content: <BedsTab />
+      content: <CitesTab onNavigateToRooms={(complexId, complexName) => {
+        setSelectedComplexId(complexId);
+        setSelectedComplexName(complexName);
+        setActiveTab('rooms');
+      }} />
+    },
+    {
+      id: 'rooms',
+      label: 'Chambres',
+      icon: <ChartBarIcon className="h-4 w-4" />,
+      content: <ChambresTab 
+        selectedComplexId={selectedComplexId}
+        selectedComplexName={selectedComplexName}
+        onNavigateToBeds={(roomId, roomNumber) => {
+          setSelectedRoomId(roomId);
+          setSelectedRoomNumber(roomNumber);
+          setActiveTab('beds');
+        }}
+        onBack={() => {
+          setSelectedComplexId(undefined);
+          setSelectedComplexName(undefined);
+          setActiveTab('complexes');
+        }}
+      />
+    },
+    {
+      id: 'beds',
+      label: 'Lits',
+      icon: <HomeModernIcon className="h-4 w-4" />,
+      content: <BedsTab roomId={selectedRoomId} />
     },
     {
       id: 'occupations',
@@ -654,18 +687,6 @@ export const HousingPage: React.FC = () => {
       label: 'Demandes',
       icon: <DocumentArrowDownIcon className="h-4 w-4" />,
       content: <RequestsTab />
-    },
-    {
-      id: 'rooms',
-      label: 'Chambres',
-      icon: <ChartBarIcon className="h-4 w-4" />,
-      content: <ChambresTab />
-    },
-    {
-      id: 'complexes',
-      label: 'Cités',
-      icon: <HomeModernIcon className="h-4 w-4" />,
-      content: <CitesTab />
     },
     { 
       id: 'residents', 

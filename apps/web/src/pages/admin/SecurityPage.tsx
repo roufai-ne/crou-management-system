@@ -56,6 +56,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 import { cn } from '@/utils/cn';
 import { Toast } from '@/components/ui/Toast';
 import { adminService, type SecurityAlert as ApiSecurityAlert, type SecurityStats as ApiSecurityStats, type BlockedAccount as ApiBlockedAccount } from '@/services/api/adminService';
+import { useTenantFilterEffect } from '@/hooks/useTenantFilterEffect';
 import { exportSecurityAlertsToPDF } from '@/utils/pdfExport';
 
 // Types pour les données de sécurité
@@ -272,6 +273,9 @@ export const SecurityPage: React.FC = () => {
     const interval = setInterval(loadSecurityData, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  // Recharger les données quand le tenant change
+  useTenantFilterEffect(loadSecurityData);
 
   // Colonnes pour le tableau des alertes
   const alertColumns: TableColumn<SecurityAlert>[] = [

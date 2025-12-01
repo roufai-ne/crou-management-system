@@ -31,6 +31,7 @@ import { StocksController, stockValidators } from './stocks.controller';
 import { SuppliersController, supplierValidators } from './suppliers.controller';
 import { authenticateJWT } from '@/shared/middlewares/auth.middleware';
 import { checkPermissions } from '@/shared/middlewares/permissions.middleware';
+import { injectTenantIdMiddleware } from '@/shared/middlewares/tenant-isolation.middleware';
 import rateLimit from 'express-rate-limit';
 
 const router: Router = Router();
@@ -61,6 +62,7 @@ router.use(stocksLimiter);
  */
 router.get('/stocks',
   checkPermissions(['stocks:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   StocksController.getStocks
 );
 
@@ -71,6 +73,7 @@ router.get('/stocks',
  */
 router.post('/stocks',
   checkPermissions(['stocks:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   stockValidators.create,
   StocksController.createStock
 );
@@ -119,6 +122,7 @@ router.delete('/stocks/:id',
  */
 router.get('/movements',
   checkPermissions(['stocks:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   StocksController.getMovements
 );
 
@@ -330,6 +334,7 @@ router.get('/dashboard/alerts',
  */
 router.get('/suppliers',
   checkPermissions(['stocks:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   SuppliersController.getSuppliers
 );
 

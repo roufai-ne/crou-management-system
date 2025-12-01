@@ -255,7 +255,18 @@ class HousingService {
       if (params?.tenantId) queryParams.append('tenantId', params.tenantId);
 
       const response = await apiClient.get(`${this.baseUrl}/complexes?${queryParams.toString()}`);
-      return response.data;
+      
+      // Mapper les champs français du backend vers l'interface TypeScript
+      const data = response.data;
+      if (data.complexes) {
+        data.complexes = data.complexes.map((complex: any) => ({
+          ...complex,
+          name: complex.name || complex.nom,
+          address: complex.address || complex.adresse,
+        }));
+      }
+      
+      return data;
     } catch (error) {
       console.error('Erreur lors de la récupération des cités:', error);
       throw error;
@@ -268,7 +279,14 @@ class HousingService {
   async getComplex(id: string): Promise<HousingComplex> {
     try {
       const response = await apiClient.get(`${this.baseUrl}/complexes/${id}`);
-      return response.data;
+      const complex = response.data;
+      
+      // Mapper les champs français du backend
+      return {
+        ...complex,
+        name: complex.name || complex.nom,
+        address: complex.address || complex.adresse,
+      };
     } catch (error) {
       console.error('Erreur lors de la récupération de la cité:', error);
       throw error;
@@ -343,7 +361,22 @@ class HousingService {
       if (params?.tenantId) queryParams.append('tenantId', params.tenantId);
 
       const response = await apiClient.get(`${this.baseUrl}/rooms?${queryParams.toString()}`);
-      return response.data;
+      
+      // Mapper les champs français du backend vers l'interface TypeScript
+      const data = response.data;
+      if (data.rooms) {
+        data.rooms = data.rooms.map((room: any) => ({
+          ...room,
+          number: room.number || room.numero,
+          complexId: room.complexId || room.housingId,
+          capacity: room.capacity || room.capacite,
+          currentOccupancy: room.currentOccupancy || room.occupation || 0,
+          monthlyRent: room.monthlyRent || room.loyerMensuel,
+          amenities: room.amenities || room.equipements || [],
+        }));
+      }
+      
+      return data;
     } catch (error) {
       console.error('Erreur lors de la récupération des chambres:', error);
       throw error;

@@ -21,8 +21,10 @@
  * DATE: Octobre 2025
  */
 
-import { Request, Response } from 'express';
+import { Response } from 'express';
+import { TypedRequest } from '@/shared/types/express.types';
 import { body, param, validationResult } from 'express-validator';
+import { TenantIsolationUtils } from '@/shared/utils/tenant-isolation.utils';
 import { DriversService } from './drivers.service';
 import { logger } from '@/shared/utils/logger';
 import { LicenseType } from '../../../../../packages/database/src/entities/Driver.entity';
@@ -34,15 +36,15 @@ export class DriversController {
    * GET /api/transport/drivers
    * Liste des chauffeurs avec filtres et pagination
    */
-  static async getDrivers(req: Request, res: Response) {
+  static async getDrivers(req: TypedRequest, res: Response) {
     try {
-      const tenantId = (req as any).user?.tenantId;
-      if (!tenantId) {
-        return res.status(401).json({
-          success: false,
-          message: 'Tenant non identifié'
-        });
-      }
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
+      const hasExtendedAccess = TenantIsolationUtils.hasExtendedAccess(req);
+      const targetTenantId = req.query.tenantId as string;
+
+      const effectiveTenantId = hasExtendedAccess && targetTenantId 
+        ? targetTenantId 
+        : tenantContext.tenantId;
 
       const filters = {
         search: req.query.search as string,
@@ -52,7 +54,7 @@ export class DriversController {
         limit: parseInt(req.query.limit as string) || 20
       };
 
-      const result = await DriversController.driversService.getDrivers(tenantId, filters);
+      const result = await DriversController.driversService.getDrivers(effectiveTenantId, filters);
       res.json(result);
     } catch (error) {
       logger.error('Erreur getDrivers:', error);
@@ -68,18 +70,11 @@ export class DriversController {
    * GET /api/transport/drivers/:id
    * Détails d'un chauffeur
    */
-  static async getDriver(req: Request, res: Response) {
+  static async getDriver(req: TypedRequest, res: Response) {
     try {
-      const tenantId = (req as any).user?.tenantId;
-      if (!tenantId) {
-        return res.status(401).json({
-          success: false,
-          message: 'Tenant non identifié'
-        });
-      }
-
+      const tenantContext = TenantIsolationUtils.extractTenantContext(req);
       const { id } = req.params;
-      const result = await DriversController.driversService.getDriverById(id, tenantId);
+      const result = await DriversController.driversService.getDriverById(id, tenantContext.tenantId);
       res.json(result);
     } catch (error) {
       logger.error('Erreur getDriver:', error);

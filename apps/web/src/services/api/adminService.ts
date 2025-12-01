@@ -235,17 +235,29 @@ class AdminService {
   }> {
     try {
       const queryParams = new URLSearchParams();
-      if (params?.tenantId) queryParams.append('tenantId', params.tenantId);
-      if (params?.role) queryParams.append('role', params.role);
-      if (params?.isActive !== undefined) queryParams.append('isActive', params.isActive.toString());
-      if (params?.search) queryParams.append('search', params.search);
+      
+      // Filtrer les valeurs 'all' qui sont invalides pour le backend
+      if (params?.tenantId && params.tenantId !== 'all') {
+        queryParams.append('tenantId', params.tenantId);
+      }
+      if (params?.role && params.role !== 'all') {
+        queryParams.append('role', params.role);
+      }
+      if (params?.isActive !== undefined && params.isActive !== 'all' as any) {
+        queryParams.append('isActive', params.isActive.toString());
+      }
+      if (params?.search) {
+        queryParams.append('search', params.search);
+      }
 
       // Convertir page en offset pour le backend
       if (params?.page && params?.limit) {
         const offset = (params.page - 1) * params.limit;
         queryParams.append('offset', offset.toString());
       }
-      if (params?.limit) queryParams.append('limit', params.limit.toString());
+      if (params?.limit) {
+        queryParams.append('limit', params.limit.toString());
+      }
 
       const response = await apiClient.get(`${this.baseUrl}/users?${queryParams.toString()}`);
       console.log('📊 DEBUG - Response from /admin/users:', response);

@@ -166,7 +166,7 @@ export const FinancialPage: React.FC = () => {
           <ExportButton module="financial" />
         </div>
         <p className="text-lg text-gray-600 dark:text-gray-400">
-          Module financier {user?.level === 'ministere' ? 'national' : 'local'} - CROU {user?.crouId || 'Local'}
+          Module financier {user?.level === 'ministere' ? 'national' : 'local'} - {user?.tenant?.name || 'CROU'}
         </p>
       </div>
 

@@ -28,6 +28,7 @@ import { Router } from 'express';
 import { DashboardController } from './dashboard.controller';
 import { authenticateJWT } from '@/shared/middlewares/auth.middleware';
 import { checkPermissions } from '@/shared/middlewares/permissions.middleware';
+import { injectTenantIdMiddleware } from '@/shared/middlewares/tenant-isolation.middleware';
 import rateLimit from 'express-rate-limit';
 
 const router: Router = Router();
@@ -66,6 +67,7 @@ router.use(dashboardLimiter);
  */
 router.get('/data',
   maybe(checkPermissions(['dashboard:read'])),
+  injectTenantIdMiddleware({ strictMode: false }),
   DashboardController.getData
 );
 
@@ -80,6 +82,7 @@ router.get('/data',
  */
 router.get('/kpis/global',
   maybe(checkPermissions(['dashboard:read'])),
+  injectTenantIdMiddleware({ strictMode: false }),
   DashboardController.getGlobalKPIs
 );
 
@@ -90,6 +93,7 @@ router.get('/kpis/global',
  */
 router.get('/kpis/modules',
   maybe(checkPermissions(['dashboard:read'])),
+  injectTenantIdMiddleware({ strictMode: false }),
   DashboardController.getModuleKPIs
 );
 
@@ -104,6 +108,7 @@ router.get('/kpis/modules',
  */
 router.get('/evolution',
   maybe(checkPermissions(['dashboard:read'])),
+  injectTenantIdMiddleware({ strictMode: false }),
   DashboardController.getEvolutionData
 );
 
@@ -114,6 +119,7 @@ router.get('/evolution',
  */
 router.get('/expenses',
   maybe(checkPermissions(['dashboard:read'])),
+  injectTenantIdMiddleware({ strictMode: false }),
   DashboardController.getExpenseBreakdown
 );
 
@@ -128,6 +134,7 @@ router.get('/expenses',
  */
 router.get('/alerts',
   maybe(checkPermissions(['dashboard:read'])),
+  injectTenantIdMiddleware({ strictMode: false }),
   DashboardController.getAlerts
 );
 

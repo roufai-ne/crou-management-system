@@ -20,20 +20,22 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/stores/auth';
+import { useTenantFilter } from '@/stores/tenantFilter';
 import { 
-  useHousing, 
-  useHousingComplexes, 
-  useHousingRooms, 
-  useHousingResidents, 
-  useHousingMaintenance, 
-  useHousingPayments, 
-  useHousingMetrics 
+  useHousing as useHousingStore, 
+  useHousingComplexes as useHousingComplexesStore, 
+  useHousingRooms as useHousingRoomsStore, 
+  useHousingResidents as useHousingResidentsStore, 
+  useHousingMaintenance as useHousingMaintenanceStore, 
+  useHousingPayments as useHousingPaymentsStore, 
+  useHousingMetrics as useHousingMetricsStore
 } from '@/stores/housing';
 import { HousingComplex, Room, Resident, MaintenanceRequest, Payment, HousingMetrics } from '@/services/api/housingService';
 
 // Hook pour les cités universitaires
 export const useHousingComplexes = () => {
   const { user } = useAuth();
+  const { selectedTenantId } = useTenantFilter();
   const { 
     complexes, 
     loading, 
@@ -42,7 +44,7 @@ export const useHousingComplexes = () => {
     createComplex, 
     updateComplex, 
     deleteComplex 
-  } = useHousing();
+  } = useHousingComplexesStore();
 
   const [filters, setFilters] = useState({
     search: '',
@@ -53,10 +55,11 @@ export const useHousingComplexes = () => {
 
   // Charger les cités au montage et quand les filtres changent
   useEffect(() => {
-    if (user?.tenantId) {
-      loadComplexes(user.tenantId, filters);
+    const tenantId = selectedTenantId || user?.tenantId;
+    if (tenantId) {
+      loadComplexes(tenantId, filters);
     }
-  }, [user?.tenantId, filters, loadComplexes]);
+  }, [selectedTenantId, user?.tenantId, filters, loadComplexes]);
 
   // Fonctions de gestion
   const handleCreateComplex = useCallback(async (data: any) => {
@@ -107,6 +110,7 @@ export const useHousingComplexes = () => {
 // Hook pour les chambres
 export const useHousingRooms = () => {
   const { user } = useAuth();
+  const { selectedTenantId } = useTenantFilter();
   const { 
     rooms, 
     loading, 
@@ -115,7 +119,7 @@ export const useHousingRooms = () => {
     createRoom, 
     updateRoom, 
     deleteRoom 
-  } = useHousing();
+  } = useHousingRoomsStore();
 
   const [filters, setFilters] = useState({
     search: '',
@@ -126,10 +130,11 @@ export const useHousingRooms = () => {
 
   // Charger les chambres au montage et quand les filtres changent
   useEffect(() => {
-    if (user?.tenantId) {
-      loadRooms(user.tenantId, filters);
+    const tenantId = selectedTenantId || user?.tenantId;
+    if (tenantId) {
+      loadRooms(tenantId, filters);
     }
-  }, [user?.tenantId, filters, loadRooms]);
+  }, [selectedTenantId, user?.tenantId, filters, loadRooms]);
 
   // Fonctions de gestion
   const handleCreateRoom = useCallback(async (data: any) => {
@@ -180,6 +185,7 @@ export const useHousingRooms = () => {
 // Hook pour les résidents
 export const useHousingResidents = () => {
   const { user } = useAuth();
+  const { selectedTenantId } = useTenantFilter();
   const { 
     residents, 
     loading, 
@@ -188,7 +194,7 @@ export const useHousingResidents = () => {
     createResident, 
     updateResident, 
     deleteResident 
-  } = useHousing();
+  } = useHousingResidentsStore();
 
   const [filters, setFilters] = useState({
     search: '',
@@ -199,10 +205,11 @@ export const useHousingResidents = () => {
 
   // Charger les résidents au montage et quand les filtres changent
   useEffect(() => {
-    if (user?.tenantId) {
-      loadResidents(user.tenantId, filters);
+    const tenantId = selectedTenantId || user?.tenantId;
+    if (tenantId) {
+      loadResidents(tenantId, filters);
     }
-  }, [user?.tenantId, filters, loadResidents]);
+  }, [selectedTenantId, user?.tenantId, filters, loadResidents]);
 
   // Fonctions de gestion
   const handleCreateResident = useCallback(async (data: any) => {
@@ -253,6 +260,7 @@ export const useHousingResidents = () => {
 // Hook pour la maintenance
 export const useHousingMaintenance = () => {
   const { user } = useAuth();
+  const { selectedTenantId } = useTenantFilter();
   const { 
     maintenanceRequests, 
     loading, 
@@ -260,7 +268,7 @@ export const useHousingMaintenance = () => {
     loadMaintenanceRequests, 
     createMaintenanceRequest, 
     updateMaintenanceRequest 
-  } = useHousing();
+  } = useHousingMaintenanceStore();
 
   const [filters, setFilters] = useState({
     type: 'all',
@@ -271,10 +279,11 @@ export const useHousingMaintenance = () => {
 
   // Charger les demandes de maintenance au montage et quand les filtres changent
   useEffect(() => {
-    if (user?.tenantId) {
-      loadMaintenanceRequests(user.tenantId, filters);
+    const tenantId = selectedTenantId || user?.tenantId;
+    if (tenantId) {
+      loadMaintenanceRequests(tenantId, filters);
     }
-  }, [user?.tenantId, filters, loadMaintenanceRequests]);
+  }, [selectedTenantId, user?.tenantId, filters, loadMaintenanceRequests]);
 
   // Fonctions de gestion
   const handleCreateMaintenanceRequest = useCallback(async (data: any) => {
@@ -318,13 +327,14 @@ export const useHousingMaintenance = () => {
 // Hook pour les paiements
 export const useHousingPayments = () => {
   const { user } = useAuth();
+  const { selectedTenantId } = useTenantFilter();
   const { 
     payments, 
     loading, 
     error, 
     loadPayments, 
     createPayment 
-  } = useHousing();
+  } = useHousingPaymentsStore();
 
   const [filters, setFilters] = useState({
     type: 'all',
@@ -335,10 +345,11 @@ export const useHousingPayments = () => {
 
   // Charger les paiements au montage et quand les filtres changent
   useEffect(() => {
-    if (user?.tenantId) {
-      loadPayments(user.tenantId, filters);
+    const tenantId = selectedTenantId || user?.tenantId;
+    if (tenantId) {
+      loadPayments(tenantId, filters);
     }
-  }, [user?.tenantId, filters, loadPayments]);
+  }, [selectedTenantId, user?.tenantId, filters, loadPayments]);
 
   // Fonctions de gestion
   const handleCreatePayment = useCallback(async (data: any) => {
@@ -375,19 +386,21 @@ export const useHousingPayments = () => {
 // Hook pour les métriques
 export const useHousingMetrics = () => {
   const { user } = useAuth();
+  const { selectedTenantId } = useTenantFilter();
   const { 
     metrics, 
     loading, 
     error, 
     loadMetrics 
-  } = useHousing();
+  } = useHousingMetricsStore();
 
   // Charger les métriques au montage
   useEffect(() => {
-    if (user?.tenantId) {
-      loadMetrics(user.tenantId);
+    const tenantId = selectedTenantId || user?.tenantId;
+    if (tenantId) {
+      loadMetrics(tenantId);
     }
-  }, [user?.tenantId, loadMetrics]);
+  }, [selectedTenantId, user?.tenantId, loadMetrics]);
 
   return {
     metrics,
@@ -564,8 +577,12 @@ export const useHousingOccupancies = () => {
 
 // Hook pour les statistiques avancées
 export const useHousingStatistics = () => {
-  const { complexes, rooms, residents, maintenanceRequests, payments } = useHousing();
-  const { metrics } = useHousingMetrics();
+  const { complexes } = useHousingComplexesStore();
+  const { rooms } = useHousingRoomsStore();
+  const { residents } = useHousingResidentsStore();
+  const { maintenanceRequests } = useHousingMaintenanceStore();
+  const { payments } = useHousingPaymentsStore();
+  const { metrics } = useHousingMetricsStore();
 
   // Calculer les statistiques en temps réel
   const statistics = {

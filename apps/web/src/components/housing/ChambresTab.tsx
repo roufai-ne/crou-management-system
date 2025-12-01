@@ -22,12 +22,10 @@ import {
   Card,
   Badge,
   Button,
-  DataTable,
+  Table,
   Modal,
   Input,
-  Select,
-  Textarea,
-  useConfirmDialog
+  Select
 } from '@/components/ui';
 import {
   PlusIcon,
@@ -37,70 +35,74 @@ import {
   CheckCircleIcon,
   XCircleIcon,
   WrenchScrewdriverIcon,
-  UserIcon
+  UserIcon,
+  ArrowRightIcon,
+  ArrowLeftIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/stores/auth';
-import toast from 'react-hot-toast';
+import { useHousingRooms, useHousingComplexes } from '@/hooks/useHousing';
+import { Room, CreateRoomRequest, UpdateRoomRequest } from '@/services/api/housingService';
+import { Toast } from '@/components/ui/Toast';
 
-// Types
-interface Room {
-  id: string;
-  number: string;
-  floor: number;
-  complexId: string;
-  complex?: {
-    name: string;
-    code: string;
-  };
-  capacity: number; // Nombre de lits (1, 2, 3...)
-  currentOccupants: number;
-  monthlyRent: number; // Loyer unique pour tout le CROU
-  status: 'disponible' | 'occupee' | 'maintenance' | 'reservee';
-  description?: string;
-  equipment?: string[];
+interface ChambresTabProps {
+  selectedComplexId?: string;
+  selectedComplexName?: string;
+  onNavigateToBeds?: (roomId: string, roomNumber: string) => void;
+  onBack?: () => void;
 }
 
 interface RoomFormData {
   number: string;
-  floor: number;
   complexId: string;
+  type: 'single' | 'double' | 'triple' | 'quadruple';
   capacity: number;
   monthlyRent: number;
-  status: 'disponible' | 'occupee' | 'maintenance' | 'reservee';
-  description: string;
+  status: 'available' | 'occupied' | 'maintenance' | 'reserved';
+  amenities: string[];
 }
 
-export const ChambresTab: React.FC = () => {
+export const ChambresTab: React.FC<ChambresTabProps> = ({ 
+  selectedComplexId, 
+  selectedComplexName,
+  onNavigateToBeds,
+  onBack 
+}) => {
   const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRoom, setEditingRoom] = useState<Room | null>(null);
   const [formData, setFormData] = useState<RoomFormData>({
     number: '',
-    floor: 0,
     complexId: '',
+    type: 'single',
     capacity: 1,
-    monthlyRent: 15000, // Valeur par défaut
-    status: 'disponible',
-    description: ''
+    monthlyRent: 15000,
+    status: 'available',
+    amenities: []
   });
 
-  // États de données (à remplacer par hooks réels)
-  const [rooms, setRooms] = useState<Room[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [filters, setFilters] = useState({
-    search: '',
-    status: 'all',
-    complexId: 'all'
-  });
+  // Utiliser les hooks réels
+  const {
+    rooms,
+    loading: roomsLoading,
+    error: roomsError,
+    filters,
+    createRoom,
+    updateRoom,
+    deleteRoom,
+    updateFilters
+  } = useHousingRooms();
 
-  // Cités disponibles (mock - à remplacer par hook)
-  const [complexes] = useState([
-    { id: '1', name: 'Cité Universitaire A', code: 'CU-A' },
-    { id: '2', name: 'Cité Universitaire B', code: 'CU-B' },
-    { id: '3', name: 'Cité Plateau', code: 'CU-P' }
-  ]);
+  const {
+    complexes,
+    loading: complexesLoading
+  } = useHousingComplexes();
 
-  const { ConfirmDialog, confirm } = useConfirmDialog();
+  // Filtrer automatiquement par cité si spécifiée
+  React.useEffect(() => {
+    if (selectedComplexId) {
+      updateFilters({ complexId: selectedComplexId });
+    }
+  }, [selectedComplexId, updateFilters]);
 
   /**
    * Ouvrir modal création
@@ -109,12 +111,12 @@ export const ChambresTab: React.FC = () => {
     setEditingRoom(null);
     setFormData({
       number: '',
-      floor: 0,
       complexId: '',
+      type: 'single',
       capacity: 1,
       monthlyRent: 15000,
-      status: 'disponible',
-      description: ''
+      status: 'available',
+      amenities: []
     });
     setIsModalOpen(true);
   };
@@ -126,12 +128,12 @@ export const ChambresTab: React.FC = () => {
     setEditingRoom(room);
     setFormData({
       number: room.number || '',
-      floor: room.floor || 0,
       complexId: room.complexId || '',
+      type: room.type || 'single',
       capacity: room.capacity || 1,
       monthlyRent: room.monthlyRent || 15000,
-      status: room.status || 'disponible',
-      description: room.description || ''
+      status: room.status || 'available',
+      amenities: room.amenities || []
     });
     setIsModalOpen(true);
   };
@@ -142,37 +144,37 @@ export const ChambresTab: React.FC = () => {
   const handleSave = async () => {
     // Validation
     if (!formData.number.trim()) {
-      toast.error('Le numéro de chambre est obligatoire');
+      Toast.error('Le numéro de chambre est obligatoire');
       return;
     }
 
     if (!formData.complexId) {
-      toast.error('Veuillez sélectionner une cité');
+      Toast.error('Veuillez sélectionner une cité');
       return;
     }
 
     if (formData.capacity <= 0 || formData.capacity > 4) {
-      toast.error('La capacité doit être entre 1 et 4 lits');
+      Toast.error('La capacité doit être entre 1 et 4 lits');
       return;
     }
 
     if (formData.monthlyRent <= 0) {
-      toast.error('Le loyer doit être supérieur à 0');
+      Toast.error('Le loyer doit être supérieur à 0');
       return;
     }
 
     try {
       if (editingRoom) {
-        // TODO: Appel API update
-        toast.success('Chambre modifiée avec succès');
+        await updateRoom(editingRoom.id, formData as UpdateRoomRequest);
+        Toast.success('Chambre modifiée avec succès');
       } else {
-        // TODO: Appel API create
-        toast.success('Chambre créée avec succès');
+        await createRoom(formData as CreateRoomRequest);
+        Toast.success('Chambre créée avec succès');
       }
       setIsModalOpen(false);
-      // Refresh liste
+      resetForm();
     } catch (error: any) {
-      toast.error(error.message || 'Erreur lors de la sauvegarde');
+      Toast.error(error.message || 'Erreur lors de la sauvegarde');
     }
   };
 
@@ -180,27 +182,20 @@ export const ChambresTab: React.FC = () => {
    * Supprimer chambre
    */
   const handleDelete = async (room: Room) => {
-    if (room.currentOccupants > 0) {
-      toast.error('Impossible de supprimer une chambre occupée');
+    if (room.currentOccupancy > 0) {
+      Toast.error('Impossible de supprimer une chambre occupée');
       return;
     }
 
-    const confirmed = await confirm({
-      title: 'Supprimer cette chambre ?',
-      message: `Êtes-vous sûr de vouloir supprimer la chambre "${room.number}" ?`,
-      variant: 'danger',
-      confirmText: 'Supprimer',
-      cancelText: 'Annuler'
-    });
-
-    if (!confirmed) return;
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer la chambre "${room.number}" ?`)) {
+      return;
+    }
 
     try {
-      // TODO: Appel API
-      toast.success('Chambre supprimée avec succès');
-      // Refresh liste
+      await deleteRoom(room.id);
+      Toast.success('Chambre supprimée avec succès');
     } catch (error: any) {
-      toast.error(error.message || 'Erreur lors de la suppression');
+      Toast.error(error.message || 'Erreur lors de la suppression');
     }
   };
 
@@ -208,29 +203,43 @@ export const ChambresTab: React.FC = () => {
    * Changer statut chambre
    */
   const handleChangeStatus = async (room: Room, newStatus: Room['status']) => {
-    if (newStatus === 'occupee' && room.currentOccupants === 0) {
-      toast.error('Impossible de marquer comme occupée : aucun occupant');
+    if (newStatus === 'occupied' && room.currentOccupancy === 0) {
+      Toast.error('Impossible de marquer comme occupée : aucun occupant');
       return;
     }
 
     try {
-      // TODO: Appel API
-      toast.success('Statut modifié avec succès');
-      // Refresh liste
+      await updateRoom(room.id, { status: newStatus } as UpdateRoomRequest);
+      Toast.success('Statut mis à jour avec succès');
     } catch (error: any) {
-      toast.error(error.message || 'Erreur lors de la modification');
+      Toast.error(error.message || 'Erreur lors de la mise à jour');
     }
   };
 
+  /**
+   * Reset formulaire
+   */
+  const resetForm = () => {
+    setEditingRoom(null);
+    setFormData({
+      number: '',
+      complexId: '',
+      type: 'single',
+      capacity: 1,
+      monthlyRent: 15000,
+      status: 'available',
+      amenities: []
+    });
+  };
   /**
    * Obtenir badge de statut
    */
   const getStatusBadge = (status: string) => {
     const badges: Record<string, { variant: any; label: string; icon: any }> = {
-      disponible: { variant: 'success', label: 'Disponible', icon: CheckCircleIcon },
-      occupee: { variant: 'danger', label: 'Occupée', icon: UserIcon },
+      available: { variant: 'success', label: 'Disponible', icon: CheckCircleIcon },
+      occupied: { variant: 'danger', label: 'Occupée', icon: UserIcon },
       maintenance: { variant: 'warning', label: 'Maintenance', icon: WrenchScrewdriverIcon },
-      reservee: { variant: 'info', label: 'Réservée', icon: HomeIcon }
+      reserved: { variant: 'info', label: 'Réservée', icon: HomeIcon }
     };
     const config = badges[status] || { variant: 'secondary', label: status, icon: HomeIcon };
     const Icon = config.icon;
@@ -241,6 +250,19 @@ export const ChambresTab: React.FC = () => {
         {config.label}
       </Badge>
     );
+  };
+
+  /**
+   * Obtenir label du type
+   */
+  const getTypeLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      single: '1 lit',
+      double: '2 lits',
+      triple: '3 lits',
+      quadruple: '4 lits'
+    };
+    return labels[type] || type;
   };
 
   /**
@@ -257,39 +279,36 @@ export const ChambresTab: React.FC = () => {
           </div>
           <div>
             <p className="font-medium text-lg font-mono">{room.number}</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Étage {room.floor}
-            </p>
+            {room.complex && (
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {room.complex.name}
+              </p>
+            )}
           </div>
         </div>
       )
     },
     {
-      key: 'complex',
-      label: 'Cité',
+      key: 'type',
+      label: 'Type',
       render: (room: Room) => (
         <div>
-          <p className="font-medium">{room.complex?.name}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400 font-mono">
-            {room.complex?.code}
+          <p className="font-medium">{getTypeLabel(room.type)}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Capacité: {room.capacity}
           </p>
         </div>
       )
     },
     {
-      key: 'capacity',
-      label: 'Capacité',
+      key: 'occupancy',
+      label: 'Occupation',
       render: (room: Room) => (
         <div className="text-center">
-          <p className="text-2xl font-bold text-blue-600">{room.capacity}</p>
+          <p className="text-2xl font-bold text-blue-600">{room.currentOccupancy}</p>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            {room.capacity === 1 ? 'lit' : 'lits'}
+            / {room.capacity} {room.capacity === 1 ? 'place' : 'places'}
           </p>
-          {room.currentOccupants > 0 && (
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-              {room.currentOccupants} occupant{room.currentOccupants > 1 ? 's' : ''}
-            </p>
-          )}
         </div>
       )
     },
@@ -298,7 +317,7 @@ export const ChambresTab: React.FC = () => {
       label: 'Loyer',
       render: (room: Room) => (
         <div className="text-right">
-          <p className="font-medium text-lg">{room.monthlyRent.toLocaleString()} FCFA</p>
+          <p className="font-medium text-lg">{room.monthlyRent.toLocaleString()} XOF</p>
           <p className="text-xs text-gray-500 dark:text-gray-400">par mois</p>
         </div>
       )
@@ -313,7 +332,18 @@ export const ChambresTab: React.FC = () => {
       label: 'Actions',
       render: (room: Room) => (
         <div className="flex items-center gap-2 flex-wrap">
-          {room.status === 'disponible' && (
+          {onNavigateToBeds && (
+            <Button
+              size="sm"
+              variant="primary"
+              leftIcon={<ArrowRightIcon className="h-4 w-4" />}
+              onClick={() => onNavigateToBeds(room.id, room.number)}
+            >
+              Voir lits
+            </Button>
+          )}
+
+          {room.status === 'available' && (
             <Button
               size="sm"
               variant="outline"
@@ -329,7 +359,7 @@ export const ChambresTab: React.FC = () => {
               size="sm"
               variant="primary"
               leftIcon={<CheckCircleIcon className="h-4 w-4" />}
-              onClick={() => handleChangeStatus(room, 'disponible')}
+              onClick={() => handleChangeStatus(room, 'available')}
             >
               Disponible
             </Button>
@@ -350,7 +380,7 @@ export const ChambresTab: React.FC = () => {
             leftIcon={<TrashIcon className="h-4 w-4" />}
             className="text-red-600 hover:text-red-700"
             onClick={() => handleDelete(room)}
-            disabled={room.currentOccupants > 0}
+            disabled={room.currentOccupancy > 0}
           >
             Supprimer
           </Button>
@@ -362,19 +392,37 @@ export const ChambresTab: React.FC = () => {
   // Statistiques
   const stats = {
     total: rooms.length,
-    disponibles: rooms.filter(r => r.status === 'disponible').length,
-    occupees: rooms.filter(r => r.status === 'occupee').length,
+    available: rooms.filter(r => r.status === 'available').length,
+    occupied: rooms.filter(r => r.status === 'occupied').length,
     maintenance: rooms.filter(r => r.status === 'maintenance').length,
+    reserved: rooms.filter(r => r.status === 'reserved').length,
     totalCapacity: rooms.reduce((sum, r) => sum + r.capacity, 0),
-    totalOccupants: rooms.reduce((sum, r) => sum + r.currentOccupants, 0)
+    totalOccupancy: rooms.reduce((sum, r) => sum + r.currentOccupancy, 0)
   };
 
   const occupancyRate = stats.totalCapacity > 0
-    ? ((stats.totalOccupants / stats.totalCapacity) * 100).toFixed(1)
+    ? ((stats.totalOccupancy / stats.totalCapacity) * 100).toFixed(1)
     : 0;
 
   return (
     <div className="space-y-6">
+      {/* Breadcrumb / Navigation */}
+      {selectedComplexName && onBack && (
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            size="sm"
+            leftIcon={<ArrowLeftIcon className="h-4 w-4" />}
+            onClick={onBack}
+          >
+            Retour aux cités
+          </Button>
+          <div className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+            Chambres de la cité: <span className="text-blue-600">{selectedComplexName}</span>
+          </div>
+        </div>
+      )}
+
       {/* Statistiques rapides */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <Card>
@@ -394,7 +442,7 @@ export const ChambresTab: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Disponibles</p>
-                <p className="text-2xl font-bold text-green-600">{stats.disponibles}</p>
+                <p className="text-2xl font-bold text-green-600">{stats.available}</p>
               </div>
               <CheckCircleIcon className="h-8 w-8 text-green-600" />
             </div>
@@ -406,7 +454,7 @@ export const ChambresTab: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Occupées</p>
-                <p className="text-2xl font-bold text-red-600">{stats.occupees}</p>
+                <p className="text-2xl font-bold text-red-600">{stats.occupied}</p>
               </div>
               <UserIcon className="h-8 w-8 text-red-600" />
             </div>
@@ -432,7 +480,7 @@ export const ChambresTab: React.FC = () => {
                 <p className="text-sm text-gray-600 dark:text-gray-400">Taux Occupation</p>
                 <p className="text-2xl font-bold text-purple-600">{occupancyRate}%</p>
                 <p className="text-xs text-gray-500 mt-1">
-                  {stats.totalOccupants}/{stats.totalCapacity} lits
+                  {stats.totalOccupancy}/{stats.totalCapacity} lits
                 </p>
               </div>
               <UserIcon className="h-8 w-8 text-purple-600" />
@@ -447,27 +495,30 @@ export const ChambresTab: React.FC = () => {
           <Input
             placeholder="Rechercher une chambre..."
             value={filters.search}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+            onChange={(e) => updateFilters({ search: e.target.value })}
             className="w-full md:flex-1"
           />
           <Select
-            value={filters.complexId}
-            onChange={(value) => setFilters({ ...filters, complexId: value })}
+            value={filters.complexId || 'all'}
+            onChange={(value) => updateFilters({ complexId: value === 'all' ? undefined : value })}
             options={[
               { value: 'all', label: 'Toutes les cités' },
-              ...complexes.map(c => ({ value: c.id, label: c.name }))
+              ...complexes.map(c => ({ 
+                value: c.id, 
+                label: c.name || c.nom || `Cité ${c.id.slice(0, 8)}` 
+              }))
             ]}
             className="w-full md:w-56"
           />
           <Select
-            value={filters.status}
-            onChange={(value) => setFilters({ ...filters, status: value })}
+            value={filters.status || 'all'}
+            onChange={(value) => updateFilters({ status: value === 'all' ? undefined : value as any })}
             options={[
               { value: 'all', label: 'Tous les statuts' },
-              { value: 'disponible', label: 'Disponibles' },
-              { value: 'occupee', label: 'Occupées' },
+              { value: 'available', label: 'Disponibles' },
+              { value: 'occupied', label: 'Occupées' },
               { value: 'maintenance', label: 'En maintenance' },
-              { value: 'reservee', label: 'Réservées' }
+              { value: 'reserved', label: 'Réservées' }
             ]}
             className="w-full md:w-48"
           />
@@ -486,10 +537,12 @@ export const ChambresTab: React.FC = () => {
           </Card.Title>
         </Card.Header>
         <Card.Content>
-          {loading ? (
+          {roomsLoading ? (
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">Chargement...</div>
+          ) : roomsError ? (
+            <div className="text-center py-8 text-red-500">{roomsError}</div>
           ) : (
-            <DataTable data={rooms} columns={columns} emptyMessage="Aucune chambre trouvée" />
+            <Table data={rooms} columns={columns} />
           )}
         </Card.Content>
       </Card>
@@ -570,14 +623,6 @@ export const ChambresTab: React.FC = () => {
             />
           </div>
 
-          <Textarea
-            label="Description / Équipements"
-            placeholder="Ex: Climatisée, avec salle d'eau privée..."
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            rows={3}
-          />
-
           <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-900 dark:text-blue-400">
               <strong>Note:</strong> Le loyer est unique pour tout le CROU et peut varier d'un CROU à un autre.
@@ -595,9 +640,6 @@ export const ChambresTab: React.FC = () => {
           </div>
         </div>
       </Modal>
-
-      {/* ConfirmDialog */}
-      <ConfirmDialog />
     </div>
   );
 };

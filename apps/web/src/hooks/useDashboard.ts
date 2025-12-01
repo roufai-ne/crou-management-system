@@ -18,6 +18,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/stores/auth';
+import { useTenantFilter } from '@/stores/tenantFilter';
+import { useTenantFilterEffect } from './useTenantFilterEffect';
 import { useDashboard, useKPIs } from '@/stores/dashboard';
 import { useAlerts as useAlertsStore } from '@/stores/dashboard';
 import { DashboardKPI } from '@/services/api/dashboardService';
@@ -25,15 +27,16 @@ import { DashboardKPI } from '@/services/api/dashboardService';
 // Hook pour les données principales du dashboard
 export const useDashboardData = () => {
   const { user } = useAuth();
+  const { selectedTenantId } = useTenantFilter();
   const { data, isLoading, error, loadDashboard } = useDashboard();
 
   useEffect(() => {
     if (user) {
       const level = user.level === 'ministere' ? 'ministere' : 'crou';
-      const tenantId = user.tenantId;
+      const tenantId = selectedTenantId || user.tenantId;
       loadDashboard(level, tenantId);
     }
-  }, [user, loadDashboard]);
+  }, [user, selectedTenantId, loadDashboard]);
 
   return {
     data,
@@ -79,14 +82,15 @@ export const useDashboardFilters = () => {
 // Hook pour les alertes
 export const useAlerts = () => {
   const { user } = useAuth();
+  const { selectedTenantId } = useTenantFilter();
   const { alerts, loadAlerts } = useAlertsStore();
 
   useEffect(() => {
     if (user) {
-      const tenantId = user.tenantId;
+      const tenantId = selectedTenantId || user.tenantId;
       loadAlerts(tenantId);
     }
-  }, [user, loadAlerts]);
+  }, [user, selectedTenantId, loadAlerts]);
 
   const criticalAlerts = alerts.filter(alert => alert.type === 'critical');
   const warningAlerts = alerts.filter(alert => alert.type === 'warning');
@@ -122,6 +126,8 @@ export const useKPIs = (module: 'financial' | 'stocks' | 'housing' | 'transport'
 // Hook pour les métriques financières
 export const useFinancialMetrics = () => {
   const { user } = useAuth();
+  const { selectedTenantId } = useTenantFilter();
+  
   const [metrics, setMetrics] = useState({
     totalBudget: 0,
     totalSpent: 0,
@@ -169,7 +175,7 @@ export const useFinancialMetrics = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, selectedTenantId]);
 
   useEffect(() => {
     loadMetrics();
@@ -186,6 +192,7 @@ export const useFinancialMetrics = () => {
 // Hook pour les métriques de stocks
 export const useStocksMetrics = () => {
   const { user } = useAuth();
+  const { selectedTenantId } = useTenantFilter();
   const [metrics, setMetrics] = useState({
     totalItems: 0,
     totalValue: 0,
@@ -229,7 +236,7 @@ export const useStocksMetrics = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, selectedTenantId]);
 
   useEffect(() => {
     loadMetrics();
@@ -246,6 +253,7 @@ export const useStocksMetrics = () => {
 // Hook pour les métriques de logement
 export const useHousingMetrics = () => {
   const { user } = useAuth();
+  const { selectedTenantId } = useTenantFilter();
   const [metrics, setMetrics] = useState({
     totalRooms: 0,
     occupiedRooms: 0,
@@ -280,7 +288,7 @@ export const useHousingMetrics = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, selectedTenantId]);
 
   useEffect(() => {
     loadMetrics();
@@ -297,6 +305,7 @@ export const useHousingMetrics = () => {
 // Hook pour les métriques de transport
 export const useTransportMetrics = () => {
   const { user } = useAuth();
+  const { selectedTenantId } = useTenantFilter();
   const [metrics, setMetrics] = useState({
     totalVehicles: 0,
     activeVehicles: 0,
@@ -331,7 +340,7 @@ export const useTransportMetrics = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, selectedTenantId]);
 
   useEffect(() => {
     loadMetrics();
