@@ -143,13 +143,11 @@ if (import.meta.env.DEV) {
   `);
 
   // Activer les outils de développement React
-  // @ts-ignore
   if (window.__REACT_DEVTOOLS_GLOBAL_HOOK__) {
     console.log('React DevTools détecté');
   }
 
   // Exposer des utilitaires de debug en développement
-  // @ts-ignore
   window.CROU_DEBUG = {
     clearCache: () => {
       localStorage.clear();

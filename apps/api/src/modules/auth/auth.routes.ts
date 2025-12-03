@@ -25,6 +25,7 @@
 import { Router } from 'express';
 import { AuthController, loginValidators } from './auth.controller';
 import { authenticateJWT } from '@/shared/middlewares/auth.middleware';
+import { authLimiter } from '@/shared/middlewares/rate-limiters.middleware';
 
 const router: Router = Router();
 
@@ -130,7 +131,8 @@ const router: Router = Router();
  *         description: Trop de tentatives
  *     security: []
  */
-router.post('/login', loginValidators, AuthController.login);
+// Appliquer rate limiting sur login et refresh
+router.post('/login', authLimiter, loginValidators, AuthController.login);
 
 /**
  * @swagger
@@ -171,7 +173,7 @@ router.post('/login', loginValidators, AuthController.login);
  *         $ref: '#/components/responses/ServerError'
  *     security: []
  */
-router.post('/refresh', AuthController.refresh);
+router.post('/refresh', authLimiter, AuthController.refresh);
 
 /**
  * @swagger

@@ -17,33 +17,96 @@ import { TransactionService, CreateTransactionDTO, UpdateTransactionDTO, Transac
 import { FinancialService, CreateBudgetDTO, UpdateBudgetDTO, BudgetFilters } from './financial.service';
 import { TransactionType, TransactionStatus, TransactionCategory } from '../../../../../packages/database/src/entities/Transaction.entity';
 
+// Constantes de validation
+const CURRENT_YEAR = new Date().getFullYear();
+const MIN_YEAR = CURRENT_YEAR - 1; // Année précédente
+const MAX_YEAR = CURRENT_YEAR + 10; // 10 ans dans le futur
+const MAX_BUDGET_AMOUNT = 999999999999; // 999 milliards (limite raisonnable)
+const MAX_TRANSACTION_AMOUNT = 9999999999; // 9.9 milliards
+
 // Validateurs pour les budgets
 export const budgetValidators = {
   create: [
-    body('title').notEmpty().withMessage('Titre requis'),
-    body('amount').isNumeric().withMessage('Montant requis'),
-    body('categoryId').notEmpty().withMessage('Catégorie requise'),
-    body('year').isInt({ min: 2020, max: 2030 }).withMessage('Année invalide')
+    body('title')
+      .trim()
+      .notEmpty().withMessage('Titre requis')
+      .isLength({ min: 3, max: 255 }).withMessage('Titre doit avoir entre 3 et 255 caractères'),
+    body('amount')
+      .isNumeric().withMessage('Montant doit être numérique')
+      .custom((value) => {
+        const num = Number(value);
+        if (num <= 0) throw new Error('Montant doit être positif');
+        if (num > MAX_BUDGET_AMOUNT) throw new Error(`Montant ne peut pas dépasser ${MAX_BUDGET_AMOUNT}`);
+        return true;
+      }),
+    body('categoryId')
+      .notEmpty().withMessage('Catégorie requise')
+      .isUUID().withMessage('ID de catégorie invalide'),
+    body('year')
+      .isInt({ min: MIN_YEAR, max: MAX_YEAR })
+      .withMessage(`Année doit être entre ${MIN_YEAR} et ${MAX_YEAR}`)
   ],
   update: [
     param('id').isUUID().withMessage('ID invalide'),
-    body('title').optional().notEmpty().withMessage('Titre requis'),
-    body('amount').optional().isNumeric().withMessage('Montant invalide')
+    body('title')
+      .optional()
+      .trim()
+      .notEmpty().withMessage('Titre ne peut pas être vide')
+      .isLength({ min: 3, max: 255 }).withMessage('Titre doit avoir entre 3 et 255 caractères'),
+    body('amount')
+      .optional()
+      .isNumeric().withMessage('Montant doit être numérique')
+      .custom((value) => {
+        if (value !== undefined) {
+          const num = Number(value);
+          if (num <= 0) throw new Error('Montant doit être positif');
+          if (num > MAX_BUDGET_AMOUNT) throw new Error(`Montant ne peut pas dépasser ${MAX_BUDGET_AMOUNT}`);
+        }
+        return true;
+      })
   ],
   validate: [
     param('id').isUUID().withMessage('ID invalide'),
-    body('action').isIn(['approve', 'reject']).withMessage('Action invalide'),
-    body('comment').optional().isString()
+    body('action').isIn(['approve', 'reject']).withMessage('Action doit être approve ou reject'),
+    body('comment')
+      .optional()
+      .isString().withMessage('Commentaire doit être une chaîne de caractères')
+      .isLength({ max: 1000 }).withMessage('Commentaire ne peut pas dépasser 1000 caractères')
   ]
 };
 
 // Validateurs pour les transactions
 export const transactionValidators = {
   create: [
-    body('type').isIn(['income', 'expense']).withMessage('Type invalide'),
-    body('amount').isNumeric().withMessage('Montant requis'),
-    body('description').notEmpty().withMessage('Description requise'),
-    body('budgetId').isUUID().withMessage('Budget ID invalide')
+    body('type')
+      .isIn(['income', 'expense']).withMessage('Type doit être income ou expense'),
+    body('amount')
+      .isNumeric().withMessage('Montant doit être numérique')
+      .custom((value) => {
+        const num = Number(value);
+        if (num <= 0) throw new Error('Montant doit être positif');
+        if (num > MAX_TRANSACTION_AMOUNT) throw new Error(`Montant ne peut pas dépasser ${MAX_TRANSACTION_AMOUNT}`);
+        return true;
+      }),
+    body('description')
+      .trim()
+      .notEmpty().withMessage('Description requise')
+      .isLength({ min: 3, max: 500 }).withMessage('Description doit avoir entre 3 et 500 caractères'),
+    body('budgetId')
+      .notEmpty().withMessage('Budget ID requis')
+      .isUUID().withMessage('Budget ID invalide'),
+    body('category')
+      .optional()
+      .isIn(['salaire', 'fourniture', 'maintenance', 'transport', 'autre'])
+      .withMessage('Catégorie invalide')
+  ],
+  validate: [
+    param('id').isUUID().withMessage('ID invalide'),
+    body('action').isIn(['approve', 'reject']).withMessage('Action doit être approve ou reject'),
+    body('comment')
+      .optional()
+      .isString().withMessage('Commentaire doit être une chaîne de caractères')
+      .isLength({ max: 1000 }).withMessage('Commentaire ne peut pas dépasser 1000 caractères')
   ]
 };
 
@@ -64,26 +127,23 @@ export class FinancialController {
 
       const { page = 1, limit = 10, status, year, type, search } = req.query;
 
-      // Filtres
+      // Filtres avec pagination
       const filters: BudgetFilters = {
         exercice: year ? Number(year) : undefined,
         status: status as string,
         type: type as string,
-        search: search as string
+        search: search as string,
+        page: Number(page),
+        limit: Number(limit)
       };
 
-      // Récupérer les budgets
+      // Récupérer les budgets (pagination au niveau DB)
       const { budgets, total } = await FinancialService.getBudgets(tenantId, filters);
-
-      // Pagination
-      const startIndex = (Number(page) - 1) * Number(limit);
-      const endIndex = startIndex + Number(limit);
-      const paginatedBudgets = budgets.slice(startIndex, endIndex);
 
       res.json({
         success: true,
         data: {
-          budgets: paginatedBudgets,
+          budgets,
           pagination: {
             page: Number(page),
             limit: Number(limit),

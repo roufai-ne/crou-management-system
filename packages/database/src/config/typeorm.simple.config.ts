@@ -15,14 +15,25 @@ import { config } from 'dotenv';
 // Configuration des variables d'environnement
 config();
 
+// Validation des variables d'environnement requises
+const requiredEnvVars = ['DB_HOST', 'DB_PORT', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
+const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingVars.length > 0) {
+  throw new Error(
+    `❌ Variables d'environnement manquantes: ${missingVars.join(', ')}\n` +
+    `Veuillez les définir dans votre fichier .env`
+  );
+}
+
 // Configuration TypeORM simplifiée
 export const simpleTypeormConfig: DataSourceOptions = {
   type: 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432'),
-  username: process.env.DB_USER || 'crou_user',
-  password: process.env.DB_PASSWORD || 'crou_password',
-  database: process.env.DB_NAME || 'crou_database',
+  host: process.env.DB_HOST!,
+  port: parseInt(process.env.DB_PORT!),
+  username: process.env.DB_USER!,
+  password: process.env.DB_PASSWORD!,
+  database: process.env.DB_NAME!,
   
   // Entités de base seulement
   entities: [

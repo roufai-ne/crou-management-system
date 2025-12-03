@@ -7,12 +7,22 @@ const { Client } = require('pg');
 require('dotenv').config();
 
 async function cleanDatabase() {
+  // Validation des variables d'environnement requises
+  const requiredEnvVars = ['DB_HOST', 'DB_PORT', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
+  const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+  if (missingVars.length > 0) {
+    console.error(`❌ Variables d'environnement manquantes: ${missingVars.join(', ')}`);
+    console.error('Veuillez les définir dans votre fichier .env');
+    process.exit(1);
+  }
+
   const client = new Client({
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5432'),
-    user: process.env.DB_USER || 'crou_user',
-    password: process.env.DB_PASSWORD || 'crou_password',
-    database: process.env.DB_NAME || 'crou_database',
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT),
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
   });
 
   try {

@@ -60,16 +60,27 @@ config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Validation des variables d'environnement requises
+const requiredEnvVars = ['DB_HOST', 'DB_PORT', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
+const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingVars.length > 0) {
+  throw new Error(
+    `❌ Variables d'environnement manquantes: ${missingVars.join(', ')}\n` +
+    `Veuillez les définir dans votre fichier .env`
+  );
+}
+
 // DataSource pour la CLI TypeORM
 export const AppDataSource = new DataSource({
   type: 'postgres',
 
-  // Configuration connexion
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432'),
-  username: process.env.DB_USER || 'crou_user',
-  password: process.env.DB_PASSWORD || 'crou_password',
-  database: process.env.DB_NAME || 'crou_database',
+  // Configuration connexion - Pas de valeurs par défaut pour la sécurité
+  host: process.env.DB_HOST!,
+  port: parseInt(process.env.DB_PORT!),
+  username: process.env.DB_USER!,
+  password: process.env.DB_PASSWORD!,
+  database: process.env.DB_NAME!,
 
   // SSL
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,

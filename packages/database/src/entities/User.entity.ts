@@ -174,7 +174,11 @@ export class User {
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword() {
-    if (this.password && !this.password.startsWith('$2a$')) {
+    // Vérifier si le mot de passe existe et n'est pas déjà haché
+    // Format hash bcrypt: $2a$, $2b$, ou $2y$ suivi de rounds et hash
+    const bcryptHashPattern = /^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/;
+
+    if (this.password && !bcryptHashPattern.test(this.password)) {
       this.password = await bcrypt.hash(this.password, 12);
     }
   }

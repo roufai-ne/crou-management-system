@@ -48,6 +48,8 @@ export interface BudgetFilters {
   status?: string;
   crouId?: string;
   search?: string;
+  page?: number;
+  limit?: number;
 }
 
 export interface BudgetStats {
@@ -165,6 +167,15 @@ export class FinancialService {
 
       // Tri par défaut
       queryBuilder.orderBy('budget.exercice', 'DESC').addOrderBy('budget.createdAt', 'DESC');
+
+      // Pagination au niveau de la base de données (beaucoup plus efficace)
+      if (filters.page && filters.limit) {
+        const page = Number(filters.page);
+        const limit = Number(filters.limit);
+        const skip = (page - 1) * limit;
+
+        queryBuilder.skip(skip).take(limit);
+      }
 
       const [budgets, total] = await queryBuilder.getManyAndCount();
 

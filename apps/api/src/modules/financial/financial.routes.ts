@@ -30,15 +30,20 @@ import { Router } from 'express';
 import { FinancialController, budgetValidators, transactionValidators } from './financial.controller';
 import { authenticateJWT } from '@/shared/middlewares/auth.middleware';
 import { checkPermissions } from '@/shared/middlewares/permissions.middleware';
+import {
+  budgetValidationLimiter,
+  transactionApprovalLimiter
+} from '@/shared/middlewares/rate-limiters.middleware';
 import rateLimit from 'express-rate-limit';
 
 const router: Router = Router();
 
-// Rate limiting pour les opérations sensibles
+// Rate limiting global pour toutes les opérations financières
 const financialLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 50, // 50 requêtes par 15min
   message: {
+    success: false,
     error: 'Trop de requêtes financières, réessayez plus tard.'
   }
 });
@@ -46,7 +51,7 @@ const financialLimiter = rateLimit({
 // Middleware d'authentification pour toutes les routes
 router.use(authenticateJWT);
 
-// Middleware de rate limiting
+// Middleware de rate limiting global
 router.use(financialLimiter);
 
 // ================================================================================================
@@ -111,8 +116,10 @@ router.delete('/budgets/:id',
  * POST /api/financial/budgets/:id/validate
  * Valider un budget (approbation/rejet)
  * Permissions: financial:validate
+ * Rate limiting: 10 validations par heure
  */
 router.post('/budgets/:id/validate',
+  budgetValidationLimiter,
   checkPermissions(['financial:validate']),
   budgetValidators.validate,
   FinancialController.validateBudget
@@ -188,8 +195,10 @@ router.put('/transactions/:id',
  * POST /api/financial/transactions/:id/validate
  * Valider une transaction
  * Permissions: financial:validate
+ * Rate limiting: 20 approbations par heure
  */
 router.post('/transactions/:id/validate',
+  transactionApprovalLimiter,
   checkPermissions(['financial:validate']),
   FinancialController.validateTransaction
 );

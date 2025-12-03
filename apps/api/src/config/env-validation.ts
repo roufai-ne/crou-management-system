@@ -97,13 +97,40 @@ export function validateEnvironment(): EnvironmentConfig {
     }
   }
 
-  // Valider la longueur des secrets
+  // Valider la longueur des secrets (ERREUR en production, WARNING en dev)
   if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 32) {
-    warnings.push('⚠️  JWT_SECRET devrait avoir au moins 32 caractères pour plus de sécurité');
+    const message = '❌ JWT_SECRET doit avoir au moins 32 caractères pour la sécurité';
+    if (isProduction) {
+      errors.push(message);
+    } else {
+      warnings.push('⚠️  JWT_SECRET devrait avoir au moins 32 caractères pour plus de sécurité');
+    }
   }
 
   if (process.env.JWT_REFRESH_SECRET && process.env.JWT_REFRESH_SECRET.length < 32) {
-    warnings.push('⚠️  JWT_REFRESH_SECRET devrait avoir au moins 32 caractères');
+    const message = '❌ JWT_REFRESH_SECRET doit avoir au moins 32 caractères pour la sécurité';
+    if (isProduction) {
+      errors.push(message);
+    } else {
+      warnings.push('⚠️  JWT_REFRESH_SECRET devrait avoir au moins 32 caractères');
+    }
+  }
+
+  // Valider que JWT_SECRET et JWT_REFRESH_SECRET sont différents
+  if (process.env.JWT_SECRET && process.env.JWT_REFRESH_SECRET &&
+      process.env.JWT_SECRET === process.env.JWT_REFRESH_SECRET) {
+    errors.push('❌ JWT_SECRET et JWT_REFRESH_SECRET doivent être différents');
+  }
+
+  // Valider les durées d'expiration JWT
+  const validTimeFormats = /^(\d+[smhd]|\d+\s?(seconds?|minutes?|hours?|days?|weeks?|months?|years?))$/i;
+
+  if (process.env.JWT_EXPIRES_IN && !validTimeFormats.test(process.env.JWT_EXPIRES_IN)) {
+    errors.push('❌ JWT_EXPIRES_IN format invalide (utilisez: 15m, 1h, 1d, etc.)');
+  }
+
+  if (process.env.JWT_REFRESH_EXPIRES_IN && !validTimeFormats.test(process.env.JWT_REFRESH_EXPIRES_IN)) {
+    errors.push('❌ JWT_REFRESH_EXPIRES_IN format invalide (utilisez: 7d, 30d, etc.)');
   }
 
   // Valider DATABASE_URL
