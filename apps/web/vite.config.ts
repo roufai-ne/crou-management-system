@@ -116,10 +116,10 @@ export default defineConfig({
   },
   server: {
     host: true,
-    port: 3000,
+    port: parseInt(process.env.VITE_PORT || '3000'),
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
+        target: process.env.VITE_API_URL || 'http://localhost:3001',
         changeOrigin: true,
         secure: false
       }

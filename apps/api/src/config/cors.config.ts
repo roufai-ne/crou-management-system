@@ -14,17 +14,22 @@ import { CorsOptions } from 'cors';
 
 export const corsConfig: CorsOptions = {
   origin: (origin, callback) => {
-    // Liste des origines autorisées (dev et prod)
-    const allowedOrigins = [
-      // Développement local
-      'http://localhost:3000',
-      'http://localhost:5173',
-      'http://127.0.0.1:3000',
-      'http://127.0.0.1:5173',
-      // Production
-      'https://crou.niamey.gov.ne',
-      'https://admin.crou.niamey.gov.ne'
-    ];
+    // Récupérer les origines autorisées depuis les variables d'environnement
+    // Format: URL1,URL2,URL3
+    const envOrigins = process.env.ALLOWED_ORIGINS?.split(',').map(url => url.trim()) || [];
+
+    // Origines par défaut en développement uniquement
+    const defaultDevOrigins = process.env.NODE_ENV === 'development'
+      ? [
+          'http://localhost:3000',
+          'http://localhost:5173',
+          'http://127.0.0.1:3000',
+          'http://127.0.0.1:5173'
+        ]
+      : [];
+
+    // Combiner les origines
+    const allowedOrigins = [...envOrigins, ...defaultDevOrigins];
 
     // Permettre les requêtes sans origin (ex: Postman, curl)
     // mais seulement en développement

@@ -72,16 +72,10 @@ API REST complète pour la gestion des 8 CROU du Niger et du Ministère de l'Ens
     },
     servers: [
       {
-        url: 'http://localhost:3001',
-        description: 'Serveur de développement'
-      },
-      {
-        url: 'https://api-staging.crou.ne',
-        description: 'Serveur de staging'
-      },
-      {
-        url: 'https://api.crou.ne',
-        description: 'Serveur de production'
+        url: process.env.API_URL || 'http://localhost:3001',
+        description: process.env.NODE_ENV === 'production' ? 'Serveur de production' :
+                     process.env.NODE_ENV === 'staging' ? 'Serveur de staging' :
+                     'Serveur de développement'
       }
     ],
     components: {

@@ -41,25 +41,14 @@ import { Tenant } from './Tenant.entity';
 // import { AuditLog } from './AuditLog.entity'; // Temporairement désactivé
 import { Role } from './Role.entity';
 
-// Types des rôles utilisateurs selon PRD
-export enum UserRole {
-  // Niveau Ministère
-  MINISTRE = 'ministre',
-  DIRECTEUR_FINANCES = 'directeur_finances', 
-  RESP_APPRO = 'resp_appro',
-  CONTROLEUR = 'controleur',
-  
-  // Niveau CROU
-  DIRECTEUR = 'directeur',
-  SECRETAIRE = 'secretaire', 
-  CHEF_FINANCIER = 'chef_financier',
-  COMPTABLE = 'comptable',
-  INTENDANT = 'intendant',
-  MAGASINIER = 'magasinier',
-  CHEF_TRANSPORT = 'chef_transport',
-  CHEF_LOGEMENT = 'chef_logement', 
-  CHEF_RESTAURATION = 'chef_restauration'
-}
+/**
+ * NOTE: L'enum UserRole a été supprimé car les rôles sont maintenant
+ * gérés dynamiquement via l'entité Role. Les rôles sont configurables
+ * par tenant dans la table 'roles' avec leurs permissions associées.
+ *
+ * Cette approche offre plus de flexibilité et permet une gestion
+ * granulaire des permissions sans modification du code.
+ */
 
 export enum UserStatus {
   ACTIVE = 'active',
@@ -194,12 +183,13 @@ export class User {
   }
 
   // Méthode pour incrémenter les tentatives de connexion
-  incLoginAttempts(): void {
+  incLoginAttempts(maxAttempts: number = 5, lockoutDurationMinutes: number = 30): void {
     this.loginAttempts += 1;
-    
-    // Verrouiller le compte après 5 tentatives
-    if (this.loginAttempts >= 5) {
-      this.lockedUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+
+    // Verrouiller le compte après X tentatives (configurable)
+    if (this.loginAttempts >= maxAttempts) {
+      const lockoutDurationMs = lockoutDurationMinutes * 60 * 1000;
+      this.lockedUntil = new Date(Date.now() + lockoutDurationMs);
     }
   }
 

@@ -13,11 +13,13 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
+export type CellValue = string | number | boolean | null | undefined;
+
 export interface PDFExportOptions {
   title: string;
   subtitle?: string;
   headers: string[];
-  data: any[][];
+  data: CellValue[][];
   fileName?: string;
   orientation?: 'portrait' | 'landscape';
 }

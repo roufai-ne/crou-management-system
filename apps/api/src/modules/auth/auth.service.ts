@@ -25,6 +25,7 @@ import { AuditAction } from '../../../../../packages/database/src/entities/Audit
 import jwt from 'jsonwebtoken';
 import { randomBytes } from 'crypto';
 import { logger } from '@/shared/utils/logger';
+import { ACCOUNT_LOCKOUT_CONFIG } from '@/config/security.config';
 
 export interface LoginCredentials {
   email: string;
@@ -150,8 +151,11 @@ export class AuthService {
       // 4. Vérifier le mot de passe
       const isValidPassword = await user.validatePassword(password);
       if (!isValidPassword) {
-        // Incrémenter les tentatives d'échec
-        user.incLoginAttempts();
+        // Incrémenter les tentatives d'échec (avec configuration)
+        user.incLoginAttempts(
+          ACCOUNT_LOCKOUT_CONFIG.MAX_LOGIN_ATTEMPTS,
+          ACCOUNT_LOCKOUT_CONFIG.LOCKOUT_DURATION_MINUTES
+        );
         // Utiliser SQL brut au lieu de save() pour contourner le bug TypeORM
         await this.manager.query(`
           UPDATE users

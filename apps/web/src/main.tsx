@@ -142,9 +142,10 @@ if (import.meta.env.DEV) {
 ╚═══════════════════════════════════════════════════════╝
   `);
 
-  // Activer les outils de développement React
+  // Activer les outils de développement React (développement seulement)
   if (window.__REACT_DEVTOOLS_GLOBAL_HOOK__) {
-    console.log('React DevTools détecté');
+    // eslint-disable-next-line no-console
+    console.info('React DevTools détecté');
   }
 
   // Exposer des utilitaires de debug en développement
@@ -152,7 +153,8 @@ if (import.meta.env.DEV) {
     clearCache: () => {
       localStorage.clear();
       sessionStorage.clear();
-      console.log('Cache local vidé');
+      // eslint-disable-next-line no-console
+      console.info('Cache local vidé');
     },
     resetAuth: () => {
       localStorage.removeItem('crou-auth');
