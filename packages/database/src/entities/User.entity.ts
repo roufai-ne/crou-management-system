@@ -38,7 +38,7 @@ import { IsEmail, IsEnum, IsString, MinLength, IsOptional } from 'class-validato
 import bcrypt from 'bcryptjs';
 
 import { Tenant } from './Tenant.entity';
-// import { AuditLog } from './AuditLog.entity'; // Temporairement désactivé
+import { AuditLog } from './AuditLog.entity';
 import { Role } from './Role.entity';
 
 /**
@@ -155,9 +155,9 @@ export class User {
   @Column({ type: 'varchar', length: 255, nullable: true })
   updatedBy: string;
 
-  // Relations - Temporairement désactivée pour debug
-  // @OneToMany(() => AuditLog, auditLog => auditLog.user)
-  // auditLogs: AuditLog[];
+  // Relations avec AuditLog (lazy loading pour éviter les requêtes N+1)
+  @OneToMany(() => AuditLog, auditLog => auditLog.user, { lazy: true })
+  auditLogs: Promise<AuditLog[]>;
 
   // Méthodes de hachage du mot de passe
   @BeforeInsert()

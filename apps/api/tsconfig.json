@@ -1,20 +1,9 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2022",
+    /* API-specific overrides */
     "lib": ["ES2022"],
-    "module": "ESNext",
-  "moduleResolution": "node",
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "strict": true,
-    "strictPropertyInitialization": false,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
     "noEmit": false,
-    "outDir": "./dist",
     "rootDir": "../../",
     "baseUrl": "./src",
     "paths": {
@@ -25,9 +14,8 @@
       "@database/*": ["../../packages/database/src/*"]
     },
     "types": ["node"],
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true
+    /* TypeORM nécessite cette config */
+    "strictPropertyInitialization": false
   },
   "include": [
     "src/**/*.ts",
