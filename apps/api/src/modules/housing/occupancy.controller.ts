@@ -13,6 +13,7 @@
 import { Router, Request, Response } from 'express';
 import { HousingOccupancyService } from './services/HousingOccupancyService';
 import { authenticateJWT } from '@/shared/middlewares/auth.middleware';
+import { injectTenantIdMiddleware } from '@/shared/middlewares/tenant-isolation.middleware';
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
 
@@ -21,6 +22,9 @@ const occupancyService = new HousingOccupancyService();
 
 // Tous les endpoints nécessitent l'authentification
 router.use(authenticateJWT);
+
+// Tous les endpoints utilisent l'isolation tenant
+router.use(injectTenantIdMiddleware({ strictMode: false }));
 
 /**
  * GET /api/housing/occupancies

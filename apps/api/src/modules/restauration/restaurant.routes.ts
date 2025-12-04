@@ -64,6 +64,7 @@ import { RepasController } from './repas.controller';
 import { DenreeController } from './denree.controller';
 import { authenticateJWT } from '@/shared/middlewares/auth.middleware';
 import { checkPermissions } from '@/shared/middlewares/permissions.middleware';
+import { injectTenantIdMiddleware } from '@/shared/middlewares/tenant-isolation.middleware';
 import rateLimit from 'express-rate-limit';
 
 const router: Router = Router();
@@ -94,6 +95,7 @@ router.use(restaurationLimiter);
  */
 router.get('/restaurants',
   checkPermissions(['restauration:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   RestaurantController.getRestaurants
 );
 
@@ -104,6 +106,7 @@ router.get('/restaurants',
  */
 router.post('/restaurants',
   checkPermissions(['restauration:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   RestaurantController.createRestaurant
 );
 
@@ -114,6 +117,7 @@ router.post('/restaurants',
  */
 router.get('/restaurants/:id',
   checkPermissions(['restauration:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   RestaurantController.getRestaurant
 );
 
@@ -124,6 +128,7 @@ router.get('/restaurants/:id',
  */
 router.put('/restaurants/:id',
   checkPermissions(['restauration:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   RestaurantController.updateRestaurant
 );
 
@@ -134,6 +139,7 @@ router.put('/restaurants/:id',
  */
 router.delete('/restaurants/:id',
   checkPermissions(['restauration:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   RestaurantController.deleteRestaurant
 );
 
@@ -144,6 +150,7 @@ router.delete('/restaurants/:id',
  */
 router.get('/restaurants/:id/statistics',
   checkPermissions(['restauration:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   RestaurantController.getRestaurantStatistics
 );
 
@@ -154,6 +161,7 @@ router.get('/restaurants/:id/statistics',
  */
 router.patch('/restaurants/:id/frequentation',
   checkPermissions(['restauration:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   RestaurantController.updateFrequentationMoyenne
 );
 
@@ -168,6 +176,7 @@ router.patch('/restaurants/:id/frequentation',
  */
 router.get('/menus',
   checkPermissions(['restauration:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   MenuController.getMenus
 );
 
@@ -178,6 +187,7 @@ router.get('/menus',
  */
 router.post('/menus',
   checkPermissions(['restauration:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   MenuController.createMenu
 );
 
@@ -188,6 +198,7 @@ router.post('/menus',
  */
 router.get('/menus/:id',
   checkPermissions(['restauration:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   MenuController.getMenu
 );
 
@@ -198,6 +209,7 @@ router.get('/menus/:id',
  */
 router.put('/menus/:id',
   checkPermissions(['restauration:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   MenuController.updateMenu
 );
 
@@ -208,6 +220,7 @@ router.put('/menus/:id',
  */
 router.delete('/menus/:id',
   checkPermissions(['restauration:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   MenuController.deleteMenu
 );
 
@@ -218,6 +231,7 @@ router.delete('/menus/:id',
  */
 router.post('/menus/:id/publish',
   checkPermissions(['restauration:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   MenuController.publishMenu
 );
 
@@ -228,6 +242,7 @@ router.post('/menus/:id/publish',
  */
 router.post('/menus/:id/validate',
   checkPermissions(['restauration:validate']),
+  injectTenantIdMiddleware({ strictMode: false }),
   MenuController.validateMenu
 );
 
@@ -238,6 +253,7 @@ router.post('/menus/:id/validate',
  */
 router.get('/menus/:id/besoins',
   checkPermissions(['restauration:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   MenuController.calculateBesoins
 );
 
@@ -248,6 +264,7 @@ router.get('/menus/:id/besoins',
  */
 router.get('/menus/restaurant/:restaurantId/date/:date',
   checkPermissions(['restauration:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   MenuController.getMenusByRestaurantAndDate
 );
 
@@ -258,6 +275,7 @@ router.get('/menus/restaurant/:restaurantId/date/:date',
  */
 router.post('/menus/:id/duplicate',
   checkPermissions(['restauration:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   MenuController.duplicateMenu
 );
 
@@ -272,6 +290,7 @@ router.post('/menus/:id/duplicate',
  */
 router.get('/tickets',
   checkPermissions(['restauration:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   TicketController.getTickets
 );
 
@@ -282,6 +301,7 @@ router.get('/tickets',
  */
 router.get('/tickets/numero/:numeroTicket',
   checkPermissions(['restauration:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   TicketController.getTicketByNumero
 );
 
@@ -294,6 +314,7 @@ router.get('/tickets/numero/:numeroTicket',
  */
 router.post('/tickets',
   checkPermissions(['restauration:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   TicketController.createTicket
 );
 
@@ -304,6 +325,7 @@ router.post('/tickets',
  */
 router.post('/tickets/batch',
   checkPermissions(['restauration:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   TicketController.createTicketsBatch
 );
 
@@ -314,6 +336,7 @@ router.post('/tickets/batch',
  */
 router.post('/tickets/utiliser',
   checkPermissions(['restauration:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   TicketController.utiliserTicket
 );
 
@@ -324,6 +347,7 @@ router.post('/tickets/utiliser',
  */
 router.post('/tickets/:id/annuler',
   checkPermissions(['restauration:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   TicketController.annulerTicket
 );
 
@@ -334,6 +358,7 @@ router.post('/tickets/:id/annuler',
  */
 router.post('/tickets/expired/update',
   checkPermissions(['restauration:admin']),
+  injectTenantIdMiddleware({ strictMode: false }),
   TicketController.updateExpiredTickets
 );
 
@@ -348,6 +373,7 @@ router.post('/tickets/expired/update',
  */
 router.get('/repas',
   checkPermissions(['restauration:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   RepasController.getRepas
 );
 
@@ -358,6 +384,7 @@ router.get('/repas',
  */
 router.get('/repas/:id',
   checkPermissions(['restauration:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   RepasController.getRepasById
 );
 
@@ -368,6 +395,7 @@ router.get('/repas/:id',
  */
 router.post('/repas',
   checkPermissions(['restauration:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   RepasController.createRepas
 );
 
@@ -378,6 +406,7 @@ router.post('/repas',
  */
 router.post('/repas/:id/demarrer',
   checkPermissions(['restauration:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   RepasController.demarrerService
 );
 
@@ -388,6 +417,7 @@ router.post('/repas/:id/demarrer',
  */
 router.post('/repas/:id/terminer',
   checkPermissions(['restauration:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   RepasController.terminerService
 );
 
@@ -398,6 +428,7 @@ router.post('/repas/:id/terminer',
  */
 router.get('/repas/:id/statistiques',
   checkPermissions(['restauration:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   RepasController.calculerStatistiques
 );
 
@@ -408,6 +439,7 @@ router.get('/repas/:id/statistiques',
  */
 router.get('/repas/restaurant/:restaurantId/periode',
   checkPermissions(['restauration:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   RepasController.getRepasByRestaurantAndPeriode
 );
 
@@ -418,6 +450,7 @@ router.get('/repas/restaurant/:restaurantId/periode',
  */
 router.post('/repas/:id/annuler',
   checkPermissions(['restauration:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   RepasController.annulerRepas
 );
 
@@ -432,6 +465,7 @@ router.post('/repas/:id/annuler',
  */
 router.get('/denrees',
   checkPermissions(['restauration:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   DenreeController.getDenrees
 );
 
@@ -442,6 +476,7 @@ router.get('/denrees',
  */
 router.get('/denrees/restaurant/:restaurantId',
   checkPermissions(['restauration:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   DenreeController.getDenreesRestaurant
 );
 
@@ -453,6 +488,7 @@ router.get('/denrees/restaurant/:restaurantId',
  */
 router.post('/denrees/allouer',
   checkPermissions(['restauration:write', 'stocks:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   DenreeController.allouerDenree
 );
 
@@ -463,6 +499,7 @@ router.post('/denrees/allouer',
  */
 router.post('/denrees/:id/utiliser',
   checkPermissions(['restauration:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   DenreeController.utiliserDenree
 );
 
@@ -474,6 +511,7 @@ router.post('/denrees/:id/utiliser',
  */
 router.post('/denrees/:id/retourner',
   checkPermissions(['restauration:write', 'stocks:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   DenreeController.retournerDenree
 );
 
@@ -484,6 +522,7 @@ router.post('/denrees/:id/retourner',
  */
 router.post('/denrees/:id/perte',
   checkPermissions(['restauration:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   DenreeController.enregistrerPerte
 );
 
@@ -494,6 +533,7 @@ router.post('/denrees/:id/perte',
  */
 router.get('/denrees/alertes/expiration',
   checkPermissions(['restauration:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   DenreeController.getAlertesExpiration
 );
 
@@ -504,6 +544,7 @@ router.get('/denrees/alertes/expiration',
  */
 router.get('/denrees/:id/historique',
   checkPermissions(['restauration:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   DenreeController.getHistoriqueMouvements
 );
 

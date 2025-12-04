@@ -14,12 +14,16 @@
 import { Router, Request, Response } from 'express';
 import { BedService } from './services/BedService';
 import { authenticateJWT } from '@/shared/middlewares/auth.middleware';
+import { injectTenantIdMiddleware } from '@/shared/middlewares/tenant-isolation.middleware';
 
 const router = Router();
 const bedService = new BedService();
 
 // Tous les endpoints nécessitent l'authentification
 router.use(authenticateJWT);
+
+// Tous les endpoints utilisent l'isolation tenant
+router.use(injectTenantIdMiddleware({ strictMode: false }));
 
 /**
  * GET /api/housing/beds

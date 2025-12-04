@@ -5,12 +5,16 @@
 
 import { Router } from 'express';
 import { authMiddleware } from '@/shared/middlewares/auth.middleware';
+import { injectTenantIdMiddleware } from '@/shared/middlewares/tenant-isolation.middleware';
 import { ReportsController } from './reports.controller';
 
 const router: Router = Router();
 
 // Toutes les routes nécessitent une authentification
 router.use(authMiddleware);
+
+// Tous les endpoints utilisent l'isolation tenant
+router.use(injectTenantIdMiddleware({ strictMode: false }));
 
 // Routes des rapports
 router.get('/', ReportsController.getAllReports);

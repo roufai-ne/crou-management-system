@@ -12,12 +12,13 @@
 
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { 
-  ProcurementController, 
-  purchaseOrderValidators 
+import {
+  ProcurementController,
+  purchaseOrderValidators
 } from './procurement.controller';
 import { authenticateJWT } from '@/shared/middlewares/auth.middleware';
 import { checkPermissions } from '@/shared/middlewares/permissions.middleware';
+import { injectTenantIdMiddleware } from '@/shared/middlewares/tenant-isolation.middleware';
 
 const router: Router = Router();
 
@@ -39,6 +40,7 @@ router.use(authenticateJWT);
 router.get(
   '/purchase-orders',
   checkPermissions(['procurement:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   ProcurementController.getPurchaseOrders
 );
 
@@ -50,6 +52,7 @@ router.get(
 router.get(
   '/purchase-orders/:id',
   checkPermissions(['procurement:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   ProcurementController.getPurchaseOrder
 );
 
@@ -62,6 +65,7 @@ router.post(
   '/purchase-orders',
   limiter,
   checkPermissions(['procurement:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   purchaseOrderValidators.create,
   ProcurementController.createPurchaseOrder
 );
@@ -75,6 +79,7 @@ router.post(
   '/purchase-orders/:id/submit',
   limiter,
   checkPermissions(['procurement:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   purchaseOrderValidators.submit,
   ProcurementController.submitPurchaseOrder
 );
@@ -88,6 +93,7 @@ router.post(
   '/purchase-orders/:id/approve',
   limiter,
   checkPermissions(['procurement:approve']),
+  injectTenantIdMiddleware({ strictMode: false }),
   purchaseOrderValidators.approve,
   ProcurementController.approvePurchaseOrder
 );
@@ -101,6 +107,7 @@ router.post(
   '/purchase-orders/:id/order',
   limiter,
   checkPermissions(['procurement:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   ProcurementController.markAsOrdered
 );
 
@@ -113,6 +120,7 @@ router.post(
   '/purchase-orders/:id/receive',
   limiter,
   checkPermissions(['procurement:receive']),
+  injectTenantIdMiddleware({ strictMode: false }),
   purchaseOrderValidators.receive,
   ProcurementController.receivePurchaseOrder
 );
@@ -126,6 +134,7 @@ router.post(
   '/purchase-orders/:id/cancel',
   limiter,
   checkPermissions(['procurement:approve']),
+  injectTenantIdMiddleware({ strictMode: false }),
   purchaseOrderValidators.cancel,
   ProcurementController.cancelPurchaseOrder
 );

@@ -25,6 +25,7 @@ import { AppDataSource } from '../../../../../packages/database/src/config/datas
 import { AllocationsService, AllocationStatus, AllocationType } from './allocations.service';
 import { authenticateJWT } from '@/shared/middlewares/auth.middleware';
 import { checkPermissions } from '@/shared/middlewares/permissions.middleware';
+import { injectTenantIdMiddleware } from '@/shared/middlewares/tenant-isolation.middleware';
 import { auditMiddleware } from '@/shared/middlewares/audit.middleware';
 import { logger } from '@/shared/utils/logger';
 
@@ -49,6 +50,7 @@ function getAllocationsService(): AllocationsService {
 router.post('/budget',
   authenticateJWT,
   checkPermissions(['financial:write', 'ministry:global_view']),
+  injectTenantIdMiddleware({ strictMode: false }),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {
     try {
@@ -107,6 +109,7 @@ router.post('/budget',
 router.post('/stock',
   authenticateJWT,
   checkPermissions(['stocks:write', 'ministry:global_view']),
+  injectTenantIdMiddleware({ strictMode: false }),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {
     try {
@@ -167,6 +170,7 @@ router.post('/stock',
 router.get('/history',
   authenticateJWT,
   checkPermissions(['financial:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   async (req: Request, res: Response) => {
     try {
       const {
@@ -212,6 +216,7 @@ router.get('/history',
 router.get('/summary',
   authenticateJWT,
   checkPermissions(['financial:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   async (req: Request, res: Response) => {
     try {
       const { tenantId, exercice } = req.query;
@@ -244,6 +249,7 @@ router.get('/summary',
 router.post('/:id/validate',
   authenticateJWT,
   checkPermissions(['financial:validate']),
+  injectTenantIdMiddleware({ strictMode: false }),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {
     try {
@@ -283,6 +289,7 @@ router.post('/:id/validate',
 router.post('/:id/execute',
   authenticateJWT,
   checkPermissions(['financial:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {
     try {
@@ -313,6 +320,7 @@ router.post('/:id/execute',
 router.post('/:id/cancel',
   authenticateJWT,
   checkPermissions(['financial:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   auditMiddleware({ enabled: true, sensitiveResource: true }),
   async (req: Request, res: Response) => {
     try {
@@ -352,6 +360,7 @@ router.post('/:id/cancel',
 router.get('/crou/:crouId',
   authenticateJWT,
   checkPermissions(['financial:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   async (req: Request, res: Response) => {
     try {
       const { crouId } = req.params;
@@ -385,6 +394,7 @@ router.get('/crou/:crouId',
  */
 router.get('/statistics',
   authenticateJWT,
+  injectTenantIdMiddleware({ strictMode: false }),
   async (req: Request, res: Response) => {
     try {
       // Filtrer la valeur "all" pour status et type
