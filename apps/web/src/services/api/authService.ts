@@ -97,6 +97,7 @@ export class AuthService {
       headers: {
         'Content-Type': 'application/json',
       },
+      withCredentials: true // Important pour les cookies
     });
 
     this.setupInterceptors();
@@ -133,6 +134,11 @@ export class AuthService {
 
         // Si erreur 401 et pas déjà en cours de refresh
         if (error.response?.status === 401 && !originalRequest._retry) {
+          // Ne pas essayer de refresh sur login ou refresh
+          if (originalRequest.url?.includes('/login') || originalRequest.url?.includes('/refresh')) {
+            return Promise.reject(error);
+          }
+
           originalRequest._retry = true;
 
           try {
@@ -184,7 +190,7 @@ export class AuthService {
         throw new Error('Données utilisateur manquantes dans la réponse');
       }
 
-      const { accessToken, refreshToken, expiresIn } = tokens;
+      const { accessToken, expiresIn } = tokens;
 
       // Mettre à jour le store avec les bonnes méthodes
       const authStore = useAuth.getState();
@@ -251,7 +257,8 @@ export class AuthService {
         // Rétrocompatibilité
         level: user.tenant?.type === 'ministere' ? 'ministere' : (user.tenant?.type === 'region' ? 'region' : 'crou')
       });
-      authStore.setTokens(accessToken, refreshToken);
+      // Refresh token est maintenant géré par cookie HttpOnly
+      authStore.setTokens(accessToken, null);
 
       // Programmer le refresh automatique
       this.scheduleTokenRefresh(expiresIn);
@@ -263,7 +270,7 @@ export class AuthService {
         console.warn('⚠️ Trop de tentatives de connexion - Rate limiting activé');
         throw new Error('Trop de tentatives de connexion. Veuillez patienter avant de réessayer.');
       }
-      
+
       this.handleApiError(error);
       throw error;
     }
@@ -283,14 +290,16 @@ export class AuthService {
 
     try {
       const authStore = useAuth.getState();
-      
+
       // En mode développement, ne pas appeler l'API si c'est un token de dev
       if (import.meta.env.DEV && authStore.accessToken === 'dev-token') {
         console.log('🔒 Déconnexion en mode développement - pas d\'appel API');
       } else if (authStore.accessToken && authStore.accessToken !== 'dev-token') {
         // Appeler l'API de logout seulement si c'est un vrai token
         try {
-          await this.api.post('/logout');
+          await this.api.post('/logout', {}, {
+            withCredentials: true
+          });
         } catch (error: any) {
           // Si erreur 429, ne pas relancer l'erreur
           if (error.response?.status === 429) {
@@ -306,10 +315,10 @@ export class AuthService {
       // Nettoyer le store dans tous les cas
       const authStore = useAuth.getState();
       authStore.clearAuth();
-      
+
       // Annuler le refresh automatique
       this.cancelTokenRefresh();
-      
+
       // Réinitialiser le flag
       this.isLoggingOut = false;
     }
@@ -325,7 +334,7 @@ export class AuthService {
     }
 
     this.refreshPromise = this.performTokenRefresh();
-    
+
     try {
       const newToken = await this.refreshPromise;
       return newToken;
@@ -340,22 +349,21 @@ export class AuthService {
   private async performTokenRefresh(): Promise<string> {
     try {
       const authStore = useAuth.getState();
-      const refreshToken = authStore.refreshToken;
+      // Note: refreshToken est maintenant géré par cookie HttpOnly
+      // On ne l'envoie plus dans le body, mais on vérifie si on a une session active
+      // via la présence de l'accessToken (même expiré) ou via l'état isAuthenticated
 
-      if (!refreshToken) {
-        throw new Error('Aucun refresh token disponible');
-      }
-
-      const response = await this.api.post<any>('/refresh', {
-        refreshToken,
+      // Appel au endpoint refresh qui lira le cookie
+      const response = await this.api.post<any>('/refresh', {}, {
+        withCredentials: true // Important pour envoyer le cookie
       });
 
-      // Extraire les données de la réponse (structure: { success, data: { accessToken, refreshToken, expiresIn } })
+      // Extraire les données de la réponse (structure: { success, data: { accessToken, expiresIn } })
       const responseData = response.data.data || response.data;
-      const { accessToken, refreshToken: newRefreshToken, expiresIn } = responseData;
+      const { accessToken, expiresIn } = responseData;
 
-      // Mettre à jour le store
-      authStore.setTokens(accessToken, newRefreshToken || refreshToken);
+      // Mettre à jour le store (refreshToken reste null côté client)
+      authStore.setTokens(accessToken, null);
 
       // Programmer le prochain refresh
       this.scheduleTokenRefresh(expiresIn);
@@ -380,29 +388,49 @@ export class AuthService {
     }
   }
 
+  private refreshTimeoutId: NodeJS.Timeout | null = null;
+
   /**
    * Programmer le refresh automatique du token
    */
   private scheduleTokenRefresh(expiresIn: number): void {
-    // Refresh 5 minutes avant l'expiration
-    const refreshTime = (expiresIn - 300) * 1000;
-    
-    setTimeout(async () => {
+    this.cancelTokenRefresh();
+
+    // Refresh 5 minutes avant l'expiration, mais au moins dans 10 secondes
+    // Si le token expire dans moins de 5 minutes, on refresh à mi-vie restante
+    let refreshDelay = (expiresIn - 300) * 1000;
+
+    if (refreshDelay <= 0) {
+      refreshDelay = (expiresIn / 2) * 1000;
+    }
+
+    // Sécurité minimale : pas de refresh avant 10 secondes
+    refreshDelay = Math.max(10000, refreshDelay);
+
+    console.log(`🔄 Refresh token programmé dans ${Math.round(refreshDelay / 1000)} secondes`);
+
+    this.refreshTimeoutId = setTimeout(async () => {
       try {
-        await this.refreshAccessToken();
+        // Vérifier si on est toujours connecté avant de refresh
+        if (this.isAuthenticated()) {
+          await this.refreshAccessToken();
+        }
       } catch (error) {
         console.error('Erreur refresh automatique:', error);
-        this.logout();
+        // Ne pas déconnecter automatiquement sur une erreur de refresh background
+        // Laisser l'intercepteur gérer les 401 réels
       }
-    }, refreshTime);
+    }, refreshDelay);
   }
 
   /**
    * Annuler le refresh automatique
    */
   private cancelTokenRefresh(): void {
-    // Dans une implémentation plus robuste, on utiliserait clearTimeout
-    // Pour simplifier, on laisse le timeout se déclencher
+    if (this.refreshTimeoutId) {
+      clearTimeout(this.refreshTimeoutId);
+      this.refreshTimeoutId = null;
+    }
   }
 
   /**
@@ -411,12 +439,12 @@ export class AuthService {
   private handleApiError(error: any): void {
     if (axios.isAxiosError(error)) {
       const apiError = error.response?.data as ApiError;
-      
+
       if (apiError) {
         throw new Error(apiError.message || apiError.error || 'Erreur API');
       }
     }
-    
+
     throw new Error('Erreur de connexion au serveur');
   }
 
@@ -438,10 +466,11 @@ export class AuthService {
 
   /**
    * Sait-on rafraîchir le token ?
+   * Avec les cookies HttpOnly, on suppose qu'on peut rafraîchir si on est authentifié
    */
   hasRefreshToken(): boolean {
     const authStore = useAuth.getState();
-    return Boolean(authStore.refreshToken);
+    return authStore.isAuthenticated;
   }
 
   /**
@@ -455,6 +484,3 @@ export class AuthService {
 
 // Instance singleton du service
 export const authService = new AuthService();
-
-// Export des types pour utilisation dans les composants
-export type { LoginResponse, RefreshResponse, UserProfile, ApiError };

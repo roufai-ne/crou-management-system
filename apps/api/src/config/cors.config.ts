@@ -70,11 +70,11 @@ export const corsConfig: CorsOptions = {
       callback(new Error('Non autorisé par CORS'));
     }
   },
-  
+
   credentials: true, // Autoriser les cookies et headers d'authentification
-  
+
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  
+
   allowedHeaders: [
     'Origin',
     'X-Requested-With',
@@ -82,14 +82,15 @@ export const corsConfig: CorsOptions = {
     'Accept',
     'Authorization',
     'Cache-Control',
-    'Pragma'
+    'Pragma',
+    'x-target-tenant-id'
   ],
-  
+
   exposedHeaders: [
     'X-Total-Count',
     'X-Page-Count',
     'X-Current-Page'
   ],
-  
+
   maxAge: 86400 // Cache preflight pour 24h
 };

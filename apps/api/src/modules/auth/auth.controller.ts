@@ -54,6 +54,15 @@ export class AuthController {
         userAgent
       );
 
+      // Définir le cookie HttpOnly pour le refresh token
+      res.cookie('refreshToken', authResult.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // Secure en prod uniquement
+        sameSite: 'lax', // Lax pour permettre la redirection après login si nécessaire
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
+        path: '/api/auth' // Restreindre au path d'auth
+      });
+
       res.json({
         success: true,
         message: 'Connexion réussie',
@@ -61,7 +70,8 @@ export class AuthController {
           user: authResult.user,
           tokens: {
             accessToken: authResult.accessToken,
-            refreshToken: authResult.refreshToken,
+            // Ne pas renvoyer le refresh token dans le body pour sécurité maximale
+            // refreshToken: authResult.refreshToken, 
             expiresIn: authResult.expiresIn
           }
         }
@@ -69,27 +79,27 @@ export class AuthController {
 
     } catch (error) {
       logger.error('Erreur login:', error);
-      
+
       // Gestion des erreurs spécifiques
       const errorMessage = error instanceof Error ? error.message : 'Erreur lors de la connexion';
-      
-      if (errorMessage.includes('Identifiants invalides') || 
-          errorMessage.includes('Utilisateur non trouvé') ||
-          errorMessage.includes('Mot de passe incorrect')) {
+
+      if (errorMessage.includes('Identifiants invalides') ||
+        errorMessage.includes('Utilisateur non trouvé') ||
+        errorMessage.includes('Mot de passe incorrect')) {
         return res.status(401).json({
           error: 'Identifiants invalides',
           message: 'Email ou mot de passe incorrect'
         });
       }
-      
-      if (errorMessage.includes('Compte désactivé') || 
-          errorMessage.includes('Compte suspendu')) {
+
+      if (errorMessage.includes('Compte désactivé') ||
+        errorMessage.includes('Compte suspendu')) {
         return res.status(403).json({
           error: 'Compte désactivé',
           message: 'Votre compte a été désactivé. Contactez l\'administrateur.'
         });
       }
-      
+
       if (errorMessage.includes('Compte verrouillé')) {
         return res.status(423).json({
           error: 'Compte verrouillé',
@@ -110,7 +120,8 @@ export class AuthController {
    */
   static async refresh(req: Request, res: Response) {
     try {
-      const { refreshToken } = req.body;
+      // Récupérer le refresh token depuis le cookie (prioritaire) ou le body (fallback)
+      const refreshToken = req.cookies?.refreshToken || req.body.refreshToken;
 
       if (!refreshToken) {
         return res.status(401).json({
@@ -134,17 +145,21 @@ export class AuthController {
 
     } catch (error) {
       logger.error('Erreur refresh token:', error);
-      
+
       const errorMessage = error instanceof Error ? error.message : 'Erreur lors du rafraîchissement';
-      
+
       if (errorMessage.includes('expiré') || errorMessage.includes('invalide')) {
+        // Nettoyer le cookie si invalide
+        res.clearCookie('refreshToken', { path: '/api/auth' });
+
         return res.status(401).json({
           error: 'Token invalide',
           message: 'Refresh token expiré ou invalide, reconnexion requise'
         });
       }
-      
+
       if (errorMessage.includes('Utilisateur désactivé')) {
+        res.clearCookie('refreshToken', { path: '/api/auth' });
         return res.status(403).json({
           error: 'Compte désactivé',
           message: 'Votre compte a été désactivé'
@@ -165,12 +180,15 @@ export class AuthController {
   static async logout(req: Request, res: Response) {
     try {
       const userId = req.user?.id;
-      const refreshToken = req.body.refreshToken;
+      const refreshToken = req.cookies?.refreshToken || req.body.refreshToken;
       const ipAddress = req.ip;
 
       if (userId) {
         await AuthController.authService.logout(userId, refreshToken, ipAddress);
       }
+
+      // Nettoyer le cookie
+      res.clearCookie('refreshToken', { path: '/api/auth' });
 
       res.json({
         success: true,

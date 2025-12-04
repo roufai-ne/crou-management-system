@@ -181,9 +181,9 @@ interface RestaurationActions {
   // ========================================
   loadTickets: (filters?: TicketFilters) => Promise<void>;
   loadTicketByNumero: (numeroTicket: string) => Promise<void>;
-  loadTicketsByEtudiant: (etudiantId: string) => Promise<void>;
+  // loadTicketsByEtudiant: (etudiantId: string) => Promise<void>; // Supprimé (tickets anonymes)
   createTicket: (data: CreateTicketRequest) => Promise<TicketRepas>;
-  createTicketsBatch: (data: CreateTicketsBatchRequest) => Promise<{ tickets: TicketRepas[]; total: number }>;
+  createTicketsBatch: (data: CreateTicketsBatchRequest) => Promise<{ tickets: TicketRepas[]; total: number; montantTotal: number }>;
   utiliserTicket: (data: UtiliserTicketRequest) => Promise<TicketRepas>;
   annulerTicket: (id: string, motif: string) => Promise<TicketRepas>;
   setTicketFilters: (filters: Partial<TicketFilters>) => void;
@@ -683,22 +683,7 @@ export const useRestaurationStore = create<RestaurationStore>()(
           }
         },
 
-        loadTicketsByEtudiant: async (etudiantId: string) => {
-          set({ ticketsLoading: true, ticketsError: null });
-
-          try {
-            const data = await restaurationService.getTicketsByEtudiant(etudiantId);
-            set({
-              tickets: data.tickets,
-              ticketsLoading: false,
-            });
-          } catch (error: any) {
-            set({
-              ticketsError: error.message || 'Erreur chargement tickets étudiant',
-              ticketsLoading: false,
-            });
-          }
-        },
+        // loadTicketsByEtudiant supprimé car tickets anonymes
 
         createTicket: async (data: CreateTicketRequest) => {
           set({ ticketsLoading: true, ticketsError: null });

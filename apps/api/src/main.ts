@@ -42,6 +42,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import compression from 'compression';
 import rateLimit from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
 import { config } from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -103,6 +104,9 @@ app.use(cors(corsConfig));
 
 // Compression gzip
 app.use(compression());
+
+// Cookie parser
+app.use(cookieParser());
 
 // Rate limiting global
 const limiter = rateLimit({
@@ -224,7 +228,7 @@ app.get('/api/health', async (req, res) => {
     // Vérifier la base de données
     const { AppDataSource } = await import('../../../packages/database/src/config/typeorm.config');
     const dbStatus = AppDataSource.isInitialized ? 'connected' : 'disconnected';
-    
+
     res.json({
       status: 'OK',
       services: {
@@ -294,7 +298,7 @@ async function startServer() {
       logger.info(`📦 Entités chargées: ${AppDataSource.entityMetadatas.length}`);
       logger.info(`🔍 User metadata: ${AppDataSource.hasMetadata('User')}`);
     }
-    
+
     // Démarrer le serveur sur toutes les interfaces réseau
     const server = app.listen(PORT, '0.0.0.0', () => {
       logger.info(`🚀 Serveur CROU démarré`);
@@ -310,11 +314,11 @@ async function startServer() {
     // Gestion graceful shutdown
     const gracefulShutdown = async (signal: string) => {
       logger.info(`Réception signal ${signal}, arrêt en cours...`);
-      
+
       // Arrêter d'accepter de nouvelles connexions
       server.close(async () => {
         logger.info('Serveur HTTP fermé');
-        
+
         try {
           // Fermer la base de données
           if (AppDataSource.isInitialized) {
@@ -329,7 +333,7 @@ async function startServer() {
           process.exit(1);
         }
       });
-      
+
       // Forcer l'arrêt après 10 secondes
       setTimeout(() => {
         logger.error('⏰ Arrêt forcé après timeout');
@@ -340,12 +344,12 @@ async function startServer() {
     // Écouter les signaux d'arrêt
     process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
     process.on('SIGINT', () => gracefulShutdown('SIGINT'));
-    
+
     // Gestion des erreurs non capturées
     process.on('unhandledRejection', (reason, promise) => {
       logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
     });
-    
+
     process.on('uncaughtException', (error) => {
       logger.error('Uncaught Exception:', error);
       process.exit(1);

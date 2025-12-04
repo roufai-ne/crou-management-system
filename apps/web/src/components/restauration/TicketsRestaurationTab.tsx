@@ -361,7 +361,7 @@ export const TicketsRestaurationTab: React.FC = () => {
       render: (ticket: TicketRepas) => (
         <div className="text-right">
           <p className="font-medium">
-            {ticket.montant === 0 ? 'Gratuit' : `${ticket.montant.toLocaleString()} FCFA`}
+            {ticket.tarif === 0 ? 'Gratuit' : `${ticket.tarif.toLocaleString()} FCFA`}
           </p>
         </div>
       )
@@ -472,7 +472,7 @@ export const TicketsRestaurationTab: React.FC = () => {
                 <p className="text-2xl font-bold text-purple-600">
                   {tickets
                     ?.filter((t) => t.status === TicketStatus.UTILISE)
-                    .reduce((sum, t) => sum + t.montant, 0)
+                    .reduce((sum, t) => sum + t.tarif, 0)
                     .toLocaleString() || 0}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">FCFA</p>
@@ -814,9 +814,9 @@ export const TicketsRestaurationTab: React.FC = () => {
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Tarif:</span>
                 <span className="font-medium">
-                  {selectedTicket.montant === 0
+                  {selectedTicket.tarif === 0
                     ? 'Gratuit'
-                    : `${selectedTicket.montant.toLocaleString()} FCFA`}
+                    : `${selectedTicket.tarif.toLocaleString()} FCFA`}
                 </span>
               </div>
               <div className="flex items-center justify-between">

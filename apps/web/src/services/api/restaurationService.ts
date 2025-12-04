@@ -209,10 +209,6 @@ export enum TicketStatus {
 }
 
 export enum CategorieTicket {
-  ETUDIANT_BOURSIER = 'etudiant_boursier',
-  ETUDIANT_NON_BOURSIER = 'etudiant_non_boursier',
-  PERSONNEL = 'personnel',
-  INVITE = 'invite',
   PAYANT = 'payant',
   GRATUIT = 'gratuit'
 }
@@ -221,23 +217,20 @@ export interface TicketRepas {
   id: string;
   tenantId: string;
   numeroTicket: string; // TKT-2025-XXXXXX
-  etudiantId: string;
-  etudiantNom?: string;
-  type: TypeTicket;
+  // Ticket anonyme - pas de lien étudiant
+  type: TypeTicket; // UNITAIRE (par défaut)
   categorie: CategorieTicket;
-  montant: number;
+  tarif: number; // Montant en FCFA (0 si gratuit)
   dateEmission: Date;
   dateExpiration: Date;
-  nombreRepasInitial?: number;
-  nombreRepasRestants?: number;
   estUtilise: boolean;
   dateUtilisation?: Date;
   repasId?: string;
   status: TicketStatus;
   motifAnnulation?: string;
-  qrCode?: string;
-  typeRepas?: TypeRepas;
-  annee?: number;
+  qrCode: string;
+  typeRepas: TypeRepas;
+  annee: number;
   createdBy: string;
   updatedBy?: string;
   createdAt: Date;
@@ -439,7 +432,7 @@ export interface MenuFilters {
 }
 
 export interface TicketFilters {
-  etudiantId?: string;
+  // etudiantId?: string; // Supprimé car anonyme
   status?: TicketStatus;
   type?: TypeTicket;
   categorie?: CategorieTicket;
@@ -583,10 +576,11 @@ export const restaurationService = {
     return response.data.data;
   },
 
-  async getTicketsByEtudiant(etudiantId: string): Promise<{ tickets: TicketRepas[]; actifs: number }> {
-    const response = await apiClient.get(`/restauration/tickets/etudiant/${etudiantId}`);
-    return response.data.data;
-  },
+  // Méthode supprimée car les tickets sont anonymes
+  // async getTicketsByEtudiant(etudiantId: string): Promise<{ tickets: TicketRepas[]; actifs: number }> {
+  //   const response = await apiClient.get(`/restauration/tickets/etudiant/${etudiantId}`);
+  //   return response.data.data;
+  // },
 
   async createTicket(data: CreateTicketRequest): Promise<TicketRepas> {
     const response = await apiClient.post('/restauration/tickets', data);

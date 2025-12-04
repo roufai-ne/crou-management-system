@@ -103,7 +103,7 @@ export interface AuthState {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: User) => void;
-  setTokens: (accessToken: string, refreshToken: string) => void;
+  setTokens: (accessToken: string, refreshToken: string | null) => void;
   clearError: () => void;
   clearAuth: () => void;
 
@@ -202,7 +202,7 @@ export const useAuth = create<AuthState>()(
         });
       },
 
-      setTokens: (accessToken: string, refreshToken: string) => {
+      setTokens: (accessToken: string, refreshToken: string | null) => {
         set({
           accessToken,
           refreshToken

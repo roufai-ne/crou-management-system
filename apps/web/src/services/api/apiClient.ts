@@ -82,13 +82,19 @@ export class ApiClient {
           if (tenantFilterState) {
             const parsed = JSON.parse(tenantFilterState);
             const tenantId = parsed?.state?.selectedTenantId;
-            
+
             // Si un tenant est sélectionné ET ce n'est pas "all", l'ajouter aux params
             if (tenantId && tenantId !== 'all') {
               config.params = {
                 ...config.params,
                 tenantId: tenantId
               };
+
+              // Injection du header x-target-tenant-id pour les écritures (POST, PUT, PATCH, DELETE)
+              // Cela permet au middleware backend de savoir sur quel tenant on agit
+              if (['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase() || '')) {
+                config.headers['x-target-tenant-id'] = tenantId;
+              }
             }
           }
         } catch (error) {
@@ -155,11 +161,11 @@ export class ApiClient {
         // Gestion des erreurs réseau avec retry
         if (this.shouldRetry(error) && this.retryCount < this.maxRetries) {
           this.retryCount++;
-          
+
           // Attendre avant de retry (backoff exponentiel)
           const delay = Math.pow(2, this.retryCount) * 1000;
           await new Promise(resolve => setTimeout(resolve, delay));
-          
+
           return this.api(originalRequest);
         }
 
@@ -211,8 +217,8 @@ export class ApiClient {
     return (
       !error.response && // Pas de réponse du serveur
       (error.code === 'ECONNABORTED' || // Timeout
-       error.code === 'ENOTFOUND' || // DNS
-       error.code === 'ECONNREFUSED') // Connexion refusée
+        error.code === 'ENOTFOUND' || // DNS
+        error.code === 'ECONNREFUSED') // Connexion refusée
     );
   }
 
@@ -314,7 +320,7 @@ export class ApiClient {
   /**
    * Méthodes spécialisées pour les modules
    */
-  
+
   // Module Financial
   financial = {
     getBudgets: (params?: any) => this.get('/financial/budgets', { params }),
@@ -323,7 +329,7 @@ export class ApiClient {
     updateBudget: (id: string, data: any) => this.put(`/financial/budgets/${id}`, data),
     deleteBudget: (id: string) => this.delete(`/financial/budgets/${id}`),
     validateBudget: (id: string, data: any) => this.post(`/financial/budgets/${id}/validate`, data),
-    
+
     getTransactions: (params?: any) => this.get('/financial/transactions', { params }),
     createTransaction: (data: any) => this.post('/financial/transactions', data),
     getTransaction: (id: string) => this.get(`/financial/transactions/${id}`),
@@ -338,12 +344,12 @@ export class ApiClient {
     getStock: (id: string) => this.get(`/stocks/stocks/${id}`),
     updateStock: (id: string, data: any) => this.put(`/stocks/stocks/${id}`, data),
     deleteStock: (id: string) => this.delete(`/stocks/stocks/${id}`),
-    
+
     getMovements: (params?: any) => this.get('/stocks/movements', { params }),
     createMovement: (data: any) => this.post('/stocks/movements', data),
     getMovement: (id: string) => this.get(`/stocks/movements/${id}`),
     confirmMovement: (id: string) => this.post(`/stocks/movements/${id}/confirm`),
-    
+
     getAlerts: (params?: any) => this.get('/stocks/alerts', { params }),
     resolveAlert: (id: string, data: any) => this.post(`/stocks/alerts/${id}/resolve`, data),
   };
@@ -355,13 +361,13 @@ export class ApiClient {
     getHousing: (id: string) => this.get(`/housing/housings/${id}`),
     updateHousing: (id: string, data: any) => this.put(`/housing/housings/${id}`, data),
     deleteHousing: (id: string) => this.delete(`/housing/housings/${id}`),
-    
+
     getRooms: (params?: any) => this.get('/housing/rooms', { params }),
     createRoom: (data: any) => this.post('/housing/rooms', data),
     getRoom: (id: string) => this.get(`/housing/rooms/${id}`),
     updateRoom: (id: string, data: any) => this.put(`/housing/rooms/${id}`, data),
     deleteRoom: (id: string) => this.delete(`/housing/rooms/${id}`),
-    
+
     getOccupancies: (params?: any) => this.get('/housing/occupancies', { params }),
     createOccupancy: (data: any) => this.post('/housing/occupancies', data),
     getOccupancy: (id: string) => this.get(`/housing/occupancies/${id}`),
