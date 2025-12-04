@@ -20,9 +20,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Container, Card, Button, Table, Modal, Input, Select, DateInput, Badge, Tabs } from '@/components/ui';
-import { 
-  PlusIcon, 
-  MagnifyingGlassIcon, 
+import {
+  PlusIcon,
+  MagnifyingGlassIcon,
   FunnelIcon,
   DocumentArrowDownIcon,
   PencilIcon,
@@ -33,9 +33,20 @@ import {
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/stores/auth';
 import { financialService, Budget, CreateBudgetRequest } from '@/services/api/financialService';
+import { useTenantFilter } from '@/hooks/useTenantFilter';
+import { TenantFilter } from '@/components/common/TenantFilter';
 
 export const BudgetsPage: React.FC = () => {
   const { user } = useAuth();
+
+  // Hook de filtrage tenant
+  const {
+    selectedTenantId,
+    setSelectedTenantId,
+    effectiveTenantId,
+    canFilterTenant
+  } = useTenantFilter();
+
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,10 +64,10 @@ export const BudgetsPage: React.FC = () => {
   const loadBudgets = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await financialService.getBudgets({
-        tenantId: user?.tenantId,
+        tenantId: effectiveTenantId, // ✅ Utilise le tenant du hook (supporte filtrage admin)
         status: filters.status !== 'all' ? filters.status : undefined,
         category: filters.category !== 'all' ? filters.category : undefined,
         fiscalYear: filters.fiscalYear !== 'all' ? filters.fiscalYear : undefined
@@ -71,7 +82,7 @@ export const BudgetsPage: React.FC = () => {
 
   useEffect(() => {
     loadBudgets();
-  }, [filters, user]);
+  }, [filters, effectiveTenantId]); // ✅ Recharger si le tenant change
 
   // Gestion de la création de budget
   const handleCreateBudget = async (data: CreateBudgetRequest) => {
@@ -286,7 +297,16 @@ export const BudgetsPage: React.FC = () => {
       {/* Filtres */}
       <Card className="mb-6">
         <Card.Content>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            {/* ✅ Filtre Tenant (visible uniquement pour admins ministère) */}
+            {canFilterTenant && (
+              <TenantFilter
+                value={selectedTenantId}
+                onChange={setSelectedTenantId}
+                showAllOption={true}
+              />
+            )}
+
             <Input
               placeholder="Rechercher un budget..."
               value={filters.search}

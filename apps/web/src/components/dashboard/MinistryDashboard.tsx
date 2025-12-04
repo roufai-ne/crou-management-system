@@ -39,6 +39,8 @@ import {
   Tabs
 } from '@/components/ui';
 import { useDashboardData, useDashboardFilters, useKPIs } from '@/hooks/useDashboard';
+import { useTenantFilter } from '@/hooks/useTenantFilter';
+import { TenantFilter } from '@/components/common/TenantFilter';
 import {
   ChartBarIcon,
   DocumentArrowDownIcon,
@@ -75,8 +77,19 @@ interface CROUPerformance {
 }
 
 export const MinistryDashboard: React.FC = () => {
+  // Hook de filtrage tenant
+  const {
+    selectedTenantId,
+    setSelectedTenantId,
+    effectiveTenantId,
+    canFilterTenant
+  } = useTenantFilter();
+
   const { filters, updateFilters, resetFilters } = useDashboardFilters();
-  const { data, loading, refetch } = useDashboardData(filters);
+  const { data, loading, refetch } = useDashboardData({
+    ...filters,
+    tenantId: effectiveTenantId
+  });
   const [selectedComparison, setSelectedComparison] = useState<'budget' | 'students' | 'satisfaction'>('budget');
   const [viewMode, setViewMode] = useState<'overview' | 'comparison' | 'ranking'>('overview');
 
@@ -512,6 +525,13 @@ export const MinistryDashboard: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          {/* Filtre Tenant moderne */}
+          <TenantFilter
+            value={selectedTenantId}
+            onChange={setSelectedTenantId}
+            showAllOption={true}
+          />
+
           <CROUSelector
             value={filters.crouId}
             onChange={(crouId) => updateFilters({ crouId })}

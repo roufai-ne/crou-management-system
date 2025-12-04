@@ -85,6 +85,7 @@ router.post('/stocks',
  */
 router.get('/stocks/:id',
   checkPermissions(['stocks:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   stockValidators.update, // Utilise les validateurs d'update pour l'ID
   StocksController.getStock
 );
@@ -96,6 +97,7 @@ router.get('/stocks/:id',
  */
 router.put('/stocks/:id',
   checkPermissions(['stocks:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   stockValidators.update,
   StocksController.updateStock
 );
@@ -107,6 +109,7 @@ router.put('/stocks/:id',
  */
 router.delete('/stocks/:id',
   checkPermissions(['stocks:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   stockValidators.update,
   StocksController.deleteStock
 );
@@ -133,6 +136,7 @@ router.get('/movements',
  */
 router.post('/movements',
   checkPermissions(['stocks:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   stockValidators.movement,
   StocksController.createMovement
 );
@@ -144,6 +148,7 @@ router.post('/movements',
  */
 router.get('/movements/:id',
   checkPermissions(['stocks:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   StocksController.getMovement
 );
 
@@ -154,6 +159,7 @@ router.get('/movements/:id',
  */
 router.put('/movements/:id',
   checkPermissions(['stocks:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   StocksController.updateMovement
 );
 
@@ -164,6 +170,7 @@ router.put('/movements/:id',
  */
 router.post('/movements/:id/confirm',
   checkPermissions(['stocks:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   StocksController.confirmMovement
 );
 
@@ -178,6 +185,7 @@ router.post('/movements/:id/confirm',
  */
 router.get('/alerts',
   checkPermissions(['stocks:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   StocksController.getAlerts
 );
 
@@ -188,6 +196,7 @@ router.get('/alerts',
  */
 router.get('/alerts/:id',
   checkPermissions(['stocks:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   StocksController.getAlert
 );
 
@@ -198,6 +207,7 @@ router.get('/alerts/:id',
  */
 router.post('/alerts/:id/resolve',
   checkPermissions(['stocks:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   StocksController.resolveAlert
 );
 
@@ -208,6 +218,7 @@ router.post('/alerts/:id/resolve',
  */
 router.post('/alerts/:id/escalate',
   checkPermissions(['stocks:validate']),
+  injectTenantIdMiddleware({ strictMode: false }),
   StocksController.escalateAlert
 );
 
@@ -222,6 +233,7 @@ router.post('/alerts/:id/escalate',
  */
 router.get('/inventory',
   checkPermissions(['stocks:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   StocksController.getInventory
 );
 
@@ -232,6 +244,7 @@ router.get('/inventory',
  */
 router.post('/inventory/start',
   checkPermissions(['stocks:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   StocksController.startInventory
 );
 
@@ -242,6 +255,7 @@ router.post('/inventory/start',
  */
 router.post('/inventory/:id/complete',
   checkPermissions(['stocks:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   StocksController.completeInventory
 );
 
@@ -256,6 +270,7 @@ router.post('/inventory/:id/complete',
  */
 router.get('/reports/stock-levels',
   checkPermissions(['stocks:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   StocksController.getStockLevelsReport
 );
 
@@ -266,6 +281,7 @@ router.get('/reports/stock-levels',
  */
 router.get('/reports/movements',
   checkPermissions(['stocks:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   StocksController.getMovementsReport
 );
 
@@ -276,6 +292,7 @@ router.get('/reports/movements',
  */
 router.get('/reports/alerts',
   checkPermissions(['stocks:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   StocksController.getAlertsReport
 );
 
@@ -286,6 +303,7 @@ router.get('/reports/alerts',
  */
 router.get('/reports/export/:format',
   checkPermissions(['stocks:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   StocksController.exportReport
 );
 

@@ -30,7 +30,8 @@
       "Bash(\"C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe\" -h localhost -U crou_user -d crou_database -f packagesdatabaseadd_payment_fields.sql)",
       "Bash(\"C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe\" -h localhost -U crou_user -d crou_database -c \"ALTER TABLE housing_occupancies ADD COLUMN IF NOT EXISTS is_rent_paid boolean NOT NULL DEFAULT false; ALTER TABLE housing_occupancies ADD COLUMN IF NOT EXISTS last_rent_payment_date TIMESTAMP NULL; ALTER TABLE housing_occupancies ADD COLUMN IF NOT EXISTS contract_file_url character varying(500) NULL; ALTER TABLE housing_occupancies ADD COLUMN IF NOT EXISTS actual_end_date TIMESTAMP NULL; ALTER TABLE housing_occupancies ADD COLUMN IF NOT EXISTS cancellation_reason text NULL; CREATE INDEX IF NOT EXISTS IDX_housing_occupancies_rent_paid ON housing_occupancies (is_rent_paid, status); SELECT ''Migration completed'' as result;\")",
       "Bash(\"C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe\" -h localhost -U crou_user -d crou_database -c \"SELECT column_name FROM information_schema.columns WHERE table_name=''housing_occupancies'' AND column_name=''housing_id'';\")",
-      "Bash(\"C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe\":*)"
+      "Bash(\"C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe\":*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

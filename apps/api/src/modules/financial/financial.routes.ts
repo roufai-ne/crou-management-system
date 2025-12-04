@@ -120,6 +120,7 @@ router.delete('/budgets/:id',
  */
 router.post('/budgets/:id/validate',
   checkPermissions(['financial:validate']),
+  injectTenantIdMiddleware({ strictMode: false }),
   budgetValidators.validate,
   FinancialController.validateBudget
 );
@@ -131,6 +132,7 @@ router.post('/budgets/:id/validate',
  */
 router.post('/budgets/:id/submit',
   checkPermissions(['financial:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   budgetValidators.update,
   FinancialController.submitBudget
 );
@@ -169,6 +171,7 @@ router.post('/transactions',
  */
 router.get('/transactions/stats',
   checkPermissions(['financial:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   FinancialController.getTransactionStats
 );
 
@@ -179,6 +182,7 @@ router.get('/transactions/stats',
  */
 router.get('/transactions/:id',
   checkPermissions(['financial:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   FinancialController.getTransaction
 );
 
@@ -189,6 +193,7 @@ router.get('/transactions/:id',
  */
 router.put('/transactions/:id',
   checkPermissions(['financial:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   FinancialController.updateTransaction
 );
 
@@ -199,6 +204,7 @@ router.put('/transactions/:id',
  */
 router.post('/transactions/:id/validate',
   checkPermissions(['financial:validate']),
+  injectTenantIdMiddleware({ strictMode: false }),
   FinancialController.validateTransaction
 );
 
@@ -213,6 +219,7 @@ router.post('/transactions/:id/validate',
  */
 router.get('/categories',
   checkPermissions(['financial:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   FinancialController.getCategories
 );
 
@@ -223,6 +230,7 @@ router.get('/categories',
  */
 router.post('/categories',
   checkPermissions(['financial:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   FinancialController.createCategory
 );
 
@@ -233,6 +241,7 @@ router.post('/categories',
  */
 router.put('/categories/:id',
   checkPermissions(['financial:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   FinancialController.updateCategory
 );
 
@@ -258,6 +267,7 @@ router.get('/reports',
  */
 router.get('/reports/budget-execution',
   checkPermissions(['financial:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   FinancialController.getBudgetExecutionReport
 );
 
@@ -268,6 +278,7 @@ router.get('/reports/budget-execution',
  */
 router.get('/reports/transactions',
   checkPermissions(['financial:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   FinancialController.getTransactionsReport
 );
 
@@ -278,6 +289,7 @@ router.get('/reports/transactions',
  */
 router.get('/reports/export/:format',
   checkPermissions(['financial:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   FinancialController.exportReport
 );
 
@@ -292,6 +304,7 @@ router.get('/reports/export/:format',
  */
 router.get('/validations/pending',
   checkPermissions(['financial:validate']),
+  injectTenantIdMiddleware({ strictMode: false }),
   FinancialController.getPendingValidations
 );
 
@@ -302,6 +315,7 @@ router.get('/validations/pending',
  */
 router.get('/validations/history',
   checkPermissions(['financial:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   FinancialController.getValidationHistory
 );
 
@@ -327,6 +341,7 @@ router.get('/dashboard/kpis',
  */
 router.get('/dashboard/evolution',
   checkPermissions(['financial:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   FinancialController.getFinancialEvolution
 );
 
@@ -337,6 +352,7 @@ router.get('/dashboard/evolution',
  */
 router.get('/dashboard/alerts',
   checkPermissions(['financial:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   FinancialController.getFinancialAlerts
 );
 

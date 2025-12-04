@@ -21,9 +21,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Container, Card, Badge, Button, Table, Modal, Input, Select, DateInput, Tabs } from '@/components/ui';
 import ModernPagination from '@/components/ui/ModernPagination';
-import { 
-  PlusIcon, 
-  MagnifyingGlassIcon, 
+import {
+  PlusIcon,
+  MagnifyingGlassIcon,
   FunnelIcon,
   DocumentArrowDownIcon,
   PencilIcon,
@@ -36,6 +36,8 @@ import {
   ChartBarIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/stores/auth';
+import { useTenantFilter } from '@/hooks/useTenantFilter';
+import { TenantFilter } from '@/components/common/TenantFilter';
 import { 
   useHousingComplexes, 
   useHousingRooms, 
@@ -54,6 +56,15 @@ import { BedsTab } from '@/components/housing/BedsTab';
 
 export const HousingPage: React.FC = () => {
   const { user } = useAuth();
+
+  // Hook de filtrage tenant
+  const {
+    selectedTenantId,
+    setSelectedTenantId,
+    effectiveTenantId,
+    canFilterTenant
+  } = useTenantFilter();
+
   const [activeTab, setActiveTab] = useState('complexes');
   const [selectedComplexId, setSelectedComplexId] = useState<string | undefined>();
   const [selectedComplexName, setSelectedComplexName] = useState<string | undefined>();
@@ -864,6 +875,17 @@ export const HousingPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Filtre Tenant */}
+      {canFilterTenant && (
+        <div className="mb-6">
+          <TenantFilter
+            value={selectedTenantId}
+            onChange={setSelectedTenantId}
+            showAllOption={true}
+          />
+        </div>
+      )}
 
       {/* Statistiques - BED-CENTERED */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">

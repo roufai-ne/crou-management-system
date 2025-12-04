@@ -21,9 +21,9 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Container, Card, Badge, Button, Table, Modal, Input, Select, DateInput, Tabs } from '@/components/ui';
-import { 
-  PlusIcon, 
-  MagnifyingGlassIcon, 
+import {
+  PlusIcon,
+  MagnifyingGlassIcon,
   FunnelIcon,
   DocumentArrowDownIcon,
   PencilIcon,
@@ -36,6 +36,8 @@ import {
   ChartBarIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/stores/auth';
+import { useTenantFilter } from '@/hooks/useTenantFilter';
+import { TenantFilter } from '@/components/common/TenantFilter';
 import { useStockItems, useStockMovements, useStockAlerts, useStocksStatistics } from '@/hooks/useStocks';
 import { StockItem, CreateStockItemRequest, StockMovement, StockAlert } from '@/services/api/stocksService';
 import { ExportButton } from '@/components/reports/ExportButton';
@@ -44,6 +46,15 @@ import ModernPagination from '@/components/ui/ModernPagination';
 
 export const StocksPage: React.FC = () => {
   const { user } = useAuth();
+
+  // Hook de filtrage tenant
+  const {
+    selectedTenantId,
+    setSelectedTenantId,
+    effectiveTenantId,
+    canFilterTenant
+  } = useTenantFilter();
+
   const [activeTab, setActiveTab] = useState('items');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isMovementModalOpen, setIsMovementModalOpen] = useState(false);
@@ -286,6 +297,17 @@ export const StocksPage: React.FC = () => {
       icon: <CubeIcon className="h-4 w-4" />,
       content: (
         <div className="space-y-6">
+          {/* Filtre Tenant */}
+          {canFilterTenant && (
+            <div className="mb-4">
+              <TenantFilter
+                value={selectedTenantId}
+                onChange={setSelectedTenantId}
+                showAllOption={true}
+              />
+            </div>
+          )}
+
           {/* Filtres et actions */}
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
             <div className="flex flex-col sm:flex-row gap-4 flex-1">

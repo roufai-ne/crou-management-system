@@ -145,6 +145,7 @@ router.get('/alerts',
  */
 router.get('/activities',
   maybe(checkPermissions(['dashboard:read'])),
+  injectTenantIdMiddleware({ strictMode: false }),
   DashboardController.getRecentActivities
 );
 
@@ -155,6 +156,7 @@ router.get('/activities',
  */
 router.post('/alerts/:alertId/acknowledge',
   maybe(checkPermissions(['dashboard:write'])),
+  injectTenantIdMiddleware({ strictMode: false }),
   DashboardController.acknowledgeAlert
 );
 

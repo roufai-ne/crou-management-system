@@ -297,6 +297,7 @@ router.delete('/maintenances/:id',
  */
 router.get('/drivers/available',
   checkPermissions(['transport:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   DriversController.getAvailableDrivers
 );
 
@@ -308,6 +309,7 @@ router.get('/drivers/available',
  */
 router.get('/drivers/alerts',
   checkPermissions(['transport:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   DriversController.getDriverAlerts
 );
 
@@ -319,6 +321,7 @@ router.get('/drivers/alerts',
  */
 router.get('/drivers/statistics',
   checkPermissions(['transport:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   DriversController.getDriverStatistics
 );
 
@@ -329,6 +332,7 @@ router.get('/drivers/statistics',
  */
 router.get('/drivers',
   checkPermissions(['transport:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   DriversController.getDrivers
 );
 
@@ -339,6 +343,7 @@ router.get('/drivers',
  */
 router.post('/drivers',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   driverValidators.create,
   DriversController.createDriver
 );
@@ -350,6 +355,7 @@ router.post('/drivers',
  */
 router.get('/drivers/:id',
   checkPermissions(['transport:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   DriversController.getDriver
 );
 
@@ -360,6 +366,7 @@ router.get('/drivers/:id',
  */
 router.put('/drivers/:id',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   driverValidators.update,
   DriversController.updateDriver
 );
@@ -371,6 +378,7 @@ router.put('/drivers/:id',
  */
 router.delete('/drivers/:id',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   DriversController.deleteDriver
 );
 
@@ -381,6 +389,7 @@ router.delete('/drivers/:id',
  */
 router.post('/drivers/:id/assign-vehicle',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   DriversController.assignVehicle
 );
 
@@ -391,6 +400,7 @@ router.post('/drivers/:id/assign-vehicle',
  */
 router.post('/drivers/:id/unassign-vehicle',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   DriversController.unassignVehicle
 );
 
@@ -406,6 +416,7 @@ router.post('/drivers/:id/unassign-vehicle',
  */
 router.get('/routes/active',
   checkPermissions(['transport:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   RoutesController.getActiveRoutes
 );
 
@@ -416,6 +427,7 @@ router.get('/routes/active',
  */
 router.get('/routes',
   checkPermissions(['transport:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   RoutesController.getRoutes
 );
 
@@ -426,6 +438,7 @@ router.get('/routes',
  */
 router.post('/routes',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   routeValidators.create,
   RoutesController.createRoute
 );
@@ -437,6 +450,7 @@ router.post('/routes',
  */
 router.get('/routes/:id',
   checkPermissions(['transport:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   RoutesController.getRoute
 );
 
@@ -447,6 +461,7 @@ router.get('/routes/:id',
  */
 router.put('/routes/:id',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   routeValidators.update,
   RoutesController.updateRoute
 );
@@ -458,6 +473,7 @@ router.put('/routes/:id',
  */
 router.delete('/routes/:id',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   RoutesController.deleteRoute
 );
 
@@ -473,6 +489,7 @@ router.delete('/routes/:id',
  */
 router.get('/scheduled-trips/statistics',
   checkPermissions(['transport:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   ScheduledTripsController.getTripsStatistics
 );
 
@@ -483,6 +500,7 @@ router.get('/scheduled-trips/statistics',
  */
 router.get('/scheduled-trips',
   checkPermissions(['transport:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   ScheduledTripsController.getScheduledTrips
 );
 
@@ -493,6 +511,7 @@ router.get('/scheduled-trips',
  */
 router.post('/scheduled-trips',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   scheduledTripValidators.create,
   ScheduledTripsController.createScheduledTrip
 );
@@ -504,6 +523,7 @@ router.post('/scheduled-trips',
  */
 router.get('/scheduled-trips/:id',
   checkPermissions(['transport:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   ScheduledTripsController.getScheduledTrip
 );
 
@@ -514,6 +534,7 @@ router.get('/scheduled-trips/:id',
  */
 router.put('/scheduled-trips/:id',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   scheduledTripValidators.update,
   ScheduledTripsController.updateScheduledTrip
 );
@@ -525,6 +546,7 @@ router.put('/scheduled-trips/:id',
  */
 router.delete('/scheduled-trips/:id',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   ScheduledTripsController.deleteScheduledTrip
 );
 
@@ -535,6 +557,7 @@ router.delete('/scheduled-trips/:id',
  */
 router.post('/scheduled-trips/:id/start',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   scheduledTripValidators.start,
   ScheduledTripsController.startTrip
 );
@@ -546,6 +569,7 @@ router.post('/scheduled-trips/:id/start',
  */
 router.post('/scheduled-trips/:id/complete',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   scheduledTripValidators.complete,
   ScheduledTripsController.completeTrip
 );
@@ -557,6 +581,7 @@ router.post('/scheduled-trips/:id/complete',
  */
 router.post('/scheduled-trips/:id/cancel',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   scheduledTripValidators.cancel,
   ScheduledTripsController.cancelTrip
 );
@@ -572,6 +597,7 @@ router.post('/scheduled-trips/:id/cancel',
  */
 router.get('/tickets',
   checkPermissions(['transport:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   TicketTransportController.getTickets
 );
 
@@ -582,6 +608,7 @@ router.get('/tickets',
  */
 router.get('/tickets/numero/:numeroTicket',
   checkPermissions(['transport:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   TicketTransportController.getTicketByNumero
 );
 
@@ -592,6 +619,7 @@ router.get('/tickets/numero/:numeroTicket',
  */
 router.post('/tickets',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   TicketTransportController.createTicket
 );
 
@@ -602,6 +630,7 @@ router.post('/tickets',
  */
 router.post('/tickets/batch',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   TicketTransportController.createTicketsBatch
 );
 
@@ -612,6 +641,7 @@ router.post('/tickets/batch',
  */
 router.post('/tickets/:id/utiliser',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   TicketTransportController.utiliserTicket
 );
 
@@ -622,6 +652,7 @@ router.post('/tickets/:id/utiliser',
  */
 router.put('/tickets/:id/annuler',
   checkPermissions(['transport:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   TicketTransportController.annulerTicket
 );
 
@@ -632,6 +663,7 @@ router.put('/tickets/:id/annuler',
  */
 router.post('/tickets/expired/update',
   checkPermissions(['transport:admin']),
+  injectTenantIdMiddleware({ strictMode: false }),
   TicketTransportController.updateExpiredTickets
 );
 
@@ -647,6 +679,7 @@ router.post('/tickets/expired/update',
 router.get('/metrics',
   authenticateJWT,
   checkPermissions(['transport:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   TransportMetricsController.getMetrics
 );
 

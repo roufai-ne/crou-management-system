@@ -22,6 +22,8 @@ import { TransactionForm, TransactionFormData } from '@/components/financial/Tra
 import { TransactionDetailModal } from '@/components/financial/TransactionDetailModal';
 import { financialService } from '@/services/api/financialService';
 import { useAuth } from '@/stores/auth';
+import { useTenantFilter } from '@/hooks/useTenantFilter';
+import { TenantFilter } from '@/components/common/TenantFilter';
 import {
   TrendingUp,
   TrendingDown,
@@ -35,6 +37,14 @@ import { toast } from 'react-toastify';
 
 export function TransactionsTab() {
   const { user } = useAuth();
+
+  // Hook de filtrage tenant
+  const {
+    selectedTenantId,
+    setSelectedTenantId,
+    effectiveTenantId,
+    canFilterTenant
+  } = useTenantFilter();
 
   // États
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -70,7 +80,7 @@ export function TransactionsTab() {
   // Charger les données initiales
   useEffect(() => {
     loadData();
-  }, []);
+  }, [effectiveTenantId]);
 
   const loadData = async () => {
     if (!user) return;
@@ -81,13 +91,17 @@ export function TransactionsTab() {
       // Charger transactions, budgets et stats en parallèle
       const [transactionsData, budgetsData, statsData] = await Promise.all([
         financialService.getTransactions('', {
-          exercice: new Date().getFullYear()
+          exercice: new Date().getFullYear(),
+          tenantId: effectiveTenantId
         }),
         financialService.getBudgets(user, {
           exercice: new Date().getFullYear(),
-          statuts: ['active', 'approved']
+          statuts: ['active', 'approved'],
+          tenantId: effectiveTenantId
         }),
-        financialService.getTransactionStats()
+        financialService.getTransactionStats({
+          tenantId: effectiveTenantId
+        })
       ]);
 
       // S'assurer que les données sont des tableaux
@@ -354,6 +368,17 @@ export function TransactionsTab() {
 
   return (
     <div className="space-y-6">
+      {/* Filtre Tenant */}
+      {canFilterTenant && (
+        <div className="mb-4">
+          <TenantFilter
+            value={selectedTenantId}
+            onChange={setSelectedTenantId}
+            showAllOption={true}
+          />
+        </div>
+      )}
+
       {/* KPIs */}
       <Grid cols={4} gap={6}>
         <KPICard

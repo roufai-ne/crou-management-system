@@ -230,7 +230,27 @@ export class TenantIsolationUtils {
    * Vérifier si l'utilisateur a un accès étendu
    */
   static hasExtendedAccess(req: Request): boolean {
-    return !!(req as any).hasExtendedAccess;
+    const context = (req as any).tenantContext as TenantContext | undefined;
+    return !!(req as any).hasExtendedAccess || context?.tenantType === 'ministere';
+  }
+
+  /**
+   * Extraire le tenant cible de la requête (pour admins filtrant un tenant spécifique)
+   * Retourne le tenantId de la query si l'utilisateur a les droits, sinon son propre tenantId
+   */
+  static getTargetTenantId(req: Request): string | undefined {
+    const context = this.extractTenantContext(req);
+    if (!context) return undefined;
+
+    const queryTenantId = (req.query?.tenantId as string) || (req.params?.tenantId as string);
+
+    // Si admin avec accès étendu et tenant spécifié dans la query
+    if (this.hasExtendedAccess(req) && queryTenantId) {
+      return queryTenantId;
+    }
+
+    // Sinon, utiliser le tenant de l'utilisateur
+    return context.tenantId;
   }
 
   /**
