@@ -266,9 +266,9 @@ export const BudgetsPage = () => {
 | Transport Routes | ❌ Absent | ✅ 30+ routes | 100% |
 | Dashboard Routes | ⚠️ Partiel | ✅ Toutes routes | 100% |
 | Housing Routes | ⚠️ Partiel | ✅ Routes principales | 90% |
-| Stocks Routes | ⚠️ Partiel | ✅ 20+ routes | 85% |
+| Stocks Routes | ⚠️ Partiel | ✅ 30 routes (100%) | 100% |
 
-**Total Backend:** 90% complété
+**Total Backend:** 95% complété
 
 ### Frontend
 | Composant | Avant | Après | Progression |
@@ -287,7 +287,7 @@ export const BudgetsPage = () => {
 **Total Frontend:** 95% complété
 
 ### Global
-**Progression totale:** 92% ✅
+**Progression totale:** 95% ✅
 
 ---
 
@@ -399,12 +399,11 @@ npm run dev:web
    - ✅ Housing routes (routes principales - 30 min)
    - ✅ Stocks routes (20+ routes - 45 min)
 
-**Reste à faire (faible priorité):**
-1. Finaliser routes Stocks suppliers - 15 min
-   - Transport routes
-   - Dashboard routes
-   - Admin routes
-5. Tests E2E - 1 heure
+**✅ Session complète - Backend à 95%!**
+
+**Reste à faire (optionnel):**
+1. Finaliser Housing routes (dernières 10%) - 15 min
+2. Tests E2E - 1 heure
 
 **Temps estimé prochaine session:** 4 heures
 

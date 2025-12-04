@@ -318,6 +318,7 @@ router.get('/reports/export/:format',
  */
 router.get('/dashboard/kpis',
   checkPermissions(['stocks:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   StocksController.getStocksKPIs
 );
 
@@ -328,6 +329,7 @@ router.get('/dashboard/kpis',
  */
 router.get('/dashboard/evolution',
   checkPermissions(['stocks:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   StocksController.getStocksEvolution
 );
 
@@ -338,6 +340,7 @@ router.get('/dashboard/evolution',
  */
 router.get('/dashboard/alerts',
   checkPermissions(['stocks:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   StocksController.getStocksAlerts
 );
 
@@ -363,6 +366,7 @@ router.get('/suppliers',
  */
 router.post('/suppliers',
   checkPermissions(['stocks:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   supplierValidators.create,
   SuppliersController.createSupplier
 );
@@ -374,6 +378,7 @@ router.post('/suppliers',
  */
 router.get('/suppliers/stats/overview',
   checkPermissions(['stocks:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   SuppliersController.getSuppliersStats
 );
 
@@ -384,6 +389,7 @@ router.get('/suppliers/stats/overview',
  */
 router.get('/suppliers/:id',
   checkPermissions(['stocks:read']),
+  injectTenantIdMiddleware({ strictMode: false }),
   supplierValidators.update,
   SuppliersController.getSupplier
 );
@@ -395,6 +401,7 @@ router.get('/suppliers/:id',
  */
 router.put('/suppliers/:id',
   checkPermissions(['stocks:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   supplierValidators.update,
   SuppliersController.updateSupplier
 );
@@ -406,6 +413,7 @@ router.put('/suppliers/:id',
  */
 router.delete('/suppliers/:id',
   checkPermissions(['stocks:write']),
+  injectTenantIdMiddleware({ strictMode: false }),
   supplierValidators.update,
   SuppliersController.deleteSupplier
 );
