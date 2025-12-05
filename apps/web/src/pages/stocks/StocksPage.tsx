@@ -100,21 +100,22 @@ export const StocksPage: React.FC = () => {
     filters = { search: '', type: 'all', category: 'all', status: 'all' },
     createItem,
     updateFilters
-  } = useStockItems();
+  } = useStockItems(effectiveTenantId);
 
   // Debug: Log pour voir les données
   useEffect(() => {
     console.log('📦 StockItems:', stockItems);
     console.log('⏳ Loading:', itemsLoading);
     console.log('❌ Error:', itemsError);
-  }, [stockItems, itemsLoading, itemsError]);
+    console.log('🏢 Tenant:', effectiveTenantId);
+  }, [stockItems, itemsLoading, itemsError, effectiveTenantId]);
 
   const {
     movements = [],
     loading: movementsLoading,
     error: movementsError,
     createMovement
-  } = useStockMovements();
+  } = useStockMovements(effectiveTenantId);
 
   const {
     alerts = [],
@@ -122,7 +123,7 @@ export const StocksPage: React.FC = () => {
     warningAlerts = [],
     unreadAlerts = [],
     markAsRead
-  } = useStockAlerts();
+  } = useStockAlerts(effectiveTenantId);
 
   const {
     totalItems = 0,

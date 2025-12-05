@@ -25,9 +25,9 @@ import { useTenantFilter } from '@/stores/tenantFilter';
 import { StockItem, StockMovement, StockAlert, StocksMetrics } from '@/services/api/stocksService';
 
 // Hook pour les articles de stock
-export const useStockItems = () => {
+export const useStockItems = (tenantId?: string) => {
   const { user } = useAuth();
-  const { selectedTenantId } = useTenantFilter();
+  const effectiveTenantId = tenantId || user?.tenantId;
   const {
     items,
     itemsLoading,
@@ -47,10 +47,11 @@ export const useStockItems = () => {
 
   // Charger les articles au montage et quand les filtres changent
   useEffect(() => {
-    if (user?.tenantId) {
-      loadItems(user.tenantId, filters);
+    if (effectiveTenantId) {
+      console.log('🔄 Loading items for tenant:', effectiveTenantId);
+      loadItems(effectiveTenantId, filters);
     }
-  }, [user?.tenantId, selectedTenantId, filters, loadItems]);
+  }, [effectiveTenantId, filters, loadItems]);
 
   // Fonctions de gestion
   const handleCreateItem = useCallback(async (data: any) => {
@@ -99,9 +100,9 @@ export const useStockItems = () => {
 };
 
 // Hook pour les mouvements de stock
-export const useStockMovements = () => {
+export const useStockMovements = (tenantId?: string) => {
   const { user } = useAuth();
-  const { selectedTenantId } = useTenantFilter();
+  const effectiveTenantId = tenantId || user?.tenantId;
   const {
     movements,
     movementsLoading,
@@ -118,10 +119,11 @@ export const useStockMovements = () => {
 
   // Charger les mouvements au montage et quand les filtres changent
   useEffect(() => {
-    if (user?.tenantId) {
-      loadMovements(user.tenantId, filters);
+    if (effectiveTenantId) {
+      console.log('🔄 Loading movements for tenant:', effectiveTenantId);
+      loadMovements(effectiveTenantId, filters);
     }
-  }, [user?.tenantId, selectedTenantId, filters, loadMovements]);
+  }, [effectiveTenantId, filters, loadMovements]);
 
   // Fonctions de gestion
   const handleCreateMovement = useCallback(async (data: any) => {
@@ -155,9 +157,9 @@ export const useStockMovements = () => {
 };
 
 // Hook pour les alertes de stock
-export const useStockAlerts = () => {
+export const useStockAlerts = (tenantId?: string) => {
   const { user } = useAuth();
-  const { selectedTenantId } = useTenantFilter();
+  const effectiveTenantId = tenantId || user?.tenantId;
   const {
     alerts,
     alertsLoading,
@@ -169,10 +171,11 @@ export const useStockAlerts = () => {
 
   // Charger les alertes au montage
   useEffect(() => {
-    if (user?.tenantId) {
-      loadAlerts(user.tenantId);
+    if (effectiveTenantId) {
+      console.log('🔄 Loading alerts for tenant:', effectiveTenantId);
+      loadAlerts(effectiveTenantId);
     }
-  }, [user?.tenantId, selectedTenantId, loadAlerts]);
+  }, [effectiveTenantId, loadAlerts]);
 
   // Fonctions de gestion
   const handleMarkAsRead = useCallback(async (alertId: string) => {
