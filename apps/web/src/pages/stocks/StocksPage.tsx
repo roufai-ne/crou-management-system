@@ -860,7 +860,11 @@ export const StocksPage: React.FC = () => {
           <DateInput
             label="Date du Mouvement"
             value={movementFormData.date}
-            onChange={(value) => setMovementFormData({ ...movementFormData, date: value })}
+            onValueChange={(date) => {
+              if (date) {
+                setMovementFormData({ ...movementFormData, date: date.toISOString().split('T')[0] });
+              }
+            }}
             required
           />
           <div className="flex justify-end gap-3 pt-4">
