@@ -23,7 +23,8 @@
     "seed:tenants": "ts-node -r tsconfig-paths/register -e \"import('./src/seeds/001-tenants.seed').then(m => m.seedTenants(AppDataSource))\"",
     "seed:roles": "ts-node -r tsconfig-paths/register -e \"import('./src/seeds/002-roles-permissions.seed').then(m => m.seedRolesAndPermissions(AppDataSource))\"",
     "seed:users": "ts-node -r tsconfig-paths/register -e \"import('./src/seeds/003-users.seed').then(m => m.seedUsers(AppDataSource))\"",
-    "seed:housing": "tsx src/seeders/housing.seeder.ts"
+    "seed:housing": "tsx src/seeders/housing.seeder.ts",
+    "seed:stocks": "tsx src/seeders/stocks.seeder.ts"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
