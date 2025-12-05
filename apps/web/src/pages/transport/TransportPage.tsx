@@ -39,6 +39,7 @@ import {
   TicketIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/stores/auth';
+import { useTenantFilter } from '@/hooks/useTenantFilter';
 import {
   useTransportVehicles,
   useTransportDrivers,
@@ -49,6 +50,7 @@ import {
 } from '@/hooks/useTransport';
 import { Vehicle, Driver, Route, ScheduledTrip, MaintenanceRecord } from '@/services/api/transportService';
 import { ExportButton } from '@/components/reports/ExportButton';
+import { TenantFilter } from '@/components/common/TenantFilter';
 import { TicketsTransportTab } from '@/components/transport/TicketsTransportTab';
 import { CircuitsTab } from '@/components/transport/CircuitsTab';
 import { ChauffeursTab } from '@/components/transport/ChauffeursTab';
@@ -58,6 +60,7 @@ import { VehiclesTab } from '@/components/transport/VehiclesTab';
 
 export const TransportPage: React.FC = () => {
   const { user } = useAuth();
+  const { selectedTenantId, setSelectedTenantId, canFilterTenant } = useTenantFilter();
   const [activeTab, setActiveTab] = useState('tickets');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -676,6 +679,13 @@ export const TransportPage: React.FC = () => {
             </p>
           </div>
           <div className="flex items-center gap-4">
+            {canFilterTenant && (
+              <TenantFilter
+                value={selectedTenantId}
+                onChange={setSelectedTenantId}
+                showAllOption={true}
+              />
+            )}
             {maintenanceAlerts.length > 0 && (
               <Badge variant="warning" className="text-lg px-4 py-2">
                 {maintenanceAlerts.length} Alerte{maintenanceAlerts.length > 1 ? 's' : ''} Maintenance
