@@ -36,7 +36,11 @@ import { RestaurantForm } from './forms/RestaurantForm';
 import { TableSkeleton } from './skeletons';
 import toast from 'react-hot-toast';
 
-export const RestaurantsTab: React.FC = () => {
+interface RestaurantsTabProps {
+  tenantId?: string;
+}
+
+export const RestaurantsTab: React.FC<RestaurantsTabProps> = ({ tenantId }) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -53,7 +57,7 @@ export const RestaurantsTab: React.FC = () => {
     updateRestaurant,
     deleteRestaurant,
     refresh
-  } = useRestaurants();
+  } = useRestaurants(tenantId);
 
   const handleCreate = async (data: CreateRestaurantRequest) => {
     setIsSubmitting(true);

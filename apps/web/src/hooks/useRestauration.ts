@@ -43,7 +43,7 @@ import {
 // HOOK: RESTAURANTS
 // ========================================
 
-export const useRestaurants = () => {
+export const useRestaurants = (tenantId?: string) => {
   const { user } = useAuth();
   const {
     restaurants,
@@ -59,12 +59,15 @@ export const useRestaurants = () => {
 
   const [filters, setFilters] = useState(restaurantFilters);
 
-  // Charger les restaurants au montage et quand les filtres changent
+  // Utiliser le tenantId fourni ou celui de l'utilisateur
+  const effectiveTenantId = tenantId || user?.tenantId;
+
+  // Charger les restaurants au montage et quand les filtres ou le tenantId changent
   useEffect(() => {
-    if (user?.tenantId) {
-      loadRestaurants(filters);
+    if (effectiveTenantId) {
+      loadRestaurants({ ...filters, tenantId: effectiveTenantId });
     }
-  }, [filters, loadRestaurants, user?.tenantId]);
+  }, [filters, loadRestaurants, effectiveTenantId]);
 
   // Fonctions de gestion
   const handleCreateRestaurant = useCallback(

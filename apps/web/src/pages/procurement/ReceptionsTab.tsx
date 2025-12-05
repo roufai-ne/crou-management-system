@@ -7,7 +7,11 @@ import React from 'react';
 import { Card, Button } from '@/components/ui';
 import { TruckIcon } from '@heroicons/react/24/outline';
 
-export const ReceptionsTab: React.FC = () => {
+interface ReceptionsTabProps {
+  tenantId?: string;
+}
+
+export const ReceptionsTab: React.FC<ReceptionsTabProps> = ({ tenantId }) => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">

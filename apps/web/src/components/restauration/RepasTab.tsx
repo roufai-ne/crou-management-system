@@ -32,7 +32,11 @@ import { Repas, RepasStatus, TypeRepas } from '@/services/api/restaurationServic
 import { TableSkeleton } from './skeletons';
 import toast from 'react-hot-toast';
 
-export const RepasTab: React.FC = () => {
+interface RepasTabProps {
+  tenantId?: string;
+}
+
+export const RepasTab: React.FC<RepasTabProps> = ({ tenantId }) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isTerminerModalOpen, setIsTerminerModalOpen] = useState(false);
@@ -48,9 +52,9 @@ export const RepasTab: React.FC = () => {
     demarrerService,
     terminerService,
     refresh
-  } = useRepas();
+  } = useRepas(tenantId);
 
-  const { servicesEnCours, loadServicesEnCours } = useServiceEnCours();
+  const { servicesEnCours, loadServicesEnCours } = useServiceEnCours(tenantId);
 
   const { ConfirmDialog, confirm } = useConfirmDialog();
 

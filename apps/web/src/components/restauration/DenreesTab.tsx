@@ -33,7 +33,11 @@ import { StockDenree, AllocationStatus } from '@/services/api/restaurationServic
 import { TableSkeleton } from './skeletons';
 import toast from 'react-hot-toast';
 
-export const DenreesTab: React.FC = () => {
+interface DenreesTabProps {
+  tenantId?: string;
+}
+
+export const DenreesTab: React.FC<DenreesTabProps> = ({ tenantId }) => {
   const [isAllouerModalOpen, setIsAllouerModalOpen] = useState(false);
   const [isPerteModalOpen, setIsPerteModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -50,14 +54,14 @@ export const DenreesTab: React.FC = () => {
     declarerPerte,
     retournerDenree,
     refresh
-  } = useDenrees();
+  } = useDenrees(tenantId);
 
   const {
     alertesCritiques,
     alertesAvertissement,
     denreesPerimerSoon,
     loadAlerts
-  } = useDenreeAlerts();
+  } = useDenreeAlerts(tenantId);
 
   const { ConfirmDialog, confirm } = useConfirmDialog();
 

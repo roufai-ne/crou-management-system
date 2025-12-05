@@ -32,6 +32,8 @@ import {
   CubeIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/stores/auth';
+import { useTenantFilter } from '@/hooks/useTenantFilter';
+import { TenantFilter } from '@/components/common/TenantFilter';
 import { DashboardTab } from '@/components/restauration/DashboardTab';
 import { RestaurantsTab } from '@/components/restauration/RestaurantsTab';
 import { MenusTab } from '@/components/restauration/MenusTab';
@@ -41,6 +43,7 @@ import { DenreesTab } from '@/components/restauration/DenreesTab';
 
 export const RestaurationPage: React.FC = () => {
   const { user } = useAuth();
+  const { selectedTenantId, setSelectedTenantId, effectiveTenantId, canFilterTenant } = useTenantFilter();
   const [activeTab, setActiveTab] = useState('dashboard');
 
   const tabs = [
@@ -48,37 +51,37 @@ export const RestaurationPage: React.FC = () => {
       id: 'dashboard',
       label: 'Dashboard',
       icon: ChartBarIcon,
-      content: <DashboardTab />
+      content: <DashboardTab tenantId={effectiveTenantId} />
     },
     {
       id: 'restaurants',
       label: 'Restaurants',
       icon: BuildingStorefrontIcon,
-      content: <RestaurantsTab />
+      content: <RestaurantsTab tenantId={effectiveTenantId} />
     },
     {
       id: 'menus',
       label: 'Menus',
       icon: DocumentTextIcon,
-      content: <MenusTab />
+      content: <MenusTab tenantId={effectiveTenantId} />
     },
     {
       id: 'tickets',
       label: 'Tickets Repas',
       icon: TicketIcon,
-      content: <TicketsRestaurationTab />
+      content: <TicketsRestaurationTab tenantId={effectiveTenantId} />
     },
     {
       id: 'repas',
       label: 'Services Repas',
       icon: CakeIcon,
-      content: <RepasTab />
+      content: <RepasTab tenantId={effectiveTenantId} />
     },
     {
       id: 'denrees',
       label: 'Denrées',
       icon: CubeIcon,
-      content: <DenreesTab />
+      content: <DenreesTab tenantId={effectiveTenantId} />
     }
   ];
 
@@ -93,6 +96,16 @@ export const RestaurationPage: React.FC = () => {
               Restauration universitaire et tickets repas CROU
             </p>
           </div>
+          {/* Filtre Tenant pour admins ministère */}
+          {canFilterTenant && (
+            <div className="ml-4">
+              <TenantFilter
+                value={selectedTenantId}
+                onChange={setSelectedTenantId}
+                showAllOption={true}
+              />
+            </div>
+          )}
         </div>
       </div>
 

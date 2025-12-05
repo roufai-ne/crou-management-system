@@ -51,7 +51,11 @@ import {
 } from '@/services/api/restaurationService';
 import toast from 'react-hot-toast';
 
-export const TicketsRestaurationTab: React.FC = () => {
+interface TicketsRestaurationTabProps {
+  tenantId?: string;
+}
+
+export const TicketsRestaurationTab: React.FC<TicketsRestaurationTabProps> = ({ tenantId }) => {
   const [isEmissionModalOpen, setIsEmissionModalOpen] = useState(false);
   const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
   const [isUtiliserModalOpen, setIsUtiliserModalOpen] = useState(false);
@@ -89,7 +93,7 @@ export const TicketsRestaurationTab: React.FC = () => {
     telechargerTicketPDF,
     exporterTickets,
     refresh
-  } = useTickets();
+  } = useTickets(tenantId);
 
   const { ConfirmDialog, confirm } = useConfirmDialog();
 

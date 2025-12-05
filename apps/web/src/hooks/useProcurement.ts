@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { procurementService, type PurchaseOrder, type PurchaseOrderFilters } from '@/services/api/procurementService';
 
-export const useProcurement = () => {
+export const useProcurement = (tenantId?: string) => {
   const [orders, setOrders] = useState<PurchaseOrder[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -10,7 +10,9 @@ export const useProcurement = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await procurementService.getPurchaseOrders(filters);
+      // Fusionner le tenantId avec les filtres
+      const mergedFilters = { ...filters, tenantId };
+      const response = await procurementService.getPurchaseOrders(mergedFilters);
       setOrders(response.data.orders);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors du chargement des bons de commande');
@@ -18,7 +20,7 @@ export const useProcurement = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [tenantId]);
 
   const createOrder = useCallback(async (data: any) => {
     setLoading(true);

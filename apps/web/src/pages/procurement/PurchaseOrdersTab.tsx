@@ -58,7 +58,11 @@ const STATUS_LABELS: Record<PurchaseOrderStatus, string> = {
   [PurchaseOrderStatus.CANCELLED]: 'Annulé'
 };
 
-export const PurchaseOrdersTab: React.FC = () => {
+interface PurchaseOrdersTabProps {
+  tenantId?: string;
+}
+
+export const PurchaseOrdersTab: React.FC<PurchaseOrdersTabProps> = ({ tenantId }) => {
   const {
     orders,
     loading: isLoading,
@@ -69,7 +73,7 @@ export const PurchaseOrdersTab: React.FC = () => {
     approveOrder,
     markAsOrdered,
     cancelOrder
-  } = useProcurement();
+  } = useProcurement(tenantId);
 
   const {
     filters,

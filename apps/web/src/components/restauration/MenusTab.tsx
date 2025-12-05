@@ -34,7 +34,11 @@ import { Menu, MenuStatus, TypeRepas } from '@/services/api/restaurationService'
 import { TableSkeleton } from './skeletons';
 import toast from 'react-hot-toast';
 
-export const MenusTab: React.FC = () => {
+interface MenusTabProps {
+  tenantId?: string;
+}
+
+export const MenusTab: React.FC<MenusTabProps> = ({ tenantId }) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState<Menu | null>(null);
@@ -50,7 +54,7 @@ export const MenusTab: React.FC = () => {
     validateMenu,
     deleteMenu,
     refresh
-  } = useMenus();
+  } = useMenus(tenantId);
 
   const { ConfirmDialog, confirm } = useConfirmDialog();
 

@@ -7,7 +7,11 @@ import React from 'react';
 import { Card, Button } from '@/components/ui';
 import { PlusIcon } from '@heroicons/react/24/outline';
 
-export const PurchaseRequestsTab: React.FC = () => {
+interface PurchaseRequestsTabProps {
+  tenantId?: string;
+}
+
+export const PurchaseRequestsTab: React.FC<PurchaseRequestsTabProps> = ({ tenantId }) => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">

@@ -14,12 +14,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/stores/auth';
 import { useProcurementStats } from '@/hooks/useProcurementStats';
+import { useTenantFilter } from '@/hooks/useTenantFilter';
 import { Container, Card, Badge, Button, Grid, KPICard } from '@/components/ui';
 import ModernTabs, { Tab } from '@/components/ui/ModernTabs';
-import { 
-  ShoppingCartIcon, 
-  DocumentTextIcon, 
-  TruckIcon, 
+import {
+  ShoppingCartIcon,
+  DocumentTextIcon,
+  TruckIcon,
   CurrencyDollarIcon,
   PlusIcon,
   ClipboardDocumentCheckIcon,
@@ -29,11 +30,13 @@ import { PurchaseOrdersTab } from './PurchaseOrdersTab';
 import { PurchaseRequestsTab } from './PurchaseRequestsTab';
 import { ReceptionsTab } from './ReceptionsTab';
 import { ExportButton } from '@/components/reports/ExportButton';
+import { TenantFilter } from '@/components/common/TenantFilter';
 
 export const ProcurementPage: React.FC = () => {
   const { user } = useAuth();
   const { stats, loading } = useProcurementStats();
   const [activeTab, setActiveTab] = useState('overview');
+  const { selectedTenantId, setSelectedTenantId, effectiveTenantId, canFilterTenant } = useTenantFilter();
 
   const formatCurrency = (amount: number) => {
     return `${(amount / 1000000).toFixed(1)}M XOF`;
@@ -187,19 +190,19 @@ export const ProcurementPage: React.FC = () => {
       id: 'purchase-orders',
       label: 'Commandes',
       icon: DocumentTextIcon,
-      content: <PurchaseOrdersTab />
+      content: <PurchaseOrdersTab tenantId={effectiveTenantId} />
     },
     {
       id: 'requests',
       label: 'Demandes d\'Achat',
       icon: ShoppingCartIcon,
-      content: <PurchaseRequestsTab />
+      content: <PurchaseRequestsTab tenantId={effectiveTenantId} />
     },
     {
       id: 'receptions',
       label: 'Réceptions',
       icon: TruckIcon,
-      content: <ReceptionsTab />
+      content: <ReceptionsTab tenantId={effectiveTenantId} />
     }
   ];
 
@@ -213,6 +216,15 @@ export const ProcurementPage: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          {canFilterTenant && (
+            <div className="mr-2">
+              <TenantFilter
+                value={selectedTenantId}
+                onChange={setSelectedTenantId}
+                showAllOption={true}
+              />
+            </div>
+          )}
           <ExportButton
             module="financial"
             title="Exporter"
