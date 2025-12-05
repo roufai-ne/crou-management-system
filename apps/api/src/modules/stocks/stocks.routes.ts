@@ -69,10 +69,10 @@ router.get('/stocks',
 /**
  * POST /api/stocks/stocks
  * Créer un nouveau stock
- * Permissions: stocks:write
+ * Permissions: stocks:create
  */
 router.post('/stocks',
-  checkPermissions(['stocks:write']),
+  checkPermissions(['stocks:create']),
   injectTenantIdMiddleware({ strictMode: false }),
   stockValidators.create,
   StocksController.createStock
@@ -93,10 +93,10 @@ router.get('/stocks/:id',
 /**
  * PUT /api/stocks/stocks/:id
  * Modifier un stock
- * Permissions: stocks:write
+ * Permissions: stocks:update
  */
 router.put('/stocks/:id',
-  checkPermissions(['stocks:write']),
+  checkPermissions(['stocks:update']),
   injectTenantIdMiddleware({ strictMode: false }),
   stockValidators.update,
   StocksController.updateStock
@@ -105,10 +105,10 @@ router.put('/stocks/:id',
 /**
  * DELETE /api/stocks/stocks/:id
  * Supprimer un stock
- * Permissions: stocks:write
+ * Permissions: stocks:delete
  */
 router.delete('/stocks/:id',
-  checkPermissions(['stocks:write']),
+  checkPermissions(['stocks:delete']),
   injectTenantIdMiddleware({ strictMode: false }),
   stockValidators.update,
   StocksController.deleteStock
@@ -155,10 +155,10 @@ router.get('/movements/:id',
 /**
  * PUT /api/stocks/movements/:id
  * Modifier un mouvement
- * Permissions: stocks:write
+ * Permissions: stocks:update
  */
 router.put('/movements/:id',
-  checkPermissions(['stocks:write']),
+  checkPermissions(['stocks:update']),
   injectTenantIdMiddleware({ strictMode: false }),
   StocksController.updateMovement
 );
@@ -166,10 +166,10 @@ router.put('/movements/:id',
 /**
  * POST /api/stocks/movements/:id/confirm
  * Confirmer un mouvement
- * Permissions: stocks:write
+ * Permissions: stocks:update
  */
 router.post('/movements/:id/confirm',
-  checkPermissions(['stocks:write']),
+  checkPermissions(['stocks:update']),
   injectTenantIdMiddleware({ strictMode: false }),
   StocksController.confirmMovement
 );
@@ -203,10 +203,10 @@ router.get('/alerts/:id',
 /**
  * POST /api/stocks/alerts/:id/resolve
  * Résoudre une alerte (reconnaître ou résoudre)
- * Permissions: stocks:write
+ * Permissions: stocks:update
  */
 router.post('/alerts/:id/resolve',
-  checkPermissions(['stocks:write']),
+  checkPermissions(['stocks:update']),
   injectTenantIdMiddleware({ strictMode: false }),
   StocksController.resolveAlert
 );
@@ -240,10 +240,10 @@ router.get('/inventory',
 /**
  * POST /api/stocks/inventory/start
  * Démarrer un inventaire
- * Permissions: stocks:write
+ * Permissions: stocks:create
  */
 router.post('/inventory/start',
-  checkPermissions(['stocks:write']),
+  checkPermissions(['stocks:create']),
   injectTenantIdMiddleware({ strictMode: false }),
   StocksController.startInventory
 );
@@ -251,10 +251,10 @@ router.post('/inventory/start',
 /**
  * POST /api/stocks/inventory/:id/complete
  * Finaliser un inventaire
- * Permissions: stocks:write
+ * Permissions: stocks:update
  */
 router.post('/inventory/:id/complete',
-  checkPermissions(['stocks:write']),
+  checkPermissions(['stocks:update']),
   injectTenantIdMiddleware({ strictMode: false }),
   StocksController.completeInventory
 );
@@ -362,10 +362,10 @@ router.get('/suppliers',
 /**
  * POST /api/stocks/suppliers
  * Créer un nouveau fournisseur
- * Permissions: stocks:write
+ * Permissions: stocks:create
  */
 router.post('/suppliers',
-  checkPermissions(['stocks:write']),
+  checkPermissions(['stocks:create']),
   injectTenantIdMiddleware({ strictMode: false }),
   supplierValidators.create,
   SuppliersController.createSupplier
@@ -397,10 +397,10 @@ router.get('/suppliers/:id',
 /**
  * PUT /api/stocks/suppliers/:id
  * Mettre à jour un fournisseur
- * Permissions: stocks:write
+ * Permissions: stocks:update
  */
 router.put('/suppliers/:id',
-  checkPermissions(['stocks:write']),
+  checkPermissions(['stocks:update']),
   injectTenantIdMiddleware({ strictMode: false }),
   supplierValidators.update,
   SuppliersController.updateSupplier
@@ -409,10 +409,10 @@ router.put('/suppliers/:id',
 /**
  * DELETE /api/stocks/suppliers/:id
  * Supprimer un fournisseur
- * Permissions: stocks:write
+ * Permissions: stocks:delete
  */
 router.delete('/suppliers/:id',
-  checkPermissions(['stocks:write']),
+  checkPermissions(['stocks:delete']),
   injectTenantIdMiddleware({ strictMode: false }),
   supplierValidators.update,
   SuppliersController.deleteSupplier

@@ -60,6 +60,20 @@ export const StocksPage: React.FC = () => {
   const [isMovementModalOpen, setIsMovementModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<StockItem | null>(null);
   
+  // État du formulaire de création
+  const [formData, setFormData] = useState<Partial<CreateStockItemRequest>>({
+    code: '',
+    libelle: '',
+    description: '',
+    type: 'centralise',
+    category: '',
+    unit: '',
+    quantiteInitiale: 0,
+    seuilMinimum: 0,
+    seuilMaximum: 0,
+    prixUnitaire: 0
+  });
+  
   // États de pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -75,6 +89,13 @@ export const StocksPage: React.FC = () => {
     createItem,
     updateFilters
   } = useStockItems();
+
+  // Debug: Log pour voir les données
+  useEffect(() => {
+    console.log('📦 StockItems:', stockItems);
+    console.log('⏳ Loading:', itemsLoading);
+    console.log('❌ Error:', itemsError);
+  }, [stockItems, itemsLoading, itemsError]);
 
   const {
     movements = [],
@@ -122,10 +143,30 @@ export const StocksPage: React.FC = () => {
   }, [filters.search, filters.category]);
 
   // Gestion de la création d'article
-  const handleCreateItem = async (data: CreateStockItemRequest) => {
+  const handleCreateItem = async () => {
     try {
-      await createItem(data);
+      // Validation
+      if (!formData.libelle) {
+        alert('Le libellé est requis');
+        return;
+      }
+      
+      await createItem(formData as CreateStockItemRequest);
       setIsCreateModalOpen(false);
+      
+      // Réinitialiser le formulaire
+      setFormData({
+        code: '',
+        libelle: '',
+        description: '',
+        type: 'centralise',
+        category: '',
+        unit: '',
+        quantiteInitiale: 0,
+        seuilMinimum: 0,
+        seuilMaximum: 0,
+        prixUnitaire: 0
+      });
     } catch (err) {
       console.error('Erreur lors de la création de l\'article:', err);
     }
@@ -597,23 +638,45 @@ export const StocksPage: React.FC = () => {
         <div className="space-y-4">
           <Input
             label="Code Article"
-            placeholder="Ex: RIZ001"
-            required
+            placeholder="Ex: RIZ001 (optionnel, sera généré automatiquement)"
+            value={formData.code}
+            onChange={(e) => setFormData({ ...formData, code: e.target.value })}
           />
           <Input
             label="Libellé"
             placeholder="Ex: Riz parfumé 50kg"
+            value={formData.libelle}
+            onChange={(e) => setFormData({ ...formData, libelle: e.target.value })}
             required
+          />
+          <Input
+            label="Description"
+            placeholder="Description de l'article"
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           />
           <Select
             label="Catégorie"
             options={[
               { value: 'cereales', label: 'Céréales' },
-              { value: 'legumes', label: 'Légumes' },
-              { value: 'fruits', label: 'Fruits' },
-              { value: 'epicerie', label: 'Épicerie' },
-              { value: 'boissons', label: 'Boissons' }
+              { value: 'denrees', label: 'Denrées' },
+              { value: 'fournitures', label: 'Fournitures' },
+              { value: 'equipements', label: 'Équipements' },
+              { value: 'vehicules', label: 'Véhicules' },
+              { value: 'maintenance', label: 'Maintenance' }
             ]}
+            value={formData.category}
+            onChange={(value) => setFormData({ ...formData, category: value as string })}
+            required
+          />
+          <Select
+            label="Type"
+            options={[
+              { value: 'centralise', label: 'Centralisé' },
+              { value: 'local', label: 'Local' }
+            ]}
+            value={formData.type}
+            onChange={(value) => setFormData({ ...formData, type: value as 'centralise' | 'local' })}
             required
           />
           <div className="grid grid-cols-2 gap-4">
@@ -621,25 +684,49 @@ export const StocksPage: React.FC = () => {
               label="Quantité Initiale"
               type="number"
               placeholder="0"
+              value={formData.quantiteInitiale?.toString()}
+              onChange={(e) => setFormData({ ...formData, quantiteInitiale: Number(e.target.value) })}
               required
             />
-            <Input
+            <Select
               label="Unité"
-              placeholder="Ex: kg, L, pièce"
+              options={[
+                { value: 'kg', label: 'Kilogrammes (kg)' },
+                { value: 'tonne', label: 'Tonnes' },
+                { value: 'litre', label: 'Litres' },
+                { value: 'unite', label: 'Unités' },
+                { value: 'carton', label: 'Cartons' },
+                { value: 'sac', label: 'Sacs' },
+                { value: 'bouteille', label: 'Bouteilles' }
+              ]}
+              value={formData.unit}
+              onChange={(value) => setFormData({ ...formData, unit: value as string })}
               required
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
+            <Input
+              label="Seuil Minimum"
+              type="number"
+              placeholder="0"
+              value={formData.seuilMinimum?.toString()}
+              onChange={(e) => setFormData({ ...formData, seuilMinimum: Number(e.target.value) })}
+              required
+            />
+            <Input
+              label="Seuil Maximum"
+              type="number"
+              placeholder="0"
+              value={formData.seuilMaximum?.toString()}
+              onChange={(e) => setFormData({ ...formData, seuilMaximum: Number(e.target.value) })}
+              required
+            />
             <Input
               label="Prix Unitaire (XOF)"
               type="number"
               placeholder="0"
-              required
-            />
-            <Input
-              label="Seuil d'Alerte"
-              type="number"
-              placeholder="0"
+              value={formData.prixUnitaire?.toString()}
+              onChange={(e) => setFormData({ ...formData, prixUnitaire: Number(e.target.value) })}
               required
             />
           </div>
@@ -652,7 +739,7 @@ export const StocksPage: React.FC = () => {
             </Button>
             <Button
               variant="primary"
-              onClick={() => handleCreateItem({} as CreateStockItemRequest)}
+              onClick={handleCreateItem}
             >
               Créer l'Article
             </Button>

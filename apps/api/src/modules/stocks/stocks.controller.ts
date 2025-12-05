@@ -78,7 +78,7 @@ export class StocksController {
   static async createStock(req: TypedRequest, res: Response) {
     try {
       const tenantContext = TenantIsolationUtils.extractTenantContext(req);
-      const userId = req.user?.userId;
+      const userId = req.user?.id;
       if (!userId) {
         return res.status(401).json({ success: false, error: 'Authentification manquante' });
       }
@@ -112,7 +112,7 @@ export class StocksController {
     try {
       const { id } = req.params;
       const tenantId = req.user?.tenantId;
-      const userId = req.user?.userId;
+      const userId = req.user?.id;
       if (!tenantId || !userId) {
         return res.status(401).json({ success: false, error: 'Authentification manquante' });
       }
@@ -177,7 +177,7 @@ export class StocksController {
   static async createMovement(req: TypedRequest, res: Response) {
     try {
       const tenantId = req.user?.tenantId;
-      const userId = req.user?.userId;
+      const userId = req.user?.id;
       if (!tenantId || !userId) {
         return res.status(401).json({ success: false, error: 'Authentification manquante' });
       }
@@ -232,7 +232,7 @@ export class StocksController {
     try {
       const { id } = req.params;
       const tenantId = req.user?.tenantId;
-      const userId = req.user?.userId;
+      const userId = req.user?.id;
       if (!tenantId || !userId) {
         return res.status(401).json({ success: false, error: 'Authentification manquante' });
       }

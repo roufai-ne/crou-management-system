@@ -191,7 +191,21 @@ class StocksService {
 
       // Fixed: Backend route is /stocks/stocks not /stocks/items
       const response = await apiClient.get(`${this.baseUrl}/stocks?${queryParams.toString()}`);
-      return response.data;
+      
+      console.log('🔍 API Response:', response.data);
+      
+      // Le backend retourne directement { stocks: [...], total: ... }
+      // apiClient.get déjà extrait response.data du wrapper { success: true, data: {...} }
+      const result = {
+        items: response.data.stocks || [],
+        total: response.data.total || 0,
+        page: params?.page || 1,
+        limit: params?.limit || 10
+      };
+      
+      console.log('📦 Mapped result:', result);
+      
+      return result;
     } catch (error) {
       console.error('Erreur lors de la récupération des articles de stock:', error);
       throw error;

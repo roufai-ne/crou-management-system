@@ -11,7 +11,7 @@
  */
 
 import { AppDataSource } from '../../../../../packages/database/src/config/datasource';
-import { Stock, StockStatus, StockType, StockCategory } from '../../../../../packages/database/src/entities/Stock.entity';
+import { Stock, StockStatus, StockType, StockCategory, StockUnit } from '../../../../../packages/database/src/entities/Stock.entity';
 import { StockMovement, MovementType } from '../../../../../packages/database/src/entities/StockMovement.entity';
 import { StockAlert, AlertType, AlertStatus } from '../../../../../packages/database/src/entities/StockAlert.entity';
 import { Between, LessThan, MoreThan, Like } from 'typeorm';
@@ -27,15 +27,16 @@ export interface StockFilters {
 }
 
 export interface CreateStockDTO {
-  code: string;
+  code?: string; // Optionnel, sera généré automatiquement si absent
   libelle: string;
   description?: string;
-  type: StockType;
-  category: StockCategory;
-  quantiteActuelle: number;
-  seuilMinimum: number;
-  seuilMaximum: number;
-  prixUnitaire: number;
+  type?: StockType;
+  category?: StockCategory;
+  unit?: StockUnit;
+  quantiteActuelle?: number;
+  seuilMinimum?: number;
+  seuilMaximum?: number;
+  prixUnitaire?: number;
   emplacement?: string;
   fournisseur?: string;
 }
@@ -187,21 +188,56 @@ export class StocksService {
     try {
       const stockRepo = AppDataSource.getRepository(Stock);
 
-      // Vérifier si le code existe déjà
-      const existing = await stockRepo.findOne({
-        where: { code: data.code, tenantId }
-      });
+      // Générer un code automatiquement s'il n'est pas fourni
+      let code = data.code;
+      if (!code) {
+        // Utiliser la catégorie ou un préfixe par défaut
+        const category = data.category || 'GENERAL';
+        const prefix = category.substring(0, 3).toUpperCase();
+        const timestamp = Date.now().toString().slice(-6);
+        code = `${prefix}-${timestamp}`;
+        
+        // Vérifier l'unicité et ajouter un suffixe si nécessaire
+        let counter = 1;
+        let finalCode = code;
+        while (await stockRepo.findOne({ where: { code: finalCode, tenantId } })) {
+          finalCode = `${code}-${counter}`;
+          counter++;
+        }
+        code = finalCode;
+      } else {
+        // Vérifier si le code existe déjà
+        const existing = await stockRepo.findOne({
+          where: { code, tenantId }
+        });
 
-      if (existing) {
-        throw new Error('Un stock avec ce code existe déjà');
+        if (existing) {
+          throw new Error('Un stock avec ce code existe déjà');
+        }
       }
 
-      const stock = stockRepo.create({
-        ...data,
+      // Créer l'objet stock avec les valeurs définies
+      const stockData: any = {
+        code,
+        libelle: data.libelle,
+        type: data.type || StockType.MATERIEL,
+        category: data.category || StockCategory.GENERAL,
+        unit: data.unit || StockUnit.UNITE,
+        quantiteActuelle: data.quantiteActuelle || 0,
+        seuilMinimum: data.seuilMinimum || 0,
+        seuilMaximum: data.seuilMaximum || 100,
+        prixUnitaire: data.prixUnitaire || 0,
         tenantId,
         createdBy: userId,
         status: StockStatus.ACTIF
-      });
+      };
+
+      // Ajouter les champs optionnels seulement s'ils sont définis
+      if (data.description) stockData.description = data.description;
+      if (data.emplacement) stockData.emplacement = data.emplacement;
+      if (data.fournisseur) stockData.fournisseur = data.fournisseur;
+
+      const stock = stockRepo.create(stockData);
 
       await stockRepo.save(stock);
 
