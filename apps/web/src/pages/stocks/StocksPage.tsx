@@ -60,7 +60,7 @@ export const StocksPage: React.FC = () => {
   const [isMovementModalOpen, setIsMovementModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<StockItem | null>(null);
   
-  // État du formulaire de création
+  // État du formulaire de création d'article
   const [formData, setFormData] = useState<Partial<CreateStockItemRequest>>({
     code: '',
     libelle: '',
@@ -72,6 +72,18 @@ export const StocksPage: React.FC = () => {
     seuilMinimum: 0,
     seuilMaximum: 0,
     prixUnitaire: 0
+  });
+
+  // État du formulaire de mouvement
+  const [movementFormData, setMovementFormData] = useState({
+    stockItemId: '',
+    type: 'entree' as 'entree' | 'sortie' | 'ajustement' | 'transfert',
+    quantite: 0,
+    prixUnitaire: 0,
+    reference: '',
+    description: '',
+    motif: '',
+    date: new Date().toISOString().split('T')[0]
   });
   
   // États de pagination
@@ -173,12 +185,46 @@ export const StocksPage: React.FC = () => {
   };
 
   // Gestion des mouvements de stock
-  const handleCreateMovement = async (data: any) => {
+  const handleCreateMovement = async () => {
     try {
-      await createMovement(data);
+      // Validation
+      if (!movementFormData.stockItemId) {
+        alert('Veuillez sélectionner un article');
+        return;
+      }
+      if (!movementFormData.quantite || movementFormData.quantite <= 0) {
+        alert('La quantité doit être supérieure à 0');
+        return;
+      }
+
+      // Préparer les données du mouvement
+      const movementData = {
+        stockItemId: movementFormData.stockItemId,
+        type: movementFormData.type,
+        quantite: movementFormData.quantite,
+        prixUnitaire: movementFormData.prixUnitaire || undefined,
+        reference: movementFormData.reference || undefined,
+        description: movementFormData.description || undefined,
+        motif: movementFormData.motif || undefined
+      };
+
+      await createMovement(movementData);
       setIsMovementModalOpen(false);
+
+      // Réinitialiser le formulaire
+      setMovementFormData({
+        stockItemId: '',
+        type: 'entree',
+        quantite: 0,
+        prixUnitaire: 0,
+        reference: '',
+        description: '',
+        motif: '',
+        date: new Date().toISOString().split('T')[0]
+      });
     } catch (err) {
       console.error('Erreur lors de la création du mouvement:', err);
+      alert('Erreur lors de la création du mouvement');
     }
   };
 
@@ -758,8 +804,12 @@ export const StocksPage: React.FC = () => {
             label="Type de Mouvement"
             options={[
               { value: 'entree', label: 'Entrée' },
-              { value: 'sortie', label: 'Sortie' }
+              { value: 'sortie', label: 'Sortie' },
+              { value: 'ajustement', label: 'Ajustement' },
+              { value: 'transfert', label: 'Transfert' }
             ]}
+            value={movementFormData.type}
+            onChange={(value) => setMovementFormData({ ...movementFormData, type: value as 'entree' | 'sortie' | 'ajustement' | 'transfert' })}
             required
           />
           <Select
@@ -768,6 +818,8 @@ export const StocksPage: React.FC = () => {
               value: item.id,
               label: `${item.code} - ${item.libelle}`
             }))}
+            value={movementFormData.stockItemId}
+            onChange={(value) => setMovementFormData({ ...movementFormData, stockItemId: value as string })}
             required
           />
           <div className="grid grid-cols-2 gap-4">
@@ -775,20 +827,40 @@ export const StocksPage: React.FC = () => {
               label="Quantité"
               type="number"
               placeholder="0"
+              value={movementFormData.quantite.toString()}
+              onChange={(e) => setMovementFormData({ ...movementFormData, quantite: Number(e.target.value) })}
               required
             />
             <Input
               label="Prix Unitaire (XOF)"
               type="number"
               placeholder="0"
+              value={movementFormData.prixUnitaire.toString()}
+              onChange={(e) => setMovementFormData({ ...movementFormData, prixUnitaire: Number(e.target.value) })}
             />
           </div>
           <Input
             label="Référence"
             placeholder="Ex: Facture, Bon de sortie"
+            value={movementFormData.reference}
+            onChange={(e) => setMovementFormData({ ...movementFormData, reference: e.target.value })}
+          />
+          <Input
+            label="Motif"
+            placeholder="Motif du mouvement"
+            value={movementFormData.motif}
+            onChange={(e) => setMovementFormData({ ...movementFormData, motif: e.target.value })}
+          />
+          <Input
+            label="Description"
+            placeholder="Description optionnelle"
+            value={movementFormData.description}
+            onChange={(e) => setMovementFormData({ ...movementFormData, description: e.target.value })}
           />
           <DateInput
             label="Date du Mouvement"
+            value={movementFormData.date}
+            onChange={(value) => setMovementFormData({ ...movementFormData, date: value })}
             required
           />
           <div className="flex justify-end gap-3 pt-4">
@@ -800,7 +872,7 @@ export const StocksPage: React.FC = () => {
             </Button>
             <Button
               variant="primary"
-              onClick={() => handleCreateMovement({})}
+              onClick={handleCreateMovement}
             >
               Enregistrer le Mouvement
             </Button>
