@@ -59,8 +59,11 @@ export interface CreateMovementDTO {
   quantite: number;
   motif: string;
   reference?: string;
+  description?: string;
   destinataire?: string;
   observation?: string;
+  prixUnitaire?: number;
+  date?: string;
 }
 
 export class StocksService {

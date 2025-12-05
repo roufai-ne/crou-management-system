@@ -171,6 +171,7 @@ export const useStocks = create<StocksState & StocksActions>()(
             
             // Valider que response.items est un tableau
             const itemsData = Array.isArray(response.items) ? response.items : [];
+            
             set({
               items: itemsData,
               pagination: {

@@ -471,5 +471,41 @@ async function linkPermissionsToRoles(
     await roleRepository.save(chefRestauration);
   }
 
+  // 14. GESTIONNAIRE STOCKS - RW sur stocks
+  const gestionnaireStocks = roleMap.get('Gestionnaire Stocks');
+  if (gestionnaireStocks) {
+    gestionnaireStocks.permissions = [
+      findPermission('dashboard', 'read'),
+      findPermission('stocks', 'read'),
+      findPermission('stocks', 'write'),
+      findPermission('reports', 'read')
+    ].filter(Boolean) as Permission[];
+    await roleRepository.save(gestionnaireStocks);
+  }
+
+  // 15. GESTIONNAIRE LOGEMENT - RW sur housing
+  const gestionnaireLogement = roleMap.get('Gestionnaire Logement');
+  if (gestionnaireLogement) {
+    gestionnaireLogement.permissions = [
+      findPermission('dashboard', 'read'),
+      findPermission('housing', 'read'),
+      findPermission('housing', 'write'),
+      findPermission('reports', 'read')
+    ].filter(Boolean) as Permission[];
+    await roleRepository.save(gestionnaireLogement);
+  }
+
+  // 16. GESTIONNAIRE TRANSPORT - RW sur transport
+  const gestionnaireTransport = roleMap.get('Gestionnaire Transport');
+  if (gestionnaireTransport) {
+    gestionnaireTransport.permissions = [
+      findPermission('dashboard', 'read'),
+      findPermission('transport', 'read'),
+      findPermission('transport', 'write'),
+      findPermission('reports', 'read')
+    ].filter(Boolean) as Permission[];
+    await roleRepository.save(gestionnaireTransport);
+  }
+
   console.log('✅ Permissions liées aux rôles selon la matrice du PRD');
 }

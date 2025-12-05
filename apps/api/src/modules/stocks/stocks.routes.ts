@@ -105,10 +105,10 @@ router.put('/stocks/:id',
 /**
  * DELETE /api/stocks/stocks/:id
  * Supprimer un stock
- * Permissions: stocks:delete
+ * Permissions: stocks:write
  */
 router.delete('/stocks/:id',
-  checkPermissions(['stocks:delete']),
+  checkPermissions(['stocks:write']),
   injectTenantIdMiddleware({ strictMode: false }),
   stockValidators.update,
   StocksController.deleteStock
@@ -409,10 +409,10 @@ router.put('/suppliers/:id',
 /**
  * DELETE /api/stocks/suppliers/:id
  * Supprimer un fournisseur
- * Permissions: stocks:delete
+ * Permissions: stocks:write
  */
 router.delete('/suppliers/:id',
-  checkPermissions(['stocks:delete']),
+  checkPermissions(['stocks:write']),
   injectTenantIdMiddleware({ strictMode: false }),
   supplierValidators.update,
   SuppliersController.deleteSupplier

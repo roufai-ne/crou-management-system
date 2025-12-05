@@ -48,7 +48,6 @@ export const useStockItems = (tenantId?: string) => {
   // Charger les articles au montage et quand les filtres changent
   useEffect(() => {
     if (effectiveTenantId) {
-      console.log('🔄 Loading items for tenant:', effectiveTenantId);
       loadItems(effectiveTenantId, filters);
     }
   }, [effectiveTenantId, filters, loadItems]);

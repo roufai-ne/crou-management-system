@@ -20,7 +20,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Container, Card, Badge, Button, Table, Modal, Input, Select, DateInput, Tabs } from '@/components/ui';
+import { Container, Card, Badge, Button, DataTable as Table, Modal, Input, Select, DateInput, Tabs } from '@/components/ui';
 import {
   PlusIcon,
   MagnifyingGlassIcon,
@@ -43,6 +43,7 @@ import { StockItem, CreateStockItemRequest, StockMovement, StockAlert } from '@/
 import { ExportButton } from '@/components/reports/ExportButton';
 import { SuppliersTab } from '@/components/stocks/SuppliersTab';
 import ModernPagination from '@/components/ui/ModernPagination';
+import { toast } from '@/components/ui/Toaster';
 
 export const StocksPage: React.FC = () => {
   const { user } = useAuth();
@@ -57,6 +58,7 @@ export const StocksPage: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState('items');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isMovementModalOpen, setIsMovementModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<StockItem | null>(null);
   
@@ -76,7 +78,7 @@ export const StocksPage: React.FC = () => {
 
   // État du formulaire de mouvement
   const [movementFormData, setMovementFormData] = useState({
-    stockItemId: '',
+    stockId: '',
     type: 'entree' as 'entree' | 'sortie' | 'ajustement' | 'transfert',
     quantite: 0,
     prixUnitaire: 0,
@@ -99,22 +101,18 @@ export const StocksPage: React.FC = () => {
     error: itemsError,
     filters = { search: '', type: 'all', category: 'all', status: 'all' },
     createItem,
+    updateItem,
+    deleteItem,
+    refresh,
     updateFilters
   } = useStockItems(effectiveTenantId);
-
-  // Debug: Log pour voir les données
-  useEffect(() => {
-    console.log('📦 StockItems:', stockItems);
-    console.log('⏳ Loading:', itemsLoading);
-    console.log('❌ Error:', itemsError);
-    console.log('🏢 Tenant:', effectiveTenantId);
-  }, [stockItems, itemsLoading, itemsError, effectiveTenantId]);
 
   const {
     movements = [],
     loading: movementsLoading,
     error: movementsError,
-    createMovement
+    createMovement,
+    refresh: refreshMovements
   } = useStockMovements(effectiveTenantId);
 
   const {
@@ -155,12 +153,46 @@ export const StocksPage: React.FC = () => {
     setCurrentPage(1);
   }, [filters.search, filters.category]);
 
+  // Remplir le formulaire lors de l'édition
+  useEffect(() => {
+    if (isEditModalOpen && selectedItem) {
+      setFormData({
+        code: selectedItem.code || '',
+        libelle: selectedItem.libelle || '',
+        description: selectedItem.description || '',
+        category: selectedItem.category || '',
+        type: selectedItem.type || 'centralise',
+        quantiteInitiale: selectedItem.quantiteActuelle || 0,
+        unit: selectedItem.unit || '',
+        seuilMinimum: selectedItem.seuilMinimum || 0,
+        seuilMaximum: selectedItem.seuilMaximum || 0,
+        prixUnitaire: selectedItem.prixUnitaire || 0
+      });
+    }
+  }, [isEditModalOpen, selectedItem]);
+
   // Gestion de la création d'article
   const handleCreateItem = async () => {
     try {
-      // Validation
-      if (!formData.libelle) {
-        alert('Le libellé est requis');
+      // Validation basique
+      if (!formData.libelle || !formData.category || !formData.unit) {
+        toast.warning('Champs obligatoires manquants', {
+          description: 'Veuillez remplir Libellé, Catégorie et Unité'
+        });
+        return;
+      }
+
+      if (formData.quantiteInitiale && formData.quantiteInitiale < 0) {
+        toast.warning('Quantité invalide', {
+          description: 'La quantité initiale ne peut pas être négative'
+        });
+        return;
+      }
+
+      if (formData.seuilMinimum && formData.seuilMaximum && formData.seuilMinimum > formData.seuilMaximum) {
+        toast.warning('Seuils invalides', {
+          description: 'Le seuil minimum ne peut pas être supérieur au seuil maximum'
+        });
         return;
       }
       
@@ -180,8 +212,80 @@ export const StocksPage: React.FC = () => {
         seuilMaximum: 0,
         prixUnitaire: 0
       });
-    } catch (err) {
+
+      toast.success('Article créé avec succès!', {
+        description: `${formData.libelle} a été ajouté à l'inventaire`
+      });
+      refresh();
+    } catch (err: any) {
       console.error('Erreur lors de la création de l\'article:', err);
+      toast.error('Erreur lors de la création', {
+        description: err.message || 'Une erreur inconnue est survenue'
+      });
+    }
+  };
+
+  // Gestion de l'édition d'article
+  const handleEditItem = async () => {
+    try {
+      if (!selectedItem?.id) {
+        toast.warning('Aucun article sélectionné');
+        return;
+      }
+
+      // Validation basique
+      if (!formData.libelle || !formData.category || !formData.unit) {
+        toast.warning('Champs obligatoires manquants', {
+          description: 'Veuillez remplir Libellé, Catégorie et Unité'
+        });
+        return;
+      }
+
+      if (formData.seuilMinimum && formData.seuilMaximum && formData.seuilMinimum > formData.seuilMaximum) {
+        toast.warning('Seuils invalides', {
+          description: 'Le seuil minimum ne peut pas être supérieur au seuil maximum'
+        });
+        return;
+      }
+
+      // Ne pas envoyer quantiteInitiale dans l'édition (utiliser les mouvements)
+      const { quantiteInitiale, ...updateData } = formData;
+      
+      await updateItem(selectedItem.id, updateData);
+      setIsEditModalOpen(false);
+      setSelectedItem(null);
+      
+      toast.success('Article modifié avec succès!', {
+        description: `${formData.libelle} a été mis à jour`
+      });
+      refresh();
+    } catch (err: any) {
+      console.error('Erreur lors de la modification:', err);
+      toast.error('Erreur lors de la modification', {
+        description: err.message || 'Une erreur inconnue est survenue'
+      });
+    }
+  };
+
+  // Gestion de la suppression d'article
+  const handleDeleteItem = async (itemId: string, itemName: string) => {
+    const confirmDelete = window.confirm(
+      `Êtes-vous sûr de vouloir supprimer l'article "${itemName}" ?\n\nCette action est irréversible et supprimera également tous les mouvements associés.`
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      await deleteItem(itemId);
+      toast.success('Article supprimé avec succès!', {
+        description: `${itemName} a été retiré de l'inventaire`
+      });
+      refresh();
+    } catch (err: any) {
+      console.error('Erreur lors de la suppression:', err);
+      toast.error('Erreur lors de la suppression', {
+        description: err.message || 'Une erreur inconnue est survenue'
+      });
     }
   };
 
@@ -189,24 +293,29 @@ export const StocksPage: React.FC = () => {
   const handleCreateMovement = async () => {
     try {
       // Validation
-      if (!movementFormData.stockItemId) {
-        alert('Veuillez sélectionner un article');
+      if (!movementFormData.stockId) {
+        toast.warning('Veuillez sélectionner un article');
         return;
       }
       if (!movementFormData.quantite || movementFormData.quantite <= 0) {
-        alert('La quantité doit être supérieure à 0');
+        toast.warning('La quantité doit être supérieure à 0');
+        return;
+      }
+      if (!movementFormData.date) {
+        toast.warning('Veuillez sélectionner une date');
         return;
       }
 
       // Préparer les données du mouvement
       const movementData = {
-        stockItemId: movementFormData.stockItemId,
+        stockId: movementFormData.stockId,
         type: movementFormData.type,
         quantite: movementFormData.quantite,
         prixUnitaire: movementFormData.prixUnitaire || undefined,
         reference: movementFormData.reference || undefined,
         description: movementFormData.description || undefined,
-        motif: movementFormData.motif || undefined
+        motif: movementFormData.motif || undefined,
+        date: movementFormData.date
       };
 
       await createMovement(movementData);
@@ -214,7 +323,7 @@ export const StocksPage: React.FC = () => {
 
       // Réinitialiser le formulaire
       setMovementFormData({
-        stockItemId: '',
+        stockId: '',
         type: 'entree',
         quantite: 0,
         prixUnitaire: 0,
@@ -223,9 +332,18 @@ export const StocksPage: React.FC = () => {
         motif: '',
         date: new Date().toISOString().split('T')[0]
       });
-    } catch (err) {
+
+      const article = stockItems.find(item => item.id === movementFormData.stockId);
+      toast.success('Mouvement enregistré avec succès!', {
+        description: `${movementFormData.type === 'entree' ? 'Entrée' : 'Sortie'} de ${movementFormData.quantite} ${article?.unit || ''} - ${article?.libelle || ''}`
+      });
+      refresh();
+      refreshMovements();
+    } catch (err: any) {
       console.error('Erreur lors de la création du mouvement:', err);
-      alert('Erreur lors de la création du mouvement');
+      toast.error('Erreur lors de la création du mouvement', {
+        description: err.message || 'Une erreur inconnue est survenue'
+      });
     }
   };
 
@@ -290,37 +408,6 @@ export const StocksPage: React.FC = () => {
         };
         return getStatusBadge(item.status);
       }
-    },
-    {
-      key: 'actions',
-      label: 'Actions',
-      render: (item: StockItem) => (
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            leftIcon={<EyeIcon className="h-4 w-4" />}
-            onClick={() => setSelectedItem(item)}
-          >
-            Voir
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            leftIcon={<PencilIcon className="h-4 w-4" />}
-          >
-            Modifier
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            leftIcon={<TrashIcon className="h-4 w-4" />}
-            className="text-red-600 hover:text-red-700"
-          >
-            Supprimer
-          </Button>
-        </div>
-      )
     }
   ];
 
@@ -354,8 +441,8 @@ export const StocksPage: React.FC = () => {
       label: 'Article',
       render: (movement: StockMovement) => (
         <div>
-          <p className="font-medium">{movement.stockItem?.libelle || 'N/A'}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{movement.stockItem?.code || 'N/A'}</p>
+          <p className="font-medium">{movement.stock?.libelle || movement.stockItem?.libelle || 'N/A'}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{movement.stock?.code || movement.stockItem?.code || 'N/A'}</p>
         </div>
       )
     },
@@ -364,7 +451,7 @@ export const StocksPage: React.FC = () => {
       label: 'Quantité',
       render: (movement: StockMovement) => (
         <div className="text-right">
-          <p className="font-medium">{movement.quantite} {movement.stockItem?.unit || ''}</p>
+          <p className="font-medium">{movement.quantite} {movement.stock?.unit || movement.stockItem?.unit || ''}</p>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             {movement.prixUnitaire ? movement.prixUnitaire.toLocaleString() : '0'} XOF/u
           </p>
@@ -412,10 +499,11 @@ export const StocksPage: React.FC = () => {
                 options={[
                   { value: '', label: 'Toutes les catégories' },
                   { value: 'cereales', label: 'Céréales' },
-                  { value: 'legumes', label: 'Légumes' },
-                  { value: 'fruits', label: 'Fruits' },
-                  { value: 'epicerie', label: 'Épicerie' },
-                  { value: 'boissons', label: 'Boissons' }
+                  { value: 'denrees', label: 'Denrées' },
+                  { value: 'fournitures', label: 'Fournitures' },
+                  { value: 'equipements', label: 'Équipements' },
+                  { value: 'vehicules', label: 'Véhicules' },
+                  { value: 'maintenance', label: 'Maintenance' }
                 ]}
                 className="w-full sm:w-48"
               />
@@ -434,13 +522,56 @@ export const StocksPage: React.FC = () => {
               <Card.Title>Articles en Stock ({stockItems.length})</Card.Title>
             </Card.Header>
             <Card.Content>
-              <Table
-                data={paginatedItems}
-                columns={itemColumns}
-                loading={itemsLoading}
-                emptyMessage="Aucun article trouvé"
-                onRowClick={(item) => setSelectedItem(item)}
-              />
+              <div className="overflow-x-auto -mx-6 sm:mx-0">
+                <div className="inline-block min-w-full align-middle">
+                  <Table
+                    data={paginatedItems}
+                    columns={itemColumns}
+                    loading={itemsLoading}
+                    emptyMessage="Aucun article trouvé"
+                    actions={(item) => (
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedItem(item);
+                            setIsEditModalOpen(true);
+                          }}
+                          title="Voir/Modifier l'article"
+                        >
+                          <EyeIcon className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedItem(item);
+                            setIsEditModalOpen(true);
+                          }}
+                          title="Modifier l'article"
+                        >
+                          <PencilIcon className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteItem(item.id, item.libelle);
+                          }}
+                          title="Supprimer l'article"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        >
+                          <TrashIcon className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                  />
+                </div>
+              </div>
               
               {/* Pagination */}
               {stockItems.length > 0 && (
@@ -678,7 +809,21 @@ export const StocksPage: React.FC = () => {
       {/* Modales */}
       <Modal
         isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
+        onClose={() => {
+          setIsCreateModalOpen(false);
+          setFormData({
+            code: '',
+            libelle: '',
+            description: '',
+            category: '',
+            type: 'centralise',
+            quantiteInitiale: 0,
+            unit: '',
+            seuilMinimum: 0,
+            seuilMaximum: 0,
+            prixUnitaire: 0
+          });
+        }}
         title="Nouvel Article"
         size="lg"
       >
@@ -795,6 +940,133 @@ export const StocksPage: React.FC = () => {
       </Modal>
 
       <Modal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedItem(null);
+        }}
+        title={`Modifier l'Article ${selectedItem?.code ? `- ${selectedItem.code}` : ''}`}
+        size="lg"
+      >
+        <div className="space-y-4">
+          <Input
+            label="Code Article"
+            placeholder="Ex: RIZ001"
+            value={formData.code}
+            onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+            disabled
+            helpText="Le code ne peut pas être modifié"
+          />
+          <Input
+            label="Libellé"
+            placeholder="Ex: Riz parfumé 50kg"
+            value={formData.libelle}
+            onChange={(e) => setFormData({ ...formData, libelle: e.target.value })}
+            required
+          />
+          <Input
+            label="Description"
+            placeholder="Description de l'article"
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          />
+          <Select
+            label="Catégorie"
+            options={[
+              { value: 'cereales', label: 'Céréales' },
+              { value: 'denrees', label: 'Denrées' },
+              { value: 'fournitures', label: 'Fournitures' },
+              { value: 'equipements', label: 'Équipements' },
+              { value: 'vehicules', label: 'Véhicules' },
+              { value: 'maintenance', label: 'Maintenance' }
+            ]}
+            value={formData.category}
+            onChange={(value) => setFormData({ ...formData, category: value as string })}
+            required
+          />
+          <Select
+            label="Type"
+            options={[
+              { value: 'centralise', label: 'Centralisé' },
+              { value: 'local', label: 'Local' }
+            ]}
+            value={formData.type}
+            onChange={(value) => setFormData({ ...formData, type: value as 'centralise' | 'local' })}
+            required
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="Quantité Actuelle"
+              type="number"
+              placeholder="0"
+              value={formData.quantiteInitiale?.toString()}
+              onChange={(e) => setFormData({ ...formData, quantiteInitiale: Number(e.target.value) })}
+              disabled
+              helpText="Utilisez les mouvements pour modifier la quantité"
+            />
+            <Select
+              label="Unité"
+              options={[
+                { value: 'kg', label: 'Kilogrammes (kg)' },
+                { value: 'tonne', label: 'Tonnes' },
+                { value: 'litre', label: 'Litres' },
+                { value: 'unite', label: 'Unités' },
+                { value: 'carton', label: 'Cartons' },
+                { value: 'sac', label: 'Sacs' },
+                { value: 'bouteille', label: 'Bouteilles' }
+              ]}
+              value={formData.unit}
+              onChange={(value) => setFormData({ ...formData, unit: value as string })}
+              required
+            />
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            <Input
+              label="Seuil Minimum"
+              type="number"
+              placeholder="0"
+              value={formData.seuilMinimum?.toString()}
+              onChange={(e) => setFormData({ ...formData, seuilMinimum: Number(e.target.value) })}
+              required
+            />
+            <Input
+              label="Seuil Maximum"
+              type="number"
+              placeholder="0"
+              value={formData.seuilMaximum?.toString()}
+              onChange={(e) => setFormData({ ...formData, seuilMaximum: Number(e.target.value) })}
+              required
+            />
+            <Input
+              label="Prix Unitaire (XOF)"
+              type="number"
+              placeholder="0"
+              value={formData.prixUnitaire?.toString()}
+              onChange={(e) => setFormData({ ...formData, prixUnitaire: Number(e.target.value) })}
+              required
+            />
+          </div>
+          <div className="flex justify-end gap-3 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsEditModalOpen(false);
+                setSelectedItem(null);
+              }}
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleEditItem}
+            >
+              Enregistrer les Modifications
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
         isOpen={isMovementModalOpen}
         onClose={() => setIsMovementModalOpen(false)}
         title="Nouveau Mouvement"
@@ -819,8 +1091,8 @@ export const StocksPage: React.FC = () => {
               value: item.id,
               label: `${item.code} - ${item.libelle}`
             }))}
-            value={movementFormData.stockItemId}
-            onChange={(value) => setMovementFormData({ ...movementFormData, stockItemId: value as string })}
+            value={movementFormData.stockId}
+            onChange={(value) => setMovementFormData({ ...movementFormData, stockId: value as string })}
             required
           />
           <div className="grid grid-cols-2 gap-4">
@@ -858,14 +1130,11 @@ export const StocksPage: React.FC = () => {
             value={movementFormData.description}
             onChange={(e) => setMovementFormData({ ...movementFormData, description: e.target.value })}
           />
-          <DateInput
+          <Input
             label="Date du Mouvement"
+            type="date"
             value={movementFormData.date}
-            onValueChange={(date) => {
-              if (date) {
-                setMovementFormData({ ...movementFormData, date: date.toISOString().split('T')[0] });
-              }
-            }}
+            onChange={(e) => setMovementFormData({ ...movementFormData, date: e.target.value })}
             required
           />
           <div className="flex justify-end gap-3 pt-4">

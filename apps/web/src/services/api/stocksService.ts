@@ -79,6 +79,7 @@ export interface UpdateStockItemRequest {
 export interface StockMovement {
   id: string;
   stockItemId: string;
+  stockId?: string; // Backend utilise stockId
   type: 'entree' | 'sortie' | 'ajustement' | 'transfert';
   quantite: number;
   prixUnitaire?: number;
@@ -89,7 +90,8 @@ export interface StockMovement {
   tenantId: string;
   createdBy: string;
   createdAt: Date;
-  stockItem?: StockItem;
+  stockItem?: StockItem; // Alias frontend
+  stock?: StockItem; // Nom de relation backend
 }
 
 export interface CreateStockMovementRequest {
@@ -189,23 +191,15 @@ class StocksService {
       if (params?.search) queryParams.append('search', params.search);
       if (params?.tenantId) queryParams.append('tenantId', params.tenantId);
 
-      // Fixed: Backend route is /stocks/stocks not /stocks/items
       const response = await apiClient.get(`${this.baseUrl}/stocks?${queryParams.toString()}`);
       
-      console.log('🔍 API Response:', response.data);
-      
       // Le backend retourne directement { stocks: [...], total: ... }
-      // apiClient.get déjà extrait response.data du wrapper { success: true, data: {...} }
-      const result = {
+      return {
         items: response.data.stocks || [],
         total: response.data.total || 0,
         page: params?.page || 1,
         limit: params?.limit || 10
       };
-      
-      console.log('📦 Mapped result:', result);
-      
-      return result;
     } catch (error) {
       console.error('Erreur lors de la récupération des articles de stock:', error);
       throw error;
@@ -231,8 +225,15 @@ class StocksService {
    */
   async createStockItem(data: CreateStockItemRequest): Promise<StockItem> {
     try {
+      // Mapper quantiteInitiale (frontend) vers quantiteActuelle (backend)
+      const backendData = {
+        ...data,
+        quantiteActuelle: data.quantiteInitiale
+      };
+      delete (backendData as any).quantiteInitiale;
+      
       // Fixed: Backend route is /stocks/stocks not /stocks/items
-      const response = await apiClient.post(`${this.baseUrl}/stocks`, data);
+      const response = await apiClient.post(`${this.baseUrl}/stocks`, backendData);
       return response.data;
     } catch (error) {
       console.error('Erreur lors de la création de l\'article de stock:', error);

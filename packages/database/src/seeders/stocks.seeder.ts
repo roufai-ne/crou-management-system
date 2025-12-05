@@ -118,7 +118,7 @@ export async function seedStocks() {
 
     // Prendre uniquement le premier CROU (Niamey) pour les données de test
     const crous = [crousAll[0]];
-    console.log(`📍 Seed pour ${crous.length} CROU: ${crous[0].nom}\n`);
+    console.log(`📍 Seed pour ${crous.length} CROU: ${crous[0].name}\n`);
 
     // Récupérer un utilisateur admin pour les créations
     const userRepo = AppDataSource.getRepository(User);
@@ -128,7 +128,7 @@ export async function seedStocks() {
     });
 
     if (!adminUser) {
-      console.error(`❌ Aucun utilisateur trouvé pour le CROU ${crous[0].nom}`);
+      console.error(`❌ Aucun utilisateur trouvé pour le CROU ${crous[0].name}`);
       return;
     }
 
@@ -137,7 +137,7 @@ export async function seedStocks() {
     let totalArticles = 0;
 
     for (const crou of crous) {
-      console.log(`\n📦 Création des articles pour ${crou.nom}...`);
+      console.log(`\n📦 Création des articles pour ${crou.name}...`);
 
       for (const [category, articles] of Object.entries(ARTICLES_PAR_CATEGORIE)) {
         for (let i = 0; i < articles.length; i++) {
